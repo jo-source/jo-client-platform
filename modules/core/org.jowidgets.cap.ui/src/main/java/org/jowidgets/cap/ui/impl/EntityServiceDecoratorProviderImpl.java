@@ -119,19 +119,14 @@ final class EntityServiceDecoratorProviderImpl implements IServicesDecoratorProv
 				if (args != null) {
 					final Object entityId = args[0];
 					final EntityInfo entityInfo = getEntityInfo(entityId);
-					if (entityInfo != null) {
-						if (method.getName().equals(GET_DESCRIPTOR_METHOD_NAME)) {
-							return entityInfo.getDescriptor();
-						}
-						else if (method.getName().equals(GET_BEAN_SERVICES_METHOD_NAME)) {
-							return entityInfo.getBeanServices();
-						}
-						else if (method.getName().equals(GET_ENTITY_LINKS_METHOD_NAME)) {
-							return entityInfo.getEntityLinks();
-						}
+					if (method.getName().equals(GET_DESCRIPTOR_METHOD_NAME)) {
+						return entityInfo.getDescriptor();
 					}
-					else {
-						return null;
+					else if (method.getName().equals(GET_BEAN_SERVICES_METHOD_NAME)) {
+						return entityInfo.getBeanServices();
+					}
+					else if (method.getName().equals(GET_ENTITY_LINKS_METHOD_NAME)) {
+						return entityInfo.getEntityLinks();
 					}
 				}
 				return method.invoke(original, args);
@@ -144,27 +139,26 @@ final class EntityServiceDecoratorProviderImpl implements IServicesDecoratorProv
 		private EntityInfo getEntityInfo(final Object entityId) {
 			EntityInfo result = entityInfos.get(entityId);
 			if (result == null) {
-				createEntityInfo(entityId);
-				result = entityInfos.get(entityId);
+				result = createEntityInfo(entityId);
+				entityInfos.put(entityId, result);
 			}
 			return result;
 		}
 
 		@SuppressWarnings("unchecked")
-		private void createEntityInfo(final Object entityId) {
-			IBeanDtoDescriptor descriptor = null;
-			IBeanServicesProvider beanServices = null;
-			List<IEntityLinkDescriptor> entityLinks = Collections.emptyList();
+		private EntityInfo createEntityInfo(final Object entityId) {
 			try {
-				descriptor = (IBeanDtoDescriptor) getDescriptorMethod.invoke(original, entityId);
-				beanServices = (IBeanServicesProvider) getBeanServicesMethod.invoke(original, entityId);
-				entityLinks = (List<IEntityLinkDescriptor>) getEntityLinksMethod.invoke(original, entityId);
+				final IBeanDtoDescriptor descriptor = (IBeanDtoDescriptor) getDescriptorMethod.invoke(original, entityId);
+				final IBeanServicesProvider beanServices = (IBeanServicesProvider) getBeanServicesMethod.invoke(
+						original,
+						entityId);
+				final List<IEntityLinkDescriptor> entityLinks = (List<IEntityLinkDescriptor>) getEntityLinksMethod.invoke(
+						original,
+						entityId);
+				return new EntityInfo(descriptor, beanServices, entityLinks);
 			}
 			catch (final Exception e) {
 				throw new RuntimeException("Error while invoking method on entity service", e);
-			}
-			finally {
-				entityInfos.put(entityId, new EntityInfo(descriptor, beanServices, entityLinks));
 			}
 		}
 
