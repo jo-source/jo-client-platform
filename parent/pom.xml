@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.jowidgets</groupId>
 	<artifactId>org.jowidgets.cap.parent</artifactId>
-	<version>0.24.2</version>
+	<version>0.24.3-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>org.jowidgets.cap.parent</name>
 	
@@ -16,9 +16,9 @@
 	</properties>
 
 	<scm>
-		<connection>scm:svn:http://jo-client-platform.googlecode.com/svn/tags/0.24.2/0.24.0-RC</connection>
-		<developerConnection>scm:svn:https://jo-client-platform.googlecode.com/svn/tags/0.24.2/parent</developerConnection>
-		<url>http://jo-client-platform.googlecode.com/svn/tags/0.24.2/0.24.0-RC</url>
+		<connection>scm:svn:http://jo-client-platform.googlecode.com/svn/branches/0.24.0-RC/</connection>
+		<developerConnection>scm:svn:https://jo-client-platform.googlecode.com/svn/branches/0.24.0-RC/parent</developerConnection>
+		<url>http://jo-client-platform.googlecode.com/svn/branches/0.24.0-RC/</url>
 	</scm>
 
 	<modules>
