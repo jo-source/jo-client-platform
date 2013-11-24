@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: org.jowidgets.cap.tools.starter.client.rcp.plugin
+Bundle-SymbolicName: org.jowidgets.cap.tools.starter.client.rcp.plugin;singleton:=true
+Bundle-Version: 0.25.0
+Bundle-Vendor: jowidgets.org
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-ActivationPolicy: lazy
+Require-Bundle: 
+ org.jowidgets.cap.tools.starter.client.login.bundle,
+ org.jowidgets.cap.tools.starter.client.remoting.bundle,
+ org.jowidgets.cap.ui.bundle,
+ org.jowidgets.workbench.impl.rcp.plugin,
+ org.jowidgets.workbench.api.bundle,
+ org.jowidgets.common.bundle,
+ org.jowidgets.api.bundle
+Export-Package: org.jowidgets.cap.tools.starter.client.rcp
