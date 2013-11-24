@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.jowidgets</groupId>
 		<artifactId>org.jowidgets.cap.modules.addons.parent</artifactId>
-		<version>0.25.0</version>
+		<version>0.25.1-SNAPSHOT</version>
 		<relativePath>../parent/pom.xml</relativePath>
 	</parent>
 
@@ -15,31 +15,31 @@
 		<dependency>
 			<groupId>org.jowidgets</groupId>
 			<artifactId>org.jowidgets.security</artifactId>
-			<version>0.25.0</version>
+			<version>0.25.1-SNAPSHOT</version>
 		</dependency>
 		
 		<dependency>
 			<groupId>org.jowidgets</groupId>
 			<artifactId>org.jowidgets.message.impl.http.server</artifactId>
-			<version>0.25.0</version>
+			<version>0.25.1-SNAPSHOT</version>
 		</dependency>
 		
 		<dependency>
 			<groupId>org.jowidgets</groupId>
 			<artifactId>org.jowidgets.cap.remoting.server</artifactId>
-			<version>0.25.0</version>
+			<version>0.25.1-SNAPSHOT</version>
 		</dependency>
 		
 		<dependency>
 			<groupId>org.jowidgets</groupId>
 			<artifactId>org.jowidgets.invocation.server.impl</artifactId>
-			<version>0.25.0</version>
+			<version>0.25.1-SNAPSHOT</version>
 		</dependency>
 		
 		<dependency>
 			<groupId>org.jowidgets</groupId>
 			<artifactId>org.jowidgets.invocation.service.server.impl</artifactId>
-			<version>0.25.0</version>
+			<version>0.25.1-SNAPSHOT</version>
 			<scope>runtime</scope>
 		</dependency>
 		
