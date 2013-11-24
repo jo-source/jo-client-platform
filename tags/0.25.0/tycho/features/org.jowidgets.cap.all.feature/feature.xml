@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+    id="org.jowidgets.cap.all.feature"
+    label="jo-client-platform all feature"
+    version="0.25.0.qualifier">
+
+	<description url="http://www.example.com/description">
+		Feature that holds all cap bundles
+	</description>
+
+	<copyright url="http://www.example.com/copyright">
+		org.jowidgets Michael Grossmann 2013
+	</copyright>
+
+	<license url="http://www.example.com/license">
+		BSD Licence
+	</license>
+
+	<includes
+         id="org.jowidgets.cap.addons.feature"
+         version="0.0.0"/>
+
+	<includes
+         id="org.jowidgets.cap.core.feature"
+         version="0.0.0"/>
+
+	<includes
+         id="org.jowidgets.cap.plugin.feature"
+         version="0.0.0"/>
+		 
+	<includes
+         id="org.jowidgets.cap.plugins.feature"
+         version="0.0.0"/>
+		 
+	<includes
+         id="org.jowidgets.cap.remoting.feature"
+         version="0.0.0"/>
+	
+	<includes
+         id="org.jowidgets.cap.service.feature"
+         version="0.0.0"/>
+	
+	<includes
+         id="org.jowidgets.cap.tools.feature"
+         version="0.0.0"/>
+	
+	<includes
+         id="org.jowidgets.cap.util.feature"
+         version="0.0.0"/>
+
+</feature>
