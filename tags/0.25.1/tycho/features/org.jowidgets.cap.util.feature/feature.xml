@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+    id="org.jowidgets.cap.util.feature"
+    label="jo-client-platform util feature"
+    version="0.25.1.qualifier">
+
+	<description url="http://www.example.com/description">
+		Feature that holds all cap util bundles
+	</description>
+
+	<copyright url="http://www.example.com/copyright">
+		org.jowidgets Michael Grossmann 2013
+	</copyright>
+
+	<license url="http://www.example.com/license">
+		BSD Licence
+	</license>
+
+	<plugin
+         id="org.jowidgets.cap.util.ddl.bundle"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+		 
+	<plugin
+         id="org.jowidgets.cap.util.replacer.bundle"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>	 
+	
+</feature>
