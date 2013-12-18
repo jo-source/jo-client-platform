@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.jowidgets</groupId>
 		<artifactId>org.jowidgets.cap.modules.service.parent</artifactId>
-		<version>0.25.2-SNAPSHOT</version>
+		<version>0.25.3-SNAPSHOT</version>
 		<relativePath>../parent/pom.xml</relativePath>
 	</parent>
 
@@ -21,13 +21,13 @@
         <dependency>
             <groupId>org.jowidgets</groupId>
             <artifactId>org.jowidgets.invocation.service.client.api</artifactId>
-            <version>0.25.2-SNAPSHOT</version>
+            <version>0.25.3-SNAPSHOT</version>
         </dependency>
 		
 		<dependency>
             <groupId>org.jowidgets</groupId>
             <artifactId>org.jowidgets.invocation.client.api</artifactId>
-            <version>0.25.2-SNAPSHOT</version>
+            <version>0.25.3-SNAPSHOT</version>
         </dependency>
 		
     </dependencies>
