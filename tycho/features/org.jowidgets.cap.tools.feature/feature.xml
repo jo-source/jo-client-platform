@@ -2,7 +2,7 @@
 <feature
     id="org.jowidgets.cap.tools.feature"
     label="jo-client-platform tools feature"
-    version="0.26.0.qualifier">
+    version="0.25.3.qualifier">
 
 	<description url="http://www.example.com/description">
 		Feature that holds all cap tools bundles
