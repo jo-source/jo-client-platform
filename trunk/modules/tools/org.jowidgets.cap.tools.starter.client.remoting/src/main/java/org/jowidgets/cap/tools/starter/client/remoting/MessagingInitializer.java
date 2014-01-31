@@ -48,7 +48,7 @@ public class MessagingInitializer {
 	public synchronized void initializeMessaging() {
 		if (!messagingInitialized) {
 			final MessageBrokerBuilder builder = new MessageBrokerBuilder(RemotingBrokerId.DEFAULT_BROKER_ID);
-			builder.setUrl(System.getProperty("server.url", serverDefaultHost));
+			builder.setUrl(getUrl(serverDefaultHost));
 			builder.setHttpRequestInitializer(BasicAuthenticationInitializer.getInstance());
 			final IMessageBroker messageBroker = builder.build();
 			MessageToolkit.addChannelBroker(messageBroker);
@@ -63,5 +63,16 @@ public class MessagingInitializer {
 			});
 			messagingInitialized = true;
 		}
+	}
+
+	private static String getUrl(final String serverDefaultHost) {
+		String result = System.getProperty("server.url");
+		if (result == null) {
+			result = System.getProperty("jnlp.server.url");
+		}
+		if (result == null) {
+			result = serverDefaultHost;
+		}
+		return result;
 	}
 }
