@@ -102,7 +102,11 @@ final class BeanFormContentLayouter implements IBeanFormLayouter {
 	}
 
 	private void layoutForm(final IContainer formContainer, final IBeanFormControlFactory controlFactory) {
-		formContainer.setLayout(new MigLayoutDescriptor(getColumnsConstraints(layout), ""));
+
+		formContainer.setLayout(Toolkit.getLayoutFactoryProvider().cachedFillLayout());
+		final IComposite content = formContainer.add(BPF.composite());
+
+		content.setLayout(new MigLayoutDescriptor(getColumnsConstraints(layout), ""));
 
 		final List<boolean[]> globalGrid = new ArrayList<boolean[]>();
 
@@ -119,7 +123,7 @@ final class BeanFormContentLayouter implements IBeanFormLayouter {
 			final IContainer container;
 			if (BeanFormGroupRendering.NONE.equals(rendering)) {
 				grid = globalGrid;
-				container = formContainer;
+				container = content;
 			}
 			else if (BeanFormGroupRendering.SEPARATOR.equals(rendering)) {
 				final String baseConstraints = "growx, cell 0 " + row + " " + (3 * layout.getColumnCount()) + " 1";
@@ -129,24 +133,24 @@ final class BeanFormContentLayouter implements IBeanFormLayouter {
 					final String gapTop = (row > 0) ? "gaptop 27" : "";
 					final String gapBottom = "gapbottom 7";
 					final String cell = constraints(baseConstraints, gapTop, gapBottom);
-					formContainer.add(Toolkit.getBluePrintFactory().textSeparator(label), cell);
+					content.add(Toolkit.getBluePrintFactory().textSeparator(label), cell);
 				}
 				else if (row > 0 && showSeparators) {
 					final String cell = constraints(baseConstraints, "gaptop 17, gapbottom 17");
-					formContainer.add(Toolkit.getBluePrintFactory().separator(), cell);
+					content.add(Toolkit.getBluePrintFactory().separator(), cell);
 				}
 				grid = globalGrid;
-				container = formContainer;
+				container = content;
 			}
 			else if (BeanFormGroupRendering.BORDER.equals(rendering)) {
 				final String cell = "growx, cell 0 " + row + " " + (3 * layout.getColumnCount()) + " 1";
 
 				setUsed(globalGrid, row, 0, 1, layout.getColumnCount());
 				if (label != null && !"".equals(label)) {
-					container = formContainer.add(Toolkit.getBluePrintFactory().composite(label), cell);
+					container = content.add(Toolkit.getBluePrintFactory().composite(label), cell);
 				}
 				else {
-					container = formContainer.add(Toolkit.getBluePrintFactory().compositeWithBorder(), cell);
+					container = content.add(Toolkit.getBluePrintFactory().compositeWithBorder(), cell);
 				}
 				container.setLayout(new MigLayoutDescriptor(getColumnsConstraints(layout), ""));
 				grid = new ArrayList<boolean[]>();
