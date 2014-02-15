@@ -100,6 +100,7 @@ import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.tools.command.ActionChangeObservable;
 import org.jowidgets.tools.controller.TreeNodeAdapter;
 import org.jowidgets.tools.model.item.MenuModel;
+import org.jowidgets.tools.model.item.MenuModelKeyBinding;
 import org.jowidgets.tools.widgets.wrapper.ControlWrapper;
 import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.util.IFilter;
@@ -120,6 +121,7 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 	private final IBeanRelationTreeMenuInterceptor menuInterceptor;
 	private final boolean autoSelection;
 	private final boolean treeMultiSelection;
+	private final boolean autoKeyBinding;
 	private final int autoExpandLevel;
 	private final Map<ITreeNode, Tuple<IBeanRelationNodeModel<Object, Object>, IBeanProxy<Object>>> nodesMap;
 	private final Map<ITreeNode, IAction> nodeActionMap;
@@ -140,6 +142,7 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 		this.treeModel = bluePrint.getModel();
 		this.autoSelection = bluePrint.getAutoSelection();
 		this.autoExpandLevel = bluePrint.getAutoExpandLevel();
+		this.autoKeyBinding = bluePrint.getAutoKeyBinding();
 		this.childRelationFilter = bluePrint.getChildRelationFilter();
 		this.expansionCacheEnabled = bluePrint.getExpansionCacheEnabled();
 		this.menuInterceptor = bluePrint.getMenuInterceptor();
@@ -358,6 +361,15 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 
 		if (nodeMenu.getChildren().size() > 0 && !bean.isDummy() && !bean.isTransient()) {
 			childNode.setPopupMenu(nodeMenu);
+			if (autoKeyBinding) {
+				final MenuModelKeyBinding keyBinding = new MenuModelKeyBinding(nodeMenu, childNode, childNode);
+				childNode.addDisposeListener(new IDisposeListener() {
+					@Override
+					public void onDispose() {
+						keyBinding.dispose();
+					}
+				});
+			}
 		}
 
 		//map the child node to the relation model
@@ -453,6 +465,12 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 			if (link.getLinkCreatorService() != null) {
 				ILinkCreatorActionBuilder<Object, Object, Object> builder = actionFactory.linkCreatorActionBuilder(source, link);
 				builder.setLinkedModel(relationNodeModel);
+				if (autoKeyBinding) {
+					builder.setAccelerator(VirtualKey.N, Modifier.CTRL);
+				}
+				else {
+					builder.setAccelerator(null);
+				}
 				if (menuInterceptor != null) {
 					builder = menuInterceptor.linkCreatorActionBuilder(relationNodeModel, builder);
 				}
@@ -531,6 +549,12 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 						relationNodeModel,
 						link);
 				builder.setLinkedMultiSelection(treeMultiSelection);
+				if (autoKeyBinding) {
+					builder.setAccelerator(VirtualKey.DELETE);
+				}
+				else {
+					builder.setAccelerator(null);
+				}
 				if (menuInterceptor != null) {
 					builder = menuInterceptor.linkDeleterActionBuilder(relationNodeModel, builder);
 				}
@@ -556,7 +580,12 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 					IDeleterActionBuilder<Object> builder = actionFactory.deleterActionBuilder(relationNodeModel);
 					builder.setDeleterService(deleterService);
 					builder.setMultiSelectionPolicy(false);
-					builder.setAccelerator(null);
+					if (autoKeyBinding) {
+						builder.setAccelerator(VirtualKey.DELETE, Modifier.ALT);
+					}
+					else {
+						builder.setAccelerator(null);
+					}
 					final IBeanDtoDescriptor descriptor = entityService.getDescriptor(childEntityId);
 					if (descriptor != null) {
 						builder.setEntityLabelPlural(descriptor.getLabelPlural().get());
@@ -868,6 +897,18 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 						final IMenuModel relationMenu = createRelationNodeMenus(childRelationNodeModel, createAction);
 						if (relationMenu.getChildren().size() > 0) {
 							childRelationNode.setPopupMenu(relationMenu);
+							if (autoKeyBinding) {
+								final MenuModelKeyBinding keyBinding = new MenuModelKeyBinding(
+									relationMenu,
+									childRelationNode,
+									childRelationNode);
+								childRelationNode.addDisposeListener(new IDisposeListener() {
+									@Override
+									public void onDispose() {
+										keyBinding.dispose();
+									}
+								});
+							}
 						}
 						nodeActionMap.put(childRelationNode, createAction);
 

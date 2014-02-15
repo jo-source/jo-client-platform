@@ -50,5 +50,6 @@ final class BeanTableDefaults implements IDefaultInitializer<IBeanTableSetupBuil
 		bluePrint.setAutoScrollPolicy(AutoScrollPolicy.OFF);
 		bluePrint.setAutoPackPolicy(AutoPackPolicy.OFF);
 		bluePrint.setAutoUpdateConfigurable(false);
+		bluePrint.setAutoKeyBinding(true);
 	}
 }
