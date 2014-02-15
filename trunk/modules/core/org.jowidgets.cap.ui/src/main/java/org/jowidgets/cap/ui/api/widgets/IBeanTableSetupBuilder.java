@@ -93,6 +93,8 @@ public interface IBeanTableSetupBuilder<INSTANCE_TYPE extends IBeanTableSetupBui
 
 	INSTANCE_TYPE setAutoPackPolicy(AutoPackPolicy autoPackPolicy);
 
+	INSTANCE_TYPE setAutoKeyBinding(boolean autoKeyBinding);
+
 	INSTANCE_TYPE setEditable(boolean editable);
 
 	@Mandatory
@@ -139,5 +141,8 @@ public interface IBeanTableSetupBuilder<INSTANCE_TYPE extends IBeanTableSetupBui
 
 	@Mandatory
 	AutoPackPolicy getAutoPackPolicy();
+
+	@Mandatory
+	boolean getAutoKeyBinding();
 
 }

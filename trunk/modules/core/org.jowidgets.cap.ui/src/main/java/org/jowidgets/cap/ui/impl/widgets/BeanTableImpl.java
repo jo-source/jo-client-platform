@@ -120,6 +120,7 @@ import org.jowidgets.tools.controller.TableCellEditorAdapter;
 import org.jowidgets.tools.controller.TableColumnAdapter;
 import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.tools.model.item.MenuModel;
+import org.jowidgets.tools.model.item.MenuModelKeyBinding;
 import org.jowidgets.tools.widgets.blueprint.BPF;
 import org.jowidgets.tools.widgets.wrapper.CompositeWrapper;
 import org.jowidgets.util.Assert;
@@ -162,6 +163,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 	private final boolean isAutoUpdateConfigurable;
 	private final ICheckedItemModel autoUpdateItemModel;
 	private final AutoPackPolicy autoPackPolicy;
+	private final MenuModelKeyBinding menuModelKeyBinding;
 
 	private IAction creatorAction;
 	private IAction deleteAction;
@@ -240,6 +242,17 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 		this.headerMenuInterceptor = bluePrint.getHeaderMenuInterceptor();
 		this.cellMenuInterceptor = bluePrint.getCellMenuInterceptor();
 
+		if (bluePrint.getAutoKeyBinding()) {
+			final List<IMenuModel> keyBindingModels = new LinkedList<IMenuModel>();
+			keyBindingModels.add(cellPopupMenuModel);
+			keyBindingModels.add(pluggedCellPopupMenuModel);
+			keyBindingModels.add(tablePopupMenuModel);
+			this.menuModelKeyBinding = new MenuModelKeyBinding(keyBindingModels, table, table);
+		}
+		else {
+			this.menuModelKeyBinding = null;
+		}
+
 		addMenusFromPlugins(
 				model.getBeanType(),
 				model.getEntityId(),
@@ -251,8 +264,9 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 		this.filterToolbar = new BeanTableFilterToolbar<BEAN_TYPE>(contentComposite, this, menuFactory);
 		this.statusBar = new BeanTableStatusBar<BEAN_TYPE>(mainComposite, this);
 
-		headerPopupMenuModel.addListModelListener(new CustomMenuModelListener());
-		cellPopupMenuModel.addListModelListener(new CustomMenuModelListener());
+		final CustomMenuModelListener customMenuModelListener = new CustomMenuModelListener();
+		headerPopupMenuModel.addListModelListener(customMenuModelListener);
+		cellPopupMenuModel.addListModelListener(customMenuModelListener);
 
 		if (bluePrint.hasDefaultMenus()) {
 
@@ -341,14 +355,6 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 				if (event.getModifier().contains(Modifier.CTRL) && event.getVirtualKey() == VirtualKey.F) {
 					setSearchFilterToolbarVisible(true);
 					searchFilterToolbar.requestSearchFocus();
-				}
-				else if (creatorAction != null
-					&& event.getModifier().contains(Modifier.CTRL)
-					&& event.getVirtualKey() == VirtualKey.N) {
-					executeAction(creatorAction);
-				}
-				else if (deleteAction != null && event.getVirtualKey() == VirtualKey.DELETE) {
-					executeAction(deleteAction);
 				}
 			}
 		};
@@ -891,6 +897,9 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 
 	@Override
 	public void dispose() {
+		if (menuModelKeyBinding != null) {
+			menuModelKeyBinding.dispose();
+		}
 		stopAutoUpdateModeImpl();
 		super.dispose();
 	}
