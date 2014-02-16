@@ -56,6 +56,8 @@ public interface IBeanTableSetupBuilder<INSTANCE_TYPE extends IBeanTableSetupBui
 
 	INSTANCE_TYPE setDefaultDeleterAction(boolean deleterAction);
 
+	INSTANCE_TYPE setDefaultCopyAction(boolean copyAction);
+
 	INSTANCE_TYPE setHeaderMenuInterceptor(ITableMenuCreationInterceptor<BEAN_TYPE> interceptor);
 
 	INSTANCE_TYPE setCellMenuInterceptor(ITableMenuCreationInterceptor<BEAN_TYPE> interceptor);
@@ -117,6 +119,9 @@ public interface IBeanTableSetupBuilder<INSTANCE_TYPE extends IBeanTableSetupBui
 
 	@Mandatory
 	boolean hasDefaultDeleterAction();
+
+	@Mandatory
+	boolean hasDefaultCopyAction();
 
 	@Mandatory
 	boolean isEditable();

@@ -30,6 +30,7 @@ package org.jowidgets.cap.ui.api.table;
 
 import org.jowidgets.api.command.IActionBuilder;
 import org.jowidgets.api.model.item.IMenuModel;
+import org.jowidgets.cap.ui.api.command.ICopyActionBuilder;
 import org.jowidgets.cap.ui.api.command.ICreatorActionBuilder;
 import org.jowidgets.cap.ui.api.command.IDeleterActionBuilder;
 import org.jowidgets.cap.ui.api.command.IExecutorActionBuilder;
@@ -99,5 +100,7 @@ public interface IBeanTableMenuInterceptor<BEAN_TYPE> {
 	ICreatorActionBuilder<BEAN_TYPE> creatorActionBuilder(IBeanTable<BEAN_TYPE> table, ICreatorActionBuilder<BEAN_TYPE> builder);
 
 	IDeleterActionBuilder<BEAN_TYPE> deleterActionBuilder(IBeanTable<BEAN_TYPE> table, IDeleterActionBuilder<BEAN_TYPE> builder);
+
+	ICopyActionBuilder<BEAN_TYPE> copyActionBuilder(IBeanTable<BEAN_TYPE> table, ICopyActionBuilder<BEAN_TYPE> builder);
 
 }

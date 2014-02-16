@@ -30,6 +30,7 @@ package org.jowidgets.cap.ui.impl.widgets;
 
 import org.jowidgets.api.command.IActionBuilder;
 import org.jowidgets.api.model.item.IMenuModel;
+import org.jowidgets.cap.ui.api.command.ICopyActionBuilder;
 import org.jowidgets.cap.ui.api.command.ICreatorActionBuilder;
 import org.jowidgets.cap.ui.api.command.IDeleterActionBuilder;
 import org.jowidgets.cap.ui.api.command.IExecutorActionBuilder;
@@ -350,6 +351,17 @@ final class BeanTableMenuInterceptorComposite {
 			IDeleterActionBuilder<BEAN_TYPE> result = interceptor1.deleterActionBuilder(table, builder);
 			if (result != null) {
 				result = interceptor2.deleterActionBuilder(table, result);
+			}
+			return result;
+		}
+
+		@Override
+		public ICopyActionBuilder<BEAN_TYPE> copyActionBuilder(
+			final IBeanTable<BEAN_TYPE> table,
+			final ICopyActionBuilder<BEAN_TYPE> builder) {
+			ICopyActionBuilder<BEAN_TYPE> result = interceptor1.copyActionBuilder(table, builder);
+			if (result != null) {
+				result = interceptor2.copyActionBuilder(table, result);
 			}
 			return result;
 		}

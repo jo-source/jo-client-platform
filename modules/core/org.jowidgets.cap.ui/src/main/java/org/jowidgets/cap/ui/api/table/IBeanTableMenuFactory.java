@@ -31,6 +31,7 @@ package org.jowidgets.cap.ui.api.table;
 import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.command.IActionBuilder;
 import org.jowidgets.api.model.item.IMenuModel;
+import org.jowidgets.cap.ui.api.command.ICopyActionBuilder;
 import org.jowidgets.cap.ui.api.command.ICreatorActionBuilder;
 import org.jowidgets.cap.ui.api.command.IDeleterActionBuilder;
 import org.jowidgets.cap.ui.api.command.IExecutorActionBuilder;
@@ -140,5 +141,9 @@ public interface IBeanTableMenuFactory<BEAN_TYPE> {
 	IDeleterActionBuilder<BEAN_TYPE> deleterActionBuilder(IBeanTable<BEAN_TYPE> table);
 
 	IAction deleterAction(IBeanTable<BEAN_TYPE> table);
+
+	ICopyActionBuilder<BEAN_TYPE> copyActionBuilder(IBeanTable<BEAN_TYPE> table);
+
+	IAction copyAction(IBeanTable<BEAN_TYPE> table);
 
 }

@@ -35,6 +35,7 @@ import java.util.List;
 import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.command.IActionBuilder;
 import org.jowidgets.api.model.item.IMenuModel;
+import org.jowidgets.cap.ui.api.command.ICopyActionBuilder;
 import org.jowidgets.cap.ui.api.command.ICreatorActionBuilder;
 import org.jowidgets.cap.ui.api.command.IDeleterActionBuilder;
 import org.jowidgets.cap.ui.api.command.IExecutorActionBuilder;
@@ -570,6 +571,33 @@ final class BeanTableMenuFactoryImpl<BEAN_TYPE> implements IBeanTableMenuFactory
 	@Override
 	public IAction creatorAction(final IBeanTable<BEAN_TYPE> table) {
 		final ICreatorActionBuilder<BEAN_TYPE> builder = creatorActionBuilder(table);
+		if (builder != null) {
+			return builder.build();
+		}
+		else {
+			return null;
+		}
+	}
+
+	@Override
+	public ICopyActionBuilder<BEAN_TYPE> copyActionBuilder(final IBeanTable<BEAN_TYPE> table) {
+		Assert.paramNotNull(table, "table");
+		Assert.paramNotNull(table.getModel(), "table.getModel()");
+		ICopyActionBuilder<BEAN_TYPE> builder = BeanTableCopyActionBuilderFactory.createBuilder(table);
+		for (final IBeanTableMenuInterceptor<BEAN_TYPE> interceptor : interceptors) {
+			if (builder != null) {
+				builder = interceptor.copyActionBuilder(table, builder);
+			}
+			else {
+				break;
+			}
+		}
+		return builder;
+	}
+
+	@Override
+	public IAction copyAction(final IBeanTable<BEAN_TYPE> table) {
+		final ICopyActionBuilder<BEAN_TYPE> builder = copyActionBuilder(table);
 		if (builder != null) {
 			return builder.build();
 		}

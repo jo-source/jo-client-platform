@@ -496,4 +496,9 @@ final class BeanSelectionTableImpl<BEAN_TYPE> extends AbstractInputControl<List<
 		return table.getDefaultDeleterAction();
 	}
 
+	@Override
+	public IAction getDefaultCopyAction() {
+		return table.getDefaultCopyAction();
+	}
+
 }
