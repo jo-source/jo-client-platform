@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, grossmann
+ * Copyright (c) 2011, H.Westphal
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,32 +26,30 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl.widgets;
+package org.jowidgets.cap.ui.api.command;
 
-import org.jowidgets.api.types.AutoPackPolicy;
-import org.jowidgets.api.widgets.blueprint.defaults.IDefaultInitializer;
-import org.jowidgets.cap.ui.api.types.AutoScrollPolicy;
-import org.jowidgets.cap.ui.api.widgets.IBeanTableSetupBuilder;
-import org.jowidgets.common.types.TableSelectionPolicy;
+import java.util.Collection;
 
-final class BeanTableDefaults implements IDefaultInitializer<IBeanTableSetupBuilder<?, ?>> {
+import org.jowidgets.api.command.IEnabledChecker;
+import org.jowidgets.cap.ui.api.attribute.IAttribute;
 
-	@Override
-	public void initialize(final IBeanTableSetupBuilder<?, ?> bluePrint) {
-		bluePrint.setSelectionPolicy(TableSelectionPolicy.MULTI_ROW_SELECTION);
-		bluePrint.setColumnsMoveable(true);
-		bluePrint.setColumnsResizeable(true);
-		bluePrint.setDefaultMenus(true);
-		bluePrint.setDefaultCreatorAction(true);
-		bluePrint.setDefaultDeleterAction(true);
-		bluePrint.setDefaultCopyAction(false);
-		bluePrint.setDefaultPasteAction(false);
-		bluePrint.setEditable(false);
-		bluePrint.setSearchFilterToolbarVisible(false);
-		bluePrint.setAutoUpdateInterval(1);
-		bluePrint.setAutoScrollPolicy(AutoScrollPolicy.OFF);
-		bluePrint.setAutoPackPolicy(AutoPackPolicy.OFF);
-		bluePrint.setAutoUpdateConfigurable(false);
-		bluePrint.setAutoKeyBinding(true);
-	}
+public interface IPasteBeansActionBuilder<BEAN_TYPE> extends ICapActionBuilder<IPasteBeansActionBuilder<BEAN_TYPE>> {
+
+	/**
+	 * Sets the entity label plural.
+	 * This will set a proper text with the entity label as a variable
+	 * if the selection mode is multi selection
+	 * 
+	 * @param label The label to set
+	 * 
+	 * @return This builder
+	 */
+	IPasteBeansActionBuilder<BEAN_TYPE> setEntityLabelPlural(String label);
+
+	IPasteBeansActionBuilder<BEAN_TYPE> setAnySelection(boolean anySelection);
+
+	IPasteBeansActionBuilder<BEAN_TYPE> setAttributes(Collection<? extends IAttribute<?>> attributes);
+
+	IPasteBeansActionBuilder<BEAN_TYPE> addEnabledChecker(IEnabledChecker enabledChecker);
+
 }

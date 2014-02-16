@@ -39,6 +39,7 @@ import org.jowidgets.cap.ui.api.command.ICopyActionBuilder;
 import org.jowidgets.cap.ui.api.command.ICreatorActionBuilder;
 import org.jowidgets.cap.ui.api.command.IDeleterActionBuilder;
 import org.jowidgets.cap.ui.api.command.IExecutorActionBuilder;
+import org.jowidgets.cap.ui.api.command.IPasteBeansActionBuilder;
 import org.jowidgets.cap.ui.api.filter.IFilterType;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuFactory;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuInterceptor;
@@ -598,6 +599,33 @@ final class BeanTableMenuFactoryImpl<BEAN_TYPE> implements IBeanTableMenuFactory
 	@Override
 	public IAction copyAction(final IBeanTable<BEAN_TYPE> table) {
 		final ICopyActionBuilder<BEAN_TYPE> builder = copyActionBuilder(table);
+		if (builder != null) {
+			return builder.build();
+		}
+		else {
+			return null;
+		}
+	}
+
+	@Override
+	public IPasteBeansActionBuilder<BEAN_TYPE> pasteBeansActionBuilder(final IBeanTable<BEAN_TYPE> table) {
+		Assert.paramNotNull(table, "table");
+		Assert.paramNotNull(table.getModel(), "table.getModel()");
+		IPasteBeansActionBuilder<BEAN_TYPE> builder = BeanTablePasteBeansActionBuilderFactory.createBuilder(table);
+		for (final IBeanTableMenuInterceptor<BEAN_TYPE> interceptor : interceptors) {
+			if (builder != null) {
+				builder = interceptor.pasteBeansActionBuilder(table, builder);
+			}
+			else {
+				break;
+			}
+		}
+		return builder;
+	}
+
+	@Override
+	public IAction pasteBeansAction(final IBeanTable<BEAN_TYPE> table) {
+		final IPasteBeansActionBuilder<BEAN_TYPE> builder = pasteBeansActionBuilder(table);
 		if (builder != null) {
 			return builder.build();
 		}

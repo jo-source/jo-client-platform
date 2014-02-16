@@ -66,6 +66,11 @@ public interface ICapActionFactory {
 		Class<? extends BEAN_TYPE> beanType,
 		IBeanListModel<BEAN_TYPE> model);
 
+	<BEAN_TYPE> IPasteBeansActionBuilder<BEAN_TYPE> pasteBeansActionBuilder(
+		Object entityId,
+		Class<? extends BEAN_TYPE> beanType,
+		IBeanListModel<BEAN_TYPE> model);
+
 	<BEAN_TYPE> IDeleterActionBuilder<BEAN_TYPE> deleterActionBuilder(IBeanListModel<BEAN_TYPE> model);
 
 	<BEAN_TYPE> ICopyActionBuilder<BEAN_TYPE> copyActionBuilder(IBeanListModel<BEAN_TYPE> model);

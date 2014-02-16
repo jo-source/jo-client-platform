@@ -58,6 +58,8 @@ public interface IBeanTableSetupBuilder<INSTANCE_TYPE extends IBeanTableSetupBui
 
 	INSTANCE_TYPE setDefaultCopyAction(boolean copyAction);
 
+	INSTANCE_TYPE setDefaultPasteAction(boolean copyAction);
+
 	INSTANCE_TYPE setHeaderMenuInterceptor(ITableMenuCreationInterceptor<BEAN_TYPE> interceptor);
 
 	INSTANCE_TYPE setCellMenuInterceptor(ITableMenuCreationInterceptor<BEAN_TYPE> interceptor);
@@ -122,6 +124,9 @@ public interface IBeanTableSetupBuilder<INSTANCE_TYPE extends IBeanTableSetupBui
 
 	@Mandatory
 	boolean hasDefaultCopyAction();
+
+	@Mandatory
+	boolean hasDefaultPasteAction();
 
 	@Mandatory
 	boolean isEditable();

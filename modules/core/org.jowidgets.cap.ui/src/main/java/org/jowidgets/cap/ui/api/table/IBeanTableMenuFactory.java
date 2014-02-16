@@ -35,6 +35,7 @@ import org.jowidgets.cap.ui.api.command.ICopyActionBuilder;
 import org.jowidgets.cap.ui.api.command.ICreatorActionBuilder;
 import org.jowidgets.cap.ui.api.command.IDeleterActionBuilder;
 import org.jowidgets.cap.ui.api.command.IExecutorActionBuilder;
+import org.jowidgets.cap.ui.api.command.IPasteBeansActionBuilder;
 import org.jowidgets.cap.ui.api.filter.IFilterType;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 
@@ -145,5 +146,9 @@ public interface IBeanTableMenuFactory<BEAN_TYPE> {
 	ICopyActionBuilder<BEAN_TYPE> copyActionBuilder(IBeanTable<BEAN_TYPE> table);
 
 	IAction copyAction(IBeanTable<BEAN_TYPE> table);
+
+	IPasteBeansActionBuilder<BEAN_TYPE> pasteBeansActionBuilder(IBeanTable<BEAN_TYPE> table);
+
+	IAction pasteBeansAction(IBeanTable<BEAN_TYPE> table);
 
 }

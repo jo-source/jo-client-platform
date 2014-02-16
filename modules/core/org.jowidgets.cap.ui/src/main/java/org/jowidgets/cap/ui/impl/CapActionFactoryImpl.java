@@ -42,6 +42,7 @@ import org.jowidgets.cap.ui.api.command.IExecutorActionBuilder;
 import org.jowidgets.cap.ui.api.command.ILinkCreatorActionBuilder;
 import org.jowidgets.cap.ui.api.command.ILinkDeleterActionBuilder;
 import org.jowidgets.cap.ui.api.command.IPasswordChangeActionBuilder;
+import org.jowidgets.cap.ui.api.command.IPasteBeansActionBuilder;
 import org.jowidgets.cap.ui.api.command.IRefreshLookUpsActionBuilder;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.common.types.Modifier;
@@ -136,6 +137,14 @@ final class CapActionFactoryImpl implements ICapActionFactory {
 		final Class<? extends BEAN_TYPE> beanType,
 		final IBeanListModel<BEAN_TYPE> model) {
 		return new CreatorActionBuilderImpl<BEAN_TYPE>(entityId, beanType, model);
+	}
+
+	@Override
+	public <BEAN_TYPE> IPasteBeansActionBuilder<BEAN_TYPE> pasteBeansActionBuilder(
+		final Object entityId,
+		final Class<? extends BEAN_TYPE> beanType,
+		final IBeanListModel<BEAN_TYPE> model) {
+		return new PasteBeansActionBuilderImpl<BEAN_TYPE>(entityId, beanType, model);
 	}
 
 	@Override
