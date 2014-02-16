@@ -57,6 +57,8 @@ public interface IBeanTable<BEAN_TYPE> extends ITable {
 
 	IAction getDefaultCopyAction();
 
+	IAction getDefaultPasteAction();
+
 	void showSettingsDialog();
 
 	IBeanTableModel<BEAN_TYPE> getModel();

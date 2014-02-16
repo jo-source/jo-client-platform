@@ -26,32 +26,39 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl.widgets;
+package org.jowidgets.cap.ui.api.command;
 
-import org.jowidgets.api.types.AutoPackPolicy;
-import org.jowidgets.api.widgets.blueprint.defaults.IDefaultInitializer;
-import org.jowidgets.cap.ui.api.types.AutoScrollPolicy;
-import org.jowidgets.cap.ui.api.widgets.IBeanTableSetupBuilder;
-import org.jowidgets.common.types.TableSelectionPolicy;
+import org.jowidgets.api.command.IAction;
+import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.cap.ui.api.model.IBeanListModel;
+import org.jowidgets.cap.ui.api.table.IBeanTableMenuFactory;
+import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 
-final class BeanTableDefaults implements IDefaultInitializer<IBeanTableSetupBuilder<?, ?>> {
+public final class PasteBeansAction {
 
-	@Override
-	public void initialize(final IBeanTableSetupBuilder<?, ?> bluePrint) {
-		bluePrint.setSelectionPolicy(TableSelectionPolicy.MULTI_ROW_SELECTION);
-		bluePrint.setColumnsMoveable(true);
-		bluePrint.setColumnsResizeable(true);
-		bluePrint.setDefaultMenus(true);
-		bluePrint.setDefaultCreatorAction(true);
-		bluePrint.setDefaultDeleterAction(true);
-		bluePrint.setDefaultCopyAction(false);
-		bluePrint.setDefaultPasteAction(false);
-		bluePrint.setEditable(false);
-		bluePrint.setSearchFilterToolbarVisible(false);
-		bluePrint.setAutoUpdateInterval(1);
-		bluePrint.setAutoScrollPolicy(AutoScrollPolicy.OFF);
-		bluePrint.setAutoPackPolicy(AutoPackPolicy.OFF);
-		bluePrint.setAutoUpdateConfigurable(false);
-		bluePrint.setAutoKeyBinding(true);
+	private PasteBeansAction() {}
+
+	public static <BEAN_TYPE> IPasteBeansActionBuilder<BEAN_TYPE> builder(
+		final Object entityId,
+		final Class<? extends BEAN_TYPE> beanType,
+		final IBeanListModel<BEAN_TYPE> model) {
+		return CapUiToolkit.actionFactory().pasteBeansActionBuilder(entityId, beanType, model);
+	}
+
+	public static <BEAN_TYPE> IAction create(
+		final Object entityId,
+		final Class<? extends BEAN_TYPE> beanType,
+		final IBeanListModel<BEAN_TYPE> model) {
+		return builder(entityId, beanType, model).build();
+	}
+
+	public static <BEAN_TYPE> IPasteBeansActionBuilder<BEAN_TYPE> builder(final IBeanTable<BEAN_TYPE> table) {
+		final IBeanTableMenuFactory<BEAN_TYPE> beanTableMenuFactory = CapUiToolkit.beanTableMenuFactory();
+		return beanTableMenuFactory.pasteBeansActionBuilder(table);
+	}
+
+	public static <BEAN_TYPE> IAction create(final IBeanTable<BEAN_TYPE> table) {
+		final IBeanTableMenuFactory<BEAN_TYPE> beanTableMenuFactory = CapUiToolkit.beanTableMenuFactory();
+		return beanTableMenuFactory.pasteBeansAction(table);
 	}
 }
