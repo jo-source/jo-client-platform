@@ -154,6 +154,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 	private final boolean hasDefaultMenus;
 	private final boolean hasDefaultCreatorAction;
 	private final boolean hasDefaultDeleterAction;
+	private final boolean hasDefaultCopyAction;
 	private final IBeanTableMenuFactory<BEAN_TYPE> menuFactory;
 	private final PopupMenuObservable<Position> tableMenuObservable;
 	private final PopupMenuObservable<ITableColumnPopupEvent> headerMenuObservable;
@@ -167,6 +168,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 
 	private IAction creatorAction;
 	private IAction deleteAction;
+	private IAction copyAction;
 	private IBeanTableSettingsDialog settingsDialog;
 	private ITableCellPopupEvent currentCellEvent;
 	private ITableColumnPopupEvent currentColumnEvent;
@@ -239,6 +241,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 		this.hasDefaultMenus = bluePrint.hasDefaultMenus();
 		this.hasDefaultCreatorAction = bluePrint.hasDefaultCreatorAction();
 		this.hasDefaultDeleterAction = bluePrint.hasDefaultDeleterAction();
+		this.hasDefaultCopyAction = bluePrint.hasDefaultCopyAction();
 		this.headerMenuInterceptor = bluePrint.getHeaderMenuInterceptor();
 		this.cellMenuInterceptor = bluePrint.getCellMenuInterceptor();
 
@@ -303,6 +306,13 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 					}
 					tablePopupMenuModel.addAction(deleteAction);
 				}
+			}
+			if (hasDefaultCopyAction) {
+				this.copyAction = menuFactory.copyAction(this);
+				if (hasDefaultMenus && !hasDefaultCreatorAction && !hasDefaultDeleterAction) {
+					tablePopupMenuModel.addSeparator();
+				}
+				tablePopupMenuModel.addAction(copyAction);
 			}
 
 			addMenuModel(tablePopupMenuModel, pluggedTablePopupMenuModell);
@@ -632,6 +642,12 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 			}
 			menuModel.addAction(deleteAction);
 		}
+		if (copyAction != null) {
+			if (menuModel.getChildren().size() > 0 && creatorAction == null && deleteAction == null) {
+				menuModel.addSeparator();
+			}
+			menuModel.addAction(copyAction);
+		}
 
 		if (cellMenuInterceptor != null) {
 			cellMenuInterceptor.afterMenuCreated(this, menuModel, index.intValue());
@@ -747,6 +763,11 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 	@Override
 	public IAction getDefaultDeleterAction() {
 		return deleteAction;
+	}
+
+	@Override
+	public IAction getDefaultCopyAction() {
+		return copyAction;
 	}
 
 	@Override

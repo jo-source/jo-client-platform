@@ -55,6 +55,8 @@ public interface IBeanTable<BEAN_TYPE> extends ITable {
 
 	IAction getDefaultDeleterAction();
 
+	IAction getDefaultCopyAction();
+
 	void showSettingsDialog();
 
 	IBeanTableModel<BEAN_TYPE> getModel();

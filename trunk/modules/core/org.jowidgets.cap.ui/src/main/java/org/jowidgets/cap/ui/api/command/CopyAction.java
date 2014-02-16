@@ -26,31 +26,28 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl.widgets;
+package org.jowidgets.cap.ui.api.command;
 
-import org.jowidgets.api.types.AutoPackPolicy;
-import org.jowidgets.api.widgets.blueprint.defaults.IDefaultInitializer;
-import org.jowidgets.cap.ui.api.types.AutoScrollPolicy;
-import org.jowidgets.cap.ui.api.widgets.IBeanTableSetupBuilder;
-import org.jowidgets.common.types.TableSelectionPolicy;
+import org.jowidgets.api.command.IAction;
+import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.cap.ui.api.model.IBeanListModel;
+import org.jowidgets.cap.ui.api.table.IBeanTableMenuFactory;
+import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 
-final class BeanTableDefaults implements IDefaultInitializer<IBeanTableSetupBuilder<?, ?>> {
+public final class CopyAction {
 
-	@Override
-	public void initialize(final IBeanTableSetupBuilder<?, ?> bluePrint) {
-		bluePrint.setSelectionPolicy(TableSelectionPolicy.MULTI_ROW_SELECTION);
-		bluePrint.setColumnsMoveable(true);
-		bluePrint.setColumnsResizeable(true);
-		bluePrint.setDefaultMenus(true);
-		bluePrint.setDefaultCreatorAction(true);
-		bluePrint.setDefaultDeleterAction(true);
-		bluePrint.setDefaultCopyAction(false);
-		bluePrint.setEditable(false);
-		bluePrint.setSearchFilterToolbarVisible(false);
-		bluePrint.setAutoUpdateInterval(1);
-		bluePrint.setAutoScrollPolicy(AutoScrollPolicy.OFF);
-		bluePrint.setAutoPackPolicy(AutoPackPolicy.OFF);
-		bluePrint.setAutoUpdateConfigurable(false);
-		bluePrint.setAutoKeyBinding(true);
+	private CopyAction() {}
+
+	public static <BEAN_TYPE> ICopyActionBuilder<BEAN_TYPE> builder(final IBeanListModel<BEAN_TYPE> model) {
+		return CapUiToolkit.actionFactory().copyActionBuilder(model);
+	}
+
+	public static <BEAN_TYPE> IAction create(final IBeanListModel<BEAN_TYPE> model) {
+		return builder(model).build();
+	}
+
+	public static <BEAN_TYPE> IAction create(final IBeanTable<BEAN_TYPE> table) {
+		final IBeanTableMenuFactory<BEAN_TYPE> beanTableMenuFactory = CapUiToolkit.beanTableMenuFactory();
+		return beanTableMenuFactory.copyAction(table);
 	}
 }

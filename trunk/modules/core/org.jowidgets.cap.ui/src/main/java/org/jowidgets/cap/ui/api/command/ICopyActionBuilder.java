@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, grossmann
+ * Copyright (c) 2011, H.Westphal
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,31 +26,42 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl.widgets;
+package org.jowidgets.cap.ui.api.command;
 
-import org.jowidgets.api.types.AutoPackPolicy;
-import org.jowidgets.api.widgets.blueprint.defaults.IDefaultInitializer;
-import org.jowidgets.cap.ui.api.types.AutoScrollPolicy;
-import org.jowidgets.cap.ui.api.widgets.IBeanTableSetupBuilder;
-import org.jowidgets.common.types.TableSelectionPolicy;
+import org.jowidgets.api.command.IEnabledChecker;
+import org.jowidgets.cap.common.api.execution.IExecutableChecker;
+import org.jowidgets.cap.ui.api.execution.BeanMessageStatePolicy;
 
-final class BeanTableDefaults implements IDefaultInitializer<IBeanTableSetupBuilder<?, ?>> {
+public interface ICopyActionBuilder<BEAN_TYPE> extends ICapActionBuilder<ICopyActionBuilder<BEAN_TYPE>> {
 
-	@Override
-	public void initialize(final IBeanTableSetupBuilder<?, ?> bluePrint) {
-		bluePrint.setSelectionPolicy(TableSelectionPolicy.MULTI_ROW_SELECTION);
-		bluePrint.setColumnsMoveable(true);
-		bluePrint.setColumnsResizeable(true);
-		bluePrint.setDefaultMenus(true);
-		bluePrint.setDefaultCreatorAction(true);
-		bluePrint.setDefaultDeleterAction(true);
-		bluePrint.setDefaultCopyAction(false);
-		bluePrint.setEditable(false);
-		bluePrint.setSearchFilterToolbarVisible(false);
-		bluePrint.setAutoUpdateInterval(1);
-		bluePrint.setAutoScrollPolicy(AutoScrollPolicy.OFF);
-		bluePrint.setAutoPackPolicy(AutoPackPolicy.OFF);
-		bluePrint.setAutoUpdateConfigurable(false);
-		bluePrint.setAutoKeyBinding(true);
-	}
+	/**
+	 * Sets the entity label singular.
+	 * This will set a proper text with the entity label as a variable
+	 * if the selection mode is single selection.
+	 * 
+	 * @param label The label to set
+	 * 
+	 * @return This builder
+	 */
+	ICopyActionBuilder<BEAN_TYPE> setEntityLabelSingular(String label);
+
+	/**
+	 * Sets the entity label plural.
+	 * This will set a proper text with the entity label as a variable
+	 * if the selection mode is multi selection
+	 * 
+	 * @param label The label to set
+	 * 
+	 * @return This builder
+	 */
+	ICopyActionBuilder<BEAN_TYPE> setEntityLabelPlural(String label);
+
+	ICopyActionBuilder<BEAN_TYPE> setMultiSelectionPolicy(boolean multiSelection);
+
+	ICopyActionBuilder<BEAN_TYPE> setMessageStatePolicy(BeanMessageStatePolicy policy);
+
+	ICopyActionBuilder<BEAN_TYPE> addEnabledChecker(IEnabledChecker enabledChecker);
+
+	ICopyActionBuilder<BEAN_TYPE> addExecutableChecker(IExecutableChecker<BEAN_TYPE> executableChecker);
+
 }

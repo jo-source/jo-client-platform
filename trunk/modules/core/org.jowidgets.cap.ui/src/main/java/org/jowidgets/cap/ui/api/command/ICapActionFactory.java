@@ -68,6 +68,8 @@ public interface ICapActionFactory {
 
 	<BEAN_TYPE> IDeleterActionBuilder<BEAN_TYPE> deleterActionBuilder(IBeanListModel<BEAN_TYPE> model);
 
+	<BEAN_TYPE> ICopyActionBuilder<BEAN_TYPE> copyActionBuilder(IBeanListModel<BEAN_TYPE> model);
+
 	<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> linkCreatorActionBuilder(
 		IBeanSelectionProvider<SOURCE_BEAN_TYPE> source);
 

@@ -33,6 +33,7 @@ import org.jowidgets.api.image.IconsSmall;
 import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
 import org.jowidgets.cap.ui.api.command.ICapActionFactory;
+import org.jowidgets.cap.ui.api.command.ICopyActionBuilder;
 import org.jowidgets.cap.ui.api.command.ICreatorActionBuilder;
 import org.jowidgets.cap.ui.api.command.IDataModelAction;
 import org.jowidgets.cap.ui.api.command.IDataModelActionBuilder;
@@ -140,6 +141,11 @@ final class CapActionFactoryImpl implements ICapActionFactory {
 	@Override
 	public <BEAN_TYPE> IDeleterActionBuilder<BEAN_TYPE> deleterActionBuilder(final IBeanListModel<BEAN_TYPE> model) {
 		return new DeleterActionBuilder<BEAN_TYPE>(model);
+	}
+
+	@Override
+	public <BEAN_TYPE> ICopyActionBuilder<BEAN_TYPE> copyActionBuilder(final IBeanListModel<BEAN_TYPE> model) {
+		return new CopyActionBuilder<BEAN_TYPE>(model);
 	}
 
 	@Override
