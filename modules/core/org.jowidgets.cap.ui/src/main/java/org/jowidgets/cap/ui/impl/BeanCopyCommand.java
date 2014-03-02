@@ -114,18 +114,6 @@ final class BeanCopyCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 			Clipboard.setContents(transferable);
 		}
 
-		//		final List<IBeanDto> beanDtos = new LinkedList<IBeanDto>();
-		//
-		//		for (final IBeanProxy<BEAN_TYPE> bean : beanSelection.getSelection()) {
-		//			if (bean != null && !bean.isDummy() && !bean.isTransient()) {
-		//				beanDtos.add(bean.getBeanDto());
-		//			}
-		//		}
-		//
-		//		final BeanSelectionClipboard clippboard = new BeanSelectionClipboard(entityId, beanType, beanDtos);
-		//		final BeanTableTransfer transfer = new BeanTableTransfer(clippboard, beanDtos.toString());
-		//		Clipboard.setContents(transfer);
-
 	}
 
 }
