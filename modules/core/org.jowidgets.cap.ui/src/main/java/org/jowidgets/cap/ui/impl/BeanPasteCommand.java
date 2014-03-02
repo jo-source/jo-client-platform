@@ -28,15 +28,24 @@
 
 package org.jowidgets.cap.ui.impl;
 
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.jowidgets.api.clipboard.Clipboard;
+import org.jowidgets.api.clipboard.IClipboardListener;
 import org.jowidgets.api.clipboard.TransferType;
+import org.jowidgets.api.command.EnabledState;
 import org.jowidgets.api.command.ICommand;
 import org.jowidgets.api.command.ICommandExecutor;
 import org.jowidgets.api.command.IEnabledChecker;
+import org.jowidgets.api.command.IEnabledState;
 import org.jowidgets.api.command.IExceptionHandler;
 import org.jowidgets.api.command.IExecutionContext;
+import org.jowidgets.api.controller.IDisposeListener;
+import org.jowidgets.api.controller.IDisposeObservable;
+import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
@@ -44,9 +53,17 @@ import org.jowidgets.cap.ui.api.clipboard.IBeanSelectionClipboard;
 import org.jowidgets.cap.ui.api.execution.BeanModificationStatePolicy;
 import org.jowidgets.cap.ui.api.execution.BeanSelectionPolicy;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
+import org.jowidgets.i18n.api.IMessage;
+import org.jowidgets.tools.command.AbstractEnabledChecker;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.NullCompatibleEquivalence;
 
 final class BeanPasteCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
+
+	private static final IMessage EMPTY_CLIPBOARD = Messages.getMessage("BeanPasteCommand.empty_clipboard");
+
+	private final Object entityId;
+	private final Class<? extends BEAN_TYPE> beanType;
 
 	@SuppressWarnings("unused")
 	private final IBeanListModel<BEAN_TYPE> model;
@@ -54,10 +71,13 @@ final class BeanPasteCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 	@SuppressWarnings("unused")
 	private final IBeanProxyFactory<BEAN_TYPE> beanFactory;
 
+	private final ClipboardEnabledChecker clipboardEnabledChecker;
+
 	BeanPasteCommand(
 		final Object entityId,
 		final Class<? extends BEAN_TYPE> beanType,
 		final IBeanListModel<BEAN_TYPE> model,
+		final IDisposeObservable disposeObservable,
 		final List<IAttribute<?>> attributes,
 		final List<IEnabledChecker> enabledCheckers,
 		final boolean anySelection) {
@@ -67,18 +87,35 @@ final class BeanPasteCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 		Assert.paramNotNull(enabledCheckers, "enabledCheckers");
 		Assert.paramNotNull(anySelection, "anySelection");
 
+		this.entityId = entityId;
+		this.beanType = beanType;
+
+		this.clipboardEnabledChecker = new ClipboardEnabledChecker();
+
+		final List<IEnabledChecker> checkers = new LinkedList<IEnabledChecker>(enabledCheckers);
+		checkers.add(clipboardEnabledChecker);
+
 		this.enabledChecker = new BeanSelectionProviderEnabledChecker<BEAN_TYPE>(
 			model,
 			anySelection ? BeanSelectionPolicy.ANY_SELECTION : BeanSelectionPolicy.NO_SELECTION,
 			BeanModificationStatePolicy.ANY_MODIFICATION,
 			null,
-			enabledCheckers,
+			checkers,
 			null,
 			true);
 
 		this.beanFactory = CapUiToolkit.beanProxyFactory(beanType);
 
 		this.model = model;
+
+		final IDisposeListener disposeListener = new IDisposeListener() {
+			@Override
+			public void onDispose() {
+				clipboardEnabledChecker.dispose();
+			}
+		};
+
+		disposeObservable.addDisposeListener(disposeListener);
 	}
 
 	@Override
@@ -98,9 +135,53 @@ final class BeanPasteCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 
 	@Override
 	public void execute(final IExecutionContext executionContext) throws Exception {
-		//CHECKSTYLE:OFF
-		System.out.println(Clipboard.getData(IBeanSelectionClipboard.TRANSFER_TYPE));
-		System.out.println(Clipboard.getData(TransferType.STRING_TYPE));
-		//CHECKSTYLE:ON
+		final IEnabledState enabledState = enabledChecker.getEnabledState();
+		if (enabledState.isEnabled()) {
+			//CHECKSTYLE:OFF
+			System.out.println(Clipboard.getData(IBeanSelectionClipboard.TRANSFER_TYPE));
+			System.out.println(Clipboard.getData(TransferType.STRING_TYPE));
+			//CHECKSTYLE:ON
+		}
+		else {
+			Toolkit.getMessagePane().showInfo(executionContext, enabledState.getReason());
+		}
+	}
+
+	private final class ClipboardEnabledChecker extends AbstractEnabledChecker implements IEnabledChecker {
+
+		private final IClipboardListener clipboardListener;
+
+		private ClipboardEnabledChecker() {
+			this.clipboardListener = new IClipboardListener() {
+				@Override
+				public void clipboardChanged() {
+					fireEnabledStateChanged();
+				}
+			};
+			Clipboard.addClipbaordListener(clipboardListener);
+		}
+
+		@Override
+		public IEnabledState getEnabledState() {
+			final IBeanSelectionClipboard selection = Clipboard.getData(IBeanSelectionClipboard.TRANSFER_TYPE);
+			if (selection != null) {
+				final Collection<IBeanDto> beans = selection.getBeans();
+				final Object selectedEntityId = selection.getEntityId();
+				final Class<?> selectedBeanType = selection.getBeanType();
+				if (beans != null
+					&& !beans.isEmpty()
+					&& NullCompatibleEquivalence.equals(entityId, selectedEntityId)
+					&& NullCompatibleEquivalence.equals(beanType, selectedBeanType)) {
+					return EnabledState.ENABLED;
+				}
+			}
+			return EnabledState.disabled(EMPTY_CLIPBOARD.get());
+		}
+
+		@Override
+		public void dispose() {
+			super.dispose();
+			Clipboard.removeClipbaordListener(clipboardListener);
+		}
 	}
 }

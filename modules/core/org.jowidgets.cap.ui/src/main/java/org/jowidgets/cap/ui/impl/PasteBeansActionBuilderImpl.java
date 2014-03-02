@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2014, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -36,6 +36,7 @@ import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.command.IActionBuilder;
 import org.jowidgets.api.command.ICommand;
 import org.jowidgets.api.command.IEnabledChecker;
+import org.jowidgets.api.controller.IDisposeObservable;
 import org.jowidgets.api.image.IconsSmall;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.command.IPasteBeansActionBuilder;
@@ -51,6 +52,7 @@ final class PasteBeansActionBuilderImpl<BEAN_TYPE> extends AbstractCapActionBuil
 	private final Object entityId;
 	private final Class<? extends BEAN_TYPE> beanType;
 	private final IBeanListModel<BEAN_TYPE> model;
+	private final IDisposeObservable disposeObservable;
 	private final List<IEnabledChecker> enabledCheckers;
 	private boolean anySelection;
 
@@ -59,12 +61,18 @@ final class PasteBeansActionBuilderImpl<BEAN_TYPE> extends AbstractCapActionBuil
 	PasteBeansActionBuilderImpl(
 		final Object entityId,
 		final Class<? extends BEAN_TYPE> beanType,
-		final IBeanListModel<BEAN_TYPE> model) {
+		final IBeanListModel<BEAN_TYPE> model,
+		final IDisposeObservable disposeObservable) {
+
+		Assert.paramNotNull(entityId, "entityId");
 		Assert.paramNotNull(beanType, "beanType");
 		Assert.paramNotNull(model, "model");
+		Assert.paramNotNull(disposeObservable, "disposeObservable");
+
 		this.entityId = entityId;
 		this.beanType = beanType;
 		this.model = model;
+		this.disposeObservable = disposeObservable;
 		this.enabledCheckers = new LinkedList<IEnabledChecker>();
 
 		this.anySelection = true;
@@ -114,6 +122,7 @@ final class PasteBeansActionBuilderImpl<BEAN_TYPE> extends AbstractCapActionBuil
 			entityId,
 			beanType,
 			model,
+			disposeObservable,
 			attributes,
 			enabledCheckers,
 			anySelection);
