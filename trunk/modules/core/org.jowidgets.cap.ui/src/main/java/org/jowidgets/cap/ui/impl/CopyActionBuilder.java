@@ -37,6 +37,8 @@ import org.jowidgets.api.command.ICommand;
 import org.jowidgets.api.command.IEnabledChecker;
 import org.jowidgets.api.image.IconsSmall;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
+import org.jowidgets.cap.ui.api.clipboard.BeanSelectionTransferableFactory;
+import org.jowidgets.cap.ui.api.clipboard.IBeanSelectionTransferableFactory;
 import org.jowidgets.cap.ui.api.command.ICopyActionBuilder;
 import org.jowidgets.cap.ui.api.execution.BeanMessageStatePolicy;
 import org.jowidgets.cap.ui.api.execution.BeanModificationStatePolicy;
@@ -54,11 +56,13 @@ final class CopyActionBuilder<BEAN_TYPE> extends AbstractCapActionBuilderImpl<IC
 	private final List<IEnabledChecker> enabledCheckers;
 	private final List<IExecutableChecker<BEAN_TYPE>> executableCheckers;
 
+	private final BeanModificationStatePolicy beanModificationStatePolicy;
+
 	private String entityLabelSingular;
 	private String entityLabelPlural;
+	private IBeanSelectionTransferableFactory<BEAN_TYPE> transferableFactory;
 	private boolean multiSelection;
 
-	private final BeanModificationStatePolicy beanModificationStatePolicy;
 	private BeanMessageStatePolicy beanMessageStatePolicy;
 
 	CopyActionBuilder(final IBeanListModel<BEAN_TYPE> model) {
@@ -68,6 +72,7 @@ final class CopyActionBuilder<BEAN_TYPE> extends AbstractCapActionBuilderImpl<IC
 		this.enabledCheckers = new LinkedList<IEnabledChecker>();
 		this.executableCheckers = new LinkedList<IExecutableChecker<BEAN_TYPE>>();
 
+		this.transferableFactory = BeanSelectionTransferableFactory.create();
 		this.multiSelection = true;
 		this.beanModificationStatePolicy = BeanModificationStatePolicy.NO_MODIFICATION;
 		this.beanMessageStatePolicy = BeanMessageStatePolicy.NO_WARNING_OR_ERROR;
@@ -87,6 +92,15 @@ final class CopyActionBuilder<BEAN_TYPE> extends AbstractCapActionBuilderImpl<IC
 	public ICopyActionBuilder<BEAN_TYPE> setEntityLabelPlural(final String label) {
 		checkExhausted();
 		this.entityLabelPlural = label;
+		return this;
+	}
+
+	@Override
+	public ICopyActionBuilder<BEAN_TYPE> setTransferableFactory(
+		final IBeanSelectionTransferableFactory<BEAN_TYPE> transferableFactory) {
+		checkExhausted();
+		Assert.paramNotNull(transferableFactory, "transferableFactory");
+		this.transferableFactory = transferableFactory;
 		return this;
 	}
 
@@ -158,6 +172,7 @@ final class CopyActionBuilder<BEAN_TYPE> extends AbstractCapActionBuilderImpl<IC
 
 		final BeanCopyCommand<BEAN_TYPE> command = new BeanCopyCommand<BEAN_TYPE>(
 			model,
+			transferableFactory,
 			enabledCheckers,
 			executableCheckers,
 			multiSelection,

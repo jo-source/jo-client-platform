@@ -43,6 +43,9 @@ import org.jowidgets.cap.ui.api.bean.IBeanProxyContext;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyLabelRenderer;
 import org.jowidgets.cap.ui.api.bean.IBeansStateTracker;
+import org.jowidgets.cap.ui.api.clipboard.IBeanSelectionClipboardBuilder;
+import org.jowidgets.cap.ui.api.clipboard.IBeanSelectionStringRenderer;
+import org.jowidgets.cap.ui.api.clipboard.IBeanSelectionTransferableFactoryBuilder;
 import org.jowidgets.cap.ui.api.command.ICapActionFactory;
 import org.jowidgets.cap.ui.api.control.IDisplayFormatFactory;
 import org.jowidgets.cap.ui.api.control.IInputControlProviderBuilder;
@@ -269,6 +272,18 @@ public final class CapUiToolkit {
 
 	public static IBeanExceptionConverter defaultExceptionConverter() {
 		return getInstance().defaultExceptionConverter();
+	}
+
+	public static <BEAN_TYPE> IBeanSelectionTransferableFactoryBuilder<BEAN_TYPE> beanSelectionTransferableFactoryBuilder() {
+		return getInstance().beanSelectionTransferableFactoryBuilder();
+	}
+
+	public static <BEAN_TYPE> IBeanSelectionStringRenderer<BEAN_TYPE> beanSelectionStringRenderer() {
+		return getInstance().beanSelectionStringRenderer();
+	}
+
+	public static IBeanSelectionClipboardBuilder beanSelectionClipboardBuilder() {
+		return getInstance().beanSelectionClipboardBuilder();
 	}
 
 }

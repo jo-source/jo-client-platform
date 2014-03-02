@@ -28,21 +28,19 @@
 
 package org.jowidgets.cap.ui.impl;
 
-import java.util.LinkedList;
 import java.util.List;
 
+import org.jowidgets.api.clipboard.Clipboard;
+import org.jowidgets.api.clipboard.ITransferable;
 import org.jowidgets.api.command.ICommand;
 import org.jowidgets.api.command.ICommandExecutor;
 import org.jowidgets.api.command.IEnabledChecker;
 import org.jowidgets.api.command.IExceptionHandler;
 import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.api.toolkit.Toolkit;
-import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
-import org.jowidgets.cap.ui.api.CapUiToolkit;
-import org.jowidgets.cap.ui.api.bean.IBeanKeyFactory;
-import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanSelection;
+import org.jowidgets.cap.ui.api.clipboard.IBeanSelectionTransferableFactory;
 import org.jowidgets.cap.ui.api.execution.BeanMessageStatePolicy;
 import org.jowidgets.cap.ui.api.execution.BeanModificationStatePolicy;
 import org.jowidgets.cap.ui.api.execution.BeanSelectionPolicy;
@@ -55,10 +53,12 @@ final class BeanCopyCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 	private static final IMessage NOTHING_SELECTED = Messages.getMessage("BeanDeleterCommand.nothing_selected");
 
 	private final IBeanListModel<BEAN_TYPE> model;
+	private final IBeanSelectionTransferableFactory<BEAN_TYPE> transferableFactory;
 	private final BeanSelectionProviderEnabledChecker<BEAN_TYPE> enabledChecker;
 
 	BeanCopyCommand(
 		final IBeanListModel<BEAN_TYPE> model,
+		final IBeanSelectionTransferableFactory<BEAN_TYPE> transferableFactory,
 		final List<IEnabledChecker> enabledCheckers,
 		final List<IExecutableChecker<BEAN_TYPE>> executableCheckers,
 		final boolean multiSelection,
@@ -66,9 +66,13 @@ final class BeanCopyCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 		final BeanMessageStatePolicy beanMessageStatePolicy) {
 
 		Assert.paramNotNull(model, "model");
+		Assert.paramNotNull(transferableFactory, "transferableFactory");
 		Assert.paramNotNull(executableCheckers, "executableCheckers");
 		Assert.paramNotNull(beanModificationStatePolicy, "beanModificationStatePolicy");
 		Assert.paramNotNull(beanMessageStatePolicy, "beanMessageStatePolicy");
+
+		this.model = model;
+		this.transferableFactory = transferableFactory;
 
 		this.enabledChecker = new BeanSelectionProviderEnabledChecker<BEAN_TYPE>(
 			model,
@@ -78,8 +82,6 @@ final class BeanCopyCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 			enabledCheckers,
 			executableCheckers,
 			false);
-
-		this.model = model;
 	}
 
 	@Override
@@ -107,19 +109,22 @@ final class BeanCopyCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 			return;
 		}
 
-		final IBeanKeyFactory beanKeyFactory = CapUiToolkit.beanKeyFactory();
-
-		final List<IBeanKey> beanKeys = new LinkedList<IBeanKey>();
-		final List<IBeanProxy<BEAN_TYPE>> beans = new LinkedList<IBeanProxy<BEAN_TYPE>>();
-
-		for (final IBeanProxy<BEAN_TYPE> bean : beanSelection.getSelection()) {
-			if (bean != null && !bean.isDummy() && !bean.isTransient()) {
-				beanKeys.add(beanKeyFactory.createKey(bean));
-				beans.add(bean);
-			}
+		final ITransferable transferable = transferableFactory.create(model);
+		if (transferable != null) {
+			Clipboard.setContents(transferable);
 		}
 
-		Toolkit.getMessagePane().showInfo(executionContext, "Not yet implemented!");
+		//		final List<IBeanDto> beanDtos = new LinkedList<IBeanDto>();
+		//
+		//		for (final IBeanProxy<BEAN_TYPE> bean : beanSelection.getSelection()) {
+		//			if (bean != null && !bean.isDummy() && !bean.isTransient()) {
+		//				beanDtos.add(bean.getBeanDto());
+		//			}
+		//		}
+		//
+		//		final BeanSelectionClipboard clippboard = new BeanSelectionClipboard(entityId, beanType, beanDtos);
+		//		final BeanTableTransfer transfer = new BeanTableTransfer(clippboard, beanDtos.toString());
+		//		Clipboard.setContents(transfer);
 
 	}
 

@@ -26,45 +26,31 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.command;
+package org.jowidgets.cap.ui.impl;
 
-import org.jowidgets.api.command.IEnabledChecker;
-import org.jowidgets.cap.common.api.execution.IExecutableChecker;
+import org.jowidgets.api.clipboard.ITransferable;
+import org.jowidgets.cap.ui.api.clipboard.BeanSelectionClipboard;
+import org.jowidgets.cap.ui.api.clipboard.IBeanSelectionClipboard;
+import org.jowidgets.cap.ui.api.clipboard.IBeanSelectionStringRenderer;
 import org.jowidgets.cap.ui.api.clipboard.IBeanSelectionTransferableFactory;
-import org.jowidgets.cap.ui.api.execution.BeanMessageStatePolicy;
+import org.jowidgets.cap.ui.api.model.IBeanListModel;
+import org.jowidgets.util.Assert;
 
-public interface ICopyActionBuilder<BEAN_TYPE> extends ICapActionBuilder<ICopyActionBuilder<BEAN_TYPE>> {
+final class BeanSelectionTransferableFactoryImpl<BEAN_TYPE> implements IBeanSelectionTransferableFactory<BEAN_TYPE> {
 
-	/**
-	 * Sets the entity label singular.
-	 * This will set a proper text with the entity label as a variable
-	 * if the selection mode is single selection.
-	 * 
-	 * @param label The label to set
-	 * 
-	 * @return This builder
-	 */
-	ICopyActionBuilder<BEAN_TYPE> setEntityLabelSingular(String label);
+	private final IBeanSelectionStringRenderer<BEAN_TYPE> renderer;
 
-	/**
-	 * Sets the entity label plural.
-	 * This will set a proper text with the entity label as a variable
-	 * if the selection mode is multi selection
-	 * 
-	 * @param label The label to set
-	 * 
-	 * @return This builder
-	 */
-	ICopyActionBuilder<BEAN_TYPE> setEntityLabelPlural(String label);
+	BeanSelectionTransferableFactoryImpl(final IBeanSelectionStringRenderer<BEAN_TYPE> renderer) {
+		Assert.paramNotNull(renderer, "renderer");
+		this.renderer = renderer;
+	}
 
-	ICopyActionBuilder<BEAN_TYPE> setTransferableFactory(IBeanSelectionTransferableFactory<BEAN_TYPE> factory);
-
-	ICopyActionBuilder<BEAN_TYPE> setMultiSelectionPolicy(boolean multiSelection);
-
-	ICopyActionBuilder<BEAN_TYPE> setMessageStatePolicy(BeanMessageStatePolicy policy);
-
-	ICopyActionBuilder<BEAN_TYPE> addEnabledChecker(IEnabledChecker enabledChecker);
-
-	ICopyActionBuilder<BEAN_TYPE> addExecutableChecker(IExecutableChecker<BEAN_TYPE> executableChecker);
+	@Override
+	public ITransferable create(final IBeanListModel<BEAN_TYPE> model) {
+		Assert.paramNotNull(model, "model");
+		final String stringRepresentation = renderer.render(model.getBeanSelection());
+		final IBeanSelectionClipboard beanSelectionClipboard = BeanSelectionClipboard.create(model.getBeanSelection());
+		return new BeanSelectionTransferableImpl(beanSelectionClipboard, stringRepresentation);
+	}
 
 }

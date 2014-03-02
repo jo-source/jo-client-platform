@@ -26,45 +26,51 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.command;
+package org.jowidgets.cap.ui.impl;
 
-import org.jowidgets.api.command.IEnabledChecker;
-import org.jowidgets.cap.common.api.execution.IExecutableChecker;
-import org.jowidgets.cap.ui.api.clipboard.IBeanSelectionTransferableFactory;
-import org.jowidgets.cap.ui.api.execution.BeanMessageStatePolicy;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
 
-public interface ICopyActionBuilder<BEAN_TYPE> extends ICapActionBuilder<ICopyActionBuilder<BEAN_TYPE>> {
+import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.ui.api.clipboard.IBeanSelectionClipboard;
+import org.jowidgets.cap.ui.api.clipboard.IBeanSelectionClipboardBuilder;
+import org.jowidgets.util.Assert;
 
-	/**
-	 * Sets the entity label singular.
-	 * This will set a proper text with the entity label as a variable
-	 * if the selection mode is single selection.
-	 * 
-	 * @param label The label to set
-	 * 
-	 * @return This builder
-	 */
-	ICopyActionBuilder<BEAN_TYPE> setEntityLabelSingular(String label);
+final class BeanSelectionClipboardBuilderImpl implements IBeanSelectionClipboardBuilder {
 
-	/**
-	 * Sets the entity label plural.
-	 * This will set a proper text with the entity label as a variable
-	 * if the selection mode is multi selection
-	 * 
-	 * @param label The label to set
-	 * 
-	 * @return This builder
-	 */
-	ICopyActionBuilder<BEAN_TYPE> setEntityLabelPlural(String label);
+	private Object entityId;
+	private Class<?> beanType;
+	private Collection<IBeanDto> beans;
 
-	ICopyActionBuilder<BEAN_TYPE> setTransferableFactory(IBeanSelectionTransferableFactory<BEAN_TYPE> factory);
+	BeanSelectionClipboardBuilderImpl() {
+		this.beans = Collections.emptyList();
+	}
 
-	ICopyActionBuilder<BEAN_TYPE> setMultiSelectionPolicy(boolean multiSelection);
+	@Override
+	public IBeanSelectionClipboardBuilder setEntityId(final Object entityId) {
+		Assert.paramNotNull(entityId, "entityId");
+		this.entityId = entityId;
+		return this;
+	}
 
-	ICopyActionBuilder<BEAN_TYPE> setMessageStatePolicy(BeanMessageStatePolicy policy);
+	@Override
+	public IBeanSelectionClipboardBuilder setBeanType(final Class<?> beanType) {
+		Assert.paramNotNull(beanType, "beanType");
+		this.beanType = beanType;
+		return this;
+	}
 
-	ICopyActionBuilder<BEAN_TYPE> addEnabledChecker(IEnabledChecker enabledChecker);
+	@Override
+	public IBeanSelectionClipboardBuilder setBeans(final Collection<? extends IBeanDto> beans) {
+		Assert.paramNotNull(beans, "beans");
+		this.beans = Collections.unmodifiableList(new LinkedList<IBeanDto>(beans));
+		return this;
+	}
 
-	ICopyActionBuilder<BEAN_TYPE> addExecutableChecker(IExecutableChecker<BEAN_TYPE> executableChecker);
+	@Override
+	public IBeanSelectionClipboard build() {
+		return new BeanSelectionClipboardImpl(entityId, beanType, beans);
+	}
 
 }

@@ -44,6 +44,9 @@ import org.jowidgets.cap.ui.api.bean.IBeanProxyContext;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyLabelRenderer;
 import org.jowidgets.cap.ui.api.bean.IBeansStateTracker;
+import org.jowidgets.cap.ui.api.clipboard.IBeanSelectionClipboardBuilder;
+import org.jowidgets.cap.ui.api.clipboard.IBeanSelectionStringRenderer;
+import org.jowidgets.cap.ui.api.clipboard.IBeanSelectionTransferableFactoryBuilder;
 import org.jowidgets.cap.ui.api.command.ICapActionFactory;
 import org.jowidgets.cap.ui.api.control.IDisplayFormatFactory;
 import org.jowidgets.cap.ui.api.control.IInputControlProviderBuilder;
@@ -85,6 +88,9 @@ public final class DefaultCapUiToolkit implements ICapUiToolkit {
 	private ILookUpCache lookUpCache;
 	private IUiServiceDecoratorProviderFactory uiServiceDecoratorProviderFactory;
 	private IBeanExceptionConverter defaultExceptionConverter;
+
+	@SuppressWarnings("rawtypes")
+	private IBeanSelectionStringRenderer beanSelectionStringRenderer;
 
 	@Override
 	public ICapApiBluePrintFactory bluePrintFactory() {
@@ -347,6 +353,25 @@ public final class DefaultCapUiToolkit implements ICapUiToolkit {
 			defaultExceptionConverter = new BeanExceptionConverterImpl();
 		}
 		return defaultExceptionConverter;
+	}
+
+	@Override
+	public <BEAN_TYPE> IBeanSelectionTransferableFactoryBuilder<BEAN_TYPE> beanSelectionTransferableFactoryBuilder() {
+		return new BeanSelectionTransferableBuilderImpl<BEAN_TYPE>();
+	}
+
+	@SuppressWarnings({"unchecked", "rawtypes"})
+	@Override
+	public <BEAN_TYPE> IBeanSelectionStringRenderer<BEAN_TYPE> beanSelectionStringRenderer() {
+		if (beanSelectionStringRenderer == null) {
+			beanSelectionStringRenderer = new BeanSelectionStringRendererImpl();
+		}
+		return beanSelectionStringRenderer;
+	}
+
+	@Override
+	public IBeanSelectionClipboardBuilder beanSelectionClipboardBuilder() {
+		return new BeanSelectionClipboardBuilderImpl();
 	}
 
 }
