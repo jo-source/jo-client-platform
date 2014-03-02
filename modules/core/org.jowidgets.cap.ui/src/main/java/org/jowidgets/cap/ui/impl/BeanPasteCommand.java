@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2014, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -30,21 +30,23 @@ package org.jowidgets.cap.ui.impl;
 
 import java.util.List;
 
+import org.jowidgets.api.clipboard.Clipboard;
+import org.jowidgets.api.clipboard.TransferType;
 import org.jowidgets.api.command.ICommand;
 import org.jowidgets.api.command.ICommandExecutor;
 import org.jowidgets.api.command.IEnabledChecker;
 import org.jowidgets.api.command.IExceptionHandler;
 import org.jowidgets.api.command.IExecutionContext;
-import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
+import org.jowidgets.cap.ui.api.clipboard.IBeanSelectionClipboard;
 import org.jowidgets.cap.ui.api.execution.BeanModificationStatePolicy;
 import org.jowidgets.cap.ui.api.execution.BeanSelectionPolicy;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.util.Assert;
 
-final class PasteBeansCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
+final class BeanPasteCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 
 	@SuppressWarnings("unused")
 	private final IBeanListModel<BEAN_TYPE> model;
@@ -52,7 +54,7 @@ final class PasteBeansCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 	@SuppressWarnings("unused")
 	private final IBeanProxyFactory<BEAN_TYPE> beanFactory;
 
-	PasteBeansCommand(
+	BeanPasteCommand(
 		final Object entityId,
 		final Class<? extends BEAN_TYPE> beanType,
 		final IBeanListModel<BEAN_TYPE> model,
@@ -96,7 +98,9 @@ final class PasteBeansCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 
 	@Override
 	public void execute(final IExecutionContext executionContext) throws Exception {
-		Toolkit.getMessagePane().showInfo(executionContext, "Not implemented yet");
+		//CHECKSTYLE:OFF
+		System.out.println(Clipboard.getData(IBeanSelectionClipboard.TRANSFER_TYPE));
+		System.out.println(Clipboard.getData(TransferType.STRING_TYPE));
+		//CHECKSTYLE:ON
 	}
-
 }

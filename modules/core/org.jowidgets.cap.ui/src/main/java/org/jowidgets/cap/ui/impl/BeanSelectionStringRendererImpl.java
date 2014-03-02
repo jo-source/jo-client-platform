@@ -26,45 +26,49 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.command;
+package org.jowidgets.cap.ui.impl;
 
-import org.jowidgets.api.command.IEnabledChecker;
-import org.jowidgets.cap.common.api.execution.IExecutableChecker;
-import org.jowidgets.cap.ui.api.clipboard.IBeanSelectionTransferableFactory;
-import org.jowidgets.cap.ui.api.execution.BeanMessageStatePolicy;
+import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.cap.ui.api.bean.IBeanSelection;
+import org.jowidgets.cap.ui.api.clipboard.IBeanSelectionStringRenderer;
 
-public interface ICopyActionBuilder<BEAN_TYPE> extends ICapActionBuilder<ICopyActionBuilder<BEAN_TYPE>> {
+final class BeanSelectionStringRendererImpl<BEAN_TYPE> implements IBeanSelectionStringRenderer<BEAN_TYPE> {
 
-	/**
-	 * Sets the entity label singular.
-	 * This will set a proper text with the entity label as a variable
-	 * if the selection mode is single selection.
-	 * 
-	 * @param label The label to set
-	 * 
-	 * @return This builder
-	 */
-	ICopyActionBuilder<BEAN_TYPE> setEntityLabelSingular(String label);
+	@Override
+	public String render(final IBeanSelection<BEAN_TYPE> selection) {
 
-	/**
-	 * Sets the entity label plural.
-	 * This will set a proper text with the entity label as a variable
-	 * if the selection mode is multi selection
-	 * 
-	 * @param label The label to set
-	 * 
-	 * @return This builder
-	 */
-	ICopyActionBuilder<BEAN_TYPE> setEntityLabelPlural(String label);
+		final StringBuilder result = new StringBuilder();
+		for (final IBeanProxy<BEAN_TYPE> bean : selection.getSelection()) {
+			result.append(renderBean(bean));
+			result.append("\n");
+		}
+		if (result.length() > 0) {
+			return result.substring(0, result.length() - 1);
+		}
+		else {
+			return "";
+		}
+	}
 
-	ICopyActionBuilder<BEAN_TYPE> setTransferableFactory(IBeanSelectionTransferableFactory<BEAN_TYPE> factory);
-
-	ICopyActionBuilder<BEAN_TYPE> setMultiSelectionPolicy(boolean multiSelection);
-
-	ICopyActionBuilder<BEAN_TYPE> setMessageStatePolicy(BeanMessageStatePolicy policy);
-
-	ICopyActionBuilder<BEAN_TYPE> addEnabledChecker(IEnabledChecker enabledChecker);
-
-	ICopyActionBuilder<BEAN_TYPE> addExecutableChecker(IExecutableChecker<BEAN_TYPE> executableChecker);
+	private String renderBean(final IBeanProxy<BEAN_TYPE> bean) {
+		final StringBuilder result = new StringBuilder();
+		for (final IAttribute<Object> attribute : bean.getAttributes()) {
+			if (attribute.isVisible()) {
+				final String propertyName = attribute.getPropertyName();
+				final Object value = bean.getValue(propertyName);
+				if (value != null) {
+					result.append(attribute.getValueAsString(value));
+					result.append(" ");
+				}
+			}
+		}
+		if (result.length() > 0) {
+			return result.substring(0, result.length() - 1);
+		}
+		else {
+			return "";
+		}
+	}
 
 }

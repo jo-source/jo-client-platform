@@ -26,45 +26,34 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.command;
+package org.jowidgets.cap.ui.api.clipboard;
 
-import org.jowidgets.api.command.IEnabledChecker;
-import org.jowidgets.cap.common.api.execution.IExecutableChecker;
-import org.jowidgets.cap.ui.api.clipboard.IBeanSelectionTransferableFactory;
-import org.jowidgets.cap.ui.api.execution.BeanMessageStatePolicy;
+import java.util.LinkedList;
+import java.util.List;
 
-public interface ICopyActionBuilder<BEAN_TYPE> extends ICapActionBuilder<ICopyActionBuilder<BEAN_TYPE>> {
+import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.cap.ui.api.bean.IBeanSelection;
 
-	/**
-	 * Sets the entity label singular.
-	 * This will set a proper text with the entity label as a variable
-	 * if the selection mode is single selection.
-	 * 
-	 * @param label The label to set
-	 * 
-	 * @return This builder
-	 */
-	ICopyActionBuilder<BEAN_TYPE> setEntityLabelSingular(String label);
+public final class BeanSelectionClipboard {
 
-	/**
-	 * Sets the entity label plural.
-	 * This will set a proper text with the entity label as a variable
-	 * if the selection mode is multi selection
-	 * 
-	 * @param label The label to set
-	 * 
-	 * @return This builder
-	 */
-	ICopyActionBuilder<BEAN_TYPE> setEntityLabelPlural(String label);
+	private BeanSelectionClipboard() {}
 
-	ICopyActionBuilder<BEAN_TYPE> setTransferableFactory(IBeanSelectionTransferableFactory<BEAN_TYPE> factory);
+	public static IBeanSelectionClipboardBuilder builder() {
+		return CapUiToolkit.beanSelectionClipboardBuilder();
+	}
 
-	ICopyActionBuilder<BEAN_TYPE> setMultiSelectionPolicy(boolean multiSelection);
-
-	ICopyActionBuilder<BEAN_TYPE> setMessageStatePolicy(BeanMessageStatePolicy policy);
-
-	ICopyActionBuilder<BEAN_TYPE> addEnabledChecker(IEnabledChecker enabledChecker);
-
-	ICopyActionBuilder<BEAN_TYPE> addExecutableChecker(IExecutableChecker<BEAN_TYPE> executableChecker);
+	public static IBeanSelectionClipboard create(final IBeanSelection<?> beanSelection) {
+		final IBeanSelectionClipboardBuilder builder = builder();
+		builder.setEntityId(beanSelection.getEntityId());
+		builder.setBeanType(beanSelection.getBeanType());
+		final List<IBeanDto> beans = new LinkedList<IBeanDto>();
+		for (final IBeanProxy<?> beanProxy : beanSelection.getSelection()) {
+			beans.add(beanProxy.getBeanDto());
+		}
+		builder.setBeans(beans);
+		return builder.build();
+	}
 
 }

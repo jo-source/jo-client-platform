@@ -110,7 +110,7 @@ final class PasteBeansActionBuilderImpl<BEAN_TYPE> extends AbstractCapActionBuil
 
 	@Override
 	public IAction doBuild() {
-		final PasteBeansCommand<BEAN_TYPE> command = new PasteBeansCommand<BEAN_TYPE>(
+		final BeanPasteCommand<BEAN_TYPE> command = new BeanPasteCommand<BEAN_TYPE>(
 			entityId,
 			beanType,
 			model,

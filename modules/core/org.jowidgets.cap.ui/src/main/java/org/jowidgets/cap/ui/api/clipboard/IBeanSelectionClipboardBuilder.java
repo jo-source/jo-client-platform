@@ -26,45 +26,20 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.command;
+package org.jowidgets.cap.ui.api.clipboard;
 
-import org.jowidgets.api.command.IEnabledChecker;
-import org.jowidgets.cap.common.api.execution.IExecutableChecker;
-import org.jowidgets.cap.ui.api.clipboard.IBeanSelectionTransferableFactory;
-import org.jowidgets.cap.ui.api.execution.BeanMessageStatePolicy;
+import java.util.Collection;
 
-public interface ICopyActionBuilder<BEAN_TYPE> extends ICapActionBuilder<ICopyActionBuilder<BEAN_TYPE>> {
+import org.jowidgets.cap.common.api.bean.IBeanDto;
 
-	/**
-	 * Sets the entity label singular.
-	 * This will set a proper text with the entity label as a variable
-	 * if the selection mode is single selection.
-	 * 
-	 * @param label The label to set
-	 * 
-	 * @return This builder
-	 */
-	ICopyActionBuilder<BEAN_TYPE> setEntityLabelSingular(String label);
+public interface IBeanSelectionClipboardBuilder {
 
-	/**
-	 * Sets the entity label plural.
-	 * This will set a proper text with the entity label as a variable
-	 * if the selection mode is multi selection
-	 * 
-	 * @param label The label to set
-	 * 
-	 * @return This builder
-	 */
-	ICopyActionBuilder<BEAN_TYPE> setEntityLabelPlural(String label);
+	IBeanSelectionClipboardBuilder setEntityId(Object entityId);
 
-	ICopyActionBuilder<BEAN_TYPE> setTransferableFactory(IBeanSelectionTransferableFactory<BEAN_TYPE> factory);
+	IBeanSelectionClipboardBuilder setBeanType(Class<?> beanType);
 
-	ICopyActionBuilder<BEAN_TYPE> setMultiSelectionPolicy(boolean multiSelection);
+	IBeanSelectionClipboardBuilder setBeans(Collection<? extends IBeanDto> beans);
 
-	ICopyActionBuilder<BEAN_TYPE> setMessageStatePolicy(BeanMessageStatePolicy policy);
-
-	ICopyActionBuilder<BEAN_TYPE> addEnabledChecker(IEnabledChecker enabledChecker);
-
-	ICopyActionBuilder<BEAN_TYPE> addExecutableChecker(IExecutableChecker<BEAN_TYPE> executableChecker);
+	IBeanSelectionClipboard build();
 
 }
