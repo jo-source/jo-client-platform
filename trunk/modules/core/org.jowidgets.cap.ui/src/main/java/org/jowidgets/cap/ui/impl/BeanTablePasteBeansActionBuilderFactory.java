@@ -59,7 +59,8 @@ final class BeanTablePasteBeansActionBuilderFactory {
 		final IPasteBeansActionBuilder<BEAN_TYPE> builder = actionFactory.pasteBeansActionBuilder(
 				model.getEntityId(),
 				model.getBeanType(),
-				wrappedModel);
+				wrappedModel,
+				table);
 
 		builder.setEntityLabelPlural(model.getEntityLabelPlural());
 		builder.setAttributes(model.getAttributes());

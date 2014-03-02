@@ -29,6 +29,7 @@
 package org.jowidgets.cap.ui.api.command;
 
 import org.jowidgets.api.command.IAction;
+import org.jowidgets.api.controller.IDisposeObservable;
 import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
@@ -69,7 +70,8 @@ public interface ICapActionFactory {
 	<BEAN_TYPE> IPasteBeansActionBuilder<BEAN_TYPE> pasteBeansActionBuilder(
 		Object entityId,
 		Class<? extends BEAN_TYPE> beanType,
-		IBeanListModel<BEAN_TYPE> model);
+		IBeanListModel<BEAN_TYPE> model,
+		IDisposeObservable disposeObservable);
 
 	<BEAN_TYPE> IDeleterActionBuilder<BEAN_TYPE> deleterActionBuilder(IBeanListModel<BEAN_TYPE> model);
 

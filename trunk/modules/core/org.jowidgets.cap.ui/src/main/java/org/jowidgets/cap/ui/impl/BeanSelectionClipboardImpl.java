@@ -44,6 +44,9 @@ final class BeanSelectionClipboardImpl implements IBeanSelectionClipboard {
 	private final Class<?> beanType;
 	private final Collection<IBeanDto> beans;
 
+	private final String beanTypeName;
+	private final Object entityIdComparable;
+
 	BeanSelectionClipboardImpl(final Object entityId, final Class<?> beanType, final Collection<IBeanDto> beans) {
 
 		Assert.paramNotNull(entityId, "entityId");
@@ -53,6 +56,18 @@ final class BeanSelectionClipboardImpl implements IBeanSelectionClipboard {
 		this.entityId = entityId;
 		this.beanType = beanType;
 		this.beans = Collections.unmodifiableList(new LinkedList<IBeanDto>(beans));
+
+		this.beanTypeName = beanType.getName();
+		this.entityIdComparable = createEntityIdComparable(entityId);
+	}
+
+	private static Object createEntityIdComparable(final Object entityId) {
+		if (entityId instanceof Class<?>) {
+			return ((Class<?>) entityId).getName();
+		}
+		else {
+			return entityId;
+		}
 	}
 
 	@Override
@@ -73,6 +88,55 @@ final class BeanSelectionClipboardImpl implements IBeanSelectionClipboard {
 	@Override
 	public String toString() {
 		return "BeanSelectionClipboardImpl [entityId=" + entityId + ", beanType=" + beanType + ", beans=" + beans + "]";
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((beanTypeName == null) ? 0 : beanTypeName.hashCode());
+		result = prime * result + ((beans == null) ? 0 : beans.hashCode());
+		result = prime * result + ((entityIdComparable == null) ? 0 : entityIdComparable.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(final Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (!(obj instanceof BeanSelectionClipboardImpl)) {
+			return false;
+		}
+		final BeanSelectionClipboardImpl other = (BeanSelectionClipboardImpl) obj;
+		if (beanTypeName == null) {
+			if (other.beanTypeName != null) {
+				return false;
+			}
+		}
+		else if (!beanTypeName.equals(other.beanTypeName)) {
+			return false;
+		}
+		if (beans == null) {
+			if (other.beans != null) {
+				return false;
+			}
+		}
+		else if (!beans.equals(other.beans)) {
+			return false;
+		}
+		if (entityIdComparable == null) {
+			if (other.entityIdComparable != null) {
+				return false;
+			}
+		}
+		else if (!entityIdComparable.equals(other.entityIdComparable)) {
+			return false;
+		}
+		return true;
 	}
 
 }

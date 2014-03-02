@@ -29,6 +29,7 @@
 package org.jowidgets.cap.ui.api.command;
 
 import org.jowidgets.api.command.IAction;
+import org.jowidgets.api.controller.IDisposeObservable;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuFactory;
@@ -41,15 +42,17 @@ public final class PasteBeansAction {
 	public static <BEAN_TYPE> IPasteBeansActionBuilder<BEAN_TYPE> builder(
 		final Object entityId,
 		final Class<? extends BEAN_TYPE> beanType,
-		final IBeanListModel<BEAN_TYPE> model) {
-		return CapUiToolkit.actionFactory().pasteBeansActionBuilder(entityId, beanType, model);
+		final IBeanListModel<BEAN_TYPE> model,
+		final IDisposeObservable disposeObservable) {
+		return CapUiToolkit.actionFactory().pasteBeansActionBuilder(entityId, beanType, model, disposeObservable);
 	}
 
 	public static <BEAN_TYPE> IAction create(
 		final Object entityId,
 		final Class<? extends BEAN_TYPE> beanType,
-		final IBeanListModel<BEAN_TYPE> model) {
-		return builder(entityId, beanType, model).build();
+		final IBeanListModel<BEAN_TYPE> model,
+		final IDisposeObservable disposeObservable) {
+		return builder(entityId, beanType, model, disposeObservable).build();
 	}
 
 	public static <BEAN_TYPE> IPasteBeansActionBuilder<BEAN_TYPE> builder(final IBeanTable<BEAN_TYPE> table) {

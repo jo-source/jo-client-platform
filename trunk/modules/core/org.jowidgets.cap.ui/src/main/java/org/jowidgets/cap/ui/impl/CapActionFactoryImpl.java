@@ -29,6 +29,7 @@
 package org.jowidgets.cap.ui.impl;
 
 import org.jowidgets.api.command.IAction;
+import org.jowidgets.api.controller.IDisposeObservable;
 import org.jowidgets.api.image.IconsSmall;
 import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
@@ -143,8 +144,9 @@ final class CapActionFactoryImpl implements ICapActionFactory {
 	public <BEAN_TYPE> IPasteBeansActionBuilder<BEAN_TYPE> pasteBeansActionBuilder(
 		final Object entityId,
 		final Class<? extends BEAN_TYPE> beanType,
-		final IBeanListModel<BEAN_TYPE> model) {
-		return new PasteBeansActionBuilderImpl<BEAN_TYPE>(entityId, beanType, model);
+		final IBeanListModel<BEAN_TYPE> model,
+		final IDisposeObservable disposeObservable) {
+		return new PasteBeansActionBuilderImpl<BEAN_TYPE>(entityId, beanType, model, disposeObservable);
 	}
 
 	@Override
