@@ -29,12 +29,12 @@
 package org.jowidgets.cap.ui.impl;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.jowidgets.api.clipboard.Clipboard;
 import org.jowidgets.api.clipboard.IClipboardListener;
-import org.jowidgets.api.clipboard.TransferType;
 import org.jowidgets.api.command.EnabledState;
 import org.jowidgets.api.command.ICommand;
 import org.jowidgets.api.command.ICommandExecutor;
@@ -45,10 +45,10 @@ import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.api.controller.IDisposeListener;
 import org.jowidgets.api.controller.IDisposeObservable;
 import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
-import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
-import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
+import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.clipboard.IBeanSelectionClipboard;
 import org.jowidgets.cap.ui.api.execution.BeanModificationStatePolicy;
 import org.jowidgets.cap.ui.api.execution.BeanSelectionPolicy;
@@ -65,11 +65,9 @@ final class BeanPasteCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 	private final Object entityId;
 	private final Class<? extends BEAN_TYPE> beanType;
 
-	@SuppressWarnings("unused")
 	private final IBeanListModel<BEAN_TYPE> model;
 	private final BeanSelectionProviderEnabledChecker<BEAN_TYPE> enabledChecker;
-	@SuppressWarnings("unused")
-	private final IBeanProxyFactory<BEAN_TYPE> beanFactory;
+	private final List<IAttribute<?>> attributes;
 
 	private final ClipboardEnabledChecker clipboardEnabledChecker;
 
@@ -82,13 +80,18 @@ final class BeanPasteCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 		final List<IEnabledChecker> enabledCheckers,
 		final boolean anySelection) {
 
+		Assert.paramNotNull(entityId, "entityId");
 		Assert.paramNotNull(beanType, "beanType");
-		Assert.paramNotNull(attributes, "model");
+		Assert.paramNotNull(model, "model");
+		Assert.paramNotNull(disposeObservable, "disposeObservable");
+		Assert.paramNotNull(attributes, "attributes");
 		Assert.paramNotNull(enabledCheckers, "enabledCheckers");
 		Assert.paramNotNull(anySelection, "anySelection");
 
 		this.entityId = entityId;
 		this.beanType = beanType;
+		this.model = model;
+		this.attributes = new LinkedList<IAttribute<?>>(attributes);
 
 		this.clipboardEnabledChecker = new ClipboardEnabledChecker();
 
@@ -103,10 +106,6 @@ final class BeanPasteCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 			checkers,
 			null,
 			true);
-
-		this.beanFactory = CapUiToolkit.beanProxyFactory(beanType);
-
-		this.model = model;
 
 		final IDisposeListener disposeListener = new IDisposeListener() {
 			@Override
@@ -137,13 +136,30 @@ final class BeanPasteCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 	public void execute(final IExecutionContext executionContext) throws Exception {
 		final IEnabledState enabledState = enabledChecker.getEnabledState();
 		if (enabledState.isEnabled()) {
-			//CHECKSTYLE:OFF
-			System.out.println(Clipboard.getData(IBeanSelectionClipboard.TRANSFER_TYPE));
-			System.out.println(Clipboard.getData(TransferType.STRING_TYPE));
-			//CHECKSTYLE:ON
+			doExecution();
 		}
 		else {
 			Toolkit.getMessagePane().showInfo(executionContext, enabledState.getReason());
+		}
+	}
+
+	private void doExecution() {
+		final IBeanSelectionClipboard selectionClipboard = Clipboard.getData(IBeanSelectionClipboard.TRANSFER_TYPE);
+		if (selectionClipboard != null) {
+			for (final IBeanDto beanDto : selectionClipboard.getBeans()) {
+				final IBeanProxy<BEAN_TYPE> transientBean = model.addTransientBean();
+				for (final IAttribute<?> attribute : attributes) {
+					final String propertyName = attribute.getPropertyName();
+					if (!propertyName.equals(IBean.ID_PROPERTY)
+						&& !propertyName.equals(IBean.VERSION_PROPERTY)
+						&& !IBeanProxy.ALL_META_ATTRIBUTES.contains(propertyName)) {
+						transientBean.setValue(propertyName, beanDto.getValue(propertyName));
+					}
+					final IBeanProxy<BEAN_TYPE> unmodifiedCopy = transientBean.createUnmodifiedCopy();
+					model.removeBeans(Collections.singleton(transientBean));
+					model.addBean(unmodifiedCopy);
+				}
+			}
 		}
 	}
 
