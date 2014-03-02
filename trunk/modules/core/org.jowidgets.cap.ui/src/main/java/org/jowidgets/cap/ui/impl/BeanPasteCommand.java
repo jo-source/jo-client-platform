@@ -155,10 +155,10 @@ final class BeanPasteCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 						&& !IBeanProxy.ALL_META_ATTRIBUTES.contains(propertyName)) {
 						transientBean.setValue(propertyName, beanDto.getValue(propertyName));
 					}
-					final IBeanProxy<BEAN_TYPE> unmodifiedCopy = transientBean.createUnmodifiedCopy();
-					model.removeBeans(Collections.singleton(transientBean));
-					model.addBean(unmodifiedCopy);
 				}
+				final IBeanProxy<BEAN_TYPE> unmodifiedCopy = transientBean.createUnmodifiedCopy();
+				model.removeBeans(Collections.singleton(transientBean));
+				model.addBean(unmodifiedCopy);
 			}
 		}
 	}
