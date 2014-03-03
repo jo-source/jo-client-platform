@@ -44,5 +44,10 @@ final class BeanRelationTreeDefaults implements IDefaultInitializer<IBeanRelatio
 		bluePrint.setAutoExpandLevel(2);
 		bluePrint.setExpansionCacheEnabled(true);
 		bluePrint.setAutoKeyBinding(true);
+		bluePrint.setDefaultLinkCreatorAction(true);
+		bluePrint.setDefaultLinkDeleterAction(true);
+		bluePrint.setDefaultDeleterAction(true);
+		bluePrint.setDefaultCopyAction(false);
+		bluePrint.setDefaultLinkPasteAction(false);
 	}
 }
