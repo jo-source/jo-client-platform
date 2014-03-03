@@ -69,6 +69,7 @@ import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyLabelRenderer;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
 import org.jowidgets.cap.ui.api.command.ICapActionFactory;
+import org.jowidgets.cap.ui.api.command.ICopyActionBuilder;
 import org.jowidgets.cap.ui.api.command.IDeleterActionBuilder;
 import org.jowidgets.cap.ui.api.command.ILinkCreatorActionBuilder;
 import org.jowidgets.cap.ui.api.command.ILinkDeleterActionBuilder;
@@ -123,6 +124,14 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 	private final boolean treeMultiSelection;
 	private final boolean autoKeyBinding;
 	private final int autoExpandLevel;
+
+	private final boolean defaultLinkCreatorAction;
+	private final boolean defaultLinkDeleterAction;
+	private final boolean defaultDeleterAction;
+	private final boolean defaultCopyAction;
+	@SuppressWarnings("unused")
+	private final boolean defaultLinkPasteAction;
+
 	private final Map<ITreeNode, Tuple<IBeanRelationNodeModel<Object, Object>, IBeanProxy<Object>>> nodesMap;
 	private final Map<ITreeNode, IAction> nodeActionMap;
 	private final LinkedHashSet<ExpandedNodeKey> expandedNodesCache;
@@ -143,6 +152,11 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 		this.autoSelection = bluePrint.getAutoSelection();
 		this.autoExpandLevel = bluePrint.getAutoExpandLevel();
 		this.autoKeyBinding = bluePrint.getAutoKeyBinding();
+		this.defaultLinkCreatorAction = bluePrint.hasDefaultLinkCreatorAction();
+		this.defaultLinkDeleterAction = bluePrint.hasDefaultLinkDeleterAction();
+		this.defaultDeleterAction = bluePrint.hasDefaultDeleterAction();
+		this.defaultCopyAction = bluePrint.hasDefaultCopyAction();
+		this.defaultLinkPasteAction = bluePrint.hasDefaultLinkPasteAction();
 		this.childRelationFilter = bluePrint.getChildRelationFilter();
 		this.expansionCacheEnabled = bluePrint.getExpansionCacheEnabled();
 		this.menuInterceptor = bluePrint.getMenuInterceptor();
@@ -456,6 +470,9 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 	private IAction createLinkCreatorAction(
 		final IBeanRelationNodeModel<Object, Object> relationNodeModel,
 		final IEntityLinkDescriptor link) {
+		if (!defaultLinkCreatorAction) {
+			return null;
+		}
 		final ICapActionFactory actionFactory = CapUiToolkit.actionFactory();
 		final IBeanSelectionProvider<Object> source = new SingleBeanSelectionProvider<Object>(
 			relationNodeModel.getParentBean(),
@@ -498,6 +515,12 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 			needSeparator = true;
 		}
 
+		final IAction copyAction = createCopyAction(relationNodeModel);
+		if (copyAction != null) {
+			result.addAction(copyAction);
+			needSeparator = true;
+		}
+
 		final IEntityService entityService = ServiceProvider.getService(IEntityService.ID);
 		if (entityService != null) {
 			final Object childEntityId = relationNodeModel.getChildEntityId();
@@ -537,6 +560,9 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 	private IAction createLinkDeleterAction(
 		final IBeanRelationNodeModel<Object, Object> relationNodeModel,
 		final IEntityLinkDescriptor link) {
+		if (!defaultLinkDeleterAction) {
+			return null;
+		}
 		final ICapActionFactory actionFactory = CapUiToolkit.actionFactory();
 		final IBeanSelectionProvider<Object> source = new SingleBeanSelectionProvider<Object>(
 			relationNodeModel.getParentBean(),
@@ -569,6 +595,9 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 	}
 
 	private IAction createDeleterAction(final IBeanRelationNodeModel<Object, Object> relationNodeModel) {
+		if (!defaultDeleterAction) {
+			return null;
+		}
 		final IEntityService entityService = ServiceProvider.getService(IEntityService.ID);
 		if (entityService != null) {
 			final ICapActionFactory actionFactory = CapUiToolkit.actionFactory();
@@ -608,6 +637,41 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 			}
 		}
 		return null;
+	}
+
+	private IAction createCopyAction(final IBeanRelationNodeModel<Object, Object> relationNodeModel) {
+
+		if (!defaultCopyAction) {
+			return null;
+		}
+
+		final ICapActionFactory actionFactory = CapUiToolkit.actionFactory();
+		final Object childEntityId = relationNodeModel.getChildEntityId();
+
+		ICopyActionBuilder<Object> builder = actionFactory.copyActionBuilder(relationNodeModel);
+		builder.setMultiSelectionPolicy(false);
+		if (!autoKeyBinding) {
+			builder.setAccelerator(null);
+		}
+
+		final IEntityService entityService = ServiceProvider.getService(IEntityService.ID);
+		if (entityService != null) {
+			final IBeanDtoDescriptor descriptor = entityService.getDescriptor(childEntityId);
+			if (descriptor != null) {
+				builder.setEntityLabelPlural(descriptor.getLabelPlural().get());
+				builder.setEntityLabelSingular(descriptor.getLabelSingular().get());
+			}
+		}
+
+		if (menuInterceptor != null) {
+			builder = menuInterceptor.copyActionBuilder(relationNodeModel, builder);
+		}
+		if (builder != null) {
+			return builder.build();
+		}
+		else {
+			return null;
+		}
 	}
 
 	private void renderNode(

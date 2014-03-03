@@ -69,6 +69,16 @@ public interface IBeanRelationTreeSetupBuilder<CHILD_BEAN_TYPE> extends
 
 	IBeanRelationTreeSetupBuilder<CHILD_BEAN_TYPE> setRenderRootRelation(boolean renderRootRelation);
 
+	IBeanRelationTreeSetupBuilder<CHILD_BEAN_TYPE> setDefaultLinkCreatorAction(boolean creatorAction);
+
+	IBeanRelationTreeSetupBuilder<CHILD_BEAN_TYPE> setDefaultLinkDeleterAction(boolean linkDeleterAction);
+
+	IBeanRelationTreeSetupBuilder<CHILD_BEAN_TYPE> setDefaultDeleterAction(boolean deleterAction);
+
+	IBeanRelationTreeSetupBuilder<CHILD_BEAN_TYPE> setDefaultCopyAction(boolean copyAction);
+
+	IBeanRelationTreeSetupBuilder<CHILD_BEAN_TYPE> setDefaultLinkPasteAction(boolean copyAction);
+
 	IBeanRelationTreeSetupBuilder<CHILD_BEAN_TYPE> setRelationRenderingPolicy(RelationRenderingPolicy policy);
 
 	IBeanRelationTreeSetupBuilder<CHILD_BEAN_TYPE> setRootCreatorAction(IAction action);
@@ -96,6 +106,21 @@ public interface IBeanRelationTreeSetupBuilder<CHILD_BEAN_TYPE> extends
 
 	@Mandatory
 	boolean getRenderRootRelation();
+
+	@Mandatory
+	boolean hasDefaultLinkCreatorAction();
+
+	@Mandatory
+	boolean hasDefaultLinkDeleterAction();
+
+	@Mandatory
+	boolean hasDefaultDeleterAction();
+
+	@Mandatory
+	boolean hasDefaultCopyAction();
+
+	@Mandatory
+	boolean hasDefaultLinkPasteAction();
 
 	IImageConstant getDefaultInnerIcon();
 

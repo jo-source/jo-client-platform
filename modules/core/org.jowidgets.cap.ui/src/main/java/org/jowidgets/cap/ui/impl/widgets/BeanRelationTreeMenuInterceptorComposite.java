@@ -29,6 +29,7 @@
 package org.jowidgets.cap.ui.impl.widgets;
 
 import org.jowidgets.api.model.item.IMenuModel;
+import org.jowidgets.cap.ui.api.command.ICopyActionBuilder;
 import org.jowidgets.cap.ui.api.command.IDeleterActionBuilder;
 import org.jowidgets.cap.ui.api.command.ILinkCreatorActionBuilder;
 import org.jowidgets.cap.ui.api.command.ILinkDeleterActionBuilder;
@@ -109,6 +110,15 @@ final class BeanRelationTreeMenuInterceptorComposite {
 			final IDeleterActionBuilder<Object> builder) {
 			IDeleterActionBuilder<Object> result = interceptor1.deleterActionBuilder(relationNode, builder);
 			result = interceptor2.deleterActionBuilder(relationNode, result);
+			return result;
+		}
+
+		@Override
+		public ICopyActionBuilder<Object> copyActionBuilder(
+			final IBeanRelationNodeModel<Object, Object> relationNode,
+			final ICopyActionBuilder<Object> builder) {
+			ICopyActionBuilder<Object> result = interceptor1.copyActionBuilder(relationNode, builder);
+			result = interceptor2.copyActionBuilder(relationNode, result);
 			return result;
 		}
 
