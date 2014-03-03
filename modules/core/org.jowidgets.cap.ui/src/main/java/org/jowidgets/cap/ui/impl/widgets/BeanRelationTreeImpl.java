@@ -67,7 +67,12 @@ import org.jowidgets.cap.ui.api.bean.IBeanMessage;
 import org.jowidgets.cap.ui.api.bean.IBeanMessageStateListener;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyLabelRenderer;
+import org.jowidgets.cap.ui.api.bean.IBeanSelection;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
+import org.jowidgets.cap.ui.api.clipboard.BeanSelectionTransferableFactory;
+import org.jowidgets.cap.ui.api.clipboard.IBeanSelectionStringRenderer;
+import org.jowidgets.cap.ui.api.clipboard.IBeanSelectionTransferableFactory;
+import org.jowidgets.cap.ui.api.clipboard.IBeanSelectionTransferableFactoryBuilder;
 import org.jowidgets.cap.ui.api.command.ICapActionFactory;
 import org.jowidgets.cap.ui.api.command.ICopyActionBuilder;
 import org.jowidgets.cap.ui.api.command.IDeleterActionBuilder;
@@ -654,6 +659,9 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 			builder.setAccelerator(null);
 		}
 
+		//Create the string content with help the the node renderer
+		builder.setTransferableFactory(createCopyTransferableFactory(relationNodeModel));
+
 		final IEntityService entityService = ServiceProvider.getService(IEntityService.ID);
 		if (entityService != null) {
 			final IBeanDtoDescriptor descriptor = entityService.getDescriptor(childEntityId);
@@ -672,6 +680,32 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 		else {
 			return null;
 		}
+	}
+
+	private IBeanSelectionTransferableFactory<Object> createCopyTransferableFactory(
+		final IBeanRelationNodeModel<Object, Object> relationNodeModel) {
+
+		final IBeanProxyLabelRenderer<Object> childRenderer = relationNodeModel.getChildRenderer();
+		final IBeanSelectionTransferableFactoryBuilder<Object> builder = BeanSelectionTransferableFactory.builder();
+		builder.setStringRenderer(new IBeanSelectionStringRenderer<Object>() {
+			@Override
+			public String render(final IBeanSelection<Object> selection) {
+				final StringBuilder result = new StringBuilder();
+				for (final IBeanProxy<Object> bean : selection.getSelection()) {
+					final ILabelModel label = childRenderer.getLabel(bean);
+					result.append(label.getText());
+					result.append("\n");
+				}
+				if (result.length() > 0) {
+					return result.substring(0, result.length() - 1);
+				}
+				else {
+					return "";
+				}
+			}
+		});
+
+		return builder.build();
 	}
 
 	private void renderNode(
