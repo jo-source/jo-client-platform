@@ -33,6 +33,7 @@ import org.jowidgets.cap.ui.api.command.ICopyActionBuilder;
 import org.jowidgets.cap.ui.api.command.IDeleterActionBuilder;
 import org.jowidgets.cap.ui.api.command.ILinkCreatorActionBuilder;
 import org.jowidgets.cap.ui.api.command.ILinkDeleterActionBuilder;
+import org.jowidgets.cap.ui.api.command.IPasteLinkActionBuilder;
 
 public interface IBeanRelationTreeMenuInterceptor {
 
@@ -55,5 +56,9 @@ public interface IBeanRelationTreeMenuInterceptor {
 	ICopyActionBuilder<Object> copyActionBuilder(
 		IBeanRelationNodeModel<Object, Object> relationNode,
 		ICopyActionBuilder<Object> builder);
+
+	IPasteLinkActionBuilder<Object, Object, Object> pasteLinkActionBuilder(
+		IBeanRelationNodeModel<Object, Object> relationNode,
+		IPasteLinkActionBuilder<Object, Object, Object> builder);
 
 }

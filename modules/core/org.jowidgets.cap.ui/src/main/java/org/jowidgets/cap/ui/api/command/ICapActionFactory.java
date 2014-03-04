@@ -89,6 +89,18 @@ public interface ICapActionFactory {
 		final IBeanListModel<?> linkedModel,
 		IEntityLinkDescriptor linkDescriptor);
 
+	<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> IPasteLinkActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> pasteLinkActionBuilder(
+		IBeanSelectionProvider<SOURCE_BEAN_TYPE> source);
+
+	<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> IPasteLinkActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> pasteLinkActionBuilder(
+		IBeanSelectionProvider<SOURCE_BEAN_TYPE> source,
+		IEntityLinkDescriptor linkDescriptor);
+
+	IAction pasteLinkActionBuilder(
+		final IBeanSelectionProvider<?> source,
+		final IBeanListModel<?> linkedModel,
+		IEntityLinkDescriptor linkDescriptor);
+
 	<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> ILinkDeleterActionBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> linkDeleterActionBuilder();
 
 	<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> ILinkDeleterActionBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> linkDeleterActionBuilder(

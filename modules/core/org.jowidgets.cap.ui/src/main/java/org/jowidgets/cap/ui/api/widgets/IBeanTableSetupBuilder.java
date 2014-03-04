@@ -58,7 +58,7 @@ public interface IBeanTableSetupBuilder<INSTANCE_TYPE extends IBeanTableSetupBui
 
 	INSTANCE_TYPE setDefaultCopyAction(boolean copyAction);
 
-	INSTANCE_TYPE setDefaultPasteAction(boolean copyAction);
+	INSTANCE_TYPE setDefaultPasteAction(boolean pasteAction);
 
 	INSTANCE_TYPE setHeaderMenuInterceptor(ITableMenuCreationInterceptor<BEAN_TYPE> interceptor);
 

@@ -30,6 +30,7 @@ package org.jowidgets.cap.ui.impl.widgets;
 
 import org.jowidgets.cap.ui.api.command.ILinkCreatorActionBuilder;
 import org.jowidgets.cap.ui.api.command.ILinkDeleterActionBuilder;
+import org.jowidgets.cap.ui.api.command.IPasteLinkActionBuilder;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeDetailMenuInterceptor;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 
@@ -82,6 +83,15 @@ final class BeanRelationTreeDetailMenuInterceptorComposite {
 			final ILinkDeleterActionBuilder<Object, Object> builder) {
 			ILinkDeleterActionBuilder<Object, Object> result = interceptor1.linkDeleterActionBuilder(table, builder);
 			result = interceptor2.linkDeleterActionBuilder(table, result);
+			return result;
+		}
+
+		@Override
+		public IPasteLinkActionBuilder<Object, Object, Object> pasteLinkActionBuilder(
+			final IBeanTable<Object> table,
+			final IPasteLinkActionBuilder<Object, Object, Object> builder) {
+			IPasteLinkActionBuilder<Object, Object, Object> result = interceptor1.pasteLinkActionBuilder(table, builder);
+			result = interceptor2.pasteLinkActionBuilder(table, result);
 			return result;
 		}
 
