@@ -50,6 +50,8 @@ public interface IBeanTabFolderModel<BEAN_TYPE> extends IDataModel, IBeanListMod
 
 	Object getEntityId();
 
+	Object getBeanTypeId();
+
 	Class<BEAN_TYPE> getBeanType();
 
 	List<IAttribute<Object>> getAttributes();

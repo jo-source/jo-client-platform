@@ -48,6 +48,7 @@ final class BeanDtoDescriptorImpl implements IBeanDtoDescriptor, Serializable {
 
 	private static final long serialVersionUID = 4875055093925862277L;
 
+	private final Object beanTypeId;
 	private final Class<?> beanType;
 	private final IMessage labelSingular;
 	private final IMessage labelPlural;
@@ -65,6 +66,7 @@ final class BeanDtoDescriptorImpl implements IBeanDtoDescriptor, Serializable {
 	private final IBeanFormInfoDescriptor editFormInfo;
 
 	BeanDtoDescriptorImpl(
+		final Object beanTypeId,
 		final Class<?> beanType,
 		final IMessage labelSingular,
 		final IMessage labelPlural,
@@ -80,7 +82,10 @@ final class BeanDtoDescriptorImpl implements IBeanDtoDescriptor, Serializable {
 		final IBeanFormInfoDescriptor createFormInfo,
 		final IBeanFormInfoDescriptor editFormInfo,
 		final Collection<? extends IBeanValidator<?>> beanValidators) {
+
+		this.beanTypeId = beanTypeId;
 		this.beanType = beanType;
+
 		if (labelSingular != null) {
 			this.labelSingular = labelSingular;
 		}
@@ -115,6 +120,11 @@ final class BeanDtoDescriptorImpl implements IBeanDtoDescriptor, Serializable {
 		this.unodifiableProperties = Collections.unmodifiableList(new LinkedList<IProperty>(properties));
 		this.unmodifieableDefaultSorting = Collections.unmodifiableList(new LinkedList<ISort>(defaultSorting));
 		this.unmodifieableBeanValidators = Collections.unmodifiableSet(new LinkedHashSet<IBeanValidator<?>>(beanValidators));
+	}
+
+	@Override
+	public Object getBeanTypeId() {
+		return beanTypeId;
 	}
 
 	@Override

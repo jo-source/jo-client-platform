@@ -52,6 +52,7 @@ import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
 import org.jowidgets.cap.ui.api.image.ImageResolver;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.plugin.IServiceActionDecoratorPlugin;
+import org.jowidgets.cap.ui.api.types.IEntityTypeId;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
 import org.jowidgets.common.image.IImageConstant;
 import org.jowidgets.common.types.Modifier;
@@ -69,6 +70,7 @@ final class CreatorActionBuilderImpl<BEAN_TYPE> extends AbstractCapActionBuilder
 		ICreatorActionBuilder<BEAN_TYPE> {
 
 	private final Object entityId;
+	private final Object beanTypeId;
 	private final Class<? extends BEAN_TYPE> beanType;
 	private final IBeanListModel<BEAN_TYPE> model;
 	private final List<IEnabledChecker> enabledCheckers;
@@ -84,12 +86,18 @@ final class CreatorActionBuilderImpl<BEAN_TYPE> extends AbstractCapActionBuilder
 
 	CreatorActionBuilderImpl(
 		final Object entityId,
+		final Object beanTypeId,
 		final Class<? extends BEAN_TYPE> beanType,
 		final IBeanListModel<BEAN_TYPE> model) {
-		Assert.paramNotNull(beanType, "beanType");
+
 		Assert.paramNotNull(model, "model");
-		this.entityId = entityId;
-		this.beanType = beanType;
+
+		final IEntityTypeId<BEAN_TYPE> entityTypeId = new EntityTypeIdImpl<BEAN_TYPE>(entityId, beanTypeId, beanType);
+
+		this.entityId = entityTypeId.getEntityId();
+		this.beanTypeId = entityTypeId.getBeanTypeId();
+		this.beanType = entityTypeId.getBeanType();
+
 		this.model = model;
 		this.enabledCheckers = new LinkedList<IEnabledChecker>();
 		this.executionInterceptors = new LinkedList<IExecutionInterceptor<List<IBeanDto>>>();
@@ -279,6 +287,7 @@ final class CreatorActionBuilderImpl<BEAN_TYPE> extends AbstractCapActionBuilder
 			attr = formBp.getCreateModeAttributes();
 		}
 		final BeanCreatorCommand<BEAN_TYPE> command = new BeanCreatorCommand<BEAN_TYPE>(
+			beanTypeId,
 			beanType,
 			beanPropertyValidators,
 			model,

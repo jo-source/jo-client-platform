@@ -500,6 +500,7 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 		final IBeanSelectionProvider<Object> source = new SingleBeanSelectionProvider<Object>(
 			relationNodeModel.getParentBean(),
 			relationNodeModel.getParentEntityId(),
+			relationNodeModel.getParentBeanTypeId(),
 			relationNodeModel.getParentBeanType());
 		try {
 			if (link.getLinkCreatorService() != null) {
@@ -534,6 +535,7 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 		final IBeanSelectionProvider<Object> source = new SingleBeanSelectionProvider<Object>(
 			relationNodeModel.getParentBean(),
 			relationNodeModel.getParentEntityId(),
+			relationNodeModel.getParentBeanTypeId(),
 			relationNodeModel.getParentBeanType());
 		try {
 			if (link.getLinkCreatorService() != null) {
@@ -621,6 +623,7 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 		final IBeanSelectionProvider<Object> source = new SingleBeanSelectionProvider<Object>(
 			relationNodeModel.getParentBean(),
 			relationNodeModel.getParentEntityId(),
+			relationNodeModel.getParentBeanTypeId(),
 			relationNodeModel.getParentBeanType());
 		try {
 			if (link.getLinkDeleterService() != null) {

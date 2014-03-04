@@ -84,6 +84,10 @@ public interface ICapCommonToolkit {
 
 	IBeanFormInfoDescriptorBuilder beanFormInfoDescriptorBuilder();
 
+	IBeanDtoDescriptorBuilder dtoDescriptorBuilder(Object beanTypeId, Class<?> beanType);
+
+	IBeanDtoDescriptorBuilder dtoDescriptorBuilder(Object beanTypeId);
+
 	IBeanDtoDescriptorBuilder dtoDescriptorBuilder(Class<?> beanType);
 
 	IBeanDtoDescriptorBuilder dtoDescriptorBuilder();

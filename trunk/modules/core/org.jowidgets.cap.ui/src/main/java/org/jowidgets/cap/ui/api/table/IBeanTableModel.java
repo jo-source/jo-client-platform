@@ -111,6 +111,8 @@ public interface IBeanTableModel<BEAN_TYPE> extends IDataModel, IBeanListModel<B
 	 */
 	void updateModel(Collection<? extends IBeanDto> beansToRemove, Collection<? extends IBeanDto> beansToAdd);
 
+	Object getBeanTypeId();
+
 	Class<BEAN_TYPE> getBeanType();
 
 	ITableModel getTableModel();

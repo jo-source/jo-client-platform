@@ -62,8 +62,16 @@ public interface ICapActionFactory {
 
 	<BEAN_TYPE, PARAM_TYPE> IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> executorActionBuilder(IBeanListModel<BEAN_TYPE> model);
 
+	<BEAN_TYPE> ICreatorActionBuilder<BEAN_TYPE> creatorActionBuilder(Object entityId, IBeanListModel<BEAN_TYPE> model);
+
 	<BEAN_TYPE> ICreatorActionBuilder<BEAN_TYPE> creatorActionBuilder(
 		Object entityId,
+		Class<? extends BEAN_TYPE> beanType,
+		IBeanListModel<BEAN_TYPE> model);
+
+	<BEAN_TYPE> ICreatorActionBuilder<BEAN_TYPE> creatorActionBuilder(
+		Object entityId,
+		Object beanTypeId,
 		Class<? extends BEAN_TYPE> beanType,
 		IBeanListModel<BEAN_TYPE> model);
 

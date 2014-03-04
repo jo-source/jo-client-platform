@@ -51,6 +51,7 @@ import org.jowidgets.util.Assert;
 
 final class BeanDtoDescriptorBuilderImpl implements IBeanDtoDescriptorBuilder {
 
+	private final Object beanTypeId;
 	private final Class<?> beanType;
 	private final List<BeanPropertyBluePrintImpl> bluePrints;
 	private final List<IProperty> properties;
@@ -73,7 +74,19 @@ final class BeanDtoDescriptorBuilderImpl implements IBeanDtoDescriptorBuilder {
 		this(IBeanDto.class);
 	}
 
+	BeanDtoDescriptorBuilderImpl(final Object beanTypeId) {
+		this(beanTypeId, IBeanDto.class);
+	}
+
 	BeanDtoDescriptorBuilderImpl(final Class<?> beanType) {
+		this(beanType.getName(), beanType);
+	}
+
+	BeanDtoDescriptorBuilderImpl(final Object beanTypeId, final Class<?> beanType) {
+		Assert.paramNotNull(beanTypeId, "beanTypeId");
+		Assert.paramNotNull(beanType, "beanType");
+
+		this.beanTypeId = beanTypeId;
 		this.beanType = beanType;
 		this.bluePrints = new LinkedList<BeanPropertyBluePrintImpl>();
 		this.properties = new LinkedList<IProperty>();
@@ -284,6 +297,7 @@ final class BeanDtoDescriptorBuilderImpl implements IBeanDtoDescriptorBuilder {
 		}
 
 		return new BeanDtoDescriptorImpl(
+			beanTypeId,
 			beanType,
 			labelSingular,
 			labelPlural,

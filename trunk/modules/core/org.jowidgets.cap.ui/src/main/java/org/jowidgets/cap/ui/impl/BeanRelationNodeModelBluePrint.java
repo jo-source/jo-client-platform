@@ -60,8 +60,8 @@ class BeanRelationNodeModelBluePrint<CHILD_BEAN_TYPE, INSTANCE_TYPE> extends
 	private IBeanProxyLabelRenderer<CHILD_BEAN_TYPE> childRenderer;
 	private int pageSize;
 
-	BeanRelationNodeModelBluePrint(final Object entityId, final Class<CHILD_BEAN_TYPE> beanType) {
-		super(entityId, beanType);
+	BeanRelationNodeModelBluePrint(final Object entityId, final Object beanTypeId, final Class<CHILD_BEAN_TYPE> beanType) {
+		super(entityId, beanTypeId, beanType);
 		this.childRelations = new LinkedList<IEntityTypeId<Object>>();
 		this.defaultSort = getDefaultSort(entityId);
 		this.pageSize = DEFAULT_PAGE_SIZE;
@@ -114,12 +114,12 @@ class BeanRelationNodeModelBluePrint<CHILD_BEAN_TYPE, INSTANCE_TYPE> extends
 
 	@Override
 	public INSTANCE_TYPE addChildRelation(final Object entityId, final Class<?> beanType) {
-		return addChildRelation(new EntityTypeIdImpl<Object>(entityId, beanType));
+		return addChildRelation(new EntityTypeIdImpl<Object>(entityId, null, beanType));
 	}
 
 	@Override
 	public INSTANCE_TYPE addChildRelation(final Class<?> beanType) {
-		return addChildRelation(new EntityTypeIdImpl<Object>(beanType, beanType));
+		return addChildRelation(new EntityTypeIdImpl<Object>(null, null, beanType));
 	}
 
 	@SuppressWarnings("unchecked")

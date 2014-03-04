@@ -62,7 +62,7 @@ final class BeanPasteCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 
 	private static final IMessage EMPTY_CLIPBOARD = Messages.getMessage("BeanPasteCommand.empty_clipboard");
 
-	private final Object entityId;
+	private final Object beanTypeId;
 	private final Class<? extends BEAN_TYPE> beanType;
 
 	private final IBeanListModel<BEAN_TYPE> model;
@@ -72,7 +72,7 @@ final class BeanPasteCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 	private final ClipboardEnabledChecker clipboardEnabledChecker;
 
 	BeanPasteCommand(
-		final Object entityId,
+		final Object beanTypeId,
 		final Class<? extends BEAN_TYPE> beanType,
 		final IBeanListModel<BEAN_TYPE> model,
 		final IDisposeObservable disposeObservable,
@@ -80,7 +80,7 @@ final class BeanPasteCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 		final List<IEnabledChecker> enabledCheckers,
 		final boolean anySelection) {
 
-		Assert.paramNotNull(entityId, "entityId");
+		Assert.paramNotNull(beanTypeId, "beanTypeId");
 		Assert.paramNotNull(beanType, "beanType");
 		Assert.paramNotNull(model, "model");
 		Assert.paramNotNull(disposeObservable, "disposeObservable");
@@ -88,7 +88,7 @@ final class BeanPasteCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 		Assert.paramNotNull(enabledCheckers, "enabledCheckers");
 		Assert.paramNotNull(anySelection, "anySelection");
 
-		this.entityId = entityId;
+		this.beanTypeId = beanTypeId;
 		this.beanType = beanType;
 		this.model = model;
 		this.attributes = new LinkedList<IAttribute<?>>(attributes);
@@ -182,11 +182,11 @@ final class BeanPasteCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 			final IBeanSelectionClipboard selection = Clipboard.getData(IBeanSelectionClipboard.TRANSFER_TYPE);
 			if (selection != null) {
 				final Collection<IBeanDto> beans = selection.getBeans();
-				final Object selectedEntityId = selection.getEntityId();
+				final Object selectedBeanTypeId = selection.getBeanTypeId();
 				final Class<?> selectedBeanType = selection.getBeanType();
 				if (beans != null
 					&& !beans.isEmpty()
-					&& NullCompatibleEquivalence.equals(entityId, selectedEntityId)
+					&& NullCompatibleEquivalence.equals(beanTypeId, selectedBeanTypeId)
 					&& NullCompatibleEquivalence.equals(beanType, selectedBeanType)) {
 					return EnabledState.ENABLED;
 				}

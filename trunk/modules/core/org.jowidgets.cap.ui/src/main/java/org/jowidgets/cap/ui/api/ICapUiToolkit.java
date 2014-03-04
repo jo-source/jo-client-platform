@@ -30,7 +30,6 @@ package org.jowidgets.cap.ui.api;
 
 import java.util.Collection;
 
-import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
 import org.jowidgets.cap.ui.api.bean.BeanMessageType;
@@ -106,15 +105,24 @@ public interface ICapUiToolkit {
 
 	<BEAN_TYPE> IBeansStateTracker<BEAN_TYPE> beansStateTracker(IBeanProxyContext context);
 
-	<BEAN_TYPE> IBeanProxyFactory<BEAN_TYPE> beanProxyFactory(Class<? extends BEAN_TYPE> beanType);
+	<BEAN_TYPE> IBeanProxyFactory<BEAN_TYPE> beanProxyFactory(Object beanTypeId, Class<? extends BEAN_TYPE> beanType);
 
 	IBeanProxyContext beanProxyContext();
 
 	IBeanKeyFactory beanKeyFactory();
 
+	<BEAN_TYPE> IBeanTableModelBuilder<BEAN_TYPE> beanTableModelBuilder(Object entityId);
+
 	<BEAN_TYPE> IBeanTableModelBuilder<BEAN_TYPE> beanTableModelBuilder(Class<BEAN_TYPE> beanType);
 
 	<BEAN_TYPE> IBeanTableModelBuilder<BEAN_TYPE> beanTableModelBuilder(Object entityId, Class<BEAN_TYPE> beanType);
+
+	<BEAN_TYPE> IBeanTableModelBuilder<BEAN_TYPE> beanTableModelBuilder(
+		Object entityId,
+		Object beanTypeId,
+		Class<BEAN_TYPE> beanType);
+
+	<CHILD_BEAN_TYPE> IBeanRelationTreeModelBuilder<CHILD_BEAN_TYPE> beanRelationTreeModelBuilder(Object entityId);
 
 	<CHILD_BEAN_TYPE> IBeanRelationTreeModelBuilder<CHILD_BEAN_TYPE> beanRelationTreeModelBuilder(Class<CHILD_BEAN_TYPE> beanType);
 
@@ -122,19 +130,32 @@ public interface ICapUiToolkit {
 		Object entityId,
 		Class<CHILD_BEAN_TYPE> beanType);
 
+	<CHILD_BEAN_TYPE> IBeanRelationTreeModelBuilder<CHILD_BEAN_TYPE> beanRelationTreeModelBuilder(
+		Object entityId,
+		Object beanTypeId,
+		Class<CHILD_BEAN_TYPE> beanType);
+
 	<BEAN_TYPE> IBeanTabFolderModelBuilder<BEAN_TYPE> beanTabFolderModelBuilder(Class<BEAN_TYPE> beanType);
 
+	<BEAN_TYPE> IBeanTabFolderModelBuilder<BEAN_TYPE> beanTabFolderBuilder(Object entityId);
+
 	<BEAN_TYPE> IBeanTabFolderModelBuilder<BEAN_TYPE> beanTabFolderModelBuilder(Object entityId, Class<BEAN_TYPE> beanType);
+
+	<BEAN_TYPE> IBeanTabFolderModelBuilder<BEAN_TYPE> beanTabFolderModelBuilder(
+		Object entityId,
+		Object beanTypeId,
+		Class<BEAN_TYPE> beanType);
 
 	<BEAN_TYPE> ISingleBeanModelBuilder<BEAN_TYPE> singleBeanModelBuilder(Class<BEAN_TYPE> beanType);
 
 	<BEAN_TYPE> ISingleBeanModelBuilder<BEAN_TYPE> singleBeanModelBuilder(Object entityId, Class<BEAN_TYPE> beanType);
 
-	IBeanTableModelBuilder<IBeanDto> beanTableModelBuilder(Object entityId);
+	<BEAN_TYPE> ISingleBeanModelBuilder<BEAN_TYPE> singleBeanModelBuilder(
+		Object entityId,
+		Object beanTypeId,
+		Class<BEAN_TYPE> beanType);
 
-	IBeanTabFolderModelBuilder<IBeanDto> beanTabFolderBuilder(Object entityId);
-
-	ISingleBeanModelBuilder<IBeanDto> singleBeanModelBuilder(Object entityId);
+	<BEAN_TYPE> ISingleBeanModelBuilder<BEAN_TYPE> singleBeanModelBuilder(Object entityId);
 
 	IBeanTableModelConfigBuilder beanTableModelConfigBuilder();
 
@@ -154,9 +175,13 @@ public interface ICapUiToolkit {
 		String labelPattern,
 		Collection<? extends IAttribute<?>> attributes);
 
-	<BEAN_TYPE> IEntityTypeId<BEAN_TYPE> entityTypeId(Object entityId, Class<BEAN_TYPE> beanType);
+	<BEAN_TYPE> IEntityTypeId<BEAN_TYPE> entityTypeId(Object entityId);
 
 	<BEAN_TYPE> IEntityTypeId<BEAN_TYPE> entityTypeId(Class<BEAN_TYPE> beanType);
+
+	<BEAN_TYPE> IEntityTypeId<BEAN_TYPE> entityTypeId(Object entityId, Class<BEAN_TYPE> beanType);
+
+	<BEAN_TYPE> IEntityTypeId<BEAN_TYPE> entityTypeId(Object entityId, Object beanTypeId, Class<BEAN_TYPE> beanType);
 
 	ILookUpCache lookUpCache();
 

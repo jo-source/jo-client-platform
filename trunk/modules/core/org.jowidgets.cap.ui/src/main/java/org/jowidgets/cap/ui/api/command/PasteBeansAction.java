@@ -40,19 +40,19 @@ public final class PasteBeansAction {
 	private PasteBeansAction() {}
 
 	public static <BEAN_TYPE> IPasteBeansActionBuilder<BEAN_TYPE> builder(
-		final Object entityId,
+		final Object beanTypeId,
 		final Class<? extends BEAN_TYPE> beanType,
 		final IBeanListModel<BEAN_TYPE> model,
 		final IDisposeObservable disposeObservable) {
-		return CapUiToolkit.actionFactory().pasteBeansActionBuilder(entityId, beanType, model, disposeObservable);
+		return CapUiToolkit.actionFactory().pasteBeansActionBuilder(beanTypeId, beanType, model, disposeObservable);
 	}
 
 	public static <BEAN_TYPE> IAction create(
-		final Object entityId,
+		final Object beanTypeId,
 		final Class<? extends BEAN_TYPE> beanType,
 		final IBeanListModel<BEAN_TYPE> model,
 		final IDisposeObservable disposeObservable) {
-		return builder(entityId, beanType, model, disposeObservable).build();
+		return builder(beanTypeId, beanType, model, disposeObservable).build();
 	}
 
 	public static <BEAN_TYPE> IPasteBeansActionBuilder<BEAN_TYPE> builder(final IBeanTable<BEAN_TYPE> table) {

@@ -33,6 +33,11 @@ import java.util.List;
 public interface IBeanSelection<BEAN_TYPE> {
 
 	/**
+	 * @return The bean type id of the selection. May be null for empty selection
+	 */
+	Object getBeanTypeId();
+
+	/**
 	 * @return The bean type of the selection. May be null for empty selection.
 	 */
 	Class<? extends BEAN_TYPE> getBeanType();

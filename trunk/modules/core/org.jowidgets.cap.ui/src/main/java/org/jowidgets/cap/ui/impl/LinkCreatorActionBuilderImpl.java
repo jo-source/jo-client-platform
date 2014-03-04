@@ -105,8 +105,10 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 	private BeanMessageStatePolicy sourceMessageStatePolicy;
 	private IBeanListModel<LINKABLE_BEAN_TYPE> linkedModel;
 	private String linkedEntityLabel;
+	private Object linkBeanTypeId;
 	private Class<? extends LINK_BEAN_TYPE> linkBeanType;
 	private IFactory<IBeanProxy<LINK_BEAN_TYPE>> linkDefaultFactory;
+	private Object linkableBeanTypeId;
 	private Class<? extends LINKABLE_BEAN_TYPE> linkableBeanType;
 	private IBeanFormBluePrint<LINK_BEAN_TYPE> linkBeanForm;
 	private IBeanFormBluePrint<LINKABLE_BEAN_TYPE> linkableBeanForm;
@@ -139,6 +141,7 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 				if (descriptor != null) {
 					final Class beanType = descriptor.getBeanType();
 					setLinkBeanType(beanType);
+					setLinkBeanTypeId(descriptor.getBeanTypeId());
 					final List<IAttribute<Object>> attributes = createAttributes(descriptor);
 					setLinkDefaultFactory(new IFactory<IBeanProxy<LINK_BEAN_TYPE>>() {
 						@Override
@@ -151,7 +154,9 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 									defaultValues.put(propertyName, defaultValue);
 								}
 							}
-							final IBeanProxyFactory<LINK_BEAN_TYPE> proxyFactory = CapUiToolkit.beanProxyFactory(linkBeanType);
+							final IBeanProxyFactory<LINK_BEAN_TYPE> proxyFactory = CapUiToolkit.beanProxyFactory(
+									linkBeanTypeId,
+									linkBeanType);
 							return proxyFactory.createTransientProxy(attributes, defaultValues);
 						}
 					});
@@ -198,6 +203,7 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 
 					final Class linkableType = descriptor.getBeanType();
 					setLinkableBeanType(linkableType);
+					setLinkableBeanTypId(descriptor.getBeanTypeId());
 					final List<IAttribute<Object>> attributes = createAttributes(descriptor);
 					final IBeanFormBluePrint beanFormBp = cbpf.beanForm(linkableEntityId, attributes);
 					beanFormBp.setBeanType(linkableType);
@@ -426,6 +432,14 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 	}
 
 	@Override
+	public ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setLinkBeanTypeId(
+		final Object beanTypeId) {
+		checkExhausted();
+		this.linkBeanTypeId = beanTypeId;
+		return this;
+	}
+
+	@Override
 	public ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setLinkBeanType(
 		final Class<? extends LINK_BEAN_TYPE> beanType) {
 		checkExhausted();
@@ -438,6 +452,14 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 		final Class<? extends LINKABLE_BEAN_TYPE> beanType) {
 		checkExhausted();
 		this.linkableBeanType = beanType;
+		return this;
+	}
+
+	@Override
+	public ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setLinkableBeanTypId(
+		final Object linkableBeanTypeId) {
+		checkExhausted();
+		this.linkableBeanTypeId = linkableBeanTypeId;
 		return this;
 	}
 
@@ -553,10 +575,12 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 			sourceExecutableCheckers,
 			linkedModel,
 			linkedCardinality,
+			linkBeanTypeId,
 			linkBeanType,
 			linkBeanForm,
 			linkDefaultFactory,
 			linkBeanPropertyValidators,
+			linkableBeanTypeId,
 			linkableBeanType,
 			linkableBeanForm,
 			linkableTable,

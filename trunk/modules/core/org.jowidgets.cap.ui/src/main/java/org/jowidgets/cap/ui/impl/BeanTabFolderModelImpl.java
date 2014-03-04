@@ -110,6 +110,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 	private static final int MAX_TABS = 100;
 
 	private final Object entityId;
+	private final Object beanTypeId;
 	private final Class<BEAN_TYPE> beanType;
 	private final Map<String, Object> defaultValues;
 	private final List<IAttribute<Object>> attributes;
@@ -157,6 +158,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 	@SuppressWarnings("unchecked")
 	BeanTabFolderModelImpl(
 		final Object entityId,
+		final Object beanTypeId,
 		final Class<? extends BEAN_TYPE> beanType,
 		final List<IAttribute<Object>> attributes,
 		final IBeanProxyLabelRenderer<BEAN_TYPE> renderer,
@@ -180,6 +182,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 		//arguments checks
 		Assert.paramNotNull(interceptors, "interceptors");
 		Assert.paramNotNull(entityId, "entityId");
+		Assert.paramNotNull(beanTypeId, "beanTypeId");
 		Assert.paramNotNull(beanType, "beanType");
 		Assert.paramNotNull(renderer, "renderer");
 		Assert.paramNotNull(readerService, "readerService");
@@ -189,6 +192,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 
 		this.parent = parent;
 		this.entityId = entityId;
+		this.beanTypeId = beanTypeId;
 		this.beanType = (Class<BEAN_TYPE>) beanType;
 		this.clearOnEmptyFilter = clearOnEmptyFilter;
 		this.clearOnEmptyParentBeans = clearOnEmptyParentBeans;
@@ -235,7 +239,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 		this.sortModelChangeListener = new SortModelChangeListener();
 		this.disposed = false;
 		this.beansStateTracker = CapUiToolkit.beansStateTracker(beanProxyContext);
-		this.beanProxyFactory = CapUiToolkit.beanProxyFactory(beanType);
+		this.beanProxyFactory = CapUiToolkit.beanProxyFactory(beanTypeId, beanType);
 		this.beanListModelObservable = new BeanListModelObservable<BEAN_TYPE>();
 		this.beanSelectionObservable = new BeanSelectionObservable<BEAN_TYPE>();
 		this.disposeObservable = new DisposeObservable();
@@ -336,6 +340,11 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 	@Override
 	public Object getEntityId() {
 		return entityId;
+	}
+
+	@Override
+	public Object getBeanTypeId() {
+		return beanTypeId;
 	}
 
 	@Override
@@ -698,7 +707,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 	}
 
 	private void fireSelectionChanged() {
-		beanSelectionObservable.fireBeanSelectionEvent(this, beanType, entityId, getSelectedBeans());
+		beanSelectionObservable.fireBeanSelectionEvent(this, beanTypeId, beanType, entityId, getSelectedBeans());
 	}
 
 	private List<IBeanProxy<BEAN_TYPE>> getSelectedBeans() {
@@ -713,7 +722,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 
 	@Override
 	public IBeanSelection<BEAN_TYPE> getBeanSelection() {
-		return new BeanSelectionImpl<BEAN_TYPE>(beanType, entityId, getSelectedBeans());
+		return new BeanSelectionImpl<BEAN_TYPE>(beanTypeId, beanType, entityId, getSelectedBeans());
 	}
 
 	@Override

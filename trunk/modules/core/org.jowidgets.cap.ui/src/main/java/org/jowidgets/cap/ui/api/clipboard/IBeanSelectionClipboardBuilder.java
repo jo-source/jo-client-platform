@@ -36,6 +36,8 @@ public interface IBeanSelectionClipboardBuilder {
 
 	IBeanSelectionClipboardBuilder setEntityId(Object entityId);
 
+	IBeanSelectionClipboardBuilder setBeanTypeId(Object beanTypeId);
+
 	IBeanSelectionClipboardBuilder setBeanType(Class<?> beanType);
 
 	IBeanSelectionClipboardBuilder setBeans(Collection<? extends IBeanDto> beans);

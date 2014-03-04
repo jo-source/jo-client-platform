@@ -97,6 +97,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 	private static final IMessage LOAD_ERROR = Messages.getMessage("BeanTableModelImpl.load_error");
 	private static final IMessage LOADING_DATA = Messages.getMessage("BeanTableModelImpl.load_data");
 
+	private final Object beanTypeId;
 	private final Class<BEAN_TYPE> beanType;
 	private final Object entityId;
 
@@ -127,6 +128,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 
 	@SuppressWarnings("unchecked")
 	SingleBeanModelImpl(
+		final Object beanTypeId,
 		final Class<? extends BEAN_TYPE> beanType,
 		final Object entityId,
 		final IReaderService<? extends Object> readerService,
@@ -143,6 +145,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 		List<IAttribute<Object>> attributes,
 		final IBeanProxyContext beanProxyContext) {
 
+		Assert.paramNotNull(beanTypeId, "beanTypeId");
 		Assert.paramNotNull(beanType, "beanType");
 		Assert.paramNotNull(entityId, "entityId");
 		Assert.paramNotNull(readerService, "readerService");
@@ -185,6 +188,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 			beanPropertyValidators.add(new BeanPropertyValidatorAdapter<BEAN_TYPE>(beanValidator));
 		}
 
+		this.beanTypeId = beanTypeId;
 		this.beanType = (Class<BEAN_TYPE>) beanType;
 		this.entityId = entityId;
 
@@ -195,7 +199,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 		this.linkType = linkType;
 
 		this.beansStateTracker = CapUiToolkit.beansStateTracker(beanProxyContext);
-		this.beanProxyFactory = CapUiToolkit.beanProxyFactory(beanType);
+		this.beanProxyFactory = CapUiToolkit.beanProxyFactory(beanTypeId, beanType);
 
 		this.changeObservable = new ChangeObservable();
 		this.beanListModelObservable = new BeanListModelObservable<BEAN_TYPE>();
@@ -241,6 +245,11 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 		final IAttributeCollectionModifierBuilder modifierBuilder = attributeToolkit.createAttributeCollectionModifierBuilder();
 		modifierBuilder.addDefaultModifier().setEditable(false);
 		return CapUiToolkit.attributeToolkit().createAttributesCopy(attributes, modifierBuilder.build());
+	}
+
+	@Override
+	public Object getBeanTypeId() {
+		return beanTypeId;
 	}
 
 	@Override
@@ -318,7 +327,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 	}
 
 	private void fireSelectionChanged() {
-		beanSelectionObservable.fireBeanSelectionEvent(this, beanType, entityId, getSelectedBeans());
+		beanSelectionObservable.fireBeanSelectionEvent(this, beanTypeId, beanType, entityId, getSelectedBeans());
 	}
 
 	private List<IBeanProxy<BEAN_TYPE>> getSelectedBeans() {
@@ -332,7 +341,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 
 	@Override
 	public IBeanSelection<BEAN_TYPE> getBeanSelection() {
-		return new BeanSelectionImpl<BEAN_TYPE>(beanType, entityId, getSelectedBeans());
+		return new BeanSelectionImpl<BEAN_TYPE>(beanTypeId, beanType, entityId, getSelectedBeans());
 	}
 
 	@Override

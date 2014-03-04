@@ -49,7 +49,7 @@ import org.jowidgets.util.Assert;
 final class PasteBeansActionBuilderImpl<BEAN_TYPE> extends AbstractCapActionBuilderImpl<IPasteBeansActionBuilder<BEAN_TYPE>> implements
 		IPasteBeansActionBuilder<BEAN_TYPE> {
 
-	private final Object entityId;
+	private final Object beanTypeId;
 	private final Class<? extends BEAN_TYPE> beanType;
 	private final IBeanListModel<BEAN_TYPE> model;
 	private final IDisposeObservable disposeObservable;
@@ -59,17 +59,17 @@ final class PasteBeansActionBuilderImpl<BEAN_TYPE> extends AbstractCapActionBuil
 	private List<IAttribute<?>> attributes;
 
 	PasteBeansActionBuilderImpl(
-		final Object entityId,
+		final Object beanTypeId,
 		final Class<? extends BEAN_TYPE> beanType,
 		final IBeanListModel<BEAN_TYPE> model,
 		final IDisposeObservable disposeObservable) {
 
-		Assert.paramNotNull(entityId, "entityId");
+		Assert.paramNotNull(beanTypeId, "beanTypeId");
 		Assert.paramNotNull(beanType, "beanType");
 		Assert.paramNotNull(model, "model");
 		Assert.paramNotNull(disposeObservable, "disposeObservable");
 
-		this.entityId = entityId;
+		this.beanTypeId = beanTypeId;
 		this.beanType = beanType;
 		this.model = model;
 		this.disposeObservable = disposeObservable;
@@ -119,7 +119,7 @@ final class PasteBeansActionBuilderImpl<BEAN_TYPE> extends AbstractCapActionBuil
 	@Override
 	public IAction doBuild() {
 		final BeanPasteCommand<BEAN_TYPE> command = new BeanPasteCommand<BEAN_TYPE>(
-			entityId,
+			beanTypeId,
 			beanType,
 			model,
 			disposeObservable,

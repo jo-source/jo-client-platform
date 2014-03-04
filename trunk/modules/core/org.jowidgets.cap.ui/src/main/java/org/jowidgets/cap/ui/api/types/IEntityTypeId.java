@@ -32,6 +32,8 @@ public interface IEntityTypeId<BEAN_TYPE> {
 
 	Object getEntityId();
 
+	Object getBeanTypeId();
+
 	Class<BEAN_TYPE> getBeanType();
 
 }

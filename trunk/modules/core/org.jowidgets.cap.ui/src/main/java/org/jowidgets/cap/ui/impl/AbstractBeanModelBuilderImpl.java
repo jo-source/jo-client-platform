@@ -54,6 +54,7 @@ import org.jowidgets.cap.ui.api.bean.IBeanSelectionObservable;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
 import org.jowidgets.cap.ui.api.model.IBeanModelBuilder;
 import org.jowidgets.cap.ui.api.model.LinkType;
+import org.jowidgets.cap.ui.api.types.IEntityTypeId;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.util.Assert;
@@ -61,6 +62,7 @@ import org.jowidgets.util.IProvider;
 
 abstract class AbstractBeanModelBuilderImpl<BEAN_TYPE, INSTANCE_TYPE> implements IBeanModelBuilder<BEAN_TYPE, INSTANCE_TYPE> {
 
+	private final Object beanTypeId;
 	private final Class<? extends BEAN_TYPE> beanType;
 	private final Object entityId;
 	private final Set<IBeanValidator<BEAN_TYPE>> beanValidators;
@@ -83,13 +85,11 @@ abstract class AbstractBeanModelBuilderImpl<BEAN_TYPE, INSTANCE_TYPE> implements
 	private IBeanExceptionConverter exceptionConverter;
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	AbstractBeanModelBuilderImpl(final Object entityId, final Class<BEAN_TYPE> beanType) {
-		Assert.paramNotNull(entityId, "entityId");
-		Assert.paramNotNull(beanType, "beanType");
+	AbstractBeanModelBuilderImpl(final Object entityId, final Object beanTypeId, final Class beanType) {
+
+		final IEntityTypeId<BEAN_TYPE> entityTypeId = new EntityTypeIdImpl<BEAN_TYPE>(entityId, beanTypeId, beanType);
 
 		this.beanValidators = new LinkedHashSet<IBeanValidator<BEAN_TYPE>>();
-		this.beanType = beanType;
-		this.entityId = entityId;
 
 		this.beanProxyContext = BeanProxyContext.create();
 		this.exceptionConverter = BeanExceptionConverter.get();
@@ -110,6 +110,10 @@ abstract class AbstractBeanModelBuilderImpl<BEAN_TYPE, INSTANCE_TYPE> implements
 				}
 			}
 		}
+
+		this.beanTypeId = entityTypeId.getBeanTypeId();
+		this.beanType = entityTypeId.getBeanType();
+		this.entityId = entityTypeId.getEntityId();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -298,6 +302,10 @@ abstract class AbstractBeanModelBuilderImpl<BEAN_TYPE, INSTANCE_TYPE> implements
 			}
 		}
 		return result;
+	}
+
+	protected Object getBeanTypeId() {
+		return beanTypeId;
 	}
 
 	protected Class<? extends BEAN_TYPE> getBeanType() {

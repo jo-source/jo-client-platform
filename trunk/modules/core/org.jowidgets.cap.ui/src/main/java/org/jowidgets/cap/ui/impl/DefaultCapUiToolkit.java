@@ -31,7 +31,6 @@ package org.jowidgets.cap.ui.impl;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.ui.api.ICapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
@@ -198,8 +197,10 @@ public final class DefaultCapUiToolkit implements ICapUiToolkit {
 	}
 
 	@Override
-	public <BEAN_TYPE> IBeanProxyFactory<BEAN_TYPE> beanProxyFactory(final Class<? extends BEAN_TYPE> beanType) {
-		return new BeanProxyFactoryImpl<BEAN_TYPE>(beanType);
+	public <BEAN_TYPE> IBeanProxyFactory<BEAN_TYPE> beanProxyFactory(
+		final Object beanTypeId,
+		final Class<? extends BEAN_TYPE> beanType) {
+		return new BeanProxyFactoryImpl<BEAN_TYPE>(beanTypeId, beanType);
 	}
 
 	@Override
@@ -224,67 +225,104 @@ public final class DefaultCapUiToolkit implements ICapUiToolkit {
 	}
 
 	@Override
+	public <BEAN_TYPE> IBeanTableModelBuilder<BEAN_TYPE> beanTableModelBuilder(
+		final Object entityId,
+		final Object beanTypeId,
+		final Class<BEAN_TYPE> beanType) {
+		return new BeanTableModelBuilderImpl<BEAN_TYPE>(entityId, beanTypeId, beanType);
+	}
+
+	@Override
 	public <BEAN_TYPE> IBeanTableModelBuilder<BEAN_TYPE> beanTableModelBuilder(final Class<BEAN_TYPE> beanType) {
-		return new BeanTableModelBuilderImpl<BEAN_TYPE>(beanType, beanType);
+		return new BeanTableModelBuilderImpl<BEAN_TYPE>(null, null, beanType);
 	}
 
 	@Override
 	public <BEAN_TYPE> IBeanTableModelBuilder<BEAN_TYPE> beanTableModelBuilder(
 		final Object entityId,
 		final Class<BEAN_TYPE> beanType) {
-		return new BeanTableModelBuilderImpl<BEAN_TYPE>(entityId, beanType);
+		return new BeanTableModelBuilderImpl<BEAN_TYPE>(entityId, null, beanType);
 	}
 
 	@Override
-	public IBeanTableModelBuilder<IBeanDto> beanTableModelBuilder(final Object entityId) {
-		return new BeanTableModelBuilderImpl<IBeanDto>(entityId, IBeanDto.class);
+	public <BEAN_TYPE> IBeanTableModelBuilder<BEAN_TYPE> beanTableModelBuilder(final Object entityId) {
+		return new BeanTableModelBuilderImpl<BEAN_TYPE>(entityId, null, null);
+	}
+
+	@Override
+	public <CHILD_BEAN_TYPE> IBeanRelationTreeModelBuilder<CHILD_BEAN_TYPE> beanRelationTreeModelBuilder(final Object entityId) {
+		return new BeanRelationTreeModelBuilderImpl<CHILD_BEAN_TYPE>(entityId, null, null);
 	}
 
 	@Override
 	public <CHILD_BEAN_TYPE> IBeanRelationTreeModelBuilder<CHILD_BEAN_TYPE> beanRelationTreeModelBuilder(
 		final Class<CHILD_BEAN_TYPE> beanType) {
-		return new BeanRelationTreeModelBuilderImpl<CHILD_BEAN_TYPE>(beanType, beanType);
+		return new BeanRelationTreeModelBuilderImpl<CHILD_BEAN_TYPE>(null, null, beanType);
 	}
 
 	@Override
 	public <CHILD_BEAN_TYPE> IBeanRelationTreeModelBuilder<CHILD_BEAN_TYPE> beanRelationTreeModelBuilder(
 		final Object entityId,
 		final Class<CHILD_BEAN_TYPE> beanType) {
-		return new BeanRelationTreeModelBuilderImpl<CHILD_BEAN_TYPE>(entityId, beanType);
+		return new BeanRelationTreeModelBuilderImpl<CHILD_BEAN_TYPE>(entityId, null, beanType);
+	}
+
+	@Override
+	public <CHILD_BEAN_TYPE> IBeanRelationTreeModelBuilder<CHILD_BEAN_TYPE> beanRelationTreeModelBuilder(
+		final Object entityId,
+		final Object beanTypeId,
+		final Class<CHILD_BEAN_TYPE> beanType) {
+		return new BeanRelationTreeModelBuilderImpl<CHILD_BEAN_TYPE>(beanType, beanTypeId, beanType);
+	}
+
+	@Override
+	public <BEAN_TYPE> IBeanTabFolderModelBuilder<BEAN_TYPE> beanTabFolderBuilder(final Object entityId) {
+		return new BeanTabFolderModelBuilderImpl<BEAN_TYPE>(entityId, null, null);
 	}
 
 	@Override
 	public <BEAN_TYPE> IBeanTabFolderModelBuilder<BEAN_TYPE> beanTabFolderModelBuilder(final Class<BEAN_TYPE> beanType) {
-		return new BeanTabFolderModelBuilderImpl<BEAN_TYPE>(beanType, beanType);
+		return new BeanTabFolderModelBuilderImpl<BEAN_TYPE>(null, null, beanType);
 	}
 
 	@Override
 	public <BEAN_TYPE> IBeanTabFolderModelBuilder<BEAN_TYPE> beanTabFolderModelBuilder(
 		final Object entityId,
 		final Class<BEAN_TYPE> beanType) {
-		return new BeanTabFolderModelBuilderImpl<BEAN_TYPE>(entityId, beanType);
+		return new BeanTabFolderModelBuilderImpl<BEAN_TYPE>(entityId, null, beanType);
 	}
 
 	@Override
-	public IBeanTabFolderModelBuilder<IBeanDto> beanTabFolderBuilder(final Object entityId) {
-		return new BeanTabFolderModelBuilderImpl<IBeanDto>(entityId, IBeanDto.class);
+	public <BEAN_TYPE> IBeanTabFolderModelBuilder<BEAN_TYPE> beanTabFolderModelBuilder(
+		final Object entityId,
+		final Object beanTypeId,
+		final Class<BEAN_TYPE> beanType) {
+		return new BeanTabFolderModelBuilderImpl<BEAN_TYPE>(entityId, beanTypeId, beanType);
+	}
+
+	@Override
+	public <BEAN_TYPE> ISingleBeanModelBuilder<BEAN_TYPE> singleBeanModelBuilder(
+		final Object entityId,
+		final Object beanTypeId,
+		final Class<BEAN_TYPE> beanType) {
+		return new SingleBeanModelBuilder<BEAN_TYPE>(beanType, beanTypeId, beanType);
 	}
 
 	@Override
 	public <BEAN_TYPE> ISingleBeanModelBuilder<BEAN_TYPE> singleBeanModelBuilder(final Class<BEAN_TYPE> beanType) {
-		return new SingleBeanModelBuilder<BEAN_TYPE>(beanType, beanType);
+		return new SingleBeanModelBuilder<BEAN_TYPE>(null, null, beanType);
 	}
 
 	@Override
 	public <BEAN_TYPE> ISingleBeanModelBuilder<BEAN_TYPE> singleBeanModelBuilder(
 		final Object entityId,
 		final Class<BEAN_TYPE> beanType) {
-		return new SingleBeanModelBuilder<BEAN_TYPE>(entityId, beanType);
+		return new SingleBeanModelBuilder<BEAN_TYPE>(entityId, null, beanType);
 	}
 
 	@Override
-	public ISingleBeanModelBuilder<IBeanDto> singleBeanModelBuilder(final Object entityId) {
-		return new SingleBeanModelBuilder<IBeanDto>(entityId, IBeanDto.class);
+	public <BEAN_TYPE> ISingleBeanModelBuilder<BEAN_TYPE> singleBeanModelBuilder(final Object entityId) {
+		return new SingleBeanModelBuilder<BEAN_TYPE>(entityId, null, null);
 	}
 
 	@Override
@@ -330,13 +368,26 @@ public final class DefaultCapUiToolkit implements ICapUiToolkit {
 	}
 
 	@Override
-	public <BEAN_TYPE> IEntityTypeId<BEAN_TYPE> entityTypeId(final Object entityId, final Class<BEAN_TYPE> beanType) {
-		return new EntityTypeIdImpl<BEAN_TYPE>(entityId, beanType);
+	public <BEAN_TYPE> IEntityTypeId<BEAN_TYPE> entityTypeId(final Object entityId) {
+		return new EntityTypeIdImpl<BEAN_TYPE>(entityId, null, null);
 	}
 
 	@Override
 	public <BEAN_TYPE> IEntityTypeId<BEAN_TYPE> entityTypeId(final Class<BEAN_TYPE> beanType) {
-		return entityTypeId(beanType, beanType);
+		return new EntityTypeIdImpl<BEAN_TYPE>(null, null, beanType);
+	}
+
+	@Override
+	public <BEAN_TYPE> IEntityTypeId<BEAN_TYPE> entityTypeId(final Object entityId, final Class<BEAN_TYPE> beanType) {
+		return new EntityTypeIdImpl<BEAN_TYPE>(entityId, null, beanType);
+	}
+
+	@Override
+	public <BEAN_TYPE> IEntityTypeId<BEAN_TYPE> entityTypeId(
+		final Object entityId,
+		final Object beanTypeId,
+		final Class<BEAN_TYPE> beanType) {
+		return new EntityTypeIdImpl<BEAN_TYPE>(entityId, beanTypeId, beanType);
 	}
 
 	@Override

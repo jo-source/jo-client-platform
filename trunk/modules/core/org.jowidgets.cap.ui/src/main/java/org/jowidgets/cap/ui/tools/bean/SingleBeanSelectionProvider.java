@@ -44,11 +44,13 @@ public final class SingleBeanSelectionProvider<BEAN_TYPE> implements IBeanSelect
 	public SingleBeanSelectionProvider(
 		final IBeanProxy<BEAN_TYPE> bean,
 		final Object entityId,
+		final Object beanTypeId,
 		final Class<? extends BEAN_TYPE> beanType) {
 
 		final List<IBeanProxy<BEAN_TYPE>> selection;
 		if (bean != null) {
 			Assert.paramNotNull(entityId, "entityId");
+			Assert.paramNotNull(beanTypeId, "beanTypeId");
 			Assert.paramNotNull(beanType, "beanType");
 			selection = Collections.singletonList(bean);
 		}
@@ -57,6 +59,11 @@ public final class SingleBeanSelectionProvider<BEAN_TYPE> implements IBeanSelect
 		}
 
 		this.beanSelection = new IBeanSelection<BEAN_TYPE>() {
+
+			@Override
+			public Object getBeanTypeId() {
+				return beanTypeId;
+			}
 
 			@Override
 			public Class<? extends BEAN_TYPE> getBeanType() {

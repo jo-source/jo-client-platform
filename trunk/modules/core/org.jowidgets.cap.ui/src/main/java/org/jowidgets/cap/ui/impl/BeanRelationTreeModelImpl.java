@@ -406,7 +406,7 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE> implements
 
 			}
 			this.selection = EMPTY_BEAN_SELECTION;
-			beanSelectionObservable.fireBeanSelectionEvent(BeanRelationTreeModelImpl.this, null, null, getSelection());
+			beanSelectionObservable.fireBeanSelectionEvent(BeanRelationTreeModelImpl.this, null, null, null, getSelection());
 		}
 		//		else {
 		//			TODO MG implement programmatic selection changed != emptySelection
@@ -458,6 +458,7 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE> implements
 			if (changedNode != null) {
 				final BeanSelectionEventImpl treeSelectionEvent = new BeanSelectionEventImpl(
 					BeanRelationTreeModelImpl.this,
+					selectionEvent.getBeanTypeId(),
 					selectionEvent.getBeanType(),
 					selectionEvent.getEntityId(),
 					selectionEvent.getSelection());

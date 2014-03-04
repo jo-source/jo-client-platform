@@ -257,6 +257,7 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 			builder.setParent(new SingleBeanSelectionProvider<Object>(
 				relation.getParentBean(),
 				relation.getParentEntityId(),
+				relation.getParentBeanTypeId(),
 				relation.getParentBeanType()), LinkType.SELECTION_FIRST);
 		}
 
@@ -381,6 +382,7 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 		final SingleBeanSelectionProvider<Object> linkSource = new SingleBeanSelectionProvider<Object>(
 			relationNode.getParentBean(),
 			relationNode.getParentEntityId(),
+			relationNode.getParentBeanTypeId(),
 			relationNode.getParentBeanType());
 
 		IPasteLinkActionBuilder<Object, Object, Object> builder;
@@ -407,6 +409,7 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 		final SingleBeanSelectionProvider<Object> linkSource = new SingleBeanSelectionProvider<Object>(
 			relationNode.getParentBean(),
 			relationNode.getParentEntityId(),
+			relationNode.getParentBeanTypeId(),
 			relationNode.getParentBeanType());
 
 		ILinkCreatorActionBuilder<Object, Object, Object> builder;
@@ -434,6 +437,7 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 		final SingleBeanSelectionProvider<Object> linkSource = new SingleBeanSelectionProvider<Object>(
 			relationNode.getParentBean(),
 			relationNode.getParentEntityId(),
+			relationNode.getParentBeanTypeId(),
 			relationNode.getParentBeanType());
 		builder = CapUiToolkit.actionFactory().linkDeleterActionBuilder(linkSource, table.getModel(), link);
 		builder.addExecutionInterceptor(new RemoveBeanInterceptor(relationNode, table.getModel()));

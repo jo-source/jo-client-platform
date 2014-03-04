@@ -90,6 +90,7 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 	private Rectangle dialogBounds;
 
 	BeanCreatorCommand(
+		final Object beanTypeId,
 		final Class<? extends BEAN_TYPE> beanType,
 		final List<IBeanPropertyValidator<BEAN_TYPE>> beanPropertyValidators,
 		final IBeanListModel<BEAN_TYPE> model,
@@ -123,7 +124,7 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 			null,
 			true);
 
-		this.beanFactory = CapUiToolkit.beanProxyFactory(beanType);
+		this.beanFactory = CapUiToolkit.beanProxyFactory(beanTypeId, beanType);
 		this.executionObservable = new ExecutionObservable<List<IBeanDto>>(executionInterceptors);
 		this.creatorInterceptors = new LinkedList<ICreatorInterceptor<BEAN_TYPE>>(creatorInterceptors);
 

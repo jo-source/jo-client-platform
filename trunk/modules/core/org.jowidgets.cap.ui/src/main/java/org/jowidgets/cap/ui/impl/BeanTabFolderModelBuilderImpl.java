@@ -49,10 +49,8 @@ final class BeanTabFolderModelBuilderImpl<BEAN_TYPE> extends
 	private ISortModelConfig sortModelConfig;
 	private IBeanProxyLabelRenderer<BEAN_TYPE> renderer;
 
-	BeanTabFolderModelBuilderImpl(final Object entityId, final Class<BEAN_TYPE> beanType) {
-		super(entityId, beanType);
-		Assert.paramNotNull(entityId, "entityId");
-		Assert.paramNotNull(beanType, "beanType");
+	BeanTabFolderModelBuilderImpl(final Object entityId, final Object beanTypeId, final Class<BEAN_TYPE> beanType) {
+		super(entityId, beanTypeId, beanType);
 
 		this.interceptors = new LinkedList<IBeanTabFolderModelInterceptor<BEAN_TYPE>>();
 		this.clearOnEmptyFilter = false;
@@ -106,6 +104,7 @@ final class BeanTabFolderModelBuilderImpl<BEAN_TYPE> extends
 	public IBeanTabFolderModel<BEAN_TYPE> build() {
 		return new BeanTabFolderModelImpl<BEAN_TYPE>(
 			getEntityId(),
+			getBeanTypeId(),
 			getBeanType(),
 			getAttributes(),
 			renderer,
