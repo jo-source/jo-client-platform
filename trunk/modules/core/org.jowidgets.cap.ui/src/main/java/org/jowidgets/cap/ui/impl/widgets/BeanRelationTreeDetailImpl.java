@@ -47,6 +47,7 @@ import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
 import org.jowidgets.cap.ui.api.command.IDeleterActionBuilder;
 import org.jowidgets.cap.ui.api.command.ILinkCreatorActionBuilder;
 import org.jowidgets.cap.ui.api.command.ILinkDeleterActionBuilder;
+import org.jowidgets.cap.ui.api.command.IPasteLinkActionBuilder;
 import org.jowidgets.cap.ui.api.filter.IUiFilter;
 import org.jowidgets.cap.ui.api.model.LinkType;
 import org.jowidgets.cap.ui.api.sort.ISortModelConfig;
@@ -211,6 +212,7 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 
 			final IBeanTableBluePrint<Object> beanTableBp = cbpf.beanTable(tableModel);
 			beanTableBp.setDefaultCreatorAction(false);
+			beanTableBp.setDefaultPasteAction(false);
 			beanTableBp.addMenuInterceptor(new BeanTableMenuInterceptorAdapter<Object>() {
 				@Override
 				public IDeleterActionBuilder<Object> deleterActionBuilder(
@@ -350,6 +352,13 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 	private void addTableActions(final IBeanRelationNodeModel<Object, Object> relationNode, final IBeanTable<Object> table) {
 		final IEntityLinkDescriptor link = getLinkDescriptor(relationNode);
 		if (link != null && link.getLinkCreatorService() != null) {
+			final IAction pasteLinkAction = createPasteLinkAction(relationNode, table, link);
+			if (pasteLinkAction != null) {
+				table.getCellPopMenu().addAction(pasteLinkAction);
+				table.getTablePopupMenu().addAction(pasteLinkAction);
+			}
+		}
+		if (link != null && link.getLinkCreatorService() != null) {
 			final IAction linkCreatorAction = createLinkCreatorAction(relationNode, table, link);
 			if (linkCreatorAction != null) {
 				table.getCellPopMenu().addAction(linkCreatorAction);
@@ -361,6 +370,32 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 			if (linkDeleterAction != null) {
 				table.getCellPopMenu().addAction(linkDeleterAction);
 			}
+		}
+	}
+
+	private IAction createPasteLinkAction(
+		final IBeanRelationNodeModel<Object, Object> relationNode,
+		final IBeanTable<Object> table,
+		final IEntityLinkDescriptor link) {
+
+		final SingleBeanSelectionProvider<Object> linkSource = new SingleBeanSelectionProvider<Object>(
+			relationNode.getParentBean(),
+			relationNode.getParentEntityId(),
+			relationNode.getParentBeanType());
+
+		IPasteLinkActionBuilder<Object, Object, Object> builder;
+		builder = CapUiToolkit.actionFactory().pasteLinkActionBuilder(linkSource, link);
+		builder.setLinkedModel(table.getModel());
+		builder.addExecutionInterceptor(new AddBeanInterceptor(relationNode));
+
+		if (menuInterceptor != null) {
+			builder = menuInterceptor.pasteLinkActionBuilder(table, builder);
+		}
+		if (builder != null) {
+			return builder.build();
+		}
+		else {
+			return null;
 		}
 	}
 

@@ -78,6 +78,7 @@ import org.jowidgets.cap.ui.api.command.ICopyActionBuilder;
 import org.jowidgets.cap.ui.api.command.IDeleterActionBuilder;
 import org.jowidgets.cap.ui.api.command.ILinkCreatorActionBuilder;
 import org.jowidgets.cap.ui.api.command.ILinkDeleterActionBuilder;
+import org.jowidgets.cap.ui.api.command.IPasteLinkActionBuilder;
 import org.jowidgets.cap.ui.api.image.ImageResolver;
 import org.jowidgets.cap.ui.api.model.ILabelModel;
 import org.jowidgets.cap.ui.api.plugin.IBeanRelationTreePlugin;
@@ -134,7 +135,6 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 	private final boolean defaultLinkDeleterAction;
 	private final boolean defaultDeleterAction;
 	private final boolean defaultCopyAction;
-	@SuppressWarnings("unused")
 	private final boolean defaultLinkPasteAction;
 
 	private final Map<ITreeNode, Tuple<IBeanRelationNodeModel<Object, Object>, IBeanProxy<Object>>> nodesMap;
@@ -455,10 +455,28 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 		return null;
 	}
 
+	private IAction createRelationNodePasteLinkAction(final IBeanRelationNodeModel<Object, Object> relationNodeModel) {
+		final IEntityService entityService = ServiceProvider.getService(IEntityService.ID);
+		if (entityService != null) {
+			final List<IEntityLinkDescriptor> links = entityService.getEntityLinks(relationNodeModel.getParentEntityId());
+			for (final IEntityLinkDescriptor link : links) {
+				if (relationNodeModel.getChildEntityId().equals(link.getLinkedEntityId())) {
+					return createPasteLinkAction(relationNodeModel, link);
+				}
+			}
+		}
+		return null;
+	}
+
 	private IMenuModel createRelationNodeMenus(
 		final IBeanRelationNodeModel<Object, Object> relationNodeModel,
+		final IAction pasteLinkAction,
 		final IAction linkCreatorAction) {
 		final IMenuModel result = new MenuModel();
+
+		if (pasteLinkAction != null) {
+			result.addAction(pasteLinkAction);
+		}
 
 		if (linkCreatorAction != null) {
 			result.addAction(linkCreatorAction);
@@ -506,6 +524,37 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 		return null;
 	}
 
+	private IAction createPasteLinkAction(
+		final IBeanRelationNodeModel<Object, Object> relationNodeModel,
+		final IEntityLinkDescriptor link) {
+		if (!defaultLinkPasteAction) {
+			return null;
+		}
+		final ICapActionFactory actionFactory = CapUiToolkit.actionFactory();
+		final IBeanSelectionProvider<Object> source = new SingleBeanSelectionProvider<Object>(
+			relationNodeModel.getParentBean(),
+			relationNodeModel.getParentEntityId(),
+			relationNodeModel.getParentBeanType());
+		try {
+			if (link.getLinkCreatorService() != null) {
+				IPasteLinkActionBuilder<Object, Object, Object> builder = actionFactory.pasteLinkActionBuilder(source, link);
+				builder.setLinkedModel(relationNodeModel);
+				if (!autoKeyBinding) {
+					builder.setAccelerator(null);
+				}
+				if (menuInterceptor != null) {
+					builder = menuInterceptor.pasteLinkActionBuilder(relationNodeModel, builder);
+				}
+				if (builder != null) {
+					return builder.build();
+				}
+			}
+		}
+		catch (final Exception e) {
+		}
+		return null;
+	}
+
 	private IMenuModel createNodeMenus(
 		final IBeanRelationNodeModel<Object, Object> relationNodeModel,
 		final IMenuModel relationMenu) {
@@ -513,16 +562,16 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 
 		boolean needSeparator = false;
 
+		final IAction copyAction = createCopyAction(relationNodeModel);
+		if (copyAction != null) {
+			result.addAction(copyAction);
+			needSeparator = true;
+		}
+
 		if (relationMenu.getChildren().size() > 0) {
 			for (final IMenuItemModel item : relationMenu.getChildren()) {
 				result.addItem(item);
 			}
-			needSeparator = true;
-		}
-
-		final IAction copyAction = createCopyAction(relationNodeModel);
-		if (copyAction != null) {
-			result.addAction(copyAction);
 			needSeparator = true;
 		}
 
@@ -991,8 +1040,13 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 						childRelationNode.addDisposeListener(new TreeNodeDisposeListener(childRelationNode));
 
 						//create the menu for the relation node
+						final IAction pasteLinkAction = createRelationNodePasteLinkAction(childRelationNodeModel);
 						final IAction createAction = createRelationNodeCreateAction(childRelationNodeModel);
-						final IMenuModel relationMenu = createRelationNodeMenus(childRelationNodeModel, createAction);
+
+						final IMenuModel relationMenu = createRelationNodeMenus(
+								childRelationNodeModel,
+								pasteLinkAction,
+								createAction);
 						if (relationMenu.getChildren().size() > 0) {
 							childRelationNode.setPopupMenu(relationMenu);
 							if (autoKeyBinding) {

@@ -47,6 +47,7 @@ import org.jowidgets.cap.ui.api.command.IDataModelAction;
 import org.jowidgets.cap.ui.api.command.IDeleterActionBuilder;
 import org.jowidgets.cap.ui.api.command.ILinkCreatorActionBuilder;
 import org.jowidgets.cap.ui.api.command.ILinkDeleterActionBuilder;
+import org.jowidgets.cap.ui.api.command.IPasteLinkActionBuilder;
 import org.jowidgets.cap.ui.api.model.LinkType;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationNodeModel;
@@ -296,6 +297,14 @@ class EntityComponent extends AbstractComponent implements IComponent, IEntityCo
 			final IBeanRelationNodeModel<Object, Object> relationNode,
 			final IDeleterActionBuilder<Object> builder) {
 			builder.addExecutionInterceptor(new BeanTableRefreshInterceptor<Object, Void>(tableModel));
+			return builder;
+		}
+
+		@Override
+		public IPasteLinkActionBuilder<Object, Object, Object> pasteLinkActionBuilder(
+			final IBeanRelationNodeModel<Object, Object> relationNode,
+			final IPasteLinkActionBuilder<Object, Object, Object> builder) {
+			builder.addExecutionInterceptor(new BeanTableRefreshInterceptor<Object, List<IBeanDto>>(tableModel));
 			return builder;
 		}
 

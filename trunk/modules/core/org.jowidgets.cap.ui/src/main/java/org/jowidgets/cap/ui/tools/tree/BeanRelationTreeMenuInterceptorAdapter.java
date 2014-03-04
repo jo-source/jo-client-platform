@@ -33,6 +33,7 @@ import org.jowidgets.cap.ui.api.command.ICopyActionBuilder;
 import org.jowidgets.cap.ui.api.command.IDeleterActionBuilder;
 import org.jowidgets.cap.ui.api.command.ILinkCreatorActionBuilder;
 import org.jowidgets.cap.ui.api.command.ILinkDeleterActionBuilder;
+import org.jowidgets.cap.ui.api.command.IPasteLinkActionBuilder;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationNodeModel;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeMenuInterceptor;
 
@@ -73,6 +74,13 @@ public class BeanRelationTreeMenuInterceptorAdapter implements IBeanRelationTree
 	public ICopyActionBuilder<Object> copyActionBuilder(
 		final IBeanRelationNodeModel<Object, Object> relationNode,
 		final ICopyActionBuilder<Object> builder) {
+		return builder;
+	}
+
+	@Override
+	public IPasteLinkActionBuilder<Object, Object, Object> pasteLinkActionBuilder(
+		final IBeanRelationNodeModel<Object, Object> relationNode,
+		final IPasteLinkActionBuilder<Object, Object, Object> builder) {
 		return builder;
 	}
 

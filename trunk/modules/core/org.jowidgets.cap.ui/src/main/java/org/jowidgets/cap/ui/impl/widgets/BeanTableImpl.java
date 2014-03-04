@@ -294,26 +294,6 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 
 			boolean defaultMenuSeparatorAdded = false;
 
-			if (hasDefaultCreatorAction && model.getCreatorService() != null) {
-				this.creatorAction = menuFactory.creatorAction(this);
-				if (creatorAction != null) {
-					if (hasDefaultMenus) {
-						tablePopupMenuModel.addSeparator();
-						defaultMenuSeparatorAdded = true;
-					}
-					tablePopupMenuModel.addAction(creatorAction);
-				}
-			}
-			if (hasDefaultDeleterAction && model.getDeleterService() != null) {
-				this.deleteAction = menuFactory.deleterAction(this);
-				if (deleteAction != null) {
-					if (hasDefaultMenus && !defaultMenuSeparatorAdded) {
-						tablePopupMenuModel.addSeparator();
-						defaultMenuSeparatorAdded = true;
-					}
-					tablePopupMenuModel.addAction(deleteAction);
-				}
-			}
 			if (hasDefaultCopyAction) {
 				this.copyAction = menuFactory.copyAction(this);
 				if (hasDefaultMenus && !defaultMenuSeparatorAdded) {
@@ -329,6 +309,26 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 					defaultMenuSeparatorAdded = true;
 				}
 				tablePopupMenuModel.addAction(pasteAction);
+			}
+			if (hasDefaultCreatorAction && model.getCreatorService() != null) {
+				this.creatorAction = menuFactory.creatorAction(this);
+				if (creatorAction != null) {
+					if (hasDefaultMenus && !defaultMenuSeparatorAdded) {
+						tablePopupMenuModel.addSeparator();
+						defaultMenuSeparatorAdded = true;
+					}
+					tablePopupMenuModel.addAction(creatorAction);
+				}
+			}
+			if (hasDefaultDeleterAction && model.getDeleterService() != null) {
+				this.deleteAction = menuFactory.deleterAction(this);
+				if (deleteAction != null) {
+					if (hasDefaultMenus && !defaultMenuSeparatorAdded) {
+						tablePopupMenuModel.addSeparator();
+						defaultMenuSeparatorAdded = true;
+					}
+					tablePopupMenuModel.addAction(deleteAction);
+				}
 			}
 
 			addMenuModel(tablePopupMenuModel, pluggedTablePopupMenuModell);
@@ -646,29 +646,35 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 			menuModel = new MenuModel();
 		}
 
-		if (creatorAction != null) {
-			if (menuModel.getChildren().size() > 0) {
-				menuModel.addSeparator();
-			}
-			menuModel.addAction(creatorAction);
-		}
-		if (deleteAction != null) {
-			if (menuModel.getChildren().size() > 0 && creatorAction == null) {
-				menuModel.addSeparator();
-			}
-			menuModel.addAction(deleteAction);
-		}
+		boolean separatorNeeded = menuModel.getChildren().size() > 0;
+
 		if (copyAction != null) {
-			if (menuModel.getChildren().size() > 0 && creatorAction == null && deleteAction == null) {
+			if (separatorNeeded) {
 				menuModel.addSeparator();
+				separatorNeeded = false;
 			}
 			menuModel.addAction(copyAction);
 		}
 		if (pasteAction != null) {
-			if (menuModel.getChildren().size() > 0 && creatorAction == null && deleteAction == null && copyAction == null) {
+			if (separatorNeeded) {
 				menuModel.addSeparator();
+				separatorNeeded = false;
 			}
 			menuModel.addAction(pasteAction);
+		}
+		if (creatorAction != null) {
+			if (separatorNeeded) {
+				menuModel.addSeparator();
+				separatorNeeded = false;
+			}
+			menuModel.addAction(creatorAction);
+		}
+		if (deleteAction != null) {
+			if (separatorNeeded) {
+				menuModel.addSeparator();
+				separatorNeeded = false;
+			}
+			menuModel.addAction(deleteAction);
 		}
 
 		if (cellMenuInterceptor != null) {

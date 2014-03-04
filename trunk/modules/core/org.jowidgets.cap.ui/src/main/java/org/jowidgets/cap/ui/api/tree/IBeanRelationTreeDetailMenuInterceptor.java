@@ -30,6 +30,7 @@ package org.jowidgets.cap.ui.api.tree;
 
 import org.jowidgets.cap.ui.api.command.ILinkCreatorActionBuilder;
 import org.jowidgets.cap.ui.api.command.ILinkDeleterActionBuilder;
+import org.jowidgets.cap.ui.api.command.IPasteLinkActionBuilder;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 
 public interface IBeanRelationTreeDetailMenuInterceptor {
@@ -37,6 +38,10 @@ public interface IBeanRelationTreeDetailMenuInterceptor {
 	ILinkCreatorActionBuilder<Object, Object, Object> linkCreatorActionBuilder(
 		IBeanTable<Object> table,
 		ILinkCreatorActionBuilder<Object, Object, Object> builder);
+
+	IPasteLinkActionBuilder<Object, Object, Object> pasteLinkActionBuilder(
+		IBeanTable<Object> table,
+		IPasteLinkActionBuilder<Object, Object, Object> builder);
 
 	ILinkDeleterActionBuilder<Object, Object> linkDeleterActionBuilder(
 		IBeanTable<Object> table,

@@ -26,35 +26,34 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.tools.tree;
+package org.jowidgets.cap.ui.api.command;
 
-import org.jowidgets.cap.ui.api.command.ILinkCreatorActionBuilder;
-import org.jowidgets.cap.ui.api.command.ILinkDeleterActionBuilder;
-import org.jowidgets.cap.ui.api.command.IPasteLinkActionBuilder;
-import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeDetailMenuInterceptor;
-import org.jowidgets.cap.ui.api.widgets.IBeanTable;
+import org.jowidgets.api.command.IAction;
+import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
+import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
+import org.jowidgets.cap.ui.api.model.IBeanListModel;
 
-public class BeanRelationTreeDetailMenuInterceptorAdapter implements IBeanRelationTreeDetailMenuInterceptor {
+public final class PasteLinkAction {
 
-	@Override
-	public ILinkCreatorActionBuilder<Object, Object, Object> linkCreatorActionBuilder(
-		final IBeanTable<Object> table,
-		final ILinkCreatorActionBuilder<Object, Object, Object> builder) {
-		return builder;
+	private PasteLinkAction() {}
+
+	public static <SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> IPasteLinkActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> builder(
+		final IBeanSelectionProvider<SOURCE_BEAN_TYPE> source) {
+		return CapUiToolkit.actionFactory().pasteLinkActionBuilder(source);
 	}
 
-	@Override
-	public ILinkDeleterActionBuilder<Object, Object> linkDeleterActionBuilder(
-		final IBeanTable<Object> table,
-		final ILinkDeleterActionBuilder<Object, Object> builder) {
-		return builder;
+	public static <SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> IPasteLinkActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> builder(
+		final IBeanSelectionProvider<SOURCE_BEAN_TYPE> source,
+		final IEntityLinkDescriptor linkDescriptor) {
+		return CapUiToolkit.actionFactory().pasteLinkActionBuilder(source, linkDescriptor);
 	}
 
-	@Override
-	public IPasteLinkActionBuilder<Object, Object, Object> pasteLinkActionBuilder(
-		final IBeanTable<Object> table,
-		final IPasteLinkActionBuilder<Object, Object, Object> builder) {
-		return builder;
+	public static IAction create(
+		final IBeanSelectionProvider<?> source,
+		final IBeanListModel<?> linkedModel,
+		final IEntityLinkDescriptor linkDescriptor) {
+		return CapUiToolkit.actionFactory().pasteLinkActionBuilder(source, linkedModel, linkDescriptor);
 	}
 
 }

@@ -44,6 +44,7 @@ import org.jowidgets.cap.ui.api.command.ILinkCreatorActionBuilder;
 import org.jowidgets.cap.ui.api.command.ILinkDeleterActionBuilder;
 import org.jowidgets.cap.ui.api.command.IPasswordChangeActionBuilder;
 import org.jowidgets.cap.ui.api.command.IPasteBeansActionBuilder;
+import org.jowidgets.cap.ui.api.command.IPasteLinkActionBuilder;
 import org.jowidgets.cap.ui.api.command.IRefreshLookUpsActionBuilder;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.common.types.Modifier;
@@ -165,14 +166,13 @@ final class CapActionFactoryImpl implements ICapActionFactory {
 		final ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> result;
 		result = new LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE>();
 		result.setSource(source);
-		return new LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE>();
+		return result;
 	}
 
 	@Override
 	public <SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> linkCreatorActionBuilder(
 		final IBeanSelectionProvider<SOURCE_BEAN_TYPE> source,
 		final IEntityLinkDescriptor linkDescriptor) {
-
 		return new LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE>(source, linkDescriptor);
 	}
 
@@ -185,6 +185,34 @@ final class CapActionFactoryImpl implements ICapActionFactory {
 		final ILinkCreatorActionBuilder builder = linkCreatorActionBuilder(source, linkDescriptor);
 		builder.setLinkedModel(linkedModel);
 		return builder.build();
+	}
+
+	@Override
+	public <SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> IPasteLinkActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> pasteLinkActionBuilder(
+		final IBeanSelectionProvider<SOURCE_BEAN_TYPE> source) {
+		final IPasteLinkActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> result;
+		result = new PasteLinkActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE>();
+		result.setSource(source);
+		return result;
+	}
+
+	@Override
+	public <SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> IPasteLinkActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> pasteLinkActionBuilder(
+		final IBeanSelectionProvider<SOURCE_BEAN_TYPE> source,
+		final IEntityLinkDescriptor linkDescriptor) {
+		return new PasteLinkActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE>(source, linkDescriptor);
+	}
+
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	@Override
+	public IAction pasteLinkActionBuilder(
+		final IBeanSelectionProvider<?> source,
+		final IBeanListModel<?> linkedModel,
+		final IEntityLinkDescriptor linkDescriptor) {
+		final IPasteLinkActionBuilder builder = pasteLinkActionBuilder(source, linkDescriptor);
+		builder.setLinkedModel(linkedModel);
+		return builder.build();
+
 	}
 
 	@Override
