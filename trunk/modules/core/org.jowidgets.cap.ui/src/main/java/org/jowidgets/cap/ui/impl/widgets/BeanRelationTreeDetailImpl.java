@@ -386,7 +386,7 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 			relationNode.getParentBeanType());
 
 		IPasteLinkActionBuilder<Object, Object, Object> builder;
-		builder = CapUiToolkit.actionFactory().pasteLinkActionBuilder(linkSource, link);
+		builder = CapUiToolkit.actionFactory().pasteLinkActionBuilder(linkSource, link, table);
 		builder.setLinkedModel(table.getModel());
 		builder.addExecutionInterceptor(new AddBeanInterceptor(relationNode));
 

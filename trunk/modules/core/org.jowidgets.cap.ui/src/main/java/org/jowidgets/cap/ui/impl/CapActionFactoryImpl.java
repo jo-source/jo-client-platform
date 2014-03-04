@@ -205,9 +205,10 @@ final class CapActionFactoryImpl implements ICapActionFactory {
 
 	@Override
 	public <SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> IPasteLinkActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> pasteLinkActionBuilder(
-		final IBeanSelectionProvider<SOURCE_BEAN_TYPE> source) {
+		final IBeanSelectionProvider<SOURCE_BEAN_TYPE> source,
+		final IDisposeObservable disposeObservable) {
 		final IPasteLinkActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> result;
-		result = new PasteLinkActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE>();
+		result = new PasteLinkActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE>(disposeObservable);
 		result.setSource(source);
 		return result;
 	}
@@ -215,8 +216,12 @@ final class CapActionFactoryImpl implements ICapActionFactory {
 	@Override
 	public <SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> IPasteLinkActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> pasteLinkActionBuilder(
 		final IBeanSelectionProvider<SOURCE_BEAN_TYPE> source,
-		final IEntityLinkDescriptor linkDescriptor) {
-		return new PasteLinkActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE>(source, linkDescriptor);
+		final IEntityLinkDescriptor linkDescriptor,
+		final IDisposeObservable disposeObservable) {
+		return new PasteLinkActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE>(
+			source,
+			linkDescriptor,
+			disposeObservable);
 	}
 
 	@SuppressWarnings({"rawtypes", "unchecked"})
@@ -224,8 +229,9 @@ final class CapActionFactoryImpl implements ICapActionFactory {
 	public IAction pasteLinkActionBuilder(
 		final IBeanSelectionProvider<?> source,
 		final IBeanListModel<?> linkedModel,
-		final IEntityLinkDescriptor linkDescriptor) {
-		final IPasteLinkActionBuilder builder = pasteLinkActionBuilder(source, linkDescriptor);
+		final IEntityLinkDescriptor linkDescriptor,
+		final IDisposeObservable disposeObservable) {
+		final IPasteLinkActionBuilder builder = pasteLinkActionBuilder(source, linkDescriptor, disposeObservable);
 		builder.setLinkedModel(linkedModel);
 		return builder.build();
 

@@ -35,14 +35,11 @@ import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.service.ILinkCreatorService;
 import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
-import org.jowidgets.cap.ui.api.bean.IBeanPropertyValidator;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
 import org.jowidgets.cap.ui.api.execution.BeanMessageStatePolicy;
 import org.jowidgets.cap.ui.api.execution.BeanModificationStatePolicy;
 import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
-import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
-import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
 
 public interface IPasteLinkActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> extends
 		ICapActionBuilder<IPasteLinkActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE>> {
@@ -77,32 +74,10 @@ public interface IPasteLinkActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 	IPasteLinkActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setLinkCreatorService(
 		ILinkCreatorService creatorService);
 
-	IPasteLinkActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setLinkBeanForm(
-		IBeanFormBluePrint<LINK_BEAN_TYPE> beanForm);
-
-	IPasteLinkActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setLinkBeanType(
-		Class<? extends LINK_BEAN_TYPE> beanType);
-
-	IPasteLinkActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setLinkBeanPropertyValidators(
-		List<? extends IBeanPropertyValidator<LINK_BEAN_TYPE>> validators);
-
-	IPasteLinkActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> addLinkBeanPropertyValidator(
-		IBeanPropertyValidator<LINK_BEAN_TYPE> validator);
-
-	IPasteLinkActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setLinkableBeanForm(
-		IBeanFormBluePrint<LINKABLE_BEAN_TYPE> beanForm);
+	IPasteLinkActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setLinkableBeanTypeId(Object beanTypeId);
 
 	IPasteLinkActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setLinkableBeanType(
 		Class<? extends LINKABLE_BEAN_TYPE> beanType);
-
-	IPasteLinkActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setLinkableTable(
-		IBeanTableBluePrint<LINKABLE_BEAN_TYPE> table);
-
-	IPasteLinkActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setLinkableBeanPropertyValidators(
-		List<? extends IBeanPropertyValidator<LINKABLE_BEAN_TYPE>> validators);
-
-	IPasteLinkActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> addLinkableBeanPropertyValidator(
-		IBeanPropertyValidator<LINKABLE_BEAN_TYPE> validator);
 
 	IPasteLinkActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> addEnabledChecker(IEnabledChecker enabledChecker);
 

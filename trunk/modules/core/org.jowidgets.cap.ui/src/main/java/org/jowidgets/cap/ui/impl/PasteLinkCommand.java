@@ -39,6 +39,8 @@ import org.jowidgets.api.command.ICommandExecutor;
 import org.jowidgets.api.command.IEnabledChecker;
 import org.jowidgets.api.command.IExceptionHandler;
 import org.jowidgets.api.command.IExecutionContext;
+import org.jowidgets.api.controller.IDisposeListener;
+import org.jowidgets.api.controller.IDisposeObservable;
 import org.jowidgets.api.threads.IUiThreadAccess;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.cap.common.api.CapCommonToolkit;
@@ -54,7 +56,6 @@ import org.jowidgets.cap.common.api.link.LinkCreation;
 import org.jowidgets.cap.common.api.service.ILinkCreatorService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
-import org.jowidgets.cap.ui.api.bean.IBeanPropertyValidator;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
 import org.jowidgets.cap.ui.api.clipboard.IBeanSelectionClipboard;
@@ -64,8 +65,6 @@ import org.jowidgets.cap.ui.api.execution.BeanSelectionPolicy;
 import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
-import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
-import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
 import org.jowidgets.cap.ui.tools.execution.AbstractUiResultCallback;
 import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.i18n.api.MessageReplacer;
@@ -81,13 +80,6 @@ final class PasteLinkCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYP
 	private final IBeanSelectionProvider<SOURCE_BEAN_TYPE> source;
 	private final IBeanListModel<LINKABLE_BEAN_TYPE> linkedModel;
 	private final Cardinality linkedCardinality;
-	private final Class<? extends LINK_BEAN_TYPE> linkBeanType;
-	private final IBeanFormBluePrint<LINK_BEAN_TYPE> linkBeanForm;
-	private final List<IBeanPropertyValidator<LINK_BEAN_TYPE>> linkBeanPropertyValidators;
-	private final Class<? extends LINKABLE_BEAN_TYPE> linkableBeanType;
-	private final IBeanFormBluePrint<LINKABLE_BEAN_TYPE> linkableBeanForm;
-	private final IBeanTableBluePrint<LINKABLE_BEAN_TYPE> linkableTable;
-	private final List<IBeanPropertyValidator<LINKABLE_BEAN_TYPE>> linkableBeanPropertyValidators;
 	private final IBeanExceptionConverter exceptionConverter;
 
 	private final BeanSelectionProviderEnabledChecker<SOURCE_BEAN_TYPE> enabledChecker;
@@ -103,16 +95,12 @@ final class PasteLinkCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYP
 		final List<IExecutableChecker<SOURCE_BEAN_TYPE>> sourceExecutableCheckers,
 		final IBeanListModel<LINKABLE_BEAN_TYPE> linkedModel,
 		final Cardinality linkedCardinality,
-		final Class<? extends LINK_BEAN_TYPE> linkBeanType,
-		final IBeanFormBluePrint<LINK_BEAN_TYPE> linkBeanForm,
-		final List<IBeanPropertyValidator<LINK_BEAN_TYPE>> linkBeanPropertyValidators,
+		final Object linkableBeanTypeId,
 		final Class<? extends LINKABLE_BEAN_TYPE> linkableBeanType,
-		final IBeanFormBluePrint<LINKABLE_BEAN_TYPE> linkableBeanForm,
-		final IBeanTableBluePrint<LINKABLE_BEAN_TYPE> linkableTable,
-		final List<IBeanPropertyValidator<LINKABLE_BEAN_TYPE>> linkableBeanPropertyValidators,
 		final List<IEnabledChecker> enabledCheckers,
 		final List<IExecutionInterceptor<List<IBeanDto>>> executionInterceptors,
-		final IBeanExceptionConverter exceptionConverter) {
+		final IBeanExceptionConverter exceptionConverter,
+		final IDisposeObservable disposeObservable) {
 
 		Assert.paramNotNull(linkCreatorService, "linkCreatorService");
 		Assert.paramNotNull(sourceModificationPolicy, "sourceModificationPolicy");
@@ -120,16 +108,22 @@ final class PasteLinkCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYP
 		Assert.paramNotNull(sourceExecutableCheckers, "sourceExecutableCheckers");
 		Assert.paramNotNull(enabledCheckers, "enabledCheckers");
 		Assert.paramNotNull(exceptionConverter, "exceptionConverter");
-		Assert.paramNotNull(linkBeanPropertyValidators, "linkBeanPropertyValidators");
-		Assert.paramNotNull(linkableBeanPropertyValidators, "linkableBeanPropertyValidators");
+
 		Assert.paramNotNull(linkedCardinality, "linkedCardinality");
+
+		final ClipboardSelectionEnabledChecker clipboardEnabledChecker = new ClipboardSelectionEnabledChecker(
+			linkableBeanTypeId,
+			linkableBeanType);
+
+		final List<IEnabledChecker> checkers = new LinkedList<IEnabledChecker>(enabledCheckers);
+		checkers.add(clipboardEnabledChecker);
 
 		this.enabledChecker = new BeanSelectionProviderEnabledChecker<SOURCE_BEAN_TYPE>(
 			source,
 			sourceMultiSelection ? BeanSelectionPolicy.MULTI_SELECTION : BeanSelectionPolicy.SINGLE_SELECTION,
 			sourceModificationPolicy,
 			sourceMessageStatePolicy,
-			enabledCheckers,
+			checkers,
 			sourceExecutableCheckers,
 			false);
 
@@ -137,14 +131,6 @@ final class PasteLinkCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYP
 		this.linkCreatorService = linkCreatorService;
 		this.linkedModel = linkedModel;
 		this.linkedCardinality = linkedCardinality;
-		this.linkBeanType = linkBeanType;
-		this.linkBeanForm = linkBeanForm;
-		this.linkBeanPropertyValidators = new LinkedList<IBeanPropertyValidator<LINK_BEAN_TYPE>>(linkBeanPropertyValidators);
-		this.linkableBeanType = linkableBeanType;
-		this.linkableBeanForm = linkableBeanForm;
-		this.linkableTable = linkableTable;
-		this.linkableBeanPropertyValidators = new LinkedList<IBeanPropertyValidator<LINKABLE_BEAN_TYPE>>(
-			linkableBeanPropertyValidators);
 
 		this.executionObservable = new ExecutionObservable<List<IBeanDto>>(executionInterceptors);
 		this.exceptionConverter = exceptionConverter;
@@ -154,6 +140,15 @@ final class PasteLinkCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYP
 			refreshInterceptor = new BeanSelectionProviderRefreshInterceptor<SOURCE_BEAN_TYPE, List<IBeanDto>>(source);
 			executionObservable.addExecutionInterceptor(refreshInterceptor);
 		}
+
+		final IDisposeListener disposeListener = new IDisposeListener() {
+			@Override
+			public void onDispose() {
+				clipboardEnabledChecker.dispose();
+			}
+		};
+
+		disposeObservable.addDisposeListener(disposeListener);
 	}
 
 	@Override
