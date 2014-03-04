@@ -539,7 +539,7 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 			relationNodeModel.getParentBeanType());
 		try {
 			if (link.getLinkCreatorService() != null) {
-				IPasteLinkActionBuilder<Object, Object, Object> builder = actionFactory.pasteLinkActionBuilder(source, link);
+				IPasteLinkActionBuilder<Object, Object, Object> builder = actionFactory.pasteLinkActionBuilder(source, link, this);
 				builder.setLinkedModel(relationNodeModel);
 				if (!autoKeyBinding) {
 					builder.setAccelerator(null);

@@ -28,50 +28,32 @@
 
 package org.jowidgets.cap.ui.impl;
 
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.command.IActionBuilder;
 import org.jowidgets.api.command.ICommand;
 import org.jowidgets.api.command.IEnabledChecker;
+import org.jowidgets.api.controller.IDisposeObservable;
 import org.jowidgets.api.image.IconsSmall;
 import org.jowidgets.cap.common.api.bean.Cardinality;
-import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
-import org.jowidgets.cap.common.api.bean.IProperty;
 import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
-import org.jowidgets.cap.common.api.entity.IEntityLinkProperties;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.common.api.service.ILinkCreatorService;
-import org.jowidgets.cap.common.api.validation.IBeanValidator;
-import org.jowidgets.cap.ui.api.CapUiToolkit;
-import org.jowidgets.cap.ui.api.attribute.IAttribute;
-import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
 import org.jowidgets.cap.ui.api.bean.BeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
-import org.jowidgets.cap.ui.api.bean.IBeanPropertyValidator;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
 import org.jowidgets.cap.ui.api.command.IPasteLinkActionBuilder;
 import org.jowidgets.cap.ui.api.execution.BeanMessageStatePolicy;
 import org.jowidgets.cap.ui.api.execution.BeanModificationStatePolicy;
 import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
-import org.jowidgets.cap.ui.api.form.IBeanFormLayout;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
-import org.jowidgets.cap.ui.api.model.LinkType;
 import org.jowidgets.cap.ui.api.plugin.IServiceActionDecoratorPlugin;
-import org.jowidgets.cap.ui.api.table.IBeanTableModel;
-import org.jowidgets.cap.ui.api.table.IBeanTableModelBuilder;
-import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
-import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
-import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
 import org.jowidgets.common.types.Modifier;
-import org.jowidgets.common.types.TableSelectionPolicy;
 import org.jowidgets.common.types.VirtualKey;
 import org.jowidgets.i18n.api.MessageReplacer;
 import org.jowidgets.plugin.api.IPluginProperties;
@@ -90,8 +72,7 @@ final class PasteLinkActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABL
 	private final List<IExecutableChecker<SOURCE_BEAN_TYPE>> sourceExecutableCheckers;
 	private final List<IEnabledChecker> enabledCheckers;
 	private final List<IExecutionInterceptor<List<IBeanDto>>> executionInterceptors;
-	private final List<IBeanPropertyValidator<LINK_BEAN_TYPE>> linkBeanPropertyValidators;
-	private final List<IBeanPropertyValidator<LINKABLE_BEAN_TYPE>> linkableBeanPropertyValidators;
+	private final IDisposeObservable disposeObservable;
 
 	private ILinkCreatorService linkCreatorService;
 	private IBeanSelectionProvider<SOURCE_BEAN_TYPE> source;
@@ -101,75 +82,24 @@ final class PasteLinkActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABL
 	private BeanMessageStatePolicy sourceMessageStatePolicy;
 	private IBeanListModel<LINKABLE_BEAN_TYPE> linkedModel;
 	private String linkedEntityLabel;
-	private Class<? extends LINK_BEAN_TYPE> linkBeanType;
+	private Object linkableBeanTypeId;
 	private Class<? extends LINKABLE_BEAN_TYPE> linkableBeanType;
-	private IBeanFormBluePrint<LINK_BEAN_TYPE> linkBeanForm;
-	private IBeanFormBluePrint<LINKABLE_BEAN_TYPE> linkableBeanForm;
-	private IBeanTableBluePrint<LINKABLE_BEAN_TYPE> linkableTable;
 	private IBeanExceptionConverter exceptionConverter;
 
 	@SuppressWarnings({"rawtypes", "unchecked"})
-	PasteLinkActionBuilderImpl(final IBeanSelectionProvider<SOURCE_BEAN_TYPE> source, final IEntityLinkDescriptor linkDescriptor) {
-		this(linkDescriptor.getLinkedCardinality());
+	PasteLinkActionBuilderImpl(
+		final IBeanSelectionProvider<SOURCE_BEAN_TYPE> source,
+		final IEntityLinkDescriptor linkDescriptor,
+		final IDisposeObservable disposeObservable) {
+		this(linkDescriptor.getLinkedCardinality(), disposeObservable);
 		Assert.paramNotNull(source, "source");
 		Assert.paramNotNull(linkDescriptor, "linkDescriptor");
 
 		setSource(source);
 
-		final IEntityLinkProperties sourceProperties = linkDescriptor.getSourceProperties();
-		final IEntityLinkProperties destinationProperties = linkDescriptor.getDestinationProperties();
-
-		final boolean directLink = (sourceProperties != null && destinationProperties == null)
-			|| (sourceProperties == null && destinationProperties != null);
-
 		setLinkCreatorService(linkDescriptor.getLinkCreatorService());
-
-		final ICapApiBluePrintFactory cbpf = CapUiToolkit.bluePrintFactory();
-
 		final IEntityService entityService = ServiceProvider.getService(IEntityService.ID);
 		if (entityService != null) {
-			final Object linkEntityId = linkDescriptor.getLinkEntityId();
-			if (linkEntityId != null) {
-				final IBeanDtoDescriptor descriptor = entityService.getDescriptor(linkEntityId);
-				if (descriptor != null) {
-					final Class beanType = descriptor.getBeanType();
-					setLinkBeanType(beanType);
-					final List<IAttribute<Object>> attributes = createAttributes(descriptor);
-
-					if (hasAdditionalProperties(descriptor, linkDescriptor)
-					//is not direct link or has no linkable entity id
-						&& (!directLink || linkDescriptor.getLinkableEntityId() == null)) {
-						final IBeanFormBluePrint beanFormBp = cbpf.beanForm(linkEntityId, attributes);
-
-						final List<IAttribute<Object>> filteredAttributes;
-						final List<String> attributesToFilter = new LinkedList<String>();
-						if (sourceProperties != null) {
-							attributesToFilter.add(sourceProperties.getForeignKeyPropertyName());
-						}
-						if (destinationProperties != null) {
-							attributesToFilter.add(destinationProperties.getForeignKeyPropertyName());
-						}
-						if (!EmptyCheck.isEmpty(attributesToFilter)) {
-							filteredAttributes = getFilteredAttributes(attributes, attributesToFilter);
-						}
-						else {
-							filteredAttributes = attributes;
-						}
-
-						final IBeanFormLayout layout = CapUiToolkit.beanFormToolkit().layoutBuilder().addGroups(
-								filteredAttributes).build();
-						beanFormBp.setLayouter(CapUiToolkit.beanFormToolkit().layouter(layout));
-						setLinkBeanForm(beanFormBp);
-
-						final List<IBeanPropertyValidator<LINK_BEAN_TYPE>> linkValidators = new LinkedList<IBeanPropertyValidator<LINK_BEAN_TYPE>>();
-						linkValidators.add(new BeanPropertyValidatorImpl<LINK_BEAN_TYPE>(filteredAttributes));
-						for (final IBeanValidator beanValidator : descriptor.getValidators()) {
-							linkValidators.add(new BeanPropertyValidatorAdapter<LINK_BEAN_TYPE>(beanValidator));
-						}
-						setLinkBeanPropertyValidators(linkValidators);
-					}
-				}
-			}
 
 			final Object linkableEntityId = linkDescriptor.getLinkableEntityId();
 			if (linkableEntityId != null) {
@@ -178,27 +108,7 @@ final class PasteLinkActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABL
 
 					final Class linkableType = descriptor.getBeanType();
 					setLinkableBeanType(linkableType);
-					final List<IAttribute<Object>> attributes = createAttributes(descriptor);
-					final IBeanFormBluePrint beanFormBp = cbpf.beanForm(linkableEntityId, attributes);
-					beanFormBp.setBeanType(linkableType);
-					setLinkableBeanForm(beanFormBp);
-
-					final IBeanTableModelBuilder<?> linkableModelBuilder;
-					linkableModelBuilder = CapUiToolkit.beanTableModelBuilder(linkableEntityId, linkableType);
-					linkableModelBuilder.setParent(source, LinkType.SELECTION_ALL);
-					linkableModelBuilder.setAutoSelection(false);
-					linkableModelBuilder.setClearOnEmptyParentBeans(false);
-					final IBeanTableModel linkableModel = linkableModelBuilder.build();
-					final IBeanTableBluePrint linkableTableBp = cbpf.beanTable(linkableModel);
-					linkableTableBp.setEditable(false);
-					if (Cardinality.GREATER_OR_EQUAL_ZERO.equals(linkedCardinality)) {
-						linkableTableBp.setSelectionPolicy(TableSelectionPolicy.MULTI_ROW_SELECTION);
-					}
-					else {
-						linkableTableBp.setSelectionPolicy(TableSelectionPolicy.SINGLE_ROW_SELECTION);
-					}
-					setLinkableTable(linkableTableBp);
-					setLinkableBeanPropertyValidators(linkableModel.getBeanPropertyValidators());
+					setLinkableBeanTypeId(descriptor.getBeanTypeId());
 
 					//this may be overridden when linked entity id will be extracted
 					if (!EmptyCheck.isEmpty(descriptor.getLabelPlural().get())) {
@@ -228,64 +138,27 @@ final class PasteLinkActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABL
 		}
 	}
 
-	PasteLinkActionBuilderImpl() {
-		this(Cardinality.GREATER_OR_EQUAL_ZERO);
+	PasteLinkActionBuilderImpl(final IDisposeObservable disposeObservable) {
+		this(Cardinality.GREATER_OR_EQUAL_ZERO, disposeObservable);
 	}
 
-	PasteLinkActionBuilderImpl(final Cardinality linkedCardinality) {
+	PasteLinkActionBuilderImpl(final Cardinality linkedCardinality, final IDisposeObservable disposeObservable) {
 		super();
 		Assert.paramNotNull(linkedCardinality, "linkedCardinality");
 		this.linkedCardinality = linkedCardinality;
 		this.sourceExecutableCheckers = new LinkedList<IExecutableChecker<SOURCE_BEAN_TYPE>>();
 		this.enabledCheckers = new LinkedList<IEnabledChecker>();
 		this.executionInterceptors = new LinkedList<IExecutionInterceptor<List<IBeanDto>>>();
-		this.linkBeanPropertyValidators = new LinkedList<IBeanPropertyValidator<LINK_BEAN_TYPE>>();
-		this.linkableBeanPropertyValidators = new LinkedList<IBeanPropertyValidator<LINKABLE_BEAN_TYPE>>();
 
 		this.sourceMultiSelection = false;
 		this.sourceSelectionAutoRefresh = true;
 		this.sourceModificationPolicy = BeanModificationStatePolicy.NO_MODIFICATION;
 		this.sourceMessageStatePolicy = BeanMessageStatePolicy.NO_WARNING_OR_ERROR;
 		this.exceptionConverter = BeanExceptionConverter.get();
+		this.disposeObservable = disposeObservable;
 
 		setIcon(IconsSmall.PASTE);
 		setAccelerator(VirtualKey.V, Modifier.CTRL);
-	}
-
-	private static List<IAttribute<Object>> createAttributes(final IBeanDtoDescriptor descriptor) {
-		final IAttributeToolkit attributeToolkit = CapUiToolkit.attributeToolkit();
-
-		return attributeToolkit.createAttributes(descriptor.getProperties());
-	}
-
-	private static List<IAttribute<Object>> getFilteredAttributes(
-		final Collection<IAttribute<Object>> attributes,
-		final Collection<String> blackList) {
-		final List<IAttribute<Object>> result = new LinkedList<IAttribute<Object>>();
-		for (final IAttribute<Object> attribute : attributes) {
-			if (!blackList.contains(attribute.getPropertyName())) {
-				result.add(attribute);
-			}
-		}
-		return result;
-	}
-
-	private static boolean hasAdditionalProperties(final IBeanDtoDescriptor descriptor, final IEntityLinkDescriptor linkDescriptor) {
-		final Set<String> ignoreProperties = new HashSet<String>();
-		ignoreProperties.add(IBean.ID_PROPERTY);
-		ignoreProperties.add(IBean.VERSION_PROPERTY);
-		if (linkDescriptor.getSourceProperties() != null) {
-			ignoreProperties.add(linkDescriptor.getSourceProperties().getForeignKeyPropertyName());
-		}
-		if (linkDescriptor.getDestinationProperties() != null) {
-			ignoreProperties.add(linkDescriptor.getDestinationProperties().getForeignKeyPropertyName());
-		}
-		for (final IProperty property : descriptor.getProperties()) {
-			if (property.isEditable() && !ignoreProperties.contains(property.getName())) {
-				return true;
-			}
-		}
-		return false;
 	}
 
 	@Override
@@ -357,45 +230,10 @@ final class PasteLinkActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABL
 	}
 
 	@Override
-	public IPasteLinkActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setLinkBeanForm(
-		final IBeanFormBluePrint<LINK_BEAN_TYPE> beanForm) {
+	public IPasteLinkActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setLinkableBeanTypeId(
+		final Object linkableBeanTypeId) {
 		checkExhausted();
-		this.linkBeanForm = beanForm;
-		return this;
-	}
-
-	@Override
-	public IPasteLinkActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setLinkBeanPropertyValidators(
-		final List<? extends IBeanPropertyValidator<LINK_BEAN_TYPE>> validators) {
-		Assert.paramNotNull(validators, "validators");
-		checkExhausted();
-		linkBeanPropertyValidators.clear();
-		linkBeanPropertyValidators.addAll(validators);
-		return this;
-	}
-
-	@Override
-	public IPasteLinkActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> addLinkBeanPropertyValidator(
-		final IBeanPropertyValidator<LINK_BEAN_TYPE> validator) {
-		Assert.paramNotNull(validator, "validators");
-		checkExhausted();
-		linkBeanPropertyValidators.add(validator);
-		return this;
-	}
-
-	@Override
-	public IPasteLinkActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setLinkableBeanForm(
-		final IBeanFormBluePrint<LINKABLE_BEAN_TYPE> beanForm) {
-		checkExhausted();
-		this.linkableBeanForm = beanForm;
-		return this;
-	}
-
-	@Override
-	public IPasteLinkActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setLinkBeanType(
-		final Class<? extends LINK_BEAN_TYPE> beanType) {
-		checkExhausted();
-		this.linkBeanType = beanType;
+		this.linkableBeanTypeId = linkableBeanTypeId;
 		return this;
 	}
 
@@ -404,33 +242,6 @@ final class PasteLinkActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABL
 		final Class<? extends LINKABLE_BEAN_TYPE> beanType) {
 		checkExhausted();
 		this.linkableBeanType = beanType;
-		return this;
-	}
-
-	@Override
-	public IPasteLinkActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setLinkableTable(
-		final IBeanTableBluePrint<LINKABLE_BEAN_TYPE> table) {
-		checkExhausted();
-		this.linkableTable = table;
-		return this;
-	}
-
-	@Override
-	public IPasteLinkActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setLinkableBeanPropertyValidators(
-		final List<? extends IBeanPropertyValidator<LINKABLE_BEAN_TYPE>> validators) {
-		Assert.paramNotNull(validators, "validators");
-		checkExhausted();
-		linkableBeanPropertyValidators.clear();
-		linkableBeanPropertyValidators.addAll(validators);
-		return this;
-	}
-
-	@Override
-	public IPasteLinkActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> addLinkableBeanPropertyValidator(
-		final IBeanPropertyValidator<LINKABLE_BEAN_TYPE> validator) {
-		Assert.paramNotNull(validator, "validators");
-		checkExhausted();
-		linkableBeanPropertyValidators.add(validator);
 		return this;
 	}
 
@@ -510,17 +321,12 @@ final class PasteLinkActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABL
 			sourceExecutableCheckers,
 			linkedModel,
 			linkedCardinality,
-			linkBeanType,
-			linkBeanForm,
-			linkBeanPropertyValidators,
+			linkableBeanTypeId,
 			linkableBeanType,
-			linkableBeanForm,
-			linkableTable,
-			linkableBeanPropertyValidators,
 			enabledCheckers,
 			executionInterceptors,
-			exceptionConverter);
-
+			exceptionConverter,
+			disposeObservable);
 		final IActionBuilder builder = getBuilder();
 		builder.setCommand(command);
 

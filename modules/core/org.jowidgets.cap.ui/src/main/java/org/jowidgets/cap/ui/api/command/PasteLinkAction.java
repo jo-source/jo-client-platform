@@ -29,6 +29,7 @@
 package org.jowidgets.cap.ui.api.command;
 
 import org.jowidgets.api.command.IAction;
+import org.jowidgets.api.controller.IDisposeObservable;
 import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
@@ -39,21 +40,24 @@ public final class PasteLinkAction {
 	private PasteLinkAction() {}
 
 	public static <SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> IPasteLinkActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> builder(
-		final IBeanSelectionProvider<SOURCE_BEAN_TYPE> source) {
-		return CapUiToolkit.actionFactory().pasteLinkActionBuilder(source);
+		final IBeanSelectionProvider<SOURCE_BEAN_TYPE> source,
+		final IDisposeObservable disposeObservable) {
+		return CapUiToolkit.actionFactory().pasteLinkActionBuilder(source, disposeObservable);
 	}
 
 	public static <SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> IPasteLinkActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> builder(
 		final IBeanSelectionProvider<SOURCE_BEAN_TYPE> source,
-		final IEntityLinkDescriptor linkDescriptor) {
-		return CapUiToolkit.actionFactory().pasteLinkActionBuilder(source, linkDescriptor);
+		final IEntityLinkDescriptor linkDescriptor,
+		final IDisposeObservable disposeObservable) {
+		return CapUiToolkit.actionFactory().pasteLinkActionBuilder(source, linkDescriptor, disposeObservable);
 	}
 
 	public static IAction create(
 		final IBeanSelectionProvider<?> source,
 		final IBeanListModel<?> linkedModel,
-		final IEntityLinkDescriptor linkDescriptor) {
-		return CapUiToolkit.actionFactory().pasteLinkActionBuilder(source, linkedModel, linkDescriptor);
+		final IEntityLinkDescriptor linkDescriptor,
+		final IDisposeObservable disposeObservable) {
+		return CapUiToolkit.actionFactory().pasteLinkActionBuilder(source, linkedModel, linkDescriptor, disposeObservable);
 	}
 
 }

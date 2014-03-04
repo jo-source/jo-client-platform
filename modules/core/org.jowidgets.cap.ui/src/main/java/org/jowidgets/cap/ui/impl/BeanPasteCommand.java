@@ -28,14 +28,11 @@
 
 package org.jowidgets.cap.ui.impl;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.jowidgets.api.clipboard.Clipboard;
-import org.jowidgets.api.clipboard.IClipboardListener;
-import org.jowidgets.api.command.EnabledState;
 import org.jowidgets.api.command.ICommand;
 import org.jowidgets.api.command.ICommandExecutor;
 import org.jowidgets.api.command.IEnabledChecker;
@@ -53,23 +50,13 @@ import org.jowidgets.cap.ui.api.clipboard.IBeanSelectionClipboard;
 import org.jowidgets.cap.ui.api.execution.BeanModificationStatePolicy;
 import org.jowidgets.cap.ui.api.execution.BeanSelectionPolicy;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
-import org.jowidgets.i18n.api.IMessage;
-import org.jowidgets.tools.command.AbstractEnabledChecker;
 import org.jowidgets.util.Assert;
-import org.jowidgets.util.NullCompatibleEquivalence;
 
 final class BeanPasteCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
-
-	private static final IMessage EMPTY_CLIPBOARD = Messages.getMessage("BeanPasteCommand.empty_clipboard");
-
-	private final Object beanTypeId;
-	private final Class<? extends BEAN_TYPE> beanType;
 
 	private final IBeanListModel<BEAN_TYPE> model;
 	private final BeanSelectionProviderEnabledChecker<BEAN_TYPE> enabledChecker;
 	private final List<IAttribute<?>> attributes;
-
-	private final ClipboardEnabledChecker clipboardEnabledChecker;
 
 	BeanPasteCommand(
 		final Object beanTypeId,
@@ -88,12 +75,12 @@ final class BeanPasteCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 		Assert.paramNotNull(enabledCheckers, "enabledCheckers");
 		Assert.paramNotNull(anySelection, "anySelection");
 
-		this.beanTypeId = beanTypeId;
-		this.beanType = beanType;
 		this.model = model;
 		this.attributes = new LinkedList<IAttribute<?>>(attributes);
 
-		this.clipboardEnabledChecker = new ClipboardEnabledChecker();
+		final ClipboardSelectionEnabledChecker clipboardEnabledChecker = new ClipboardSelectionEnabledChecker(
+			beanTypeId,
+			beanType);
 
 		final List<IEnabledChecker> checkers = new LinkedList<IEnabledChecker>(enabledCheckers);
 		checkers.add(clipboardEnabledChecker);
@@ -163,41 +150,4 @@ final class BeanPasteCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 		}
 	}
 
-	private final class ClipboardEnabledChecker extends AbstractEnabledChecker implements IEnabledChecker {
-
-		private final IClipboardListener clipboardListener;
-
-		private ClipboardEnabledChecker() {
-			this.clipboardListener = new IClipboardListener() {
-				@Override
-				public void clipboardChanged() {
-					fireEnabledStateChanged();
-				}
-			};
-			Clipboard.addClipbaordListener(clipboardListener);
-		}
-
-		@Override
-		public IEnabledState getEnabledState() {
-			final IBeanSelectionClipboard selection = Clipboard.getData(IBeanSelectionClipboard.TRANSFER_TYPE);
-			if (selection != null) {
-				final Collection<IBeanDto> beans = selection.getBeans();
-				final Object selectedBeanTypeId = selection.getBeanTypeId();
-				final Class<?> selectedBeanType = selection.getBeanType();
-				if (beans != null
-					&& !beans.isEmpty()
-					&& NullCompatibleEquivalence.equals(beanTypeId, selectedBeanTypeId)
-					&& NullCompatibleEquivalence.equals(beanType, selectedBeanType)) {
-					return EnabledState.ENABLED;
-				}
-			}
-			return EnabledState.disabled(EMPTY_CLIPBOARD.get());
-		}
-
-		@Override
-		public void dispose() {
-			super.dispose();
-			Clipboard.removeClipbaordListener(clipboardListener);
-		}
-	}
 }
