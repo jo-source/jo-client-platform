@@ -91,6 +91,7 @@ import org.jowidgets.validation.ValidationResult;
 
 final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidationResultCreator, IExternalBeanValidatorListener {
 
+	private final Object beanTypeId;
 	private final Class<? extends BEAN_TYPE> beanType;
 	private final List<String> properties;
 	private final List<IAttribute<Object>> attributes;
@@ -130,11 +131,13 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 	@SuppressWarnings("unchecked")
 	BeanProxyImpl(
 		final IBeanDto beanDto,
+		final Object beanTypeId,
 		final Class<? extends BEAN_TYPE> beanType,
 		final Collection<? extends IAttribute<?>> attributes,
 		final boolean isDummy,
 		final boolean isTransient) {
 		Assert.paramNotNull(beanDto, "beanDto");
+		Assert.paramNotNull(beanTypeId, "beanTypeId");
 		Assert.paramNotNull(beanType, "beanType");
 		Assert.paramNotNull(attributes, "attributes");
 
@@ -146,6 +149,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 
 		this.disposed = false;
 		this.beanDto = beanDto;
+		this.beanTypeId = beanTypeId;
 		this.beanType = beanType;
 		this.isDummy = isDummy;
 		this.isTransient = isTransient;
@@ -198,7 +202,13 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 
 	@Override
 	public IBeanProxy<BEAN_TYPE> createCopy() {
-		final IBeanProxy<BEAN_TYPE> result = new BeanProxyImpl<BEAN_TYPE>(beanDto, beanType, attributes, isDummy, isTransient);
+		final IBeanProxy<BEAN_TYPE> result = new BeanProxyImpl<BEAN_TYPE>(
+			beanDto,
+			beanTypeId,
+			beanType,
+			attributes,
+			isDummy,
+			isTransient);
 		for (final IBeanModification modification : modifications.values()) {
 			result.setValue(modification.getPropertyName(), modification.getNewValue());
 		}
@@ -208,7 +218,13 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 
 	@Override
 	public IBeanProxy<BEAN_TYPE> createUnmodifiedCopy() {
-		final BeanProxyImpl<BEAN_TYPE> result = new BeanProxyImpl<BEAN_TYPE>(this, beanType, attributes, isDummy, isTransient);
+		final BeanProxyImpl<BEAN_TYPE> result = new BeanProxyImpl<BEAN_TYPE>(
+			this,
+			beanTypeId,
+			beanType,
+			attributes,
+			isDummy,
+			isTransient);
 		setValidators(result);
 		return result;
 	}
@@ -222,6 +238,11 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 				bean.addBeanPropertyValidator(validator);
 			}
 		}
+	}
+
+	@Override
+	public Object getBeanTypeId() {
+		return beanTypeId;
 	}
 
 	@Override

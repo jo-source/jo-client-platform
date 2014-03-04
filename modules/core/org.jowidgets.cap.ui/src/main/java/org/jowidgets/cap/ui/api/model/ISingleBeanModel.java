@@ -39,6 +39,8 @@ import org.jowidgets.util.event.IChangeObservable;
 
 public interface ISingleBeanModel<BEAN_TYPE> extends IDataModel, IBeanListModel<BEAN_TYPE>, IChangeObservable {
 
+	Object getBeanTypeId();
+
 	Class<BEAN_TYPE> getBeanType();
 
 	Object getEntityId();

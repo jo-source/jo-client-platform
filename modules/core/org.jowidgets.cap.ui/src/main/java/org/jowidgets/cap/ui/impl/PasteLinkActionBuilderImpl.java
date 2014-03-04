@@ -29,7 +29,6 @@
 package org.jowidgets.cap.ui.impl;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -57,8 +56,6 @@ import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
 import org.jowidgets.cap.ui.api.bean.BeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanPropertyValidator;
-import org.jowidgets.cap.ui.api.bean.IBeanProxy;
-import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
 import org.jowidgets.cap.ui.api.command.IPasteLinkActionBuilder;
 import org.jowidgets.cap.ui.api.execution.BeanMessageStatePolicy;
@@ -83,7 +80,6 @@ import org.jowidgets.plugin.api.PluginProvider;
 import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCheck;
-import org.jowidgets.util.IFactory;
 
 final class PasteLinkActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> extends
 		AbstractCapActionBuilderImpl<IPasteLinkActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE>> implements
@@ -106,7 +102,6 @@ final class PasteLinkActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABL
 	private IBeanListModel<LINKABLE_BEAN_TYPE> linkedModel;
 	private String linkedEntityLabel;
 	private Class<? extends LINK_BEAN_TYPE> linkBeanType;
-	private IFactory<IBeanProxy<LINK_BEAN_TYPE>> linkDefaultFactory;
 	private Class<? extends LINKABLE_BEAN_TYPE> linkableBeanType;
 	private IBeanFormBluePrint<LINK_BEAN_TYPE> linkBeanForm;
 	private IBeanFormBluePrint<LINKABLE_BEAN_TYPE> linkableBeanForm;
@@ -140,21 +135,6 @@ final class PasteLinkActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABL
 					final Class beanType = descriptor.getBeanType();
 					setLinkBeanType(beanType);
 					final List<IAttribute<Object>> attributes = createAttributes(descriptor);
-					setLinkDefaultFactory(new IFactory<IBeanProxy<LINK_BEAN_TYPE>>() {
-						@Override
-						public IBeanProxy<LINK_BEAN_TYPE> create() {
-							final HashMap<String, Object> defaultValues = new HashMap<String, Object>();
-							for (final IAttribute<?> attribute : attributes) {
-								final String propertyName = attribute.getPropertyName();
-								final Object defaultValue = attribute.getDefaultValue();
-								if (defaultValue != null) {
-									defaultValues.put(propertyName, defaultValue);
-								}
-							}
-							final IBeanProxyFactory<LINK_BEAN_TYPE> proxyFactory = CapUiToolkit.beanProxyFactory(linkBeanType);
-							return proxyFactory.createTransientProxy(attributes, defaultValues);
-						}
-					});
 
 					if (hasAdditionalProperties(descriptor, linkDescriptor)
 					//is not direct link or has no linkable entity id
@@ -385,14 +365,6 @@ final class PasteLinkActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABL
 	}
 
 	@Override
-	public IPasteLinkActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setLinkDefaultFactory(
-		final IFactory<IBeanProxy<LINK_BEAN_TYPE>> defaultFactory) {
-		checkExhausted();
-		this.linkDefaultFactory = defaultFactory;
-		return this;
-	}
-
-	@Override
 	public IPasteLinkActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setLinkBeanPropertyValidators(
 		final List<? extends IBeanPropertyValidator<LINK_BEAN_TYPE>> validators) {
 		Assert.paramNotNull(validators, "validators");
@@ -540,7 +512,6 @@ final class PasteLinkActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABL
 			linkedCardinality,
 			linkBeanType,
 			linkBeanForm,
-			linkDefaultFactory,
 			linkBeanPropertyValidators,
 			linkableBeanType,
 			linkableBeanForm,

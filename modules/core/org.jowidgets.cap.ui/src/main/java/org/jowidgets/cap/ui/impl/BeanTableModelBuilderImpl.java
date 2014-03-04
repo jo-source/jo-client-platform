@@ -72,10 +72,8 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> extends
 
 	private ISortModelConfig sortModelConfig;
 
-	BeanTableModelBuilderImpl(final Object entityId, final Class<BEAN_TYPE> beanType) {
-		super(entityId, beanType);
-		Assert.paramNotNull(entityId, "entityId");
-		Assert.paramNotNull(beanType, "beanType");
+	BeanTableModelBuilderImpl(final Object entityId, final Object beanTypeId, final Class<BEAN_TYPE> beanType) {
+		super(entityId, beanTypeId, beanType);
 
 		this.cellRenderers = new LinkedList<IBeanTableCellRenderer<BEAN_TYPE>>();
 
@@ -236,6 +234,7 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> extends
 		modifyFromPlugins();
 		return new BeanTableModelImpl<BEAN_TYPE>(
 			getEntityId(),
+			getBeanTypeId(),
 			getBeanType(),
 			getBeanValidators(),
 			getEntityLabelSingular(),

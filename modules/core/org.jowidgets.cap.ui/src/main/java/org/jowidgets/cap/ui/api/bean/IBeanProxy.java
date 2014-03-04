@@ -62,6 +62,8 @@ public interface IBeanProxy<BEAN_TYPE> extends
 		}
 	};
 
+	Object getBeanTypeId();
+
 	Class<? extends BEAN_TYPE> getBeanType();
 
 	void setValue(String propertyName, Object value);

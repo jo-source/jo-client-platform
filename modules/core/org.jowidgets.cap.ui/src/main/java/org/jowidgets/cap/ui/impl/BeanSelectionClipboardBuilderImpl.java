@@ -40,6 +40,7 @@ import org.jowidgets.util.Assert;
 final class BeanSelectionClipboardBuilderImpl implements IBeanSelectionClipboardBuilder {
 
 	private Object entityId;
+	private Object beanTypeId;
 	private Class<?> beanType;
 	private Collection<IBeanDto> beans;
 
@@ -51,6 +52,13 @@ final class BeanSelectionClipboardBuilderImpl implements IBeanSelectionClipboard
 	public IBeanSelectionClipboardBuilder setEntityId(final Object entityId) {
 		Assert.paramNotNull(entityId, "entityId");
 		this.entityId = entityId;
+		return this;
+	}
+
+	@Override
+	public IBeanSelectionClipboardBuilder setBeanTypeId(final Object beanTypeId) {
+		Assert.paramNotNull(beanTypeId, "beanTypeId");
+		this.beanTypeId = beanTypeId;
 		return this;
 	}
 
@@ -70,7 +78,7 @@ final class BeanSelectionClipboardBuilderImpl implements IBeanSelectionClipboard
 
 	@Override
 	public IBeanSelectionClipboard build() {
-		return new BeanSelectionClipboardImpl(entityId, beanType, beans);
+		return new BeanSelectionClipboardImpl(entityId, beanTypeId, beanType, beans);
 	}
 
 }

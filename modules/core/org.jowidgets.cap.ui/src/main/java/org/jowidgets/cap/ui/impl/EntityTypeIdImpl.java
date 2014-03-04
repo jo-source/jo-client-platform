@@ -28,16 +28,50 @@
 
 package org.jowidgets.cap.ui.impl;
 
+import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.ui.api.types.IEntityTypeId;
 
 final class EntityTypeIdImpl<BEAN_TYPE> implements IEntityTypeId<BEAN_TYPE> {
 
 	private final Object entityId;
+	private final Object beanTypeId;
 	private final Class<BEAN_TYPE> beanType;
 
 	@SuppressWarnings("unchecked")
-	EntityTypeIdImpl(final Object entityId, final Class<? extends BEAN_TYPE> beanType) {
+	EntityTypeIdImpl(Object entityId, Object beanTypeId, Class<? extends BEAN_TYPE> beanType) {
+		if (entityId == null && beanTypeId == null && beanType == null) {
+			throw new IllegalArgumentException(
+				"At least one of the parameters 'entityId', 'beanTypeId' or 'beanType' must not be null");
+		}
+
+		if (entityId == null) { //then beanTypeId or beanType must be != null
+			if (beanTypeId == null) {
+				beanTypeId = beanType.getName();
+				entityId = beanType;
+			}
+			else if (beanType == null) {
+				beanType = (Class<? extends BEAN_TYPE>) IBeanDto.class;
+				entityId = beanTypeId;
+			}
+		}
+		else {//entityId is not null
+			if (beanType == null) {
+				beanType = (Class<? extends BEAN_TYPE>) EntityServiceHelper.getBeanType(entityId);
+				if (beanType == null) {
+					beanType = (Class<? extends BEAN_TYPE>) IBeanDto.class;
+				}
+			}
+			//from here beanType is not null
+			if (beanTypeId == null) {
+				beanTypeId = EntityServiceHelper.getBeanTypeId(entityId);
+				if (beanTypeId == null) {
+					beanTypeId = beanType.getName();
+				}
+			}
+		}
+
 		this.entityId = entityId;
+		this.beanTypeId = beanTypeId;
 		this.beanType = (Class<BEAN_TYPE>) beanType;
 	}
 
@@ -47,13 +81,18 @@ final class EntityTypeIdImpl<BEAN_TYPE> implements IEntityTypeId<BEAN_TYPE> {
 	}
 
 	@Override
+	public Object getBeanTypeId() {
+		return beanTypeId;
+	}
+
+	@Override
 	public Class<BEAN_TYPE> getBeanType() {
 		return beanType;
 	}
 
 	@Override
 	public String toString() {
-		return "EntityTypeIdImpl [entityId=" + entityId + ", beanType=" + beanType + "]";
+		return "EntityTypeIdImpl [entityId=" + entityId + ", entityTypeId=" + beanTypeId + ", beanType=" + beanType + "]";
 	}
 
 	@Override
@@ -62,6 +101,7 @@ final class EntityTypeIdImpl<BEAN_TYPE> implements IEntityTypeId<BEAN_TYPE> {
 		int result = 1;
 		result = prime * result + ((beanType == null) ? 0 : beanType.hashCode());
 		result = prime * result + ((entityId == null) ? 0 : entityId.hashCode());
+		result = prime * result + ((beanTypeId == null) ? 0 : beanTypeId.hashCode());
 		return result;
 	}
 
@@ -91,6 +131,14 @@ final class EntityTypeIdImpl<BEAN_TYPE> implements IEntityTypeId<BEAN_TYPE> {
 			}
 		}
 		else if (!entityId.equals(other.getEntityId())) {
+			return false;
+		}
+		if (beanTypeId == null) {
+			if (other.getBeanTypeId() != null) {
+				return false;
+			}
+		}
+		else if (!beanTypeId.equals(other.getBeanTypeId())) {
 			return false;
 		}
 		return true;

@@ -88,10 +88,11 @@ final class BeanSelectionObservable<BEAN_TYPE> implements IBeanSelectionObservab
 	@SuppressWarnings({"rawtypes", "unchecked"})
 	void fireBeanSelectionEvent(
 		final IBeanSelectionObservable source,
+		final Object beanTypeId,
 		final Class beanType,
 		final Object entityId,
 		final Collection selection) {
-		fireBeanSelectionEvent(new BeanSelectionEventImpl<BEAN_TYPE>(source, beanType, entityId, selection));
+		fireBeanSelectionEvent(new BeanSelectionEventImpl<BEAN_TYPE>(source, beanTypeId, beanType, entityId, selection));
 	}
 
 	void dispose() {

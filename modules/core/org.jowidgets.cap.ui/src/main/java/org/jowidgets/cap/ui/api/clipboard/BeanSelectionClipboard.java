@@ -47,6 +47,7 @@ public final class BeanSelectionClipboard {
 	public static IBeanSelectionClipboard create(final IBeanSelection<?> beanSelection) {
 		final IBeanSelectionClipboardBuilder builder = builder();
 		builder.setEntityId(beanSelection.getEntityId());
+		builder.setBeanTypeId(beanSelection.getBeanTypeId());
 		builder.setBeanType(beanSelection.getBeanType());
 		final List<IBeanDto> beans = new LinkedList<IBeanDto>();
 		for (final IBeanProxy<?> beanProxy : beanSelection.getSelection()) {

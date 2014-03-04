@@ -115,6 +115,14 @@ public final class CapCommonToolkit {
 		return getInstance().staticValueRangeFactory();
 	}
 
+	public static IBeanDtoDescriptorBuilder dtoDescriptorBuilder(final Object beanTypeId, final Class<?> beanType) {
+		return getInstance().dtoDescriptorBuilder(beanTypeId, beanType);
+	}
+
+	public static IBeanDtoDescriptorBuilder dtoDescriptorBuilder(final Object beanTypeId) {
+		return getInstance().dtoDescriptorBuilder(beanTypeId);
+	}
+
 	public static IBeanDtoDescriptorBuilder dtoDescriptorBuilder(final Class<?> beanType) {
 		return getInstance().dtoDescriptorBuilder(beanType);
 	}

@@ -39,6 +39,7 @@ import org.jowidgets.util.Assert;
 
 class BeanSelectionImpl<BEAN_TYPE> implements IBeanSelection<BEAN_TYPE> {
 
+	private final Object beanTypeId;
 	private final Class<? extends BEAN_TYPE> beanType;
 	private final Object entityId;
 	private final List<IBeanProxy<BEAN_TYPE>> selection;
@@ -46,20 +47,23 @@ class BeanSelectionImpl<BEAN_TYPE> implements IBeanSelection<BEAN_TYPE> {
 
 	@SuppressWarnings("unchecked")
 	BeanSelectionImpl() {
-		this(null, null, Collections.EMPTY_LIST);
+		this(null, null, null, Collections.EMPTY_LIST);
 	}
 
 	BeanSelectionImpl(
+		final Object beanTypeId,
 		final Class<? extends BEAN_TYPE> beanType,
 		final Object entityId,
 		final Collection<? extends IBeanProxy<BEAN_TYPE>> selection) {
 
 		Assert.paramNotNull(selection, "selection");
 		if (!selection.isEmpty()) {
+			Assert.paramNotNull(beanTypeId, "beanTypeId");
 			Assert.paramNotNull(beanType, "beanType");
 			Assert.paramNotNull(entityId, "entityId");
 		}
 
+		this.beanTypeId = beanTypeId;
 		this.beanType = beanType;
 		this.entityId = entityId;
 		this.selection = new LinkedList<IBeanProxy<BEAN_TYPE>>(selection);
@@ -70,6 +74,11 @@ class BeanSelectionImpl<BEAN_TYPE> implements IBeanSelection<BEAN_TYPE> {
 		else {
 			firstSelected = null;
 		}
+	}
+
+	@Override
+	public Object getBeanTypeId() {
+		return beanTypeId;
 	}
 
 	@Override

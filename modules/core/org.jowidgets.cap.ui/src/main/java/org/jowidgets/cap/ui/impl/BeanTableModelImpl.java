@@ -171,6 +171,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	private final Object entityId;
 	private final String labelSingular;
 	private final String labelPlural;
+	private final Object beanTypeId;
 	private final Class<BEAN_TYPE> beanType;
 
 	private final Map<String, IUiFilter> filters;
@@ -243,6 +244,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	@SuppressWarnings("unchecked")
 	BeanTableModelImpl(
 		final Object entityId,
+		final Object beanTypeId,
 		final Class<? extends BEAN_TYPE> beanType,
 		final Set<IBeanValidator<BEAN_TYPE>> beanValidators,
 		final String labelSingular,
@@ -270,6 +272,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 		//arguments checks
 		Assert.paramNotNull(entityId, "entityId");
+		Assert.paramNotNull(beanTypeId, "beanTypeId");
 		Assert.paramNotNull(beanType, "beanType");
 		Assert.paramNotEmpty(labelSingular, "labelSingular");
 		Assert.paramNotEmpty(labelPlural, "labelPlural");
@@ -285,6 +288,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		this.clearOnEmptyFilter = clearOnEmptyFilter;
 		this.clearOnEmptyParentBeans = clearOnEmptyParentBeans;
 		this.beanType = (Class<BEAN_TYPE>) beanType;
+		this.beanTypeId = beanTypeId;
 		this.labelSingular = labelSingular;
 		this.labelPlural = labelPlural;
 		this.linkType = linkType;
@@ -344,7 +348,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		this.maxPageIndex = 0;
 		this.beanProxyContext = beanProxyContext;
 		this.beansStateTracker = CapUiToolkit.beansStateTracker(beanProxyContext);
-		this.beanProxyFactory = CapUiToolkit.beanProxyFactory(beanType);
+		this.beanProxyFactory = CapUiToolkit.beanProxyFactory(beanTypeId, beanType);
 		this.beanListModelObservable = new BeanListModelObservable<BEAN_TYPE>();
 		this.beanSelectionObservable = new BeanSelectionObservable<BEAN_TYPE>();
 		this.disposeObservable = new DisposeObservable();
@@ -593,6 +597,11 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	@Override
 	public Object getEntityId() {
 		return entityId;
+	}
+
+	@Override
+	public Object getBeanTypeId() {
+		return beanTypeId;
 	}
 
 	@Override
@@ -1470,7 +1479,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 	@Override
 	public IBeanSelection<BEAN_TYPE> getBeanSelection() {
-		return new BeanSelectionImpl<BEAN_TYPE>(beanType, entityId, getSelectedBeans());
+		return new BeanSelectionImpl<BEAN_TYPE>(beanTypeId, beanType, entityId, getSelectedBeans());
 	}
 
 	private List<IBeanProxy<BEAN_TYPE>> removeSelection() {
@@ -1698,7 +1707,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	}
 
 	private void fireSelectionChanged() {
-		beanSelectionObservable.fireBeanSelectionEvent(this, beanType, entityId, getSelectedBeans());
+		beanSelectionObservable.fireBeanSelectionEvent(this, beanTypeId, beanType, entityId, getSelectedBeans());
 	}
 
 	private final class DataModel extends AbstractTableDataModel {

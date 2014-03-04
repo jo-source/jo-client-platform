@@ -45,9 +45,21 @@ public class BeanDtoDescriptorBuilder implements IBeanDtoDescriptorBuilder {
 
 	private final IBeanDtoDescriptorBuilder builder;
 
+	public BeanDtoDescriptorBuilder(final Object beanTypeId, final Class<?> beanType) {
+		this(CapCommonToolkit.dtoDescriptorBuilder(beanTypeId, beanType));
+	}
+
+	public BeanDtoDescriptorBuilder(final Object beanTypeId) {
+		this(CapCommonToolkit.dtoDescriptorBuilder(beanTypeId));
+	}
+
 	public BeanDtoDescriptorBuilder(final Class<?> beanType) {
-		Assert.paramNotNull(beanType, "beanType");
-		this.builder = CapCommonToolkit.dtoDescriptorBuilder(beanType);
+		this(CapCommonToolkit.dtoDescriptorBuilder(beanType));
+	}
+
+	BeanDtoDescriptorBuilder(final IBeanDtoDescriptorBuilder original) {
+		Assert.paramNotNull(original, "original");
+		this.builder = original;
 	}
 
 	@Override

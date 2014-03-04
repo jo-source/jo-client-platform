@@ -40,6 +40,8 @@ public interface IBeanSelectionClipboard extends Serializable {
 
 	Object getEntityId();
 
+	Object getBeanTypeId();
+
 	Class<?> getBeanType();
 
 	Collection<IBeanDto> getBeans();

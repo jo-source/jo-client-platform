@@ -40,10 +40,11 @@ final class BeanSelectionEventImpl<BEAN_TYPE> extends BeanSelectionImpl<BEAN_TYP
 
 	BeanSelectionEventImpl(
 		final IBeanSelectionObservable<BEAN_TYPE> source,
+		final Object beanTypeId,
 		final Class<? extends BEAN_TYPE> beanType,
 		final Object entityId,
 		final Collection<? extends IBeanProxy<BEAN_TYPE>> selection) {
-		super(beanType, entityId, selection);
+		super(beanTypeId, beanType, entityId, selection);
 
 		this.source = source;
 	}

@@ -57,7 +57,7 @@ final class BeanTablePasteBeansActionBuilderFactory {
 		};
 		final ICapActionFactory actionFactory = CapUiToolkit.actionFactory();
 		final IPasteBeansActionBuilder<BEAN_TYPE> builder = actionFactory.pasteBeansActionBuilder(
-				model.getEntityId(),
+				model.getBeanTypeId(),
 				model.getBeanType(),
 				wrappedModel,
 				table);

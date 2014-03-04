@@ -46,6 +46,13 @@ public interface IBeanDtoDescriptor {
 	Class<?> getBeanType();
 
 	/**
+	 * Gets the bean type id.
+	 * 
+	 * @return The bean type id.
+	 */
+	Object getBeanTypeId();
+
+	/**
 	 * @return The properties of the bean in the preferred order
 	 */
 	List<IProperty> getProperties();

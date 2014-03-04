@@ -41,27 +41,36 @@ final class BeanSelectionClipboardImpl implements IBeanSelectionClipboard {
 	private static final long serialVersionUID = 2250159601546437673L;
 
 	private final Object entityId;
+	private final Object beanTypeId;
 	private final Class<?> beanType;
 	private final Collection<IBeanDto> beans;
 
 	private final String beanTypeName;
+	private final Object beanTypeIdComparable;
 	private final Object entityIdComparable;
 
-	BeanSelectionClipboardImpl(final Object entityId, final Class<?> beanType, final Collection<IBeanDto> beans) {
+	BeanSelectionClipboardImpl(
+		final Object entityId,
+		final Object beanTypeId,
+		final Class<?> beanType,
+		final Collection<IBeanDto> beans) {
 
 		Assert.paramNotNull(entityId, "entityId");
+		Assert.paramNotNull(beanTypeId, "beanTypeId");
 		Assert.paramNotNull(beanType, "beanType");
 		Assert.paramNotNull(beans, "beans");
 
 		this.entityId = entityId;
+		this.beanTypeId = beanTypeId;
 		this.beanType = beanType;
 		this.beans = Collections.unmodifiableList(new LinkedList<IBeanDto>(beans));
 
 		this.beanTypeName = beanType.getName();
-		this.entityIdComparable = createEntityIdComparable(entityId);
+		this.beanTypeIdComparable = createIdComparable(beanTypeId);
+		this.entityIdComparable = createIdComparable(entityId);
 	}
 
-	private static Object createEntityIdComparable(final Object entityId) {
+	private static Object createIdComparable(final Object entityId) {
 		if (entityId instanceof Class<?>) {
 			return ((Class<?>) entityId).getName();
 		}
@@ -73,6 +82,11 @@ final class BeanSelectionClipboardImpl implements IBeanSelectionClipboard {
 	@Override
 	public Object getEntityId() {
 		return entityId;
+	}
+
+	@Override
+	public Object getBeanTypeId() {
+		return beanTypeId;
 	}
 
 	@Override
@@ -94,6 +108,7 @@ final class BeanSelectionClipboardImpl implements IBeanSelectionClipboard {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + ((beanTypeIdComparable == null) ? 0 : beanTypeIdComparable.hashCode());
 		result = prime * result + ((beanTypeName == null) ? 0 : beanTypeName.hashCode());
 		result = prime * result + ((beans == null) ? 0 : beans.hashCode());
 		result = prime * result + ((entityIdComparable == null) ? 0 : entityIdComparable.hashCode());
@@ -112,6 +127,14 @@ final class BeanSelectionClipboardImpl implements IBeanSelectionClipboard {
 			return false;
 		}
 		final BeanSelectionClipboardImpl other = (BeanSelectionClipboardImpl) obj;
+		if (beanTypeIdComparable == null) {
+			if (other.beanTypeIdComparable != null) {
+				return false;
+			}
+		}
+		else if (!beanTypeIdComparable.equals(other.beanTypeIdComparable)) {
+			return false;
+		}
 		if (beanTypeName == null) {
 			if (other.beanTypeName != null) {
 				return false;

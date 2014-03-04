@@ -67,8 +67,8 @@ final class BeanRelationTreeModelBuilderImpl<CHILD_BEAN_TYPE> extends
 
 	private boolean build;
 
-	BeanRelationTreeModelBuilderImpl(final Object entityId, final Class<CHILD_BEAN_TYPE> beanType) {
-		super(entityId, beanType);
+	BeanRelationTreeModelBuilderImpl(final Object entityId, final Object beanTypeId, final Class<CHILD_BEAN_TYPE> beanType) {
+		super(entityId, beanTypeId, beanType);
 		this.build = false;
 		this.nodeConfigurators = new LinkedList<IBeanRelationNodeModelConfigurator>();
 		nodeConfigurators.add(new IBeanRelationNodeModelConfigurator() {
@@ -79,7 +79,7 @@ final class BeanRelationTreeModelBuilderImpl<CHILD_BEAN_TYPE> extends
 				addChildRelations(entityTypeId, bluePrint);
 			}
 		});
-		addChildRelations(new EntityTypeIdImpl<Object>(entityId, beanType), this);
+		addChildRelations(new EntityTypeIdImpl<Object>(entityId, beanTypeId, beanType), this);
 	}
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
@@ -146,7 +146,7 @@ final class BeanRelationTreeModelBuilderImpl<CHILD_BEAN_TYPE> extends
 			getLabel(),
 			null,
 			null,
-			new EntityTypeIdImpl<CHILD_BEAN_TYPE>(getEntityId(), getBeanType()),
+			new EntityTypeIdImpl<CHILD_BEAN_TYPE>(getEntityId(), getBeanTypeId(), getBeanType()),
 			getChildRenderer(),
 			new LinkedList<IEntityTypeId<Object>>(getChildRelations()),
 			getPageSize(),

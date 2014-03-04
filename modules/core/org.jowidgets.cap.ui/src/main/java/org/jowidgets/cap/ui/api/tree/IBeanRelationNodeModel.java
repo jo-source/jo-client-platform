@@ -80,11 +80,15 @@ public interface IBeanRelationNodeModel<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> exten
 
 	Object getParentEntityId();
 
+	Object getParentBeanTypeId();
+
 	Class<PARENT_BEAN_TYPE> getParentBeanType();
 
 	IEntityTypeId<CHILD_BEAN_TYPE> getChildEntityTypeId();
 
 	Object getChildEntityId();
+
+	Object getChildBeanTypeId();
 
 	Class<CHILD_BEAN_TYPE> getChildBeanType();
 

@@ -136,18 +136,34 @@ final class CapActionFactoryImpl implements ICapActionFactory {
 	@Override
 	public <BEAN_TYPE> ICreatorActionBuilder<BEAN_TYPE> creatorActionBuilder(
 		final Object entityId,
+		final IBeanListModel<BEAN_TYPE> model) {
+		return new CreatorActionBuilderImpl<BEAN_TYPE>(entityId, null, null, model);
+	}
+
+	@Override
+	public <BEAN_TYPE> ICreatorActionBuilder<BEAN_TYPE> creatorActionBuilder(
+		final Object entityId,
 		final Class<? extends BEAN_TYPE> beanType,
 		final IBeanListModel<BEAN_TYPE> model) {
-		return new CreatorActionBuilderImpl<BEAN_TYPE>(entityId, beanType, model);
+		return new CreatorActionBuilderImpl<BEAN_TYPE>(entityId, null, beanType, model);
+	}
+
+	@Override
+	public <BEAN_TYPE> ICreatorActionBuilder<BEAN_TYPE> creatorActionBuilder(
+		final Object entityId,
+		final Object beanTypeId,
+		final Class<? extends BEAN_TYPE> beanType,
+		final IBeanListModel<BEAN_TYPE> model) {
+		return new CreatorActionBuilderImpl<BEAN_TYPE>(entityId, beanTypeId, beanType, model);
 	}
 
 	@Override
 	public <BEAN_TYPE> IPasteBeansActionBuilder<BEAN_TYPE> pasteBeansActionBuilder(
-		final Object entityId,
+		final Object beanTypeId,
 		final Class<? extends BEAN_TYPE> beanType,
 		final IBeanListModel<BEAN_TYPE> model,
 		final IDisposeObservable disposeObservable) {
-		return new PasteBeansActionBuilderImpl<BEAN_TYPE>(entityId, beanType, model, disposeObservable);
+		return new PasteBeansActionBuilderImpl<BEAN_TYPE>(beanTypeId, beanType, model, disposeObservable);
 	}
 
 	@Override

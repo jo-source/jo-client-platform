@@ -114,9 +114,11 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 	private final IEntityTypeId<PARENT_BEAN_TYPE> parentEntityTypeId;
 	private final IBeanProxy<PARENT_BEAN_TYPE> parentBean;
 	private final Object parentEntityId;
+	private final Object parentBeanTypeId;
 	private final Class<PARENT_BEAN_TYPE> parentBeanType;
 	private final IEntityTypeId<CHILD_BEAN_TYPE> childEntityTypeId;
 	private final Object childEntityId;
+	private final Object childBeanTypeId;
 	private final Class<CHILD_BEAN_TYPE> childBeanType;
 	private final IBeanProxyLabelRenderer<CHILD_BEAN_TYPE> childRenderer;
 	private final List<IEntityTypeId<Object>> childRelations;
@@ -183,10 +185,12 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 		this.label = label;
 		this.parentBean = parentBean;
 		this.parentEntityTypeId = parentEntityTypeId;
+		this.parentBeanTypeId = parentEntityTypeId != null ? parentEntityTypeId.getBeanTypeId() : null;
 		this.parentBeanType = parentEntityTypeId != null ? parentEntityTypeId.getBeanType() : null;
 		this.parentEntityId = parentEntityTypeId != null ? parentEntityTypeId.getEntityId() : null;
 		this.childEntityTypeId = childEntityTypeId;
 		this.childEntityId = childEntityTypeId.getEntityId();
+		this.childBeanTypeId = childEntityTypeId.getBeanTypeId();
 		this.childBeanType = childEntityTypeId.getBeanType();
 		this.childRenderer = getPluginDecoratedRenderer(childEntityId, childBeanType, childRenderer);
 		this.childRelations = new LinkedList<IEntityTypeId<Object>>(childRelations);
@@ -210,7 +214,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 		this.beanSelectionObservable = new BeanSelectionObservable<CHILD_BEAN_TYPE>();
 		this.beanProxyContext = beanProxyContext;
 		this.beanStateTracker = CapUiToolkit.beansStateTracker(beanProxyContext);
-		this.beanProxyFactory = CapUiToolkit.beanProxyFactory(childBeanType);
+		this.beanProxyFactory = CapUiToolkit.beanProxyFactory(childBeanTypeId, childBeanType);
 		this.filters = new HashMap<String, IUiFilter>();
 
 		this.sortModel = new SortModelImpl();
@@ -367,6 +371,11 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 	}
 
 	@Override
+	public Object getParentBeanTypeId() {
+		return parentBeanTypeId;
+	}
+
+	@Override
 	public Class<PARENT_BEAN_TYPE> getParentBeanType() {
 		return parentBeanType;
 	}
@@ -379,6 +388,11 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 	@Override
 	public Object getChildEntityId() {
 		return childEntityId;
+	}
+
+	@Override
+	public Object getChildBeanTypeId() {
+		return childBeanTypeId;
 	}
 
 	@Override
@@ -666,13 +680,13 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 
 	@Override
 	public IBeanSelection<CHILD_BEAN_TYPE> getBeanSelection() {
-		return new BeanSelectionImpl<CHILD_BEAN_TYPE>(childBeanType, childEntityId, getSelectedBeans());
+		return new BeanSelectionImpl<CHILD_BEAN_TYPE>(childBeanTypeId, childBeanType, childEntityId, getSelectedBeans());
 	}
 
 	@Override
 	public void setSelection(final Collection<Integer> selection) {
 		this.selection = new ArrayList<Integer>(selection);
-		beanSelectionObservable.fireBeanSelectionEvent(this, childBeanType, childEntityId, getSelectedBeans());
+		beanSelectionObservable.fireBeanSelectionEvent(this, childBeanTypeId, childBeanType, childEntityId, getSelectedBeans());
 	}
 
 	@Override
