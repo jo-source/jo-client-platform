@@ -63,7 +63,9 @@ final class SyncJpaDeleterServiceImpl<BEAN_TYPE extends IBean> implements ISyncD
 			public BEAN_TYPE execute(final BEAN_TYPE data, final Void parameter, final IExecutionCallback executionCallback) {
 				CapServiceToolkit.checkCanceled(executionCallback);
 				interceptor.beforeDelete(data, executionCallback);
-				EntityManagerProvider.get().remove(data);
+				if (data != null) {
+					EntityManagerProvider.get().remove(data);
+				}
 				CapServiceToolkit.checkCanceled(executionCallback);
 				return null;
 			}

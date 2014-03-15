@@ -105,7 +105,10 @@ final class SyncNeo4JDeleterServiceImpl<BEAN_TYPE extends IBean> implements ISyn
 		public BEAN_TYPE execute(final BEAN_TYPE data, final Void parameter, final IExecutionCallback executionCallback) {
 			CapServiceToolkit.checkCanceled(executionCallback);
 			interceptor.beforeDelete(data, executionCallback);
-			if (data instanceof INodeBean) {
+			if (data == null) {
+				return null;
+			}
+			else if (data instanceof INodeBean) {
 				deleteNode(((INodeBean) data).getNode());
 			}
 			else if (data instanceof IRelationshipBean) {

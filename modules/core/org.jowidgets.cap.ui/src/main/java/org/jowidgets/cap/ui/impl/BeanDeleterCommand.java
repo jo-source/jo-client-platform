@@ -164,9 +164,13 @@ final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 
 		final List<IBeanKey> beanKeys = new LinkedList<IBeanKey>();
 		final List<IBeanProxy<BEAN_TYPE>> beans = new LinkedList<IBeanProxy<BEAN_TYPE>>();
+		final List<IBeanProxy<BEAN_TYPE>> transientBeans = new LinkedList<IBeanProxy<BEAN_TYPE>>();
 
 		for (final IBeanProxy<BEAN_TYPE> bean : beanSelection.getSelection()) {
-			if (bean != null && !bean.isDummy() && !bean.isTransient()) {
+			if (bean != null && bean.isTransient()) {
+				transientBeans.add(bean);
+			}
+			else if (bean != null && !bean.isDummy()) {
 				bean.setExecutionTask(executionTask);
 				beanKeys.add(beanKeyFactory.createKey(bean));
 				beans.add(bean);
@@ -199,9 +203,14 @@ final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 				}
 			}
 		}
+		if (!transientBeans.isEmpty()) {
+			model.removeBeans(transientBeans);
+		}
 		model.fireBeansChanged();
 		executionObservable.fireAfterExecutionPrepared(executionContext);
-		deleterService.delete(new ResultCallback(executionContext, beans), beanKeys, executionTask);
+		if (!beans.isEmpty() || beanKeys.isEmpty()) {
+			deleterService.delete(new ResultCallback(executionContext, beans), beanKeys, executionTask);
+		}
 	}
 
 	private boolean showDeletionConfirmDialog(final IExecutionContext executionContext, final IBeanSelection<BEAN_TYPE> selection) {
