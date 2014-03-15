@@ -50,6 +50,7 @@ import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanData;
 import org.jowidgets.cap.common.api.bean.IBeanDataBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.common.api.bean.IBeanDtoBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.bean.IBeanKeyBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanModification;
@@ -218,14 +219,23 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 
 	@Override
 	public IBeanProxy<BEAN_TYPE> createUnmodifiedCopy() {
+
+		final IBeanDtoBuilder dtoBuilder = CapCommonToolkit.dtoBuilder(getBeanTypeId());
+		dtoBuilder.setId(getId());
+		dtoBuilder.setVersion(getVersion());
+		for (final String propertyName : getProperties()) {
+			dtoBuilder.setValue(propertyName, getValue(propertyName));
+		}
+
 		final BeanProxyImpl<BEAN_TYPE> result = new BeanProxyImpl<BEAN_TYPE>(
-			this,
+			dtoBuilder.build(),
 			beanTypeId,
 			beanType,
 			attributes,
 			isDummy,
 			isTransient);
 		setValidators(result);
+
 		return result;
 	}
 

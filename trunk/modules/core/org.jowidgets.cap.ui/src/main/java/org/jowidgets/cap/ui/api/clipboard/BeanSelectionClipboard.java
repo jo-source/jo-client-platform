@@ -51,7 +51,7 @@ public final class BeanSelectionClipboard {
 		builder.setBeanType(beanSelection.getBeanType());
 		final List<IBeanDto> beans = new LinkedList<IBeanDto>();
 		for (final IBeanProxy<?> beanProxy : beanSelection.getSelection()) {
-			beans.add(beanProxy.getBeanDto());
+			beans.add(beanProxy.createUnmodifiedCopy().getBeanDto());
 		}
 		builder.setBeans(beans);
 		return builder.build();
