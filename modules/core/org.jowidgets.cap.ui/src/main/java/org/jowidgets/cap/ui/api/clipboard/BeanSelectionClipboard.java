@@ -28,9 +28,11 @@
 
 package org.jowidgets.cap.ui.api.clipboard;
 
+import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
@@ -51,10 +53,49 @@ public final class BeanSelectionClipboard {
 		builder.setBeanType(beanSelection.getBeanType());
 		final List<IBeanDto> beans = new LinkedList<IBeanDto>();
 		for (final IBeanProxy<?> beanProxy : beanSelection.getSelection()) {
-			beans.add(beanProxy.createUnmodifiedCopy().getBeanDto());
+			final IBeanDto beanDto = beanProxy.createUnmodifiedCopy().getBeanDto();
+			if (beanProxy.isTransient()) {
+				beans.add(new TransientBeanDto(beanDto));
+			}
+			else {
+				beans.add(beanDto);
+			}
+
 		}
 		builder.setBeans(beans);
 		return builder.build();
+	}
+
+	private static final class TransientBeanDto implements IBeanDto, Serializable {
+
+		private static final long serialVersionUID = 7351267002806767597L;
+
+		private final IBeanDto original;
+
+		private TransientBeanDto(final IBeanDto original) {
+			this.original = original;
+		}
+
+		@Override
+		public Object getValue(final String propertyName) {
+			if (IBean.ID_PROPERTY.equals(propertyName) || IBean.VERSION_PROPERTY.equals(propertyName)) {
+				return null;
+			}
+			else {
+				return original.getValue(propertyName);
+			}
+		}
+
+		@Override
+		public Object getId() {
+			return null;
+		}
+
+		@Override
+		public long getVersion() {
+			return 0;
+		}
+
 	}
 
 }

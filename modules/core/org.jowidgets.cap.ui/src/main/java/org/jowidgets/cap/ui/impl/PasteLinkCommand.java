@@ -221,9 +221,11 @@ final class PasteLinkCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYP
 
 		//add the linkable beans
 		for (final IBeanDto linkableBean : selectionClipboard.getBeans()) {
-			if (linkableBean.getId() != null) {
-				final IBeanKey beanKey = CapCommonToolkit.beanKeyBuilder().setBeanDto(linkableBean).build();
-				linkCreationBuilder.addLinkableBean(beanKey);
+			if (linkableBean.getId() == null) {
+				linkCreationBuilder.addTransientLinkableBean(linkableBean);
+			}
+			else {
+				linkCreationBuilder.addLinkableBean(createBeanKey(linkableBean));
 			}
 		}
 
@@ -231,6 +233,10 @@ final class PasteLinkCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYP
 
 		executionObservable.fireAfterExecutionPrepared(executionContext);
 		linkCreatorService.create(createResultCallback(selection, executionContext), linkCreations, executionTask);
+	}
+
+	private IBeanKey createBeanKey(final IBeanDto beanDto) {
+		return CapCommonToolkit.beanKeyBuilder().setBeanDto(beanDto).build();
 	}
 
 	private IResultCallback<List<IBeanDto>> createResultCallback(
