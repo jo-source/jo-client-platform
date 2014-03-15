@@ -223,7 +223,9 @@ final class BeanSelectionProviderEnabledChecker<BEAN_TYPE> extends ChangeObserva
 				else if (BeanMessageStatePolicy.NO_MESSAGE_MANDATORY == beanMessageStatePolicy && worstMandatoryMessage != null) {
 					return UNHANDLED_MESSAGES_STATE.get();
 				}
-				else if (BeanModificationStatePolicy.NO_MODIFICATION == beanModificationStatePolicy && bean.hasModifications()) {
+				else if (BeanModificationStatePolicy.NO_MODIFICATION == beanModificationStatePolicy
+					&& bean.hasModifications()
+					&& !bean.isTransient()) {
 					return UNSAVED_DATA_STATE.get();
 				}
 				else if (BeanMessageStatePolicy.NO_WARNING_OR_ERROR == beanMessageStatePolicy
