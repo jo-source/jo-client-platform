@@ -86,7 +86,7 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> extends
 
 		final IEntityService entityService = ServiceProvider.getService(IEntityService.ID);
 		if (entityService != null) {
-			final IBeanDtoDescriptor beanDtoDescriptor = entityService.getDescriptor(entityId);
+			final IBeanDtoDescriptor beanDtoDescriptor = entityService.getDescriptor(getEntityId());
 			if (beanDtoDescriptor != null) {
 				final String labelSingular = beanDtoDescriptor.getLabelSingular().get();
 				if (!EmptyCheck.isEmpty(labelSingular)) {

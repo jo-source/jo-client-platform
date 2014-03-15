@@ -89,6 +89,10 @@ abstract class AbstractBeanModelBuilderImpl<BEAN_TYPE, INSTANCE_TYPE> implements
 
 		final IEntityTypeId<BEAN_TYPE> entityTypeId = new EntityTypeIdImpl<BEAN_TYPE>(entityId, beanTypeId, beanType);
 
+		this.beanTypeId = entityTypeId.getBeanTypeId();
+		this.beanType = entityTypeId.getBeanType();
+		this.entityId = entityTypeId.getEntityId();
+
 		this.beanValidators = new LinkedHashSet<IBeanValidator<BEAN_TYPE>>();
 
 		this.beanProxyContext = BeanProxyContext.create();
@@ -97,11 +101,11 @@ abstract class AbstractBeanModelBuilderImpl<BEAN_TYPE, INSTANCE_TYPE> implements
 
 		final IEntityService entityService = ServiceProvider.getService(IEntityService.ID);
 		if (entityService != null) {
-			final IBeanServicesProvider entityServicesProvider = entityService.getBeanServices(entityId);
+			final IBeanServicesProvider entityServicesProvider = entityService.getBeanServices(this.entityId);
 			if (entityServicesProvider != null) {
 				setEntityServices(entityServicesProvider);
 			}
-			final IBeanDtoDescriptor beanDtoDescriptor = entityService.getDescriptor(entityId);
+			final IBeanDtoDescriptor beanDtoDescriptor = entityService.getDescriptor(this.entityId);
 			if (beanDtoDescriptor != null) {
 				this.attributes = CapUiToolkit.attributeToolkit().createAttributes(beanDtoDescriptor.getProperties());
 
@@ -111,9 +115,6 @@ abstract class AbstractBeanModelBuilderImpl<BEAN_TYPE, INSTANCE_TYPE> implements
 			}
 		}
 
-		this.beanTypeId = entityTypeId.getBeanTypeId();
-		this.beanType = entityTypeId.getBeanType();
-		this.entityId = entityTypeId.getEntityId();
 	}
 
 	@SuppressWarnings("unchecked")

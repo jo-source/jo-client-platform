@@ -48,7 +48,7 @@ class BeanRelationNodeModelBuilder<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE, INSTANCE_T
 		super(childEntityType.getEntityId(), childEntityType.getBeanTypeId(), childEntityType.getBeanType());
 		this.parentEntityType = parentEntityType;
 		this.parentBean = parentBean;
-		this.childEntityType = childEntityType;
+		this.childEntityType = new EntityTypeIdImpl<CHILD_BEAN_TYPE>(getEntityId(), getBeanTypeId(), getBeanType());
 	}
 
 	IBeanRelationNodeModel<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> build() {
