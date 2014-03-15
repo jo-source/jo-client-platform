@@ -63,7 +63,7 @@ class BeanRelationNodeModelBluePrint<CHILD_BEAN_TYPE, INSTANCE_TYPE> extends
 	BeanRelationNodeModelBluePrint(final Object entityId, final Object beanTypeId, final Class<CHILD_BEAN_TYPE> beanType) {
 		super(entityId, beanTypeId, beanType);
 		this.childRelations = new LinkedList<IEntityTypeId<Object>>();
-		this.defaultSort = getDefaultSort(entityId);
+		this.defaultSort = getDefaultSort(getEntityId());
 		this.pageSize = DEFAULT_PAGE_SIZE;
 	}
 
