@@ -74,8 +74,8 @@ final class CopyActionBuilder<BEAN_TYPE> extends AbstractCapActionBuilderImpl<IC
 
 		this.transferableFactory = BeanSelectionTransferableFactory.create();
 		this.multiSelection = true;
-		this.beanModificationStatePolicy = BeanModificationStatePolicy.NO_MODIFICATION;
-		this.beanMessageStatePolicy = BeanMessageStatePolicy.NO_WARNING_OR_ERROR;
+		this.beanModificationStatePolicy = BeanModificationStatePolicy.ANY_MODIFICATION;
+		this.beanMessageStatePolicy = BeanMessageStatePolicy.NO_ERROR;
 
 		setAccelerator(VirtualKey.C, Modifier.CTRL);
 		setIcon(IconsSmall.COPY);

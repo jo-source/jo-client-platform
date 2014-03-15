@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.ui.impl;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -115,7 +116,9 @@ final class BeanProxyFactoryImpl<BEAN_TYPE> implements IBeanProxyFactory<BEAN_TY
 
 	}
 
-	private static final class BeanDto implements IBeanDto {
+	private static final class BeanDto implements IBeanDto, Serializable {
+
+		private static final long serialVersionUID = 8721566850623754973L;
 
 		private final Object id;
 		private final Map<String, Object> defaultValues;
