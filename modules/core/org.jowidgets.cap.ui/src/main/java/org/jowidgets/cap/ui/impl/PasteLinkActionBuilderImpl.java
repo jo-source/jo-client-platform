@@ -94,6 +94,7 @@ final class PasteLinkActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABL
 	private Object linkableBeanTypeId;
 	private Class<? extends LINKABLE_BEAN_TYPE> linkableBeanType;
 	private IBeanExceptionConverter exceptionConverter;
+	private boolean serviceBasedEnabledChecking;
 
 	@SuppressWarnings({"rawtypes", "unchecked"})
 	PasteLinkActionBuilderImpl(
@@ -103,6 +104,8 @@ final class PasteLinkActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABL
 		this(linkDescriptor.getLinkedCardinality(), disposeObservable);
 		Assert.paramNotNull(source, "source");
 		Assert.paramNotNull(linkDescriptor, "linkDescriptor");
+
+		this.serviceBasedEnabledChecking = true;
 
 		setSource(source);
 
@@ -320,6 +323,13 @@ final class PasteLinkActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABL
 	}
 
 	@Override
+	public IPasteLinkActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setServiceBasedEnabledChecking(
+		final boolean serviceBasedEnabledChecking) {
+		this.serviceBasedEnabledChecking = serviceBasedEnabledChecking;
+		return this;
+	}
+
+	@Override
 	public IPasteLinkActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setExceptionConverter(
 		final IBeanExceptionConverter exceptionConverter) {
 		checkExhausted();
@@ -392,6 +402,7 @@ final class PasteLinkActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABL
 			linkableBeanTypeId,
 			linkableBeanType,
 			enabledCheckers,
+			serviceBasedEnabledChecking,
 			executionInterceptors,
 			exceptionConverter,
 			disposeObservable);
