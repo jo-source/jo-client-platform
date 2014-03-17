@@ -122,7 +122,7 @@ final class PasteBeanLinkEnabledChecker<SOURCE_BEAN_TYPE, LINKABLE_BEAN_TYPE> ex
 	public IEnabledState getEnabledState() {
 		if (enabledState == null) {
 			if (conditionsChanged) {
-				onStateConditionChanged();
+				doServiceBasedChecking();
 			}
 			return clipboardEnabledChecker.getEnabledState();
 		}
@@ -137,7 +137,7 @@ final class PasteBeanLinkEnabledChecker<SOURCE_BEAN_TYPE, LINKABLE_BEAN_TYPE> ex
 		fireEnabledStateChanged();
 	}
 
-	private void onStateConditionChanged() {
+	private void doServiceBasedChecking() {
 		enabledState = null;
 		if (serviceBasedEnabledChecking && clipboardEnabledChecker.getEnabledState().isEnabled()) {
 			//only do service based checkings, if clipbaord checker allows operation
