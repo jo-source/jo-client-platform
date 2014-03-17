@@ -93,7 +93,7 @@ final class PasteBeanLinkEnabledChecker<SOURCE_BEAN_TYPE, LINKABLE_BEAN_TYPE> ex
 		this.sourceListener = new IBeanSelectionListener<SOURCE_BEAN_TYPE>() {
 			@Override
 			public void selectionChanged(final IBeanSelectionEvent<SOURCE_BEAN_TYPE> selectionEvent) {
-				setConditionsChanged();
+				onConditionsChanged();
 			}
 		};
 		source.addBeanSelectionListener(sourceListener);
@@ -101,7 +101,7 @@ final class PasteBeanLinkEnabledChecker<SOURCE_BEAN_TYPE, LINKABLE_BEAN_TYPE> ex
 		this.linkedModelListener = new BeanListModelListenerAdapter<LINKABLE_BEAN_TYPE>() {
 			@Override
 			public void beansChanged() {
-				setConditionsChanged();
+				onConditionsChanged();
 			}
 		};
 		if (linkedModel != null) {
@@ -112,7 +112,7 @@ final class PasteBeanLinkEnabledChecker<SOURCE_BEAN_TYPE, LINKABLE_BEAN_TYPE> ex
 		clipboardEnabledChecker.addChangeListener(new IChangeListener() {
 			@Override
 			public void changed() {
-				setConditionsChanged();
+				onConditionsChanged();
 			}
 		});
 
@@ -131,7 +131,7 @@ final class PasteBeanLinkEnabledChecker<SOURCE_BEAN_TYPE, LINKABLE_BEAN_TYPE> ex
 		}
 	}
 
-	private void setConditionsChanged() {
+	private void onConditionsChanged() {
 		this.conditionsChanged = true;
 		this.enabledState = null;
 		fireEnabledStateChanged();
