@@ -36,6 +36,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanData;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
@@ -43,21 +44,31 @@ import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.entity.IEntityLinkProperties;
 import org.jowidgets.cap.common.api.exception.BeanException;
 import org.jowidgets.cap.common.api.exception.DeletedBeanException;
+import org.jowidgets.cap.common.api.exception.ExecutableCheckException;
 import org.jowidgets.cap.common.api.exception.ServiceException;
+import org.jowidgets.cap.common.api.execution.ExecutableState;
+import org.jowidgets.cap.common.api.execution.IExecutableState;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
+import org.jowidgets.cap.common.api.filter.ArithmeticOperator;
+import org.jowidgets.cap.common.api.filter.IArithmeticFilter;
+import org.jowidgets.cap.common.api.filter.IFilterFactory;
 import org.jowidgets.cap.common.api.link.ILinkCreation;
 import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.common.api.service.ILinkCreatorService;
+import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.tools.execution.SyncResultCallback;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
+import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.util.reflection.BeanUtils;
 
 final class LinkCreatorServiceImpl<SOURCE_BEAN_TYPE extends IBean, LINKED_BEAN_TYPE extends IBean> implements ILinkCreatorService {
+
+	private static final IMessage DATASETS_CAN_NOT_BE_LINKED = Messages.getMessage("LinkCreatorServiceImpl.datasetsCanNotBeLinked");
 
 	private final IBeanAccess<SOURCE_BEAN_TYPE> sourceBeanAccess;
 	private final IBeanDtoFactory<SOURCE_BEAN_TYPE> sourceDtoFactory;
@@ -67,6 +78,7 @@ final class LinkCreatorServiceImpl<SOURCE_BEAN_TYPE extends IBean, LINKED_BEAN_T
 	private final ICreatorService sourceCreatorService;
 	private final ICreatorService linkCreatorService;
 	private final ICreatorService linkableCreatorService;
+	private final IReaderService<?> linkableReaderService;
 
 	private final IEntityLinkProperties sourceProperties;
 	private final IEntityLinkProperties destinationProperties;
@@ -80,6 +92,7 @@ final class LinkCreatorServiceImpl<SOURCE_BEAN_TYPE extends IBean, LINKED_BEAN_T
 		final ICreatorService sourceCreatorService,
 		final ICreatorService linkCreatorService,
 		final ICreatorService linkableCreatorService,
+		final IReaderService<?> linkableReaderService,
 		final IEntityLinkProperties sourceProperties,
 		final IEntityLinkProperties destinationProperties) {
 
@@ -101,6 +114,7 @@ final class LinkCreatorServiceImpl<SOURCE_BEAN_TYPE extends IBean, LINKED_BEAN_T
 		this.sourceCreatorService = sourceCreatorService;
 		this.linkCreatorService = linkCreatorService;
 		this.linkableCreatorService = linkableCreatorService;
+		this.linkableReaderService = linkableReaderService;
 		this.sourceProperties = sourceProperties;
 		this.destinationProperties = destinationProperties;
 	}
@@ -111,10 +125,28 @@ final class LinkCreatorServiceImpl<SOURCE_BEAN_TYPE extends IBean, LINKED_BEAN_T
 		final Collection<? extends ILinkCreation> links,
 		final IExecutionCallback executionCallback) {
 		try {
+			checkExecutableStateSync(links, executionCallback);
 			linkedBeansResult.finished(createSyncImpl(links, executionCallback));
 		}
 		catch (final Exception exception) {
 			linkedBeansResult.exception(exception);
+		}
+	}
+
+	@Override
+	public void getExecutableState(
+		final IResultCallback<IExecutableState> result,
+		final Collection<? extends ILinkCreation> links,
+		final IExecutionCallback executionCallback) {
+		try {
+			checkExecutableStateSync(links, executionCallback);
+			result.finished(ExecutableState.EXECUTABLE);
+		}
+		catch (final ExecutableCheckException exception) {
+			result.finished(ExecutableState.notExecutable(exception.getUserMessage()));
+		}
+		catch (final Exception exception) {
+			result.exception(exception);
 		}
 	}
 
@@ -130,6 +162,18 @@ final class LinkCreatorServiceImpl<SOURCE_BEAN_TYPE extends IBean, LINKED_BEAN_T
 		}
 
 		return new LinkedList<IBeanDto>(result);
+	}
+
+	private void checkExecutableStateSync(
+		final Collection<? extends ILinkCreation> links,
+		final IExecutionCallback executionCallback) {
+
+		if ((sourceProperties != null || destinationProperties != null) && linkableReaderService != null) {
+			for (final ILinkCreation link : links) {
+				CapServiceToolkit.checkCanceled(executionCallback);
+				checkExecutableState(link, executionCallback);
+			}
+		}
 	}
 
 	private List<IBeanDto> createLinks(final ILinkCreation link, final IExecutionCallback executionCallback) {
@@ -370,6 +414,50 @@ final class LinkCreatorServiceImpl<SOURCE_BEAN_TYPE extends IBean, LINKED_BEAN_T
 			result.add(createBean(decoratedBeanData, creatorService, executionCallback));
 		}
 		return result;
+	}
+
+	private void checkExecutableState(final ILinkCreation link, final IExecutionCallback executionCallback) {
+		final Collection<IBeanKey> linkableBeans = link.getLinkableBeans();
+		if (!EmptyCheck.isEmpty(linkableBeans)) {
+			for (final IBeanKey sourceBean : link.getSourceBeans()) {
+				final IFilterFactory filterFactory = CapCommonToolkit.filterFactory();
+				final Object[] linkableKeys = new Object[linkableBeans.size()];
+				int index = 0;
+				for (final IBeanKey key : linkableBeans) {
+					linkableKeys[index] = key.getId();
+					index++;
+				}
+
+				final IArithmeticFilter filter;
+
+				if (destinationProperties != null) {
+					filter = filterFactory.arithmeticFilter(
+							destinationProperties.getKeyPropertyName(),
+							ArithmeticOperator.CONTAINS_ANY,
+							linkableKeys);
+				}
+				else if (sourceProperties != null) {
+					filter = filterFactory.arithmeticFilter(
+							sourceProperties.getKeyPropertyName(),
+							ArithmeticOperator.CONTAINS_ANY,
+							linkableKeys);
+				}
+				else {
+					throw new IllegalStateException("Neither the source not the destination properties are defined");
+				}
+
+				final SyncResultCallback<Integer> result = new SyncResultCallback<Integer>();
+				linkableReaderService.count(result, Collections.singletonList(sourceBean), filter, null, executionCallback);
+				final Integer count = result.getResultSynchronious();
+
+				if (count == null || count.intValue() < linkableKeys.length) {
+					throw new ExecutableCheckException(
+						sourceBean.getId(),
+						"Beans are not linkable",
+						DATASETS_CAN_NOT_BE_LINKED.get());
+				}
+			}
+		}
 	}
 
 	private final class DecoratedLinkBeanData implements IBeanData, Serializable {

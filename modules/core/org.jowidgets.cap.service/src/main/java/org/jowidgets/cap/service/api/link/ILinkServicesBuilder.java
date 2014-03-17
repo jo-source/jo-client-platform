@@ -70,6 +70,8 @@ public interface ILinkServicesBuilder<SOURCE_BEAN_TYPE extends IBean, LINKED_BEA
 
 	ILinkServicesBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> setLinkDeleterService(IDeleterService deleterService);
 
+	ILinkServicesBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> setLinkableReaderService(IReaderService<?> readerService);
+
 	ILinkServicesBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> setLinkableCreatorService(ICreatorService creatorService);
 
 	ILinkServicesBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> setLinkableDeleterService(IDeleterService creatorService);

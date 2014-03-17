@@ -63,6 +63,7 @@ final class LinkServicesBuilderImpl<SOURCE_BEAN_TYPE extends IBean, LINKED_BEAN_
 	private IDeleterService sourceDeleterService;
 	private IDeleterService linkDeleterService;
 	private IDeleterService linkableDeleterService;
+	private IReaderService<?> linkableReaderService;
 
 	private IEntityLinkProperties sourceProperties;
 	private IEntityLinkProperties destinationProperties;
@@ -171,6 +172,12 @@ final class LinkServicesBuilderImpl<SOURCE_BEAN_TYPE extends IBean, LINKED_BEAN_
 	}
 
 	@Override
+	public ILinkServicesBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> setLinkableReaderService(final IReaderService<?> readerService) {
+		this.linkableReaderService = readerService;
+		return this;
+	}
+
+	@Override
 	public ILinkServicesBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> setSymmetric(final boolean symmetric) {
 		this.symmetric = symmetric;
 		return this;
@@ -224,6 +231,7 @@ final class LinkServicesBuilderImpl<SOURCE_BEAN_TYPE extends IBean, LINKED_BEAN_
 			sourceCreatorService,
 			linkCreatorService,
 			linkableCreatorService,
+			linkableReaderService,
 			sourceProperties,
 			destinationProperties);
 	}

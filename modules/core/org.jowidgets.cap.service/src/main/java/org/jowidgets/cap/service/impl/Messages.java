@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,26 +26,25 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api.service;
+package org.jowidgets.cap.service.impl;
 
-import java.util.Collection;
-import java.util.List;
+import org.jowidgets.i18n.api.IMessage;
+import org.jowidgets.i18n.api.IMessageProvider;
+import org.jowidgets.i18n.api.MessageProvider;
 
-import org.jowidgets.cap.common.api.bean.IBeanDto;
-import org.jowidgets.cap.common.api.bean.IBeanModification;
-import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.cap.common.api.execution.IResultCallback;
+final class Messages {
 
-public interface IUpdaterService {
+	private static final IMessageProvider MESSAGE_PROVIDER = MessageProvider.create(
+			"org.jowidgets.cap.service.impl.messages",
+			Messages.class);
 
-	void update(
-		IResultCallback<List<IBeanDto>> result,
-		Collection<? extends IBeanModification> modifications,
-		IExecutionCallback executionCallback);
+	private Messages() {}
 
-	//	void getExecutableState(
-	//		IResultCallback<IExecutableState> result,
-	//		Collection<? extends IBeanModification> modifications,
-	//		IExecutionCallback executionCallback);
+	public static String getString(final String key) {
+		return MESSAGE_PROVIDER.getString(key);
+	}
 
+	public static IMessage getMessage(final String key) {
+		return MESSAGE_PROVIDER.getMessage(key);
+	}
 }
