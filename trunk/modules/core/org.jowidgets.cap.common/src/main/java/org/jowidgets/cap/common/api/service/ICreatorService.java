@@ -43,4 +43,8 @@ public interface ICreatorService {
 		Collection<? extends IBeanData> beansData,
 		IExecutionCallback executionCallback);
 
+	//	void getExecutableState(
+	//		IResultCallback<IExecutableState> result,
+	//		Collection<? extends IBeanData> beansData,
+	//		IExecutionCallback executionCallback);
 }

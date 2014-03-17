@@ -28,10 +28,14 @@
 
 package org.jowidgets.cap.common.api.execution;
 
-public final class ExecutableState implements IExecutableState {
+import java.io.Serializable;
+
+public final class ExecutableState implements IExecutableState, Serializable {
 
 	public static final ExecutableState EXECUTABLE = new ExecutableState();
 	public static final ExecutableState NOT_EXECUTABLE = new ExecutableState(false, null);
+
+	private static final long serialVersionUID = -8514257870270827828L;
 
 	private final boolean executable;
 	private final String reason;

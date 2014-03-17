@@ -33,6 +33,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.common.api.execution.IExecutableState;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.link.ILinkCreation;
@@ -60,6 +61,14 @@ final class LinkCreatorServiceProxy implements ILinkCreatorService, Serializable
 		final Collection<? extends ILinkCreation> links,
 		final IExecutionCallback executionCallback) {
 		getOriginal().create(linkedBeansResult, links, executionCallback);
+	}
+
+	@Override
+	public void getExecutableState(
+		final IResultCallback<IExecutableState> result,
+		final Collection<? extends ILinkCreation> links,
+		final IExecutionCallback executionCallback) {
+		getOriginal().getExecutableState(result, links, executionCallback);
 	}
 
 	private ILinkCreatorService getOriginal() {

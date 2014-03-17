@@ -32,6 +32,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.common.api.execution.IExecutableState;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.link.ILinkCreation;
@@ -47,6 +48,18 @@ public interface ILinkCreatorService {
 	 */
 	void create(
 		IResultCallback<List<IBeanDto>> linkedBeansResult,
+		Collection<? extends ILinkCreation> links,
+		IExecutionCallback executionCallback);
+
+	/**
+	 * Gets the executable state
+	 * 
+	 * @param result The result callback for the check
+	 * @param links The links to check
+	 * @param executionCallback
+	 */
+	void getExecutableState(
+		IResultCallback<IExecutableState> result,
 		Collection<? extends ILinkCreation> links,
 		IExecutionCallback executionCallback);
 }
