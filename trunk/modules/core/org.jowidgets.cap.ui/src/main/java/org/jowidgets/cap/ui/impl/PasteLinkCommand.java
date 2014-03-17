@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.ui.impl;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -71,6 +72,7 @@ import org.jowidgets.i18n.api.MessageReplacer;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.util.IFactory;
+import org.jowidgets.util.IProvider;
 
 final class PasteLinkCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> implements ICommand, ICommandExecutor {
 
@@ -85,8 +87,11 @@ final class PasteLinkCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYP
 	private final Object linkableBeanTypeId;
 	private final IFactory<IBeanProxy<LINK_BEAN_TYPE>> linkDefaultFactory;
 
+	private final PasteBeanLinkEnabledChecker<SOURCE_BEAN_TYPE, LINKABLE_BEAN_TYPE> pasteLinkChecker;
 	private final BeanSelectionProviderEnabledChecker<SOURCE_BEAN_TYPE> enabledChecker;
 	private final ExecutionObservable<List<IBeanDto>> executionObservable;
+
+	private final IProvider<Collection<ILinkCreation>> linkProvider;
 
 	PasteLinkCommand(
 		final ILinkCreatorService linkCreatorService,
@@ -104,6 +109,7 @@ final class PasteLinkCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYP
 		final Object linkableBeanTypeId,
 		final Class<? extends LINKABLE_BEAN_TYPE> linkableBeanType,
 		final List<IEnabledChecker> enabledCheckers,
+		final boolean serviceBasedEnabledChecking,
 		final List<IExecutionInterceptor<List<IBeanDto>>> executionInterceptors,
 		final IBeanExceptionConverter exceptionConverter,
 		final IDisposeObservable disposeObservable) {
@@ -116,29 +122,6 @@ final class PasteLinkCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYP
 		Assert.paramNotNull(exceptionConverter, "exceptionConverter");
 
 		Assert.paramNotNull(linkedCardinality, "linkedCardinality");
-
-		final ClipboardSelectionEnabledChecker clipboardEnabledChecker;
-		if (linkableBeanTypeId != null && linkableBeanType != null) {
-			clipboardEnabledChecker = new ClipboardSelectionEnabledChecker(linkableBeanTypeId, linkableBeanType);
-		}
-		else if (linkBeanTypeId != null && linkBeanType != null) {
-			clipboardEnabledChecker = new ClipboardSelectionEnabledChecker(linkBeanTypeId, linkBeanType);
-		}
-		else {
-			throw new IllegalArgumentException("Neither the linkType nor the linkable type is set");
-		}
-
-		final List<IEnabledChecker> checkers = new LinkedList<IEnabledChecker>(enabledCheckers);
-		checkers.add(clipboardEnabledChecker);
-
-		this.enabledChecker = new BeanSelectionProviderEnabledChecker<SOURCE_BEAN_TYPE>(
-			source,
-			sourceMultiSelection ? BeanSelectionPolicy.MULTI_SELECTION : BeanSelectionPolicy.SINGLE_SELECTION,
-			sourceModificationPolicy,
-			sourceMessageStatePolicy,
-			checkers,
-			sourceExecutableCheckers,
-			false);
 
 		this.source = source;
 		this.linkCreatorService = linkCreatorService;
@@ -156,14 +139,50 @@ final class PasteLinkCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYP
 			executionObservable.addExecutionInterceptor(refreshInterceptor);
 		}
 
-		final IDisposeListener disposeListener = new IDisposeListener() {
+		this.linkProvider = new LinkProvider();
+
+		if (linkableBeanTypeId != null && linkableBeanType != null) {
+			this.pasteLinkChecker = new PasteBeanLinkEnabledChecker<SOURCE_BEAN_TYPE, LINKABLE_BEAN_TYPE>(
+				linkCreatorService,
+				linkProvider,
+				source,
+				linkedModel,
+				linkableBeanTypeId,
+				linkableBeanType,
+				serviceBasedEnabledChecking);
+		}
+		else if (linkBeanTypeId != null && linkBeanType != null) {
+			this.pasteLinkChecker = new PasteBeanLinkEnabledChecker<SOURCE_BEAN_TYPE, LINKABLE_BEAN_TYPE>(
+				linkCreatorService,
+				linkProvider,
+				source,
+				linkedModel,
+				linkBeanTypeId,
+				linkBeanType,
+				serviceBasedEnabledChecking);
+		}
+		else {
+			throw new IllegalArgumentException("Neither the linkType nor the linkable type is set");
+		}
+
+		final List<IEnabledChecker> checkers = new LinkedList<IEnabledChecker>(enabledCheckers);
+		checkers.add(pasteLinkChecker);
+
+		this.enabledChecker = new BeanSelectionProviderEnabledChecker<SOURCE_BEAN_TYPE>(
+			source,
+			sourceMultiSelection ? BeanSelectionPolicy.MULTI_SELECTION : BeanSelectionPolicy.SINGLE_SELECTION,
+			sourceModificationPolicy,
+			sourceMessageStatePolicy,
+			checkers,
+			sourceExecutableCheckers,
+			false);
+
+		disposeObservable.addDisposeListener(new IDisposeListener() {
 			@Override
 			public void onDispose() {
-				clipboardEnabledChecker.dispose();
+				pasteLinkChecker.dispose();
 			}
-		};
-
-		disposeObservable.addDisposeListener(disposeListener);
+		});
 	}
 
 	@Override
@@ -194,16 +213,10 @@ final class PasteLinkCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYP
 			return;
 		}
 
-		final IBeanSelectionClipboard selectionClipboard = Clipboard.getData(IBeanSelectionClipboard.TRANSFER_TYPE);
-		if (selectionClipboard != null) {
-			linkBeans(executionContext, selection, selectionClipboard);
-		}
+		linkBeans(executionContext, selection);
 	}
 
-	private void linkBeans(
-		final IExecutionContext executionContext,
-		final List<IBeanProxy<SOURCE_BEAN_TYPE>> selection,
-		final IBeanSelectionClipboard selectionClipboard) {
+	private void linkBeans(final IExecutionContext executionContext, final List<IBeanProxy<SOURCE_BEAN_TYPE>> selection) {
 
 		final IExecutionTask executionTask = CapUiToolkit.executionTaskFactory().create();
 		final IUiThreadAccess uiThreadAccess = Toolkit.getUiThreadAccess();
@@ -222,59 +235,7 @@ final class PasteLinkCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYP
 			}
 		});
 
-		final Set<ILinkCreation> linkCreations = new HashSet<ILinkCreation>();
-
-		if (linkableBeanTypeId != null) {
-			final ILinkCreationBuilder linkCreationBuilder = LinkCreation.builder();
-
-			//add the source beans
-			for (final IBeanProxy<SOURCE_BEAN_TYPE> sourceBean : selection) {
-				if (sourceBean.isTransient()) {
-					linkCreationBuilder.addTransientSourceBean(sourceBean.getBeanData());
-				}
-				else {
-					linkCreationBuilder.addSourceBean(sourceBean.getBeanKey());
-				}
-			}
-
-			//add the linkable beans
-			for (final IBeanDto linkableBean : selectionClipboard.getBeans()) {
-				if (linkableBean.getId() == null) {
-					linkCreationBuilder.addTransientLinkableBean(linkableBean);
-				}
-				else {
-					linkCreationBuilder.addLinkableBean(createBeanKey(linkableBean));
-				}
-			}
-
-			if (linkDefaultFactory != null) {
-				linkCreationBuilder.setAdditionalLinkProperties(linkDefaultFactory.create().getBeanData());
-			}
-
-			linkCreations.add(linkCreationBuilder.build());
-		}
-		else {//direct links
-			for (final IBeanDto linkBean : selectionClipboard.getBeans()) {
-
-				final ILinkCreationBuilder linkCreationBuilder = LinkCreation.builder();
-
-				//add the source beans
-				for (final IBeanProxy<SOURCE_BEAN_TYPE> sourceBean : selection) {
-					if (sourceBean.isTransient()) {
-						linkCreationBuilder.addTransientSourceBean(sourceBean.getBeanData());
-					}
-					else {
-						linkCreationBuilder.addSourceBean(sourceBean.getBeanKey());
-					}
-				}
-
-				//one link for each bean in the clipboard
-				linkCreationBuilder.setAdditionalLinkProperties(linkBean);
-
-				linkCreations.add(linkCreationBuilder.build());
-			}
-		}
-
+		final Collection<ILinkCreation> linkCreations = linkProvider.get();
 		executionObservable.fireAfterExecutionPrepared(executionContext);
 		linkCreatorService.create(createResultCallback(selection, executionContext), linkCreations, executionTask);
 	}
@@ -319,6 +280,75 @@ final class PasteLinkCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYP
 				return MessageReplacer.replace(SHORT_ERROR.get(), actionText);
 			}
 		};
+	}
+
+	private final class LinkProvider implements IProvider<Collection<ILinkCreation>> {
+
+		@Override
+		public Collection<ILinkCreation> get() {
+			final Set<ILinkCreation> result = new HashSet<ILinkCreation>();
+
+			final List<IBeanProxy<SOURCE_BEAN_TYPE>> selection = source.getBeanSelection().getSelection();
+			final IBeanSelectionClipboard selectionClipboard = Clipboard.getData(IBeanSelectionClipboard.TRANSFER_TYPE);
+
+			if (selectionClipboard == null) {
+				return result;
+			}
+
+			if (linkableBeanTypeId != null) {
+				final ILinkCreationBuilder linkCreationBuilder = LinkCreation.builder();
+
+				//add the source beans
+				for (final IBeanProxy<SOURCE_BEAN_TYPE> sourceBean : selection) {
+					if (sourceBean.isTransient()) {
+						linkCreationBuilder.addTransientSourceBean(sourceBean.getBeanData());
+					}
+					else {
+						linkCreationBuilder.addSourceBean(sourceBean.getBeanKey());
+					}
+				}
+
+				//add the linkable beans
+				for (final IBeanDto linkableBean : selectionClipboard.getBeans()) {
+					if (linkableBean.getId() == null) {
+						linkCreationBuilder.addTransientLinkableBean(linkableBean);
+					}
+					else {
+						linkCreationBuilder.addLinkableBean(createBeanKey(linkableBean));
+					}
+				}
+
+				if (linkDefaultFactory != null) {
+					linkCreationBuilder.setAdditionalLinkProperties(linkDefaultFactory.create().getBeanData());
+				}
+
+				result.add(linkCreationBuilder.build());
+			}
+			else {//direct links
+				for (final IBeanDto linkBean : selectionClipboard.getBeans()) {
+
+					final ILinkCreationBuilder linkCreationBuilder = LinkCreation.builder();
+
+					//add the source beans
+					for (final IBeanProxy<SOURCE_BEAN_TYPE> sourceBean : selection) {
+						if (sourceBean.isTransient()) {
+							linkCreationBuilder.addTransientSourceBean(sourceBean.getBeanData());
+						}
+						else {
+							linkCreationBuilder.addSourceBean(sourceBean.getBeanKey());
+						}
+					}
+
+					//one link for each bean in the clipboard
+					linkCreationBuilder.setAdditionalLinkProperties(linkBean);
+
+					result.add(linkCreationBuilder.build());
+				}
+			}
+
+			return result;
+		}
+
 	}
 
 }

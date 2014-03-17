@@ -91,6 +91,16 @@ public interface IPasteLinkActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 
 	IPasteLinkActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> addEnabledChecker(IEnabledChecker enabledChecker);
 
+	/**
+	 * Sets the server based enabled checking. If set to true, the default enabled checker will use the link creator service
+	 * to check the enabled state.
+	 * 
+	 * @param serviceBasedEnabledChecking
+	 * @return this builder
+	 */
+	IPasteLinkActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setServiceBasedEnabledChecking(
+		boolean serviceBasedEnabledChecking);
+
 	IPasteLinkActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setExceptionConverter(
 		IBeanExceptionConverter exceptionConverter);
 
