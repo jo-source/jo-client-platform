@@ -224,7 +224,11 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 		dtoBuilder.setId(getId());
 		dtoBuilder.setVersion(getVersion());
 		for (final String propertyName : getProperties()) {
-			dtoBuilder.setValue(propertyName, getValue(propertyName));
+			if (!ALL_META_ATTRIBUTES.contains(propertyName)
+				&& !IBean.ID_PROPERTY.equals(propertyName)
+				&& !IBean.VERSION_PROPERTY.equals(propertyName)) {
+				dtoBuilder.setValue(propertyName, getValue(propertyName));
+			}
 		}
 
 		final BeanProxyImpl<BEAN_TYPE> result = new BeanProxyImpl<BEAN_TYPE>(
