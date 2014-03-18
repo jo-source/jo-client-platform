@@ -143,6 +143,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 	private final ArrayList<IBeanProxy<CHILD_BEAN_TYPE>> addedData;
 	private final int pageSize;
 	private final Map<String, IUiFilter> filters;
+	private final boolean clearOnTransientParent;
 
 	private ArrayList<Integer> selection;
 	private DataLoader dataLoader;
@@ -158,6 +159,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 		final IBeanProxyLabelRenderer<CHILD_BEAN_TYPE> childRenderer,
 		final List<IEntityTypeId<Object>> childRelations,
 		final int pageSize,
+		final boolean clearOnTransientParent,
 		final IReaderService<? extends Object> readerService,
 		final IProvider<? extends Object> readerParameterProvider,
 		final ICreatorService creatorService,
@@ -196,6 +198,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 		this.childRelations = new LinkedList<IEntityTypeId<Object>>(childRelations);
 		this.readerService = (IReaderService<Object>) readerService;
 		this.pageSize = pageSize;
+		this.clearOnTransientParent = clearOnTransientParent;
 		this.readerParameterProvider = (IProvider<Object>) readerParameterProvider;
 		this.creatorService = creatorService;
 		this.childBeanAttributes = Collections.unmodifiableList(new LinkedList<IAttribute<Object>>(childBeanAttributes));
@@ -479,10 +482,17 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 		if (!Toolkit.getUiThreadAccess().isUiThread()) {
 			throw new IllegalStateException("Load must be invoked in the ui thread");
 		}
-		this.hasInitialLoad = true;
-		tryToCanceLoader();
-		dataLoader = new DataLoader(clearData, resultCallback);
-		dataLoader.loadData();
+		if (clearOnTransientParent && (parentBean != null && EmptyCheck.isEmpty(getParentBeanKeys()))) {
+			if (clearData) {
+				clear();
+			}
+		}
+		else {
+			this.hasInitialLoad = true;
+			tryToCanceLoader();
+			dataLoader = new DataLoader(clearData, resultCallback);
+			dataLoader.loadData();
+		}
 	}
 
 	@Override
@@ -824,6 +834,15 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 		beanSelectionObservable.removeBeanSelectionListener(listener);
 	}
 
+	private List<? extends IBeanKey> getParentBeanKeys() {
+		if (parentBean != null && !parentBean.isTransient() && !parentBean.isDummy()) {
+			return Collections.singletonList(new BeanKey(parentBean.getId(), parentBean.getVersion()));
+		}
+		else {
+			return Collections.emptyList();
+		}
+	}
+
 	@Override
 	public String toString() {
 		return "BeanRelationNodeModelImpl [label="
@@ -887,17 +906,9 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 			dummyBean.setExecutionTask(executionTask);
 			addedData.add(dummyBean);
 
-			final List<? extends IBeanKey> parentBeanKeys;
-			if (parentBean != null && !parentBean.isTransient() && !parentBean.isDummy()) {
-				parentBeanKeys = Collections.singletonList(new BeanKey(parentBean.getId(), parentBean.getVersion()));
-			}
-			else {
-				parentBeanKeys = Collections.emptyList();
-			}
-
 			readerService.read(
 					createResultCallback(),
-					parentBeanKeys,
+					getParentBeanKeys(),
 					filter,
 					sortModel.getSorting(),
 					data.size(),

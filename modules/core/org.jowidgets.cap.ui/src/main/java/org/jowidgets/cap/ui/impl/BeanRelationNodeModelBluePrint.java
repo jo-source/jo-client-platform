@@ -58,12 +58,14 @@ class BeanRelationNodeModelBluePrint<CHILD_BEAN_TYPE, INSTANCE_TYPE> extends
 	private String description;
 	private IImageConstant icon;
 	private IBeanProxyLabelRenderer<CHILD_BEAN_TYPE> childRenderer;
+	private boolean clearOnTransientParent;
 	private int pageSize;
 
 	BeanRelationNodeModelBluePrint(final Object entityId, final Object beanTypeId, final Class<CHILD_BEAN_TYPE> beanType) {
 		super(entityId, beanTypeId, beanType);
 		this.childRelations = new LinkedList<IEntityTypeId<Object>>();
 		this.defaultSort = getDefaultSort(getEntityId());
+		this.clearOnTransientParent = true;
 		this.pageSize = DEFAULT_PAGE_SIZE;
 	}
 
@@ -156,6 +158,13 @@ class BeanRelationNodeModelBluePrint<CHILD_BEAN_TYPE, INSTANCE_TYPE> extends
 		return (INSTANCE_TYPE) this;
 	}
 
+	@SuppressWarnings("unchecked")
+	@Override
+	public INSTANCE_TYPE setClearOnTransientParent(final boolean clearOnTransientParent) {
+		this.clearOnTransientParent = clearOnTransientParent;
+		return (INSTANCE_TYPE) this;
+	}
+
 	@Override
 	public IBeanProxyLabelRenderer<CHILD_BEAN_TYPE> getChildRenderer() {
 		if (childRenderer == null) {
@@ -192,6 +201,10 @@ class BeanRelationNodeModelBluePrint<CHILD_BEAN_TYPE, INSTANCE_TYPE> extends
 
 	protected int getPageSize() {
 		return pageSize;
+	}
+
+	protected boolean isClearOnTransientParent() {
+		return clearOnTransientParent;
 	}
 
 }

@@ -61,6 +61,16 @@ public interface IBeanRelationNodeModelBluePrint<CHILD_BEAN_TYPE, INSTANCE_TYPE>
 
 	INSTANCE_TYPE setPageSize(int pageSize);
 
+	/**
+	 * If this option is set, data will only be loaded if any parent bean is persistent.
+	 * Otherwise data will be cleared on load.
+	 * The default value is false for the root node of a tree and false for all inner nodes
+	 * 
+	 * @param clearOnTransientParent
+	 * @return This builder
+	 */
+	INSTANCE_TYPE setClearOnTransientParent(boolean clearOnTransientParent);
+
 	IBeanProxyLabelRenderer<CHILD_BEAN_TYPE> getChildRenderer();
 
 }

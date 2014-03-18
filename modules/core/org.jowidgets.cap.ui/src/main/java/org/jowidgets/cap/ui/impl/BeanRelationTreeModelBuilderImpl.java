@@ -69,6 +69,7 @@ final class BeanRelationTreeModelBuilderImpl<CHILD_BEAN_TYPE> extends
 
 	BeanRelationTreeModelBuilderImpl(final Object entityId, final Object beanTypeId, final Class<CHILD_BEAN_TYPE> beanType) {
 		super(entityId, beanTypeId, beanType);
+		setClearOnTransientParent(false);
 		this.build = false;
 		this.nodeConfigurators = new LinkedList<IBeanRelationNodeModelConfigurator>();
 		nodeConfigurators.add(new IBeanRelationNodeModelConfigurator() {
@@ -80,6 +81,7 @@ final class BeanRelationTreeModelBuilderImpl<CHILD_BEAN_TYPE> extends
 			}
 		});
 		addChildRelations(new EntityTypeIdImpl<Object>(entityId, beanTypeId, beanType), this);
+
 	}
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
@@ -150,6 +152,7 @@ final class BeanRelationTreeModelBuilderImpl<CHILD_BEAN_TYPE> extends
 			getChildRenderer(),
 			new LinkedList<IEntityTypeId<Object>>(getChildRelations()),
 			getPageSize(),
+			isClearOnTransientParent(),
 			getReaderService(),
 			getReaderParameterProvider(),
 			getCreatorService(),
