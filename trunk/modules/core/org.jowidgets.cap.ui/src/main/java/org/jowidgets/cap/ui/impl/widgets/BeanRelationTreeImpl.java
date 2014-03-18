@@ -894,6 +894,11 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 			this.root = treeModel.getRoot();
 			this.tree = getWidget();
 			this.nodeMenu = new MenuModel();
+
+			final IAction copyAction = createCopyAction(root);
+			if (copyAction != null) {
+				nodeMenu.addAction(copyAction);
+			}
 		}
 
 		@Override
@@ -1050,7 +1055,7 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 								childRelationNodeModel,
 								pasteLinkAction,
 								createAction);
-						if (relationMenu.getChildren().size() > 0) {
+						if (relationMenu.getChildren().size() > 0 && !(bean.isTransient() || bean.isDummy())) {
 							childRelationNode.setPopupMenu(relationMenu);
 							if (autoKeyBinding) {
 								final MenuModelKeyBinding keyBinding = new MenuModelKeyBinding(
