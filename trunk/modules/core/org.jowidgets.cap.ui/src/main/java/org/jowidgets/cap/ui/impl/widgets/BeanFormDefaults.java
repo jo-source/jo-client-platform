@@ -32,7 +32,6 @@ import org.jowidgets.api.color.Colors;
 import org.jowidgets.api.image.IconsSmall;
 import org.jowidgets.api.widgets.blueprint.IInputComponentValidationLabelBluePrint;
 import org.jowidgets.api.widgets.blueprint.defaults.IDefaultInitializer;
-import org.jowidgets.cap.ui.api.Messages;
 import org.jowidgets.cap.ui.api.color.CapColors;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
 import org.jowidgets.tools.validation.MandatoryValidator;
@@ -84,7 +83,7 @@ final class BeanFormDefaults implements IDefaultInitializer<IBeanFormBluePrint<?
 		createModeValidationLabel.setInitialValidationDecorator(createModeValidationDecorator);
 		createModeValidationLabel.setUnmodifiedValidationDecorator(createModeValidationDecorator);
 		bluePrint.setCreateModeValidationLabel(createModeValidationLabel);
-		bluePrint.setCreateModeInputHint(Messages.getString("CapUiToolkit.fill_out_mandatory_fields"));
+		bluePrint.setCreateModeInputHint(Messages.getString("BeanFormDefaults.fill_out_mandatory_fields"));
 
 		bluePrint.setMandatoryBackgroundColor(CapColors.MANDATORY_BACKGROUND);
 		bluePrint.setMandatoryLabelDecorator(new IDecorator<String>() {
