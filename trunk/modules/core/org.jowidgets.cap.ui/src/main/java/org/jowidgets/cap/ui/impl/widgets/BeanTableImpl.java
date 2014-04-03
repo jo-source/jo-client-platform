@@ -954,6 +954,9 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 		if (menuModelKeyBinding != null) {
 			menuModelKeyBinding.dispose();
 		}
+		if (settingsDialog != null) {
+			settingsDialog.dispose();
+		}
 		stopAutoUpdateModeImpl();
 		super.dispose();
 	}
