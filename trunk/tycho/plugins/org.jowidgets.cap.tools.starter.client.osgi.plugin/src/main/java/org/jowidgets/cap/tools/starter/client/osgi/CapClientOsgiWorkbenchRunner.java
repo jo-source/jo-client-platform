@@ -63,6 +63,7 @@ public class CapClientOsgiWorkbenchRunner extends ClassLoadingActivator {
 	protected void bundleStartet() {
 		messagingInitializer.initializeMessaging();
 		WORKBENCH_RUNNER.run(workbench);
+		System.exit(0);
 	}
 
 }
