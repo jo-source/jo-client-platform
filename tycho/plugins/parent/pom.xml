@@ -12,6 +12,7 @@
 	</parent>
 
 	<modules>
+		<module>../org.jowidgets.cap.tools.starter.client.osgi.plugin</module>
 	    <module>../org.jowidgets.cap.tools.starter.client.rcp.plugin</module>
 		<module>../org.jowidgets.cap.tools.starter.hibernate.validation.plugin</module>
 	</modules>
