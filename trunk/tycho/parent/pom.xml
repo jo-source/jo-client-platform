@@ -492,6 +492,21 @@
 			<artifactId>com.springsource.org.hibernate.validator</artifactId>
 			<version>4.2.0.Final</version>
 		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>com.springsource.slf4j.api</artifactId>
+			<version>1.6.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>com.springsource.slf4j.nop</artifactId>
+			<version>1.6.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>org.slf4j.jul.to.slf4j.bundle</artifactId>
+			<version>1.6.6</version>
+		</dependency>
 	</dependencies>
 
 	<modules>
