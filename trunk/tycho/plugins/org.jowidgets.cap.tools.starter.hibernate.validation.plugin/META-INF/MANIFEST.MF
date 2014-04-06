@@ -5,11 +5,10 @@ Bundle-SymbolicName: org.jowidgets.cap.tools.starter.hibernate.validation.plugin
 Bundle-Version: 0.28.0.qualifier
 Bundle-Vendor: jowidgets.org
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
-Bundle-ActivationPolicy: lazy
 Require-Bundle: 
  com.springsource.org.hibernate.validator,
  com.springsource.javax.validation;bundle-version="1.0.0",
  org.jowidgets.beanvalidation.bootstrap.api.bundle,
  org.eclipse.osgi
-Bundle-Activator: org.jowidgets.cap.tools.starter.hibernate.validation.plugin.HibernateValidationPluginActivator
+Export-Package: org.jowidgets.cap.tools.starter.hibernate.validation.plugin
 

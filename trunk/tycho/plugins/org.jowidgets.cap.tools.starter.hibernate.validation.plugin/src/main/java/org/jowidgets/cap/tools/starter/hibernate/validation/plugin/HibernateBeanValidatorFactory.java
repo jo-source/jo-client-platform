@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, Michael
+ * Copyright (c) 2014, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -39,37 +39,24 @@ import javax.validation.spi.ValidationProvider;
 
 import org.hibernate.validator.HibernateValidator;
 import org.hibernate.validator.HibernateValidatorConfiguration;
-import org.jowidgets.beanvalidation.bootstrap.api.BeanValidatorFactory;
 import org.jowidgets.beanvalidation.bootstrap.api.IBeanValidatorFactory;
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
 
-public final class HibernateValidationPluginActivator implements BundleActivator {
+public final class HibernateBeanValidatorFactory implements IBeanValidatorFactory {
 
 	@Override
-	public void start(final BundleContext bundleContext) throws Exception {
-		BeanValidatorFactory.setFactory(new IBeanValidatorFactory() {
+	public Validator create() {
+		final ValidationProviderResolver validationProviderResolver = new ValidationProviderResolver() {
 			@Override
-			public Validator create() {
-				final ValidationProviderResolver validationProviderResolver = new ValidationProviderResolver() {
-					@Override
-					public List<ValidationProvider<?>> getValidationProviders() {
-						final List<ValidationProvider<?>> result = new LinkedList<ValidationProvider<?>>();
-						result.add(new HibernateValidator());
-						return result;
-					}
-				};
-				final ProviderSpecificBootstrap<HibernateValidatorConfiguration> bootstrap = Validation.byProvider(HibernateValidator.class);
-				bootstrap.providerResolver(validationProviderResolver);
-				final HibernateValidatorConfiguration validatorConfiguration = bootstrap.configure();
-				return validatorConfiguration.buildValidatorFactory().getValidator();
+			public List<ValidationProvider<?>> getValidationProviders() {
+				final List<ValidationProvider<?>> result = new LinkedList<ValidationProvider<?>>();
+				result.add(new HibernateValidator());
+				return result;
 			}
-		});
-	}
-
-	@Override
-	public void stop(final BundleContext bundleContext) throws Exception {
-
+		};
+		final ProviderSpecificBootstrap<HibernateValidatorConfiguration> bootstrap = Validation.byProvider(HibernateValidator.class);
+		bootstrap.providerResolver(validationProviderResolver);
+		final HibernateValidatorConfiguration validatorConfiguration = bootstrap.configure();
+		return validatorConfiguration.buildValidatorFactory().getValidator();
 	}
 
 }
