@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: org.jowidgets.cap.tools.starter.hibernate.validation.plugin
 Bundle-SymbolicName: org.jowidgets.cap.tools.starter.hibernate.validation.plugin;singleton:=true
-Bundle-Version: 0.28.0.qualifier
+Bundle-Version: 0.28.0
 Bundle-Vendor: jowidgets.org
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: 
@@ -10,5 +10,6 @@ Require-Bundle:
  com.springsource.javax.validation;bundle-version="1.0.0",
  org.jowidgets.beanvalidation.bootstrap.api.bundle,
  org.eclipse.osgi
-Export-Package: org.jowidgets.cap.tools.starter.hibernate.validation.plugin
+Export-Package: org.jowidgets.cap.tools.starter.hibernate.validation.p
+ lugin
 
