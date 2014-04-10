@@ -65,6 +65,8 @@ final class BeanTableAddFilterActionBuilder extends ActionBuilder {
 					model.addFilter(IBeanTableModel.UI_FILTER_ID, dialog.getValue());
 					model.load();
 				}
+
+				dialog.dispose();
 			}
 
 		});
