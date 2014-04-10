@@ -305,7 +305,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		attributes = createModifiedByPluginsAttributes(entityId, (Class<BEAN_TYPE>) beanType, attributes);
 
 		//if no updater service available, set all attributes to editable false
-		if (updaterService == null) {
+		if (updaterService == null && creatorService == null) {
 			attributes = createReadonlyAttributes(attributes);
 		}
 
