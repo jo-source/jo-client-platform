@@ -74,7 +74,7 @@ final class AttributeFilterDialogBluePrintFactory {
 
 			@Override
 			public void createContent(final IInputContentContainer container) {
-				container.setLayout(new MigLayoutDescriptor("0[][grow, 0::]0", "0[]0"));
+				container.setLayout(new MigLayoutDescriptor("[][grow, 0::]", "10[]0"));
 
 				final IAttribute<?> attribute = model.getAttribute(columnIndex);
 				container.add(Toolkit.getBluePrintFactory().textLabel(attribute.getCurrentLabel()).setMarkup(Markup.STRONG));
@@ -90,7 +90,8 @@ final class AttributeFilterDialogBluePrintFactory {
 		final IInputDialogBluePrint<IUiConfigurableFilter<? extends Object>> dialogBp = bpf.inputDialog(contentCreator);
 		dialogBp.setExecutionContext(executionContext);
 		dialogBp.setMissingInputHint(Messages.getString("AttributeFilterDialogBluePrintFactory.please_edit_the_filter"));
-		dialogBp.setSize(new Dimension(640, 150));
+		dialogBp.setMinPackSize(new Dimension(600, 170));
+		dialogBp.setMaxPackSize(new Dimension(1024, 400));
 
 		return dialogBp;
 	}
