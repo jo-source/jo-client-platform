@@ -87,7 +87,15 @@ final class BeanModifierImpl<BEAN_TYPE extends IBean> implements IBeanModifier<B
 		if (readMethod != null) {
 			try {
 				final Object value = readMethod.invoke(bean);
-				if (EmptyCompatibleEquivalence.equals(value, modification.getOldValue())) {
+				//It is important that the order of the arguments will no be changed due to 
+				//the fact, that the second param (value) may be a java.sql.Timestamp for date
+				//properties and the comparison for the combination java.util.Date and java.sql.Timestamp
+				//is not symmetric (as it should be assumed, 
+				//because equivalence relation are defined as to be reflexive, transitiv and symmetric).
+				//Using this parameter order, the java.util.Data is always the first parameter, so this
+				//will not lead to problems. 
+				//(See also: http://stackoverflow.com/questions/8929242/compare-date-object-with-a-timestamp-in-java)
+				if (EmptyCompatibleEquivalence.equals(modification.getOldValue(), value)) {
 					return false;
 				}
 				else {
