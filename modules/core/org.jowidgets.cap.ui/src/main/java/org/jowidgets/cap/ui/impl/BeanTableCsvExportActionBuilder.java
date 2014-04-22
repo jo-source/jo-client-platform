@@ -42,9 +42,8 @@ final class BeanTableCsvExportActionBuilder<BEAN_TYPE> extends ExecutorActionBui
 
 		setSelectionPolicy(BeanSelectionPolicy.ANY_SELECTION);
 
-		setDefaultParameter(new CsvExportParameter());
-		addParameterProvider(new CsvExportParameterContentProvider<BEAN_TYPE>(model));
+		addParameterProvider(new CsvExportParameterContentProvider<BEAN_TYPE>());
+		addParameterProvider(new CsvExportFileParameterProvider<BEAN_TYPE>(model));
 		setExecutor(new CsvExportExecutor<BEAN_TYPE>(model));
 	}
-
 }
