@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, grossmann
+ * Copyright (c) 2014, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -29,53 +29,30 @@
 package org.jowidgets.cap.ui.impl;
 
 import org.jowidgets.cap.ui.api.model.ILabelModel;
+import org.jowidgets.cap.ui.api.model.ILabelModelBuilder;
 import org.jowidgets.common.color.IColorConstant;
 import org.jowidgets.common.image.IImageConstant;
 import org.jowidgets.common.types.Markup;
 
-final class LabelModelImpl implements ILabelModel {
+final class LabelModelBuilder implements ILabelModelBuilder {
 
-	private final String text;
-	private final String description;
-	private final IImageConstant icon;
-	private final IColorConstant foregroundColor;
-	private final Integer fontSize;
-	private final String fontName;
-	private final Markup markup;
-
-	LabelModelImpl(final String text) {
-		this(text, null, null);
-	}
-
-	LabelModelImpl(final String text, final IImageConstant icon) {
-		this(text, null, icon);
-	}
-
-	LabelModelImpl(final String text, final String description, final IImageConstant icon) {
-		this(text, description, icon, null, null, null, null);
-	}
-
-	LabelModelImpl(
-		final String text,
-		final String description,
-		final IImageConstant icon,
-		final IColorConstant foregroundColor,
-		final Integer fontSize,
-		final String fontName,
-		final Markup markup) {
-
-		this.text = text;
-		this.description = description;
-		this.icon = icon;
-		this.foregroundColor = foregroundColor;
-		this.fontSize = fontSize;
-		this.fontName = fontName;
-		this.markup = markup;
-	}
+	private String text;
+	private String description;
+	private IImageConstant icon;
+	private IColorConstant foregroundColor;
+	private Integer fontSize;
+	private String fontName;
+	private Markup markup;
 
 	@Override
 	public String getText() {
 		return text;
+	}
+
+	@Override
+	public ILabelModelBuilder setText(final String text) {
+		this.text = text;
+		return this;
 	}
 
 	@Override
@@ -84,8 +61,20 @@ final class LabelModelImpl implements ILabelModel {
 	}
 
 	@Override
+	public ILabelModelBuilder setDescription(final String description) {
+		this.description = description;
+		return this;
+	}
+
+	@Override
 	public IImageConstant getIcon() {
 		return icon;
+	}
+
+	@Override
+	public ILabelModelBuilder setIcon(final IImageConstant icon) {
+		this.icon = icon;
+		return this;
 	}
 
 	@Override
@@ -94,8 +83,20 @@ final class LabelModelImpl implements ILabelModel {
 	}
 
 	@Override
+	public ILabelModelBuilder setForegroundColor(final IColorConstant foregroundColor) {
+		this.foregroundColor = foregroundColor;
+		return this;
+	}
+
+	@Override
 	public Integer getFontSize() {
 		return fontSize;
+	}
+
+	@Override
+	public ILabelModelBuilder setFontSize(final int fontSize) {
+		this.fontSize = Integer.valueOf(fontSize);
+		return this;
 	}
 
 	@Override
@@ -104,13 +105,25 @@ final class LabelModelImpl implements ILabelModel {
 	}
 
 	@Override
+	public ILabelModelBuilder setFontName(final String fontName) {
+		this.fontName = fontName;
+		return this;
+	}
+
+	@Override
 	public Markup getMarkup() {
 		return markup;
 	}
 
 	@Override
-	public String toString() {
-		return "LabelModelImpl [text=" + text + ", description=" + description + "]";
+	public ILabelModelBuilder setMarkup(final Markup markup) {
+		this.markup = markup;
+		return this;
+	}
+
+	@Override
+	public ILabelModel build() {
+		return new LabelModelImpl(text, description, icon, foregroundColor, fontSize, fontName, markup);
 	}
 
 }

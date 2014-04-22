@@ -31,6 +31,7 @@ package org.jowidgets.cap.ui.api.widgets;
 import org.jowidgets.api.types.AutoPackPolicy;
 import org.jowidgets.api.widgets.blueprint.builder.IComponentSetupBuilder;
 import org.jowidgets.api.widgets.descriptor.setup.IComponentSetup;
+import org.jowidgets.cap.ui.api.model.ILabelRenderer;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuInterceptor;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.types.AutoScrollPolicy;
@@ -67,6 +68,10 @@ public interface IBeanTableSetupBuilder<INSTANCE_TYPE extends IBeanTableSetupBui
 	INSTANCE_TYPE setMenuInterceptor(IBeanTableMenuInterceptor<BEAN_TYPE> interceptor);
 
 	INSTANCE_TYPE setSearchFilterToolbarVisible(boolean visible);
+
+	INSTANCE_TYPE setStatusBarVisible(boolean visible);
+
+	INSTANCE_TYPE setStatusBarRenderer(ILabelRenderer<IBeanTable<BEAN_TYPE>> renderer);
 
 	/**
 	 * Determines if the auto update settings can be configured by the user
@@ -139,6 +144,11 @@ public interface IBeanTableSetupBuilder<INSTANCE_TYPE extends IBeanTableSetupBui
 
 	@Mandatory
 	boolean getSearchFilterToolbarVisible();
+
+	@Mandatory
+	boolean getStatusBarVisible();
+
+	ILabelRenderer<IBeanTable<BEAN_TYPE>> getStatusBarRenderer();
 
 	@Mandatory
 	boolean getAutoUpdateConfigurable();

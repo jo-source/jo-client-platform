@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, grossmann
+ * Copyright (c) 2014, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,33 +26,16 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl.widgets;
+package org.jowidgets.cap.ui.api.model;
 
-import org.jowidgets.api.types.AutoPackPolicy;
-import org.jowidgets.api.widgets.blueprint.defaults.IDefaultInitializer;
-import org.jowidgets.cap.ui.api.types.AutoScrollPolicy;
-import org.jowidgets.cap.ui.api.widgets.IBeanTableSetupBuilder;
-import org.jowidgets.common.types.TableSelectionPolicy;
+public interface ILabelRenderer<SOURCE_TYPE> {
 
-final class BeanTableDefaults implements IDefaultInitializer<IBeanTableSetupBuilder<?, ?>> {
+	/**
+	 * Renders the label by modifying the given blue print (or do nothing).
+	 * 
+	 * @param source The source of the label
+	 * @param bluePrint The current blue print that can be modified
+	 */
+	void render(SOURCE_TYPE source, ILabelModelBluePrint bluePrint);
 
-	@Override
-	public void initialize(final IBeanTableSetupBuilder<?, ?> bluePrint) {
-		bluePrint.setSelectionPolicy(TableSelectionPolicy.MULTI_ROW_SELECTION);
-		bluePrint.setColumnsMoveable(true);
-		bluePrint.setColumnsResizeable(true);
-		bluePrint.setDefaultMenus(true);
-		bluePrint.setDefaultCreatorAction(true);
-		bluePrint.setDefaultDeleterAction(true);
-		bluePrint.setDefaultCopyAction(false);
-		bluePrint.setDefaultPasteAction(false);
-		bluePrint.setEditable(false);
-		bluePrint.setSearchFilterToolbarVisible(false);
-		bluePrint.setStatusBarVisible(true);
-		bluePrint.setAutoUpdateInterval(1);
-		bluePrint.setAutoScrollPolicy(AutoScrollPolicy.OFF);
-		bluePrint.setAutoPackPolicy(AutoPackPolicy.OFF);
-		bluePrint.setAutoUpdateConfigurable(false);
-		bluePrint.setAutoKeyBinding(true);
-	}
 }
