@@ -57,6 +57,7 @@ import org.jowidgets.cap.ui.api.execution.IExecutionTaskFactory;
 import org.jowidgets.cap.ui.api.filter.IFilterToolkit;
 import org.jowidgets.cap.ui.api.form.IBeanFormToolkit;
 import org.jowidgets.cap.ui.api.lookup.ILookUpCache;
+import org.jowidgets.cap.ui.api.model.ILabelModelBuilder;
 import org.jowidgets.cap.ui.api.model.ISingleBeanModelBuilder;
 import org.jowidgets.cap.ui.api.sort.ISortModelConfigBuilder;
 import org.jowidgets.cap.ui.api.tabfolder.IBeanTabFolderModelBuilder;
@@ -423,6 +424,11 @@ public final class DefaultCapUiToolkit implements ICapUiToolkit {
 	@Override
 	public IBeanSelectionClipboardBuilder beanSelectionClipboardBuilder() {
 		return new BeanSelectionClipboardBuilderImpl();
+	}
+
+	@Override
+	public ILabelModelBuilder labelModelBuilder() {
+		return new LabelModelBuilder();
 	}
 
 }

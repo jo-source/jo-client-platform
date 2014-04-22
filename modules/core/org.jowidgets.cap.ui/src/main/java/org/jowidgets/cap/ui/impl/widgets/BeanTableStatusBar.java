@@ -36,12 +36,19 @@ import org.jowidgets.api.model.item.ICheckedItemModelBuilder;
 import org.jowidgets.api.model.item.IItemModelFactory;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.IComposite;
-import org.jowidgets.api.widgets.ITextLabel;
+import org.jowidgets.api.widgets.ILabel;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionEvent;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionListener;
 import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
+import org.jowidgets.cap.ui.api.model.ILabelModel;
+import org.jowidgets.cap.ui.api.model.ILabelModelBuilder;
+import org.jowidgets.cap.ui.api.model.ILabelRenderer;
+import org.jowidgets.cap.ui.api.model.LabelModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
+import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.cap.ui.tools.model.BeanListModelListenerAdapter;
+import org.jowidgets.cap.ui.tools.model.DefaultLabelRenderer;
+import org.jowidgets.common.types.Markup;
 import org.jowidgets.common.widgets.controller.IItemStateListener;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
 import org.jowidgets.i18n.api.IMessage;
@@ -51,31 +58,42 @@ import org.jowidgets.util.EmptyCheck;
 
 final class BeanTableStatusBar<BEAN_TYPE> {
 
+	private static final int DEFAULT_FONT_SIZE = 7;
+
 	private static final IMessage MESSAGE_SELECTION = Messages.getMessage("BeanTableStatusBar.row_n_of_n");
+	private static final IMessage MESSAGE_MULTI_SELECTION = Messages.getMessage("BeanTableStatusBar.n_rows_of_n");
 	private static final IMessage MESSAGE_NO_SELECTION = Messages.getMessage("BeanTableStatusBar.n_rows");
+	private static final IMessage MESSAGE_NO_SELECTION_ONE_ROW = Messages.getMessage("BeanTableStatusBar.1_row");
 
 	private final IComposite composite;
+	private final BeanTableImpl<BEAN_TYPE> table;
 	private final IBeanTableModel<BEAN_TYPE> model;
 	private final IComposite statusbar;
 	private final ICheckedItemModel statusBarItemModel;
 	private final IItemStateListener statusBarItemListener;
+	private final ILabelRenderer<IBeanTable<BEAN_TYPE>> renderer;
 
-	BeanTableStatusBar(final IComposite composite, final BeanTableImpl<BEAN_TYPE> table) {
+	private final ILabel label;
+
+	BeanTableStatusBar(
+		final IComposite composite,
+		final ILabelRenderer<IBeanTable<BEAN_TYPE>> renderer,
+		final BeanTableImpl<BEAN_TYPE> table) {
+
 		this.composite = composite;
+		this.table = table;
 		this.model = table.getModel();
-
 		this.statusbar = composite.add(2, BPF.composite(), "growx, w 0::");
+		this.renderer = renderer != null ? renderer : new DefaultLabelRenderer<IBeanTable<BEAN_TYPE>>();
 		statusbar.setLayout(new MigLayoutDescriptor("3[]1", "3[]0"));
 		statusbar.setVisible(false);
 
-		final ITextLabel textLabel = statusbar.add(BPF.textLabel().setFontSize(7));
+		this.label = statusbar.add(BPF.label().setFontSize(DEFAULT_FONT_SIZE));
 
 		final IBeanSelectionListener<BEAN_TYPE> beanSelectionListener = new IBeanSelectionListener<BEAN_TYPE>() {
 			@Override
 			public void selectionChanged(final IBeanSelectionEvent<BEAN_TYPE> selectionEvent) {
-				statusbar.layoutBegin();
-				textLabel.setText(getStatusBarText());
-				statusbar.layoutEnd();
+				renderLabel();
 			}
 		};
 		model.addBeanSelectionListener(beanSelectionListener);
@@ -83,9 +101,7 @@ final class BeanTableStatusBar<BEAN_TYPE> {
 		final IBeanListModelListener<BEAN_TYPE> listModelListener = new BeanListModelListenerAdapter<BEAN_TYPE>() {
 			@Override
 			public void beansChanged() {
-				statusbar.layoutBegin();
-				textLabel.setText(getStatusBarText());
-				statusbar.layoutEnd();
+				renderLabel();
 			}
 		};
 		model.addBeanListModelListener(listModelListener);
@@ -109,13 +125,61 @@ final class BeanTableStatusBar<BEAN_TYPE> {
 		});
 	}
 
-	private String getStatusBarText() {
-		final ArrayList<Integer> selection = model.getSelection();
-		if (!EmptyCheck.isEmpty(selection)) {
-			return MessageReplacer.replace(MESSAGE_SELECTION.get(), "" + (selection.get(0).intValue() + 1), "" + model.getSize());
+	private void renderLabel() {
+		statusbar.layoutBegin();
+
+		final ILabelModel labelModel = getModelLabel();
+
+		label.setText(labelModel.getText());
+		label.setToolTipText(labelModel.getDescription());
+		label.setIcon(labelModel.getIcon());
+		label.setForegroundColor(labelModel.getForegroundColor());
+
+		if (!EmptyCheck.isEmpty(labelModel.getFontName())) {
+			label.setFontName(labelModel.getFontName());
+		}
+		if (labelModel.getFontSize() != null) {
+			label.setFontSize(labelModel.getFontSize().intValue());
+		}
+
+		if (labelModel.getMarkup() != null) {
+			label.setMarkup(labelModel.getMarkup());
 		}
 		else {
-			return MessageReplacer.replace(MESSAGE_NO_SELECTION.get(), "" + model.getSize());
+			label.setMarkup(Markup.DEFAULT);
+		}
+
+		statusbar.layoutEnd();
+	}
+
+	private ILabelModel getModelLabel() {
+		final ILabelModelBuilder builder = LabelModel.builder().setText(getStatusBarText()).setFontSize(DEFAULT_FONT_SIZE);
+		renderer.render(table, builder);
+		return builder.build();
+	}
+
+	private String getStatusBarText() {
+		final ArrayList<Integer> selection = model.getSelection();
+		if (selection.size() == 1) {
+			final String selected = "" + (selection.get(0).intValue() + 1);
+			return MessageReplacer.replace(
+					MESSAGE_SELECTION.get(),
+					model.getEntityLabelSingular(),
+					selected,
+					"" + model.getSize());
+		}
+		else if (selection.size() > 1) {
+			return MessageReplacer.replace(
+					MESSAGE_MULTI_SELECTION.get(),
+					"" + (selection.size()),
+					model.getEntityLabelPlural(),
+					"" + model.getSize());
+		}
+		else if (model.getSize() == 1) {
+			return MessageReplacer.replace(MESSAGE_NO_SELECTION_ONE_ROW.get(), model.getEntityLabelSingular());
+		}
+		else {
+			return MessageReplacer.replace(MESSAGE_NO_SELECTION.get(), "" + model.getSize(), model.getEntityLabelPlural());
 		}
 	}
 
@@ -132,6 +196,7 @@ final class BeanTableStatusBar<BEAN_TYPE> {
 		if (statusbar.isVisible() != visible) {
 			composite.layoutBegin();
 			statusbar.setVisible(visible);
+			renderLabel();
 			composite.layoutEnd();
 			statusBarItemModel.removeItemListener(statusBarItemListener);
 			statusBarItemModel.setSelected(visible);

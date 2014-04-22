@@ -268,7 +268,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 
 		this.searchFilterToolbar = new BeanTableSearchFilterToolbar<BEAN_TYPE>(mainComposite, this);
 		this.filterToolbar = new BeanTableFilterToolbar<BEAN_TYPE>(contentComposite, this, menuFactory);
-		this.statusBar = new BeanTableStatusBar<BEAN_TYPE>(mainComposite, this);
+		this.statusBar = new BeanTableStatusBar<BEAN_TYPE>(mainComposite, bluePrint.getStatusBarRenderer(), this);
 
 		final CustomMenuModelListener customMenuModelListener = new CustomMenuModelListener();
 		headerPopupMenuModel.addListModelListener(customMenuModelListener);
@@ -409,7 +409,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 		});
 
 		setSearchFilterToolbarVisible(bluePrint.getSearchFilterToolbarVisible());
-		setStatusBarVisible(true);
+		setStatusBarVisible(bluePrint.getStatusBarVisible());
 
 		this.isAutoUpdateConfigurable = bluePrint.getAutoUpdateConfigurable();
 		this.currentAutoUpdateInterval = bluePrint.getAutoUpdateInterval();
