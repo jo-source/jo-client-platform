@@ -1322,4 +1322,30 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 	public Interval<Integer> getVisibleRows() {
 		return table.getVisibleRows();
 	}
+
+	@Override
+	public void editCell(final int row, final int column) {
+		table.editCell(row, column);
+	}
+
+	@Override
+	public void stopEditing() {
+		table.stopEditing();
+	}
+
+	@Override
+	public void cancelEditing() {
+		table.cancelEditing();
+	}
+
+	@Override
+	public boolean isEditing() {
+		return table.isEditing();
+	}
+
+	@Override
+	public void setRowHeight(final int height) {
+		table.setRowHeight(height);
+	}
+
 }
