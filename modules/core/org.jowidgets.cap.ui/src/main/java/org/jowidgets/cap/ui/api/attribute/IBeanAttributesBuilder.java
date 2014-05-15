@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2014, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,18 +26,14 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api.bean;
+package org.jowidgets.cap.ui.api.attribute;
 
-import java.util.Collection;
+import java.util.List;
 
-public interface IStaticValueRangeFactory {
+public interface IBeanAttributesBuilder {
 
-	IStaticValueRange create(boolean open, Object... values);
+	IBeanAttributeBluePrint<Object, IBeanAttributeBluePrint<Object, ?>> add(String propertyName);
 
-	IStaticValueRange create(Collection<? extends Object> values, boolean open);
-
-	IStaticValueRange create(Collection<? extends Object> values);
-
-	IStaticValueRange create();
+	List<IAttribute<Object>> build();
 
 }

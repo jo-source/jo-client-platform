@@ -28,13 +28,21 @@
 
 package org.jowidgets.cap.common.impl;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
 import org.jowidgets.cap.common.api.bean.IStaticValueRange;
 import org.jowidgets.cap.common.api.bean.IStaticValueRangeFactory;
+import org.jowidgets.util.Assert;
 
 final class StaticValueRangeFactoryImpl implements IStaticValueRangeFactory {
+
+	@Override
+	public IStaticValueRange create(final boolean open, final Object... values) {
+		Assert.paramNotNull(values, "values");
+		return new StaticValueRangeImpl(Arrays.asList(values), open);
+	}
 
 	@Override
 	public IStaticValueRange create(final Collection<? extends Object> values, final boolean open) {

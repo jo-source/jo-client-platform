@@ -102,7 +102,7 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 		this.valueType = elementValueType;
 	}
 
-	public AttributeBuilderImpl(final Class<?> valueType, final Class<? extends ELEMENT_VALUE_TYPE> elementValueType) {
+	AttributeBuilderImpl(final Class<?> valueType, final Class<? extends ELEMENT_VALUE_TYPE> elementValueType) {
 		this();
 		Assert.paramNotNull(valueType, "valueType");
 		Assert.paramNotNull(elementValueType, "elementValueType");
@@ -110,7 +110,7 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 		this.elementValueType = elementValueType;
 	}
 
-	public AttributeBuilderImpl(final IAttribute<ELEMENT_VALUE_TYPE> attribute) {
+	AttributeBuilderImpl(final IAttribute<ELEMENT_VALUE_TYPE> attribute) {
 		this();
 		Assert.paramNotNull(attribute, "attribute");
 		this.propertyName = attribute.getPropertyName();
@@ -177,6 +177,11 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 		this.validatorAdded = false;
 	}
 
+	IAttributeBuilder<ELEMENT_VALUE_TYPE> setElementValueType(final Class<? extends ELEMENT_VALUE_TYPE> elementValueType) {
+		this.elementValueType = elementValueType;
+		return this;
+	}
+
 	@Override
 	public IAttributeBuilder<ELEMENT_VALUE_TYPE> setPropertyName(final String propertyName) {
 		Assert.paramNotEmpty(propertyName, "propertyName");
@@ -193,15 +198,26 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 
 	@Override
 	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> setValueRange(
-		final Collection<? extends ELEMENT_VALUE_TYPE> values,
-		final boolean open) {
+		final boolean open,
+		final Collection<? extends ELEMENT_VALUE_TYPE> values) {
 		Assert.paramNotNull(values, "values");
 		return setValueRange(CapCommonToolkit.staticValueRangeFactory().create(values, open));
 	}
 
 	@Override
+	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> setValueRange(final boolean open, final ELEMENT_VALUE_TYPE... values) {
+		Assert.paramNotNull(values, "values");
+		return setValueRange(CapCommonToolkit.staticValueRangeFactory().create(open, values));
+	}
+
+	@Override
+	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> setLookUpValueRange(final Object lookUpId) {
+		return setValueRange(CapCommonToolkit.lookUpToolkit().lookUpValueRange(lookUpId));
+	}
+
+	@Override
 	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> setValueRange(final Collection<? extends ELEMENT_VALUE_TYPE> values) {
-		return setValueRange(values, false);
+		return setValueRange(false, values);
 	}
 
 	@Override

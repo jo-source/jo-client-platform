@@ -106,15 +106,26 @@ final class AttributeModifierBluePrint<ELEMENT_VALUE_TYPE> implements IAttribute
 
 	@Override
 	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> setValueRange(
-		final Collection<? extends ELEMENT_VALUE_TYPE> values,
-		final boolean open) {
+		final boolean open,
+		final Collection<? extends ELEMENT_VALUE_TYPE> values) {
 		Assert.paramNotNull(values, "values");
 		return setValueRange(CapCommonToolkit.staticValueRangeFactory().create(values, open));
 	}
 
 	@Override
+	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> setValueRange(final boolean open, final ELEMENT_VALUE_TYPE... values) {
+		Assert.paramNotNull(values, "values");
+		return setValueRange(CapCommonToolkit.staticValueRangeFactory().create(open, values));
+	}
+
+	@Override
+	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> setLookUpValueRange(final Object lookUpId) {
+		return setValueRange(CapCommonToolkit.lookUpToolkit().lookUpValueRange(lookUpId));
+	}
+
+	@Override
 	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> setValueRange(final Collection<? extends ELEMENT_VALUE_TYPE> values) {
-		return setValueRange(values, false);
+		return setValueRange(false, values);
 	}
 
 	@Override

@@ -42,6 +42,8 @@ import org.jowidgets.cap.ui.api.attribute.IAttributeCollectionModifier;
 import org.jowidgets.cap.ui.api.attribute.IAttributeCollectionModifierBuilder;
 import org.jowidgets.cap.ui.api.attribute.IAttributeFilterFactory;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
+import org.jowidgets.cap.ui.api.attribute.IBeanAttributeBuilder;
+import org.jowidgets.cap.ui.api.attribute.IBeanAttributesBuilder;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProviderBuilder;
 import org.jowidgets.cap.ui.api.bean.IBeanMessage;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
@@ -79,6 +81,18 @@ final class AttributeToolkitImpl implements IAttributeToolkit {
 	@Override
 	public <ELEMENT_VALUE_TYPE> IAttributeBuilder<ELEMENT_VALUE_TYPE> createAttributeBuilder(final IProperty property) {
 		return new AttributeBuilderImpl<ELEMENT_VALUE_TYPE>(property);
+	}
+
+	@Override
+	public <ELEMENT_VALUE_TYPE> IBeanAttributeBuilder<ELEMENT_VALUE_TYPE> createBeanAttributeBuilder(
+		final Class<?> beanType,
+		final String propertyName) {
+		return new BeanAttributeBuilderImpl<ELEMENT_VALUE_TYPE>(beanType, propertyName);
+	}
+
+	@Override
+	public IBeanAttributesBuilder createBeanAttributesBuilder(final Class<?> beanType) {
+		return new BeanAttributesBuilderImpl(beanType);
 	}
 
 	@Override

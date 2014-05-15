@@ -145,6 +145,12 @@ final class BeanPropertyBuilderImpl implements IBeanPropertyBuilder {
 						if (paramType.getActualTypeArguments().length == 1) {
 							final Type typeArg = paramType.getActualTypeArguments()[0];
 							if (typeArg instanceof Class<?>) {
+								if (Enum.class.isAssignableFrom((Class<?>) typeArg)) {
+									final List<Object> values = new LinkedList<Object>();
+									values.add(null);
+									values.addAll(Arrays.asList(((Class<?>) typeArg).getEnumConstants()));
+									propertyBuilder.setValueRange(values);
+								}
 								propertyBuilder.setElementValueType((Class<?>) typeArg);
 							}
 						}
