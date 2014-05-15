@@ -54,13 +54,15 @@ public interface IAttributeBluePrint<ELEMENT_VALUE_TYPE> {
 
 	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setValueRange(IValueRange valueRange);
 
-	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setValueRange(
-		final Collection<? extends ELEMENT_VALUE_TYPE> values,
-		final boolean open);
-
 	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setValueRange(ELEMENT_VALUE_TYPE... values);
 
-	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setValueRange(final Collection<? extends ELEMENT_VALUE_TYPE> values);
+	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setValueRange(Collection<? extends ELEMENT_VALUE_TYPE> values);
+
+	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setValueRange(boolean open, Collection<? extends ELEMENT_VALUE_TYPE> values);
+
+	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setValueRange(boolean open, ELEMENT_VALUE_TYPE... values);
+
+	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setLookUpValueRange(Object lookUpId);
 
 	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setDefaultValue(Object value);
 

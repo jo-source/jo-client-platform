@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2014, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,18 +26,33 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api.bean;
+package org.jowidgets.cap.ui.api.attribute;
 
-import java.util.Collection;
+import org.jowidgets.cap.common.api.bean.IProperty;
+import org.jowidgets.cap.ui.api.CapUiToolkit;
 
-public interface IStaticValueRangeFactory {
+public final class Attribute {
 
-	IStaticValueRange create(boolean open, Object... values);
+	private Attribute() {}
 
-	IStaticValueRange create(Collection<? extends Object> values, boolean open);
+	public static <ELEMENT_VALUE_TYPE> IAttributeBuilder<ELEMENT_VALUE_TYPE> builder(
+		final Class<? extends ELEMENT_VALUE_TYPE> elementValueType) {
+		return CapUiToolkit.attributeToolkit().createAttributeBuilder(elementValueType);
+	}
 
-	IStaticValueRange create(Collection<? extends Object> values);
+	public static <ELEMENT_VALUE_TYPE> IAttributeBuilder<ELEMENT_VALUE_TYPE> builder(
+		final Class<?> valueType,
+		final Class<? extends ELEMENT_VALUE_TYPE> elementValueType) {
+		return CapUiToolkit.attributeToolkit().createAttributeBuilder(valueType, elementValueType);
+	}
 
-	IStaticValueRange create();
+	public static <ELEMENT_VALUE_TYPE> IAttributeBuilder<ELEMENT_VALUE_TYPE> builder(final IProperty property) {
+		return CapUiToolkit.attributeToolkit().createAttributeBuilder(property);
+	}
 
+	public static <ELEMENT_VALUE_TYPE> IBeanAttributeBuilder<ELEMENT_VALUE_TYPE> builder(
+		final Class<?> beanType,
+		final String propertyName) {
+		return CapUiToolkit.attributeToolkit().createBeanAttributeBuilder(beanType, propertyName);
+	}
 }

@@ -48,6 +48,12 @@ public interface IAttributeToolkit {
 
 	<ELEMENT_VALUE_TYPE> IAttributeBuilder<ELEMENT_VALUE_TYPE> createAttributeBuilder(IProperty property);
 
+	<ELEMENT_VALUE_TYPE> IBeanAttributeBuilder<ELEMENT_VALUE_TYPE> createBeanAttributeBuilder(
+		Class<?> beanType,
+		String propertyName);
+
+	IBeanAttributesBuilder createBeanAttributesBuilder(Class<?> beanType);
+
 	IAttributeCollectionModifierBuilder createAttributeCollectionModifierBuilder();
 
 	List<IAttribute<Object>> createAttributes(
