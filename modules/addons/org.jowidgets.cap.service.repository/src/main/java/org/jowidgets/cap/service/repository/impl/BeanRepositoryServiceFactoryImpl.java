@@ -45,6 +45,8 @@ import org.jowidgets.cap.service.api.updater.IUpdaterServiceBuilder;
 import org.jowidgets.cap.service.repository.api.IBeanRepository;
 import org.jowidgets.cap.service.repository.api.IBeanRepositoryServiceFactory;
 import org.jowidgets.cap.service.repository.api.ICreateSupportBeanRepository;
+import org.jowidgets.cap.service.repository.api.IDeleteSupportBeanRepository;
+import org.jowidgets.cap.service.repository.api.IUpdateSupportBeanRepository;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.IServicesDecoratorProvider;
 import org.jowidgets.service.tools.ServiceId;
@@ -54,6 +56,8 @@ import org.jowidgets.util.IDecorator;
 import org.jowidgets.util.reflection.BeanUtils;
 
 final class BeanRepositoryServiceFactoryImpl<BEAN_TYPE> implements IBeanRepositoryServiceFactory<BEAN_TYPE> {
+
+	private static final IAdapterFactory<IReaderService<Void>, ISyncReaderService<Void>> READER_ADAPTER_FACTORY = CapServiceToolkit.adapterFactoryProvider().reader();
 
 	private static final long ASYNC_CALLBACK_DELAY = 200L;
 
@@ -65,15 +69,37 @@ final class BeanRepositoryServiceFactoryImpl<BEAN_TYPE> implements IBeanReposito
 		IReaderService.class);
 	private static final IDecorator<IReaderService<Void>> ASYNC_READER_DECORATOR = ASYNC_DECORATOR_PROVIDER.getDecorator(READER_SERVICE_ID);
 
-	private static final IAdapterFactory<IReaderService<Void>, ISyncReaderService<Void>> READER_ADAPTER_FACTORY = CapServiceToolkit.adapterFactoryProvider().reader();
+	private static final IServiceId<ICreatorService> CREATOR_SERVICE_ID = new ServiceId<ICreatorService>(
+		"BeanRepositoryServiceFactoryImpl",
+		ICreatorService.class);
+	private static final IDecorator<ICreatorService> ASYNC_CREATOR_DECORATOR = ASYNC_DECORATOR_PROVIDER.getDecorator(CREATOR_SERVICE_ID);
+
+	private static final IServiceId<IUpdaterService> UPDATER_SERVICE_ID = new ServiceId<IUpdaterService>(
+		"BeanRepositoryServiceFactoryImpl",
+		IUpdaterService.class);
+	private static final IDecorator<IUpdaterService> ASYNC_UPDATER_DECORATOR = ASYNC_DECORATOR_PROVIDER.getDecorator(UPDATER_SERVICE_ID);
+
+	private static final IServiceId<IRefreshService> REFRESH_SERVICE_ID = new ServiceId<IRefreshService>(
+		"BeanRepositoryServiceFactoryImpl",
+		IRefreshService.class);
+	private static final IDecorator<IRefreshService> ASYNC_REFRESH_DECORATOR = ASYNC_DECORATOR_PROVIDER.getDecorator(REFRESH_SERVICE_ID);
+
+	private static final IServiceId<IDeleterService> DELETER_SERVICE_ID = new ServiceId<IDeleterService>(
+		"BeanRepositoryServiceFactoryImpl",
+		IDeleterService.class);
+	private static final IDecorator<IDeleterService> ASYNC_DELETER_DECORATOR = ASYNC_DECORATOR_PROVIDER.getDecorator(DELETER_SERVICE_ID);
 
 	private final IBeanRepository<BEAN_TYPE> repository;
+	private final BeanRepositoryBeanAccess<BEAN_TYPE> beanAccess;
 	private final List<String> readableProperties;
+	private final List<String> allProperties;
 
 	BeanRepositoryServiceFactoryImpl(final IBeanRepository<BEAN_TYPE> repositiory) {
 		Assert.paramNotNull(repositiory, "repositiory");
 		this.repository = repositiory;
+		this.beanAccess = new BeanRepositoryBeanAccess<BEAN_TYPE>(repository);
 		this.readableProperties = BeanUtils.getReadableProperties(repositiory.getBeanType());
+		this.allProperties = BeanUtils.getProperties(repositiory.getBeanType());
 	}
 
 	@Override
@@ -84,7 +110,9 @@ final class BeanRepositoryServiceFactoryImpl<BEAN_TYPE> implements IBeanReposito
 	@Override
 	public ICreatorServiceBuilder<BEAN_TYPE> creatorServiceBuilder() {
 		if (repository instanceof ICreateSupportBeanRepository) {
-			return new BeanRepositoryCreatorServiceBuilderImpl<BEAN_TYPE>((ICreateSupportBeanRepository<BEAN_TYPE>) repository);
+			return new BeanRepositoryCreatorServiceBuilderImpl<BEAN_TYPE>(
+				(ICreateSupportBeanRepository<BEAN_TYPE>) repository,
+				ASYNC_CREATOR_DECORATOR);
 		}
 		else {
 			return null;
@@ -111,32 +139,61 @@ final class BeanRepositoryServiceFactoryImpl<BEAN_TYPE> implements IBeanReposito
 
 	@Override
 	public IRefreshServiceBuilder<BEAN_TYPE> refreshServiceBuilder() {
-		return null;
+		return new BeanRepositoryRefreshServiceBuilderImpl<BEAN_TYPE>(beanAccess, allProperties, ASYNC_REFRESH_DECORATOR);
 	}
 
 	@Override
 	public IRefreshService refreshService() {
-		return null;
+		return refreshServiceBuilder().build();
 	}
 
 	@Override
 	public IDeleterServiceBuilder<BEAN_TYPE> deleterServiceBuilder() {
-		return null;
+		if (repository instanceof IDeleteSupportBeanRepository) {
+			return new BeanRepositoryDeleterServiceBuilderImpl<BEAN_TYPE>(
+				beanAccess,
+				(IDeleteSupportBeanRepository<BEAN_TYPE>) repository,
+				ASYNC_DELETER_DECORATOR);
+		}
+		else {
+			return null;
+		}
 	}
 
 	@Override
 	public IDeleterService deleterService() {
-		return null;
+		final IDeleterServiceBuilder<BEAN_TYPE> builder = deleterServiceBuilder();
+		if (builder != null) {
+			return builder.build();
+		}
+		else {
+			return null;
+		}
 	}
 
 	@Override
 	public IUpdaterServiceBuilder<BEAN_TYPE> updaterServiceBuilder() {
-		return null;
+		if (repository instanceof IUpdateSupportBeanRepository) {
+			return new BeanRepositoryUpdaterServiceBuilderImpl<BEAN_TYPE>(
+				(IUpdateSupportBeanRepository<BEAN_TYPE>) repository,
+				beanAccess,
+				allProperties,
+				ASYNC_UPDATER_DECORATOR);
+		}
+		else {
+			return null;
+		}
 	}
 
 	@Override
 	public IUpdaterService updaterService() {
-		return null;
+		final IUpdaterServiceBuilder<BEAN_TYPE> builder = updaterServiceBuilder();
+		if (builder != null) {
+			return builder.build();
+		}
+		else {
+			return null;
+		}
 	}
 
 }

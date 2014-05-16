@@ -104,7 +104,7 @@ public final class CapServiceToolkit {
 		return getInstance().beanInitializer(beanType, propertyNames);
 	}
 
-	public static <BEAN_TYPE extends IBean> IBeanModifier<BEAN_TYPE> beanModifier(
+	public static <BEAN_TYPE> IBeanModifier<BEAN_TYPE> beanModifier(
 		final Class<? extends BEAN_TYPE> beanType,
 		final Collection<String> propertyNames) {
 		return getInstance().beanModifier(beanType, propertyNames);
@@ -159,12 +159,12 @@ public final class CapServiceToolkit {
 		return getInstance().serviceDecoratorProvider();
 	}
 
-	public static <BEAN_TYPE extends IBean> IUpdaterServiceBuilder<BEAN_TYPE> updaterServiceBuilder(
+	public static <BEAN_TYPE> IUpdaterServiceBuilder<BEAN_TYPE> updaterServiceBuilder(
 		final IBeanAccess<? extends BEAN_TYPE> beanAccess) {
 		return getInstance().updaterServiceBuilder(beanAccess);
 	}
 
-	public static <BEAN_TYPE extends IBean> IRefreshServiceBuilder<BEAN_TYPE> refreshServiceBuilder(
+	public static <BEAN_TYPE> IRefreshServiceBuilder<BEAN_TYPE> refreshServiceBuilder(
 		final IBeanAccess<? extends BEAN_TYPE> beanAccess) {
 		return getInstance().refreshServiceBuilder(beanAccess);
 	}

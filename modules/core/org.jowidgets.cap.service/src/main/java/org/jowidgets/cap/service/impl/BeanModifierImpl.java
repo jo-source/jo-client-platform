@@ -37,7 +37,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanModification;
 import org.jowidgets.cap.common.api.exception.BeanException;
 import org.jowidgets.cap.service.api.bean.IBeanModifier;
@@ -48,7 +47,7 @@ import org.jowidgets.plugin.api.PluginProvider;
 import org.jowidgets.plugin.api.PluginToolkit;
 import org.jowidgets.util.EmptyCompatibleEquivalence;
 
-final class BeanModifierImpl<BEAN_TYPE extends IBean> implements IBeanModifier<BEAN_TYPE> {
+final class BeanModifierImpl<BEAN_TYPE> implements IBeanModifier<BEAN_TYPE> {
 
 	private final Map<String, Method> writeMethods;
 	private final Map<String, Method> readMethods;
@@ -113,14 +112,15 @@ final class BeanModifierImpl<BEAN_TYPE extends IBean> implements IBeanModifier<B
 		}
 	}
 
+	@SuppressWarnings({"unchecked", "rawtypes"})
 	@Override
 	public void modify(final BEAN_TYPE bean, final IBeanModification modification) {
 		final Method writeMethod = writeMethods.get(modification.getPropertyName());
 		if (writeMethod != null) {
 			//plugin before invocation
-			final List<IBeanModifierPlugin<IBean>> plugins;
+			final List<IBeanModifierPlugin<?>> plugins;
 			plugins = PluginProvider.getPlugins(IBeanModifierPlugin.ID, pluginProperties);
-			for (final IBeanModifierPlugin<IBean> plugin : plugins) {
+			for (final IBeanModifierPlugin plugin : plugins) {
 				plugin.beforeModification(bean, modification);
 			}
 
@@ -133,7 +133,7 @@ final class BeanModifierImpl<BEAN_TYPE extends IBean> implements IBeanModifier<B
 			}
 
 			//plugin after invocation
-			for (final IBeanModifierPlugin<IBean> plugin : plugins) {
+			for (final IBeanModifierPlugin plugin : plugins) {
 				plugin.afterModification(bean, modification);
 			}
 		}

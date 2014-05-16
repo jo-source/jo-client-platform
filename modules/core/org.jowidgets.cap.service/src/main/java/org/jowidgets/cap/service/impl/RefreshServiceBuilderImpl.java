@@ -32,7 +32,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.service.IRefreshService;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.adapter.IAdapterFactoryProvider;
@@ -43,7 +42,7 @@ import org.jowidgets.cap.service.api.refresh.IRefreshServiceBuilder;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.IAdapterFactory;
 
-final class RefreshServiceBuilderImpl<BEAN_TYPE extends IBean> implements IRefreshServiceBuilder<BEAN_TYPE> {
+final class RefreshServiceBuilderImpl<BEAN_TYPE> implements IRefreshServiceBuilder<BEAN_TYPE> {
 
 	private final Class<? extends BEAN_TYPE> beanType;
 	private final IBeanAccess<? extends BEAN_TYPE> beanAccess;
@@ -63,7 +62,7 @@ final class RefreshServiceBuilderImpl<BEAN_TYPE extends IBean> implements IRefre
 	@Override
 	public IRefreshServiceBuilder<BEAN_TYPE> setBeanDtoFactory(final Collection<String> propertyNames) {
 		Assert.paramNotNull(propertyNames, "propertyNames");
-		this.beanDtoFactory = CapServiceToolkit.dtoFactory(beanType, propertyNames);
+		this.beanDtoFactory = CapServiceToolkit.dtoFactory(beanAccess, propertyNames);
 		return this;
 	}
 
@@ -86,7 +85,7 @@ final class RefreshServiceBuilderImpl<BEAN_TYPE extends IBean> implements IRefre
 		}
 		else {
 			final List<String> propertyNames = Collections.emptyList();
-			return CapServiceToolkit.dtoFactory(beanType, propertyNames);
+			return CapServiceToolkit.dtoFactory(beanAccess, propertyNames);
 		}
 	}
 

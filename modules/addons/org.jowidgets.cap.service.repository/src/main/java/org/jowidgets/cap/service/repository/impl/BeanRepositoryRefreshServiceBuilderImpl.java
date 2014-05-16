@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, grossmann
+ * Copyright (c) 2014, Michael
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -28,40 +28,59 @@
 
 package org.jowidgets.cap.service.repository.impl;
 
-import org.jowidgets.cap.common.api.service.ICreatorService;
+import java.util.Collection;
+import java.util.List;
+
+import org.jowidgets.cap.common.api.service.IRefreshService;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
-import org.jowidgets.cap.service.api.adapter.ISyncCreatorService;
-import org.jowidgets.cap.service.repository.api.ICreateSupportBeanRepository;
-import org.jowidgets.cap.service.tools.creator.AbstractCreatorServiceBuilder;
-import org.jowidgets.util.IAdapterFactory;
+import org.jowidgets.cap.service.api.adapter.ISyncRefreshService;
+import org.jowidgets.cap.service.api.bean.IBeanAccess;
+import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
+import org.jowidgets.cap.service.api.refresh.IRefreshServiceBuilder;
 import org.jowidgets.util.IDecorator;
-import org.jowidgets.util.reflection.BeanUtils;
 
-class BeanRepositoryCreatorServiceBuilderImpl<BEAN_TYPE> extends AbstractCreatorServiceBuilder<BEAN_TYPE> {
+final class BeanRepositoryRefreshServiceBuilderImpl<BEAN_TYPE> implements IRefreshServiceBuilder<BEAN_TYPE> {
 
-	private static final IAdapterFactory<ICreatorService, ISyncCreatorService> ADAPTER_FACTORY = CapServiceToolkit.adapterFactoryProvider().creator();
+	private final IDecorator<IRefreshService> asyncDecorator;
+	private final IRefreshServiceBuilder<BEAN_TYPE> builder;
 
-	private final ICreateSupportBeanRepository<BEAN_TYPE> repository;
-	private final IDecorator<ICreatorService> asyncDecorator;
+	BeanRepositoryRefreshServiceBuilderImpl(
+		final IBeanAccess<BEAN_TYPE> beanAccess,
+		final List<String> allProperties,
+		final IDecorator<IRefreshService> asyncDecorator) {
 
-	BeanRepositoryCreatorServiceBuilderImpl(
-		final ICreateSupportBeanRepository<BEAN_TYPE> repository,
-		final IDecorator<ICreatorService> asyncDecorator) {
-		super(repository);
-		this.repository = repository;
 		this.asyncDecorator = asyncDecorator;
-		setBeanDtoFactoryAndBeanInitializer(BeanUtils.getProperties(repository.getBeanType()));
+
+		this.builder = CapServiceToolkit.refreshServiceBuilder(beanAccess);
+		this.builder.setBeanDtoFactory(allProperties);
 	}
 
 	@Override
-	public ICreatorService build() {
-		final ISyncCreatorService result = new SyncBeanRepositoryCreatorServiceImpl<BEAN_TYPE>(
-			repository,
-			getBeanDtoFactory(),
-			getBeanInitializer(),
-			getExecutableChecker(),
-			getBeanValidator());
-		return asyncDecorator.decorate(ADAPTER_FACTORY.createAdapter(result));
+	public IRefreshServiceBuilder<BEAN_TYPE> setBeanDtoFactory(final IBeanDtoFactory<BEAN_TYPE> beanDtoFactory) {
+		builder.setBeanDtoFactory(beanDtoFactory);
+		return this;
+	}
+
+	@Override
+	public IRefreshServiceBuilder<BEAN_TYPE> setBeanDtoFactory(final Collection<String> propertyNames) {
+		builder.setBeanDtoFactory(propertyNames);
+		return this;
+	}
+
+	@Override
+	public IRefreshServiceBuilder<BEAN_TYPE> setAllowDeletedBeans(final boolean allowDeletedBeans) {
+		builder.setAllowDeletedBeans(allowDeletedBeans);
+		return this;
+	}
+
+	@Override
+	public ISyncRefreshService buildSyncService() {
+		return builder.buildSyncService();
+	}
+
+	@Override
+	public IRefreshService build() {
+		return asyncDecorator.decorate(builder.build());
 	}
 
 }

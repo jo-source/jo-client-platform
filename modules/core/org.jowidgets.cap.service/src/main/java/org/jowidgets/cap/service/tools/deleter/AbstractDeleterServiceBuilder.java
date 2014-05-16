@@ -31,7 +31,6 @@ package org.jowidgets.cap.service.tools.deleter;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.execution.ExecutableCheckerComposite;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.execution.IExecutableCheckerCompositeBuilder;
@@ -40,7 +39,7 @@ import org.jowidgets.cap.service.api.deleter.IDeleterServiceBuilder;
 import org.jowidgets.cap.service.api.deleter.IDeleterServiceInterceptor;
 import org.jowidgets.util.Assert;
 
-public abstract class AbstractDeleterServiceBuilder<BEAN_TYPE extends IBean> implements IDeleterServiceBuilder<BEAN_TYPE> {
+public abstract class AbstractDeleterServiceBuilder<BEAN_TYPE> implements IDeleterServiceBuilder<BEAN_TYPE> {
 
 	private final List<IExecutableChecker<? extends BEAN_TYPE>> executableCheckers;
 	private final List<IDeleterServiceInterceptor<BEAN_TYPE>> interceptors;

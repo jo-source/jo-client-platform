@@ -212,7 +212,7 @@ public final class DefaultCapServiceToolkit implements ICapServiceToolkit {
 	}
 
 	@Override
-	public <BEAN_TYPE extends IBean> IBeanModifier<BEAN_TYPE> beanModifier(
+	public <BEAN_TYPE> IBeanModifier<BEAN_TYPE> beanModifier(
 		final Class<? extends BEAN_TYPE> beanType,
 		final Collection<String> propertyNames) {
 
@@ -232,7 +232,7 @@ public final class DefaultCapServiceToolkit implements ICapServiceToolkit {
 	}
 
 	@SuppressWarnings("unchecked")
-	private <BEAN_TYPE extends IBean> IBeanModifier<BEAN_TYPE> beanModifierImpl(
+	private <BEAN_TYPE> IBeanModifier<BEAN_TYPE> beanModifierImpl(
 		final Class<? extends BEAN_TYPE> beanType,
 		final Collection<String> propertyNames) {
 		Assert.paramNotNull(beanType, "beanType");
@@ -281,14 +281,12 @@ public final class DefaultCapServiceToolkit implements ICapServiceToolkit {
 	}
 
 	@Override
-	public <BEAN_TYPE extends IBean> IUpdaterServiceBuilder<BEAN_TYPE> updaterServiceBuilder(
-		final IBeanAccess<? extends BEAN_TYPE> beanAccess) {
+	public <BEAN_TYPE> IUpdaterServiceBuilder<BEAN_TYPE> updaterServiceBuilder(final IBeanAccess<? extends BEAN_TYPE> beanAccess) {
 		return new UpdaterServiceBuilderImpl<BEAN_TYPE>(beanAccess);
 	}
 
 	@Override
-	public <BEAN_TYPE extends IBean> IRefreshServiceBuilder<BEAN_TYPE> refreshServiceBuilder(
-		final IBeanAccess<? extends BEAN_TYPE> beanAccess) {
+	public <BEAN_TYPE> IRefreshServiceBuilder<BEAN_TYPE> refreshServiceBuilder(final IBeanAccess<? extends BEAN_TYPE> beanAccess) {
 		return new RefreshServiceBuilderImpl<BEAN_TYPE>(beanAccess);
 	}
 

@@ -36,9 +36,12 @@ import org.jowidgets.cap.common.api.validation.IBeanValidator;
 import org.jowidgets.cap.service.api.adapter.ISyncUpdaterService;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.api.bean.IBeanModifier;
+import org.jowidgets.cap.service.api.bean.IBeanUpdateInterceptor;
 import org.jowidgets.validation.IValidator;
 
 public interface IUpdaterServiceBuilder<BEAN_TYPE> {
+
+	IUpdaterServiceBuilder<BEAN_TYPE> addUpdaterInterceptor(IBeanUpdateInterceptor<BEAN_TYPE> interceptor);
 
 	IUpdaterServiceBuilder<BEAN_TYPE> addBeanValidator(IBeanValidator<? extends BEAN_TYPE> validator);
 

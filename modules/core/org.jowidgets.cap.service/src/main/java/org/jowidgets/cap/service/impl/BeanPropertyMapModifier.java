@@ -30,7 +30,6 @@ package org.jowidgets.cap.service.impl;
 
 import java.util.List;
 
-import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanModification;
 import org.jowidgets.cap.service.api.bean.IBeanModifier;
 import org.jowidgets.cap.service.api.bean.IBeanPropertyMap;
@@ -65,13 +64,14 @@ final class BeanPropertyMapModifier implements IBeanModifier<IBeanPropertyMap> {
 		}
 	}
 
+	@SuppressWarnings({"unchecked", "rawtypes"})
 	@Override
 	public void modify(final IBeanPropertyMap bean, final IBeanModification modification) {
 
 		//plugin before invocation
-		final List<IBeanModifierPlugin<IBean>> plugins;
+		final List<IBeanModifierPlugin<?>> plugins;
 		plugins = PluginProvider.getPlugins(IBeanModifierPlugin.ID, pluginProperties);
-		for (final IBeanModifierPlugin<IBean> plugin : plugins) {
+		for (final IBeanModifierPlugin plugin : plugins) {
 			plugin.beforeModification(bean, modification);
 		}
 
@@ -79,7 +79,7 @@ final class BeanPropertyMapModifier implements IBeanModifier<IBeanPropertyMap> {
 		bean.setValue(modification.getPropertyName(), modification.getNewValue());
 
 		//plugin after invocation
-		for (final IBeanModifierPlugin<IBean> plugin : plugins) {
+		for (final IBeanModifierPlugin plugin : plugins) {
 			plugin.afterModification(bean, modification);
 		}
 	}

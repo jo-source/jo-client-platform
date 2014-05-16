@@ -28,16 +28,15 @@
 
 package org.jowidgets.cap.service.api.plugin;
 
-import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanModification;
 import org.jowidgets.plugin.api.IPluginId;
 import org.jowidgets.util.ITypedKey;
 
-public interface IBeanModifierPlugin<BEAN_TYPE extends IBean> {
+public interface IBeanModifierPlugin<BEAN_TYPE> {
 
-	IPluginId<IBeanModifierPlugin<IBean>> ID = new IPluginId<IBeanModifierPlugin<IBean>>() {};
+	IPluginId<IBeanModifierPlugin<?>> ID = new IPluginId<IBeanModifierPlugin<?>>() {};
 
-	ITypedKey<Class<? extends IBean>> BEAN_TYPE_PROPERTY_KEY = new ITypedKey<Class<? extends IBean>>() {};
+	ITypedKey<Class<?>> BEAN_TYPE_PROPERTY_KEY = new ITypedKey<Class<?>>() {};
 
 	void beforeModification(BEAN_TYPE bean, IBeanModification modification);
 

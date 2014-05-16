@@ -74,6 +74,7 @@ public final class SyncExecutorServiceImpl<BEAN_TYPE, PARAM_TYPE> implements ISy
 	private final boolean allowStaleBeans;
 
 	private final IBeanDtoFactory<BEAN_TYPE> dtoFactory;
+	private final List<IBeanUpdateInterceptor<BEAN_TYPE>> updateInterceptors;
 	private final IBeanUpdateInterceptor<BEAN_TYPE> updateInterceptor;
 	private final Collection<IBeanUpdateInterceptorPlugin<BEAN_TYPE>> updateInterceptorPlugins;
 
@@ -85,12 +86,14 @@ public final class SyncExecutorServiceImpl<BEAN_TYPE, PARAM_TYPE> implements ISy
 		final IBeanValidator<? extends BEAN_TYPE> beanValidator,
 		final IBeanDtoFactory<BEAN_TYPE> dtoFactory,
 		final boolean allowDeletedBeans,
-		final boolean allowStaleBeans) {
+		final boolean allowStaleBeans,
+		final List<IBeanUpdateInterceptor<BEAN_TYPE>> updateInterceptors) {
 
 		Assert.paramNotNull(beanAccess, "beanAccess");
 		Assert.paramNotNull(beanAccess.getBeanType(), "beanAccess.getBeanType()");
 		Assert.paramNotNull(executor, "executor");
 		Assert.paramNotNull(dtoFactory, "dtoFactory");
+		Assert.paramNotNull(updateInterceptors, "updateInterceptors");
 
 		this.beanAccess = (IBeanAccess<BEAN_TYPE>) beanAccess;
 		this.executor = executor;
@@ -98,6 +101,7 @@ public final class SyncExecutorServiceImpl<BEAN_TYPE, PARAM_TYPE> implements ISy
 		this.beanValidator = (IBeanValidator<BEAN_TYPE>) beanValidator;
 		this.allowDeletedBeans = allowDeletedBeans;
 		this.allowStaleBeans = allowStaleBeans;
+		this.updateInterceptors = new LinkedList<IBeanUpdateInterceptor<BEAN_TYPE>>(updateInterceptors);
 
 		this.dtoFactory = dtoFactory;
 		this.updateInterceptor = createInterceptor(beanAccess.getBeanType());
@@ -272,6 +276,11 @@ public final class SyncExecutorServiceImpl<BEAN_TYPE, PARAM_TYPE> implements ISy
 				plugin.beforeUpdate(bean);
 			}
 		}
+		for (final IBeanUpdateInterceptor<BEAN_TYPE> interceptor : updateInterceptors) {
+			for (final BEAN_TYPE bean : beans) {
+				interceptor.beforeUpdate(bean);
+			}
+		}
 	}
 
 	private void afterUpdate(final Collection<? extends BEAN_TYPE> beans) {
@@ -283,6 +292,11 @@ public final class SyncExecutorServiceImpl<BEAN_TYPE, PARAM_TYPE> implements ISy
 		for (final IBeanUpdateInterceptorPlugin<BEAN_TYPE> plugin : updateInterceptorPlugins) {
 			for (final BEAN_TYPE bean : beans) {
 				plugin.afterUpdate(bean);
+			}
+		}
+		for (final IBeanUpdateInterceptor<BEAN_TYPE> interceptor : updateInterceptors) {
+			for (final BEAN_TYPE bean : beans) {
+				interceptor.afterUpdate(bean);
 			}
 		}
 	}
