@@ -112,7 +112,8 @@ final class BeanRepositoryServiceFactoryImpl<BEAN_TYPE> implements IBeanReposito
 		if (repository instanceof ICreateSupportBeanRepository) {
 			return new BeanRepositoryCreatorServiceBuilderImpl<BEAN_TYPE>(
 				(ICreateSupportBeanRepository<BEAN_TYPE>) repository,
-				ASYNC_CREATOR_DECORATOR);
+				ASYNC_CREATOR_DECORATOR,
+				allProperties);
 		}
 		else {
 			return null;

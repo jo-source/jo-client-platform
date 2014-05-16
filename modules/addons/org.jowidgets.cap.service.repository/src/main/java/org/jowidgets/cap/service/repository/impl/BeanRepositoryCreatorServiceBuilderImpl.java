@@ -28,6 +28,8 @@
 
 package org.jowidgets.cap.service.repository.impl;
 
+import java.util.List;
+
 import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.adapter.ISyncCreatorService;
@@ -35,7 +37,6 @@ import org.jowidgets.cap.service.repository.api.ICreateSupportBeanRepository;
 import org.jowidgets.cap.service.tools.creator.AbstractCreatorServiceBuilder;
 import org.jowidgets.util.IAdapterFactory;
 import org.jowidgets.util.IDecorator;
-import org.jowidgets.util.reflection.BeanUtils;
 
 class BeanRepositoryCreatorServiceBuilderImpl<BEAN_TYPE> extends AbstractCreatorServiceBuilder<BEAN_TYPE> {
 
@@ -46,11 +47,12 @@ class BeanRepositoryCreatorServiceBuilderImpl<BEAN_TYPE> extends AbstractCreator
 
 	BeanRepositoryCreatorServiceBuilderImpl(
 		final ICreateSupportBeanRepository<BEAN_TYPE> repository,
-		final IDecorator<ICreatorService> asyncDecorator) {
+		final IDecorator<ICreatorService> asyncDecorator,
+		final List<String> appProperties) {
 		super(repository);
 		this.repository = repository;
 		this.asyncDecorator = asyncDecorator;
-		setBeanDtoFactoryAndBeanInitializer(BeanUtils.getProperties(repository.getBeanType()));
+		setBeanDtoFactoryAndBeanInitializer(appProperties);
 	}
 
 	@Override
