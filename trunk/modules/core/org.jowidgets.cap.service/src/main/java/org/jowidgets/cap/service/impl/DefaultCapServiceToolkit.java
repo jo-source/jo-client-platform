@@ -43,6 +43,7 @@ import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.bean.IBeanDtoCollectionFilter;
 import org.jowidgets.cap.service.api.bean.IBeanDtoCollectionSorter;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
+import org.jowidgets.cap.service.api.bean.IBeanIdentityResolver;
 import org.jowidgets.cap.service.api.bean.IBeanInitializer;
 import org.jowidgets.cap.service.api.bean.IBeanModifier;
 import org.jowidgets.cap.service.api.bean.IBeanPropertyMap;
@@ -118,20 +119,7 @@ public final class DefaultCapServiceToolkit implements ICapServiceToolkit {
 	public <BEAN_TYPE extends IBean> IBeanDtoFactory<BEAN_TYPE> dtoFactory(
 		final Class<? extends BEAN_TYPE> beanType,
 		final Collection<String> propertyNames) {
-
-		IBeanDtoFactory<BEAN_TYPE> result = dtoFactoryImpl(beanType, propertyNames);
-
-		final IPluginProperties properties = PluginProperties.create(
-				IBeanDtoConversionProviderPlugin.BEAN_TYPE_PROPERTY_KEY,
-				beanType);
-
-		final List<IBeanDtoConversionProviderPlugin> plugins;
-		plugins = PluginProvider.getPlugins(IBeanDtoConversionProviderPlugin.ID, properties);
-		for (final IBeanDtoConversionProviderPlugin plugin : plugins) {
-			result = plugin.dtoFactory(beanType, propertyNames, result);
-		}
-
-		return result;
+		return invokeDtoConversionPlugin(beanType, propertyNames, dtoFactoryImpl(beanType, propertyNames));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -148,7 +136,50 @@ public final class DefaultCapServiceToolkit implements ICapServiceToolkit {
 	}
 
 	@Override
-	public <BEAN_TYPE extends IBean> IBeanInitializer<BEAN_TYPE> beanInitializer(
+	public <BEAN_TYPE> IBeanDtoFactory<BEAN_TYPE> dtoFactory(
+		final IBeanIdentityResolver<? extends BEAN_TYPE> identityResolver,
+		final Collection<String> propertyNames) {
+		return invokeDtoConversionPlugin(
+				identityResolver.getBeanType(),
+				propertyNames,
+				dtoFactoryImpl(identityResolver, propertyNames));
+	}
+
+	@SuppressWarnings("unchecked")
+	private <BEAN_TYPE> IBeanDtoFactory<BEAN_TYPE> dtoFactoryImpl(
+		final IBeanIdentityResolver<? extends BEAN_TYPE> identityResolver,
+		final Collection<String> propertyNames) {
+		Assert.paramNotNull(identityResolver, "identityResolver");
+		Assert.paramNotNull(propertyNames, "propertyNames");
+		final Class<? extends BEAN_TYPE> beanType = identityResolver.getBeanType();
+		if (IBeanPropertyMap.class == beanType) {
+			return (IBeanDtoFactory<BEAN_TYPE>) beanPropertyMapDtoFactory(propertyNames);
+		}
+		else {
+			return new BeanDtoFactoryImpl<BEAN_TYPE>(identityResolver, propertyNames);
+		}
+	}
+
+	private <BEAN_TYPE> IBeanDtoFactory<BEAN_TYPE> invokeDtoConversionPlugin(
+		final Class<? extends BEAN_TYPE> beanType,
+		final Collection<String> propertyNames,
+		IBeanDtoFactory<BEAN_TYPE> result) {
+
+		final IPluginProperties properties = PluginProperties.create(
+				IBeanDtoConversionProviderPlugin.BEAN_TYPE_PROPERTY_KEY,
+				beanType);
+
+		final List<IBeanDtoConversionProviderPlugin> plugins;
+		plugins = PluginProvider.getPlugins(IBeanDtoConversionProviderPlugin.ID, properties);
+		for (final IBeanDtoConversionProviderPlugin plugin : plugins) {
+			result = plugin.dtoFactory(beanType, propertyNames, result);
+		}
+
+		return result;
+	}
+
+	@Override
+	public <BEAN_TYPE> IBeanInitializer<BEAN_TYPE> beanInitializer(
 		final Class<? extends BEAN_TYPE> beanType,
 		final Collection<String> propertyNames) {
 		Assert.paramNotNull(beanType, "beanType");
@@ -168,7 +199,7 @@ public final class DefaultCapServiceToolkit implements ICapServiceToolkit {
 	}
 
 	@SuppressWarnings("unchecked")
-	private <BEAN_TYPE extends IBean> IBeanInitializer<BEAN_TYPE> beanInitializerImpl(
+	private <BEAN_TYPE> IBeanInitializer<BEAN_TYPE> beanInitializerImpl(
 		final Class<? extends BEAN_TYPE> beanType,
 		final Collection<String> propertyNames) {
 		Assert.paramNotNull(beanType, "beanType");
@@ -244,7 +275,7 @@ public final class DefaultCapServiceToolkit implements ICapServiceToolkit {
 	}
 
 	@Override
-	public <BEAN_TYPE extends IBean, PARAM_TYPE> IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> executorServiceBuilder(
+	public <BEAN_TYPE, PARAM_TYPE> IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> executorServiceBuilder(
 		final IBeanAccess<? extends BEAN_TYPE> beanAccess) {
 		return new ExecutorServiceBuilderImpl<BEAN_TYPE, PARAM_TYPE>(beanAccess);
 	}

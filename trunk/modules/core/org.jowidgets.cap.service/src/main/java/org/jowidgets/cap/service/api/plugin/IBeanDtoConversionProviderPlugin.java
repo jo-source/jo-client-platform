@@ -30,7 +30,6 @@ package org.jowidgets.cap.service.api.plugin;
 
 import java.util.Collection;
 
-import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.api.bean.IBeanInitializer;
 import org.jowidgets.cap.service.api.bean.IBeanModifier;
@@ -41,19 +40,19 @@ public interface IBeanDtoConversionProviderPlugin {
 
 	IPluginId<IBeanDtoConversionProviderPlugin> ID = new IPluginId<IBeanDtoConversionProviderPlugin>() {};
 
-	ITypedKey<Class<? extends IBean>> BEAN_TYPE_PROPERTY_KEY = new ITypedKey<Class<? extends IBean>>() {};
+	ITypedKey<Class<?>> BEAN_TYPE_PROPERTY_KEY = new ITypedKey<Class<?>>() {};
 
-	<BEAN_TYPE extends IBean> IBeanDtoFactory<BEAN_TYPE> dtoFactory(
+	<BEAN_TYPE> IBeanDtoFactory<BEAN_TYPE> dtoFactory(
 		final Class<? extends BEAN_TYPE> beanType,
 		final Collection<String> propertyNames,
 		IBeanDtoFactory<BEAN_TYPE> original);
 
-	<BEAN_TYPE extends IBean> IBeanInitializer<BEAN_TYPE> beanInitializer(
+	<BEAN_TYPE> IBeanInitializer<BEAN_TYPE> beanInitializer(
 		final Class<? extends BEAN_TYPE> beanType,
 		final Collection<String> propertyNames,
 		IBeanInitializer<BEAN_TYPE> original);
 
-	<BEAN_TYPE extends IBean> IBeanModifier<BEAN_TYPE> beanModifier(
+	<BEAN_TYPE> IBeanModifier<BEAN_TYPE> beanModifier(
 		final Class<? extends BEAN_TYPE> beanType,
 		final Collection<String> propertyNames,
 		IBeanModifier<BEAN_TYPE> original);

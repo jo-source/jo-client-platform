@@ -103,6 +103,16 @@ final class Neo4JBeanAccessImpl<BEAN_TYPE extends IBean> implements IBeanAccess<
 	}
 
 	@Override
+	public Object getId(final BEAN_TYPE bean) {
+		return bean.getId();
+	}
+
+	@Override
+	public long getVersion(final BEAN_TYPE bean) {
+		return bean.getVersion();
+	}
+
+	@Override
 	public Class<BEAN_TYPE> getBeanType() {
 		return beanType;
 	}

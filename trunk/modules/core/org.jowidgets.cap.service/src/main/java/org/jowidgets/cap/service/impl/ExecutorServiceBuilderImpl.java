@@ -36,7 +36,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.execution.ExecutableCheckerComposite;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.execution.IExecutableCheckerCompositeBuilder;
@@ -58,8 +57,7 @@ import org.jowidgets.util.Assert;
 import org.jowidgets.util.IAdapterFactory;
 import org.jowidgets.validation.IValidator;
 
-final class ExecutorServiceBuilderImpl<BEAN_TYPE extends IBean, PARAM_TYPE> implements
-		IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> {
+final class ExecutorServiceBuilderImpl<BEAN_TYPE, PARAM_TYPE> implements IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> {
 
 	private final Class<? extends BEAN_TYPE> beanType;
 	private final IBeanAccess<? extends BEAN_TYPE> beanAccess;
@@ -152,7 +150,7 @@ final class ExecutorServiceBuilderImpl<BEAN_TYPE extends IBean, PARAM_TYPE> impl
 	@Override
 	public IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> setBeanDtoFactory(final Collection<String> propertyNames) {
 		Assert.paramNotNull(propertyNames, "propertyNames");
-		this.beanDtoFactory = CapServiceToolkit.dtoFactory(beanType, propertyNames);
+		this.beanDtoFactory = CapServiceToolkit.dtoFactory(beanAccess, propertyNames);
 		return this;
 	}
 
@@ -189,7 +187,7 @@ final class ExecutorServiceBuilderImpl<BEAN_TYPE extends IBean, PARAM_TYPE> impl
 		}
 		else {
 			final List<String> propertyNames = Collections.emptyList();
-			return CapServiceToolkit.dtoFactory(beanType, propertyNames);
+			return CapServiceToolkit.dtoFactory(beanAccess, propertyNames);
 		}
 	}
 

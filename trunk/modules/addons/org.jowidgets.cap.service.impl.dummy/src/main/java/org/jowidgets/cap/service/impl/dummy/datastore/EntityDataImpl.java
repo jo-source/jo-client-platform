@@ -60,6 +60,16 @@ final class EntityDataImpl<BEAN_TYPE extends IBean> implements IEntityData<BEAN_
 	}
 
 	@Override
+	public Object getId(final BEAN_TYPE bean) {
+		return bean.getId();
+	}
+
+	@Override
+	public long getVersion(final BEAN_TYPE bean) {
+		return bean.getVersion();
+	}
+
+	@Override
 	public void add(final BEAN_TYPE object) {
 		dataMap.put(object.getId(), object);
 		dataList.add(object);

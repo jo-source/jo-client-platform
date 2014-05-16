@@ -31,17 +31,12 @@ package org.jowidgets.cap.service.api.bean;
 import java.util.Collection;
 import java.util.List;
 
-import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 
-public interface IBeanAccess<BEAN_TYPE extends IBean> {
+public interface IBeanAccess<BEAN_TYPE> extends IBeanIdentityResolver<BEAN_TYPE> {
 
 	List<BEAN_TYPE> getBeans(Collection<? extends IBeanKey> keys, IExecutionCallback executionCallback);
-
-	Class<BEAN_TYPE> getBeanType();
-
-	Object getBeanTypeId();
 
 	//TODO MG,HRW review
 	void flush();

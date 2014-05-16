@@ -39,6 +39,7 @@ import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.bean.IBeanDtoCollectionFilter;
 import org.jowidgets.cap.service.api.bean.IBeanDtoCollectionSorter;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
+import org.jowidgets.cap.service.api.bean.IBeanIdentityResolver;
 import org.jowidgets.cap.service.api.bean.IBeanInitializer;
 import org.jowidgets.cap.service.api.bean.IBeanModifier;
 import org.jowidgets.cap.service.api.bean.IBeanPropertyMap;
@@ -97,7 +98,7 @@ public final class CapServiceToolkit {
 		return getInstance().beanServicesProviderBuilder(registry, entityServiceId, beanType, entityId);
 	}
 
-	public static <BEAN_TYPE extends IBean> IBeanInitializer<BEAN_TYPE> beanInitializer(
+	public static <BEAN_TYPE> IBeanInitializer<BEAN_TYPE> beanInitializer(
 		final Class<? extends BEAN_TYPE> beanType,
 		final Collection<String> propertyNames) {
 		return getInstance().beanInitializer(beanType, propertyNames);
@@ -113,6 +114,12 @@ public final class CapServiceToolkit {
 		final Class<? extends BEAN_TYPE> beanType,
 		final Collection<String> propertyNames) {
 		return getInstance().dtoFactory(beanType, propertyNames);
+	}
+
+	public static <BEAN_TYPE> IBeanDtoFactory<BEAN_TYPE> dtoFactory(
+		final IBeanIdentityResolver<? extends BEAN_TYPE> identityResolver,
+		final Collection<String> propertyNames) {
+		return getInstance().dtoFactory(identityResolver, propertyNames);
 	}
 
 	public static IBeanDtoCollectionSorter beanDtoCollectionSorter() {
@@ -139,7 +146,7 @@ public final class CapServiceToolkit {
 		return getInstance().beanPropertyMapModifier();
 	}
 
-	public static <BEAN_TYPE extends IBean, PARAM_TYPE> IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> executorServiceBuilder(
+	public static <BEAN_TYPE, PARAM_TYPE> IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> executorServiceBuilder(
 		final IBeanAccess<? extends BEAN_TYPE> beanAccess) {
 		return getInstance().executorServiceBuilder(beanAccess);
 	}

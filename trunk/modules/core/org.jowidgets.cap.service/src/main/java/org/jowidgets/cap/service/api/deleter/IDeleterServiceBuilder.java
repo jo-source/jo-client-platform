@@ -28,11 +28,10 @@
 
 package org.jowidgets.cap.service.api.deleter;
 
-import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.service.IDeleterService;
 
-public interface IDeleterServiceBuilder<BEAN_TYPE extends IBean> {
+public interface IDeleterServiceBuilder<BEAN_TYPE> {
 
 	IDeleterServiceBuilder<BEAN_TYPE> addExecutableChecker(IExecutableChecker<? extends BEAN_TYPE> executableChecker);
 

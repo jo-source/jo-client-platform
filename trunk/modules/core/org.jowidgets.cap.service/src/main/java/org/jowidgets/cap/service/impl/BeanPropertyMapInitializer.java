@@ -60,12 +60,13 @@ final class BeanPropertyMapInitializer implements IBeanInitializer<IBeanProperty
 		return builder.build();
 	}
 
+	@SuppressWarnings({"rawtypes", "unchecked"})
 	@Override
 	public void initialize(final IBeanPropertyMap bean, final IBeanData beanData) {
 		//plugin before invocation
-		final List<IBeanInitializerPlugin<IBean>> plugins;
+		final List<IBeanInitializerPlugin<?>> plugins;
 		plugins = PluginProvider.getPlugins(IBeanInitializerPlugin.ID, pluginProperties);
-		for (final IBeanInitializerPlugin<IBean> plugin : plugins) {
+		for (final IBeanInitializerPlugin plugin : plugins) {
 			plugin.beforeInitialize(bean, beanData);
 		}
 
@@ -77,7 +78,7 @@ final class BeanPropertyMapInitializer implements IBeanInitializer<IBeanProperty
 		}
 
 		//plugin after invocation
-		for (final IBeanInitializerPlugin<IBean> plugin : plugins) {
+		for (final IBeanInitializerPlugin plugin : plugins) {
 			plugin.afterInitialize(bean, beanData);
 		}
 

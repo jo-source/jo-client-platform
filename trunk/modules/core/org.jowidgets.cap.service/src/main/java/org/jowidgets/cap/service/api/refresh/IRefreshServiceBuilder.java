@@ -30,12 +30,11 @@ package org.jowidgets.cap.service.api.refresh;
 
 import java.util.Collection;
 
-import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.service.IRefreshService;
 import org.jowidgets.cap.service.api.adapter.ISyncRefreshService;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 
-public interface IRefreshServiceBuilder<BEAN_TYPE extends IBean> {
+public interface IRefreshServiceBuilder<BEAN_TYPE> {
 
 	IRefreshServiceBuilder<BEAN_TYPE> setBeanDtoFactory(IBeanDtoFactory<BEAN_TYPE> beanDtoFactory);
 

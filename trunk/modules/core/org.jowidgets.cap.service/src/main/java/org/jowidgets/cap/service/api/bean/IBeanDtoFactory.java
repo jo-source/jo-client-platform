@@ -28,10 +28,9 @@
 
 package org.jowidgets.cap.service.api.bean;
 
-import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 
-public interface IBeanDtoFactory<BEAN_TYPE extends IBean> {
+public interface IBeanDtoFactory<BEAN_TYPE> {
 
 	IBeanDto createDto(BEAN_TYPE bean);
 

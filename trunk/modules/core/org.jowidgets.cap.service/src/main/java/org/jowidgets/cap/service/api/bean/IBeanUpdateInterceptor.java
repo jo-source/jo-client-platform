@@ -28,9 +28,8 @@
 
 package org.jowidgets.cap.service.api.bean;
 
-import org.jowidgets.cap.common.api.bean.IBean;
 
-public interface IBeanUpdateInterceptor<BEAN_TYPE extends IBean> {
+public interface IBeanUpdateInterceptor<BEAN_TYPE> {
 
 	void beforeUpdate(BEAN_TYPE bean);
 

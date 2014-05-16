@@ -30,7 +30,6 @@ package org.jowidgets.cap.service.neo4j.tools;
 
 import java.util.Collection;
 
-import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.api.bean.IBeanInitializer;
@@ -43,7 +42,7 @@ final class BeanDtoToNodeConversionProviderPlugin implements IBeanDtoConversionP
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <BEAN_TYPE extends IBean> IBeanDtoFactory<BEAN_TYPE> dtoFactory(
+	public <BEAN_TYPE> IBeanDtoFactory<BEAN_TYPE> dtoFactory(
 		final Class<? extends BEAN_TYPE> beanType,
 		final Collection<String> propertyNames,
 		final IBeanDtoFactory<BEAN_TYPE> original) {
@@ -57,7 +56,7 @@ final class BeanDtoToNodeConversionProviderPlugin implements IBeanDtoConversionP
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <BEAN_TYPE extends IBean> IBeanInitializer<BEAN_TYPE> beanInitializer(
+	public <BEAN_TYPE> IBeanInitializer<BEAN_TYPE> beanInitializer(
 		final Class<? extends BEAN_TYPE> beanType,
 		final Collection<String> propertyNames,
 		final IBeanInitializer<BEAN_TYPE> original) {
@@ -71,7 +70,7 @@ final class BeanDtoToNodeConversionProviderPlugin implements IBeanDtoConversionP
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public <BEAN_TYPE extends IBean> IBeanModifier<BEAN_TYPE> beanModifier(
+	public <BEAN_TYPE> IBeanModifier<BEAN_TYPE> beanModifier(
 		final Class<? extends BEAN_TYPE> beanType,
 		final Collection<String> propertyNames,
 		final IBeanModifier<BEAN_TYPE> original) {

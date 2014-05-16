@@ -28,10 +28,9 @@
 
 package org.jowidgets.cap.service.api.bean;
 
-import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanData;
 
-public interface IBeanInitializer<BEAN_TYPE extends IBean> {
+public interface IBeanInitializer<BEAN_TYPE> {
 
 	void initialize(BEAN_TYPE bean, IBeanData beanData);
 
