@@ -28,10 +28,9 @@
 
 package org.jowidgets.cap.service.api.bean;
 
-import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanModification;
 
-public interface IBeanModifier<BEAN_TYPE extends IBean> {
+public interface IBeanModifier<BEAN_TYPE> {
 
 	boolean isPropertyStale(BEAN_TYPE bean, IBeanModification modification);
 

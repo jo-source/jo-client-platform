@@ -28,10 +28,9 @@
 
 package org.jowidgets.cap.service.api.executor;
 
-import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 
-public interface IBeanExecutor<BEAN_TYPE extends IBean, PARAMETER_TYPE> {
+public interface IBeanExecutor<BEAN_TYPE, PARAMETER_TYPE> {
 
 	BEAN_TYPE execute(BEAN_TYPE data, PARAMETER_TYPE parameter, IExecutionCallback executionCallback);
 

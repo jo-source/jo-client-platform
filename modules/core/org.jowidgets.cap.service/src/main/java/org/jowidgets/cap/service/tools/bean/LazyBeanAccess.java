@@ -48,6 +48,16 @@ public final class LazyBeanAccess<BEAN_TYPE extends IBean> implements IBeanAcces
 	}
 
 	@Override
+	public Object getId(final BEAN_TYPE bean) {
+		return bean.getId();
+	}
+
+	@Override
+	public long getVersion(final BEAN_TYPE bean) {
+		return bean.getVersion();
+	}
+
+	@Override
 	public List<BEAN_TYPE> getBeans(final Collection<? extends IBeanKey> keys, final IExecutionCallback executionCallback) {
 		return beanAccessProvider.get().getBeans(keys, executionCallback);
 	}

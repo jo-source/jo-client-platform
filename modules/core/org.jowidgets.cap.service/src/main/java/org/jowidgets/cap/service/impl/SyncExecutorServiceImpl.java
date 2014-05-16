@@ -35,7 +35,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.exception.BeanValidationException;
@@ -65,7 +64,7 @@ import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.util.reflection.AnnotationCache;
 
-public final class SyncExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> implements ISyncExecutorService<PARAM_TYPE> {
+public final class SyncExecutorServiceImpl<BEAN_TYPE, PARAM_TYPE> implements ISyncExecutorService<PARAM_TYPE> {
 
 	private final IBeanAccess<BEAN_TYPE> beanAccess;
 	private final Object executor;
@@ -106,7 +105,7 @@ public final class SyncExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> 
 	}
 
 	@SuppressWarnings("unchecked")
-	private IBeanUpdateInterceptor<BEAN_TYPE> createInterceptor(final Class<? extends IBean> beanType) {
+	private IBeanUpdateInterceptor<BEAN_TYPE> createInterceptor(final Class<?> beanType) {
 		final BeanUpdateInterceptor annotation = AnnotationCache.getTypeAnnotationFromHierarchy(
 				beanType,
 				BeanUpdateInterceptor.class);
@@ -125,8 +124,7 @@ public final class SyncExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> 
 	}
 
 	@SuppressWarnings({"rawtypes", "unchecked"})
-	private Collection<IBeanUpdateInterceptorPlugin<BEAN_TYPE>> createUpdateInterceptorPlugins(
-		final Class<? extends IBean> beanType) {
+	private Collection<IBeanUpdateInterceptorPlugin<BEAN_TYPE>> createUpdateInterceptorPlugins(final Class<?> beanType) {
 		final IPluginPropertiesBuilder propBuilder = PluginToolkit.pluginPropertiesBuilder();
 		propBuilder.add(IBeanUpdateInterceptorPlugin.BEAN_TYPE_PROPERTY_KEY, beanType);
 		final List result = PluginProvider.getPlugins(IBeanUpdateInterceptorPlugin.ID, propBuilder.build());
@@ -182,7 +180,7 @@ public final class SyncExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> 
 		//put beans into map to access them faster at the next step
 		final Map<Object, BEAN_TYPE> beanMap = new HashMap<Object, BEAN_TYPE>();
 		for (final BEAN_TYPE bean : beans) {
-			beanMap.put(bean.getId(), bean);
+			beanMap.put(getId(bean), bean);
 			CapServiceToolkit.checkCanceled(executionCallback);
 		}
 
@@ -193,7 +191,7 @@ public final class SyncExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> 
 				throw new DeletedBeanException(key.getId());
 			}
 			else {
-				if (!allowStaleBeans && key.getVersion() != bean.getVersion()) {
+				if (!allowStaleBeans && key.getVersion() != getVersion(bean)) {
 					throw new StaleBeanException(key.getId());
 				}
 			}
@@ -295,7 +293,7 @@ public final class SyncExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> 
 				final Collection<IBeanValidationResult> validationResults = beanValidator.validate(bean);
 				final IBeanValidationResult worstFirst = BeanValidationResultUtil.getWorstFirst(validationResults);
 				if (worstFirst != null && !worstFirst.getValidationResult().isValid()) {
-					throw new BeanValidationException(bean.getId(), worstFirst);
+					throw new BeanValidationException(getId(bean), worstFirst);
 				}
 			}
 		}
@@ -305,10 +303,9 @@ public final class SyncExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> 
 		for (final BEAN_TYPE bean : beans) {
 			final IExecutableState executableState = executableChecker.getExecutableState(bean);
 			if (!executableState.isExecutable()) {
-				throw new ExecutableCheckException(
-					bean.getId(),
-					"Executable check could not pass on service execution for bean '" + bean + "'",
-					executableState.getReason());
+				throw new ExecutableCheckException(getId(bean), "Executable check could not pass on service execution for bean '"
+					+ bean
+					+ "'", executableState.getReason());
 			}
 			CapServiceToolkit.checkCanceled(executionCallback);
 		}
@@ -317,10 +314,18 @@ public final class SyncExecutorServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE> 
 	private void checkExecutableState(final BEAN_TYPE bean, final IExecutionCallback executionCallback) {
 		final IExecutableState executableState = executableChecker.getExecutableState(bean);
 		if (!executableState.isExecutable()) {
-			throw new ExecutableCheckException(bean.getId(), "Executable check could not pass on service execution for bean '"
+			throw new ExecutableCheckException(getId(bean), "Executable check could not pass on service execution for bean '"
 				+ bean
 				+ "'", executableState.getReason());
 		}
+	}
+
+	private Object getId(final BEAN_TYPE bean) {
+		return beanAccess.getId(bean);
+	}
+
+	private long getVersion(final BEAN_TYPE bean) {
+		return beanAccess.getVersion(bean);
 	}
 
 }

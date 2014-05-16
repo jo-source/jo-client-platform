@@ -50,7 +50,7 @@ import org.jowidgets.plugin.api.PluginProvider;
 import org.jowidgets.plugin.api.PluginToolkit;
 import org.jowidgets.util.Assert;
 
-final class BeanInitializerImpl<BEAN_TYPE extends IBean> implements IBeanInitializer<BEAN_TYPE> {
+final class BeanInitializerImpl<BEAN_TYPE> implements IBeanInitializer<BEAN_TYPE> {
 
 	private final Map<String, Method> methods;
 	private final IPluginProperties pluginProperties;
@@ -97,15 +97,16 @@ final class BeanInitializerImpl<BEAN_TYPE extends IBean> implements IBeanInitial
 		return builder.build();
 	}
 
+	@SuppressWarnings({"rawtypes", "unchecked"})
 	@Override
 	public void initialize(final BEAN_TYPE bean, final IBeanData beanData) {
 		Assert.paramNotNull(bean, "bean");
 		Assert.paramNotNull(beanData, "beanData");
 
 		//plugin before invocation
-		final List<IBeanInitializerPlugin<IBean>> plugins;
+		final List<IBeanInitializerPlugin<?>> plugins;
 		plugins = PluginProvider.getPlugins(IBeanInitializerPlugin.ID, pluginProperties);
-		for (final IBeanInitializerPlugin<IBean> plugin : plugins) {
+		for (final IBeanInitializerPlugin plugin : plugins) {
 			plugin.beforeInitialize(bean, beanData);
 		}
 
@@ -120,7 +121,7 @@ final class BeanInitializerImpl<BEAN_TYPE extends IBean> implements IBeanInitial
 		}
 
 		//plugin after invocation
-		for (final IBeanInitializerPlugin<IBean> plugin : plugins) {
+		for (final IBeanInitializerPlugin plugin : plugins) {
 			plugin.afterInitialize(bean, beanData);
 		}
 	}

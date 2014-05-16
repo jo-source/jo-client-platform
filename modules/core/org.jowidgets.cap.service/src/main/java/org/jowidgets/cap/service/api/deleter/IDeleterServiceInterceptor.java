@@ -28,10 +28,9 @@
 
 package org.jowidgets.cap.service.api.deleter;
 
-import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 
-public interface IDeleterServiceInterceptor<BEAN_TYPE extends IBean> {
+public interface IDeleterServiceInterceptor<BEAN_TYPE> {
 
 	void beforeDelete(BEAN_TYPE bean, IExecutionCallback executionCallback);
 

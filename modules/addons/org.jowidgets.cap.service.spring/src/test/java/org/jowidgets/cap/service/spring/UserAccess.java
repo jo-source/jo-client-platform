@@ -55,6 +55,16 @@ public class UserAccess implements IBeanAccess<User>, IBeanAccessProvider {
 	}
 
 	@Override
+	public Object getId(final User bean) {
+		return bean.getId();
+	}
+
+	@Override
+	public long getVersion(final User bean) {
+		return bean.getVersion();
+	}
+
+	@Override
 	public Class<User> getBeanType() {
 		return User.class;
 	}

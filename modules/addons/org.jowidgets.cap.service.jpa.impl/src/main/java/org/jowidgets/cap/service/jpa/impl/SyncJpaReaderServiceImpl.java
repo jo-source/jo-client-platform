@@ -49,9 +49,10 @@ import org.jowidgets.util.Assert;
 final class SyncJpaReaderServiceImpl<PARAM_TYPE> implements ISyncReaderService<PARAM_TYPE> {
 
 	private final IQueryCreator<PARAM_TYPE> queryCreator;
-	private final IBeanDtoFactory<?> beanFactory;
+	private final IBeanDtoFactory<IBean> beanFactory;
 
-	SyncJpaReaderServiceImpl(final IQueryCreator<PARAM_TYPE> queryCreator, final IBeanDtoFactory<?> beanFactory) {
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	SyncJpaReaderServiceImpl(final IQueryCreator<PARAM_TYPE> queryCreator, final IBeanDtoFactory beanFactory) {
 		Assert.paramNotNull(queryCreator, "queryCreator");
 		Assert.paramNotNull(beanFactory, "beanFactory");
 		this.queryCreator = queryCreator;

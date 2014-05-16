@@ -33,7 +33,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.CapCommonToolkit;
-import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
@@ -54,7 +53,7 @@ import org.jowidgets.util.EmptyCheck;
  * 
  * Remark: This implementation was not designed for production use
  */
-public abstract class AbstractSimpleReaderService<BEAN_TYPE extends IBean, PARAM_TYPE> implements ISyncReaderService<PARAM_TYPE> {
+public abstract class AbstractSimpleReaderService<BEAN_TYPE, PARAM_TYPE> implements ISyncReaderService<PARAM_TYPE> {
 
 	private final IBeanDtoFactory<? extends BEAN_TYPE> beanFactory;
 	private final Collection<IFilter> additionalFilters;

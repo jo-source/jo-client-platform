@@ -30,7 +30,6 @@ package org.jowidgets.cap.service.api.updater;
 
 import java.util.Collection;
 
-import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.service.IUpdaterService;
 import org.jowidgets.cap.common.api.validation.IBeanValidator;
@@ -39,7 +38,7 @@ import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.api.bean.IBeanModifier;
 import org.jowidgets.validation.IValidator;
 
-public interface IUpdaterServiceBuilder<BEAN_TYPE extends IBean> {
+public interface IUpdaterServiceBuilder<BEAN_TYPE> {
 
 	IUpdaterServiceBuilder<BEAN_TYPE> addBeanValidator(IBeanValidator<? extends BEAN_TYPE> validator);
 

@@ -46,26 +46,36 @@ import org.jowidgets.cap.common.api.bean.IBeanDtoBuilder;
 import org.jowidgets.cap.service.api.bean.BeanDtoFactoryInterceptor;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactoryInterceptor;
+import org.jowidgets.cap.service.api.bean.IBeanIdentityResolver;
 import org.jowidgets.cap.service.api.plugin.IBeanDtoFactoryPlugin;
+import org.jowidgets.cap.service.tools.bean.DefaultBeanIdentityResolver;
 import org.jowidgets.plugin.api.IPluginPropertiesBuilder;
 import org.jowidgets.plugin.api.PluginProvider;
 import org.jowidgets.plugin.api.PluginToolkit;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.reflection.AnnotationCache;
 
-final class BeanDtoFactoryImpl<BEAN_TYPE extends IBean> implements IBeanDtoFactory<BEAN_TYPE> {
+final class BeanDtoFactoryImpl<BEAN_TYPE> implements IBeanDtoFactory<BEAN_TYPE> {
 
-	private final Class<? extends IBean> beanType;
+	private final IBeanIdentityResolver<BEAN_TYPE> identityResolver;
+	private final Class<?> beanType;
 	private final Map<String, Method> methods;
 	private final IBeanDtoFactoryInterceptor<BEAN_TYPE> interceptor;
 	private final List<IBeanDtoFactoryPlugin<BEAN_TYPE>> interceptorPlugins;
 
+	@SuppressWarnings({"unchecked", "rawtypes"})
 	BeanDtoFactoryImpl(final Class<? extends IBean> beanType, final Collection<String> propertyNames) {
+		this(new DefaultBeanIdentityResolver(beanType), propertyNames);
+	}
 
-		Assert.paramNotNull(beanType, "beanType");
+	@SuppressWarnings("unchecked")
+	BeanDtoFactoryImpl(final IBeanIdentityResolver<? extends BEAN_TYPE> identityResolver, final Collection<String> propertyNames) {
+
+		Assert.paramNotNull(identityResolver, "identityResolver");
 		Assert.paramNotNull(propertyNames, "propertyNames");
 
-		this.beanType = beanType;
+		this.identityResolver = (IBeanIdentityResolver<BEAN_TYPE>) identityResolver;
+		this.beanType = identityResolver.getBeanType();
 		this.methods = new HashMap<String, Method>();
 		this.interceptor = createInterceptor(beanType);
 		this.interceptorPlugins = createInterceptorPlugins(beanType);
@@ -86,7 +96,7 @@ final class BeanDtoFactoryImpl<BEAN_TYPE extends IBean> implements IBeanDtoFacto
 	}
 
 	@SuppressWarnings("unchecked")
-	private IBeanDtoFactoryInterceptor<BEAN_TYPE> createInterceptor(final Class<? extends IBean> beanType) {
+	private IBeanDtoFactoryInterceptor<BEAN_TYPE> createInterceptor(final Class<?> beanType) {
 		final BeanDtoFactoryInterceptor factoryInterceptorAnnotaion = AnnotationCache.getTypeAnnotationFromHierarchy(
 				beanType,
 				BeanDtoFactoryInterceptor.class);
@@ -105,7 +115,7 @@ final class BeanDtoFactoryImpl<BEAN_TYPE extends IBean> implements IBeanDtoFacto
 	}
 
 	@SuppressWarnings({"rawtypes", "unchecked"})
-	private List<IBeanDtoFactoryPlugin<BEAN_TYPE>> createInterceptorPlugins(final Class<? extends IBean> beanType) {
+	private List<IBeanDtoFactoryPlugin<BEAN_TYPE>> createInterceptorPlugins(final Class<?> beanType) {
 		final IPluginPropertiesBuilder propBuilder = PluginToolkit.pluginPropertiesBuilder();
 		propBuilder.add(IBeanDtoFactoryPlugin.BEAN_TYPE_PROPERTY_KEY, beanType);
 		final List result = PluginProvider.getPlugins(IBeanDtoFactoryPlugin.ID, propBuilder.build());
@@ -127,8 +137,8 @@ final class BeanDtoFactoryImpl<BEAN_TYPE extends IBean> implements IBeanDtoFacto
 			plugin.beforeCreate(bean, builder);
 		}
 
-		builder.setId(bean.getId());
-		builder.setVersion(bean.getVersion());
+		builder.setId(identityResolver.getId(bean));
+		builder.setVersion(identityResolver.getVersion(bean));
 		for (final Entry<String, Method> methodEntry : methods.entrySet()) {
 			try {
 				builder.setValue(methodEntry.getKey(), methodEntry.getValue().invoke(bean));

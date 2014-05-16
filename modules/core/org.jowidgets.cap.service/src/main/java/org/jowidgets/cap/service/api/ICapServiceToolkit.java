@@ -39,6 +39,7 @@ import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.bean.IBeanDtoCollectionFilter;
 import org.jowidgets.cap.service.api.bean.IBeanDtoCollectionSorter;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
+import org.jowidgets.cap.service.api.bean.IBeanIdentityResolver;
 import org.jowidgets.cap.service.api.bean.IBeanInitializer;
 import org.jowidgets.cap.service.api.bean.IBeanModifier;
 import org.jowidgets.cap.service.api.bean.IBeanPropertyMap;
@@ -77,13 +78,15 @@ public interface ICapServiceToolkit {
 		Class<? extends BEAN_TYPE> beanType,
 		Collection<String> propertyNames);
 
+	<BEAN_TYPE> IBeanDtoFactory<BEAN_TYPE> dtoFactory(
+		IBeanIdentityResolver<? extends BEAN_TYPE> identityResolver,
+		Collection<String> propertyNames);
+
 	IBeanDtoCollectionSorter beanDtoCollectionSorter();
 
 	IBeanDtoCollectionFilter beanDtoCollectionFilter();
 
-	<BEAN_TYPE extends IBean> IBeanInitializer<BEAN_TYPE> beanInitializer(
-		Class<? extends BEAN_TYPE> beanType,
-		Collection<String> propertyNames);
+	<BEAN_TYPE> IBeanInitializer<BEAN_TYPE> beanInitializer(Class<? extends BEAN_TYPE> beanType, Collection<String> propertyNames);
 
 	<BEAN_TYPE extends IBean> IBeanModifier<BEAN_TYPE> beanModifier(
 		Class<? extends BEAN_TYPE> beanType,
@@ -101,7 +104,7 @@ public interface ICapServiceToolkit {
 
 	IDecoratorProviderFactory serviceDecoratorProvider();
 
-	<BEAN_TYPE extends IBean, PARAM_TYPE> IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> executorServiceBuilder(
+	<BEAN_TYPE, PARAM_TYPE> IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> executorServiceBuilder(
 		IBeanAccess<? extends BEAN_TYPE> beanAccess);
 
 	<BEAN_TYPE extends IBean> IUpdaterServiceBuilder<BEAN_TYPE> updaterServiceBuilder(IBeanAccess<? extends BEAN_TYPE> beanAccess);

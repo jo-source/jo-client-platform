@@ -48,16 +48,19 @@ import org.jowidgets.cap.service.api.adapter.ISyncCreatorService;
 import org.jowidgets.cap.service.api.bean.BeanCreateInterceptor;
 import org.jowidgets.cap.service.api.bean.IBeanCreateInterceptor;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
+import org.jowidgets.cap.service.api.bean.IBeanIdentityResolver;
 import org.jowidgets.cap.service.api.bean.IBeanInitializer;
 import org.jowidgets.cap.service.api.plugin.IBeanCreateInterceptorPlugin;
+import org.jowidgets.cap.service.tools.bean.DefaultBeanIdentityResolver;
 import org.jowidgets.plugin.api.IPluginPropertiesBuilder;
 import org.jowidgets.plugin.api.PluginProvider;
 import org.jowidgets.plugin.api.PluginToolkit;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.reflection.AnnotationCache;
 
-public abstract class AbstractSyncCreatorServiceImpl<BEAN_TYPE extends IBean> implements ISyncCreatorService {
+public abstract class AbstractSyncCreatorServiceImpl<BEAN_TYPE> implements ISyncCreatorService {
 
+	private final IBeanIdentityResolver<BEAN_TYPE> beanIdentityResolver;
 	private final Class<? extends BEAN_TYPE> beanType;
 	private final IBeanDtoFactory<BEAN_TYPE> dtoFactory;
 	private final IBeanInitializer<BEAN_TYPE> beanInitializer;
@@ -68,24 +71,35 @@ public abstract class AbstractSyncCreatorServiceImpl<BEAN_TYPE extends IBean> im
 	private final Collection<IBeanCreateInterceptorPlugin<BEAN_TYPE>> interceptorPlugins;
 
 	protected AbstractSyncCreatorServiceImpl(
-		final Class<? extends BEAN_TYPE> beanType,
+		final Class<? extends IBean> beanType,
 		final IBeanDtoFactory<BEAN_TYPE> dtoFactory,
 		final IBeanInitializer<BEAN_TYPE> beanInitializer) {
 		this(beanType, dtoFactory, beanInitializer, null, null);
 	}
 
+	@SuppressWarnings({"unchecked", "rawtypes"})
 	protected AbstractSyncCreatorServiceImpl(
-		final Class<? extends BEAN_TYPE> beanType,
+		final Class<? extends IBean> beanType,
+		final IBeanDtoFactory<BEAN_TYPE> dtoFactory,
+		final IBeanInitializer<BEAN_TYPE> beanInitializer,
+		final IExecutableChecker<BEAN_TYPE> executableChecker,
+		final IBeanValidator<BEAN_TYPE> beanValidator) {
+		this(new DefaultBeanIdentityResolver(beanType), dtoFactory, beanInitializer, executableChecker, beanValidator);
+	}
+
+	protected AbstractSyncCreatorServiceImpl(
+		final IBeanIdentityResolver<BEAN_TYPE> beanIdentityResolver,
 		final IBeanDtoFactory<BEAN_TYPE> dtoFactory,
 		final IBeanInitializer<BEAN_TYPE> beanInitializer,
 		final IExecutableChecker<BEAN_TYPE> executableChecker,
 		final IBeanValidator<BEAN_TYPE> beanValidator) {
 
-		Assert.paramNotNull(beanType, "beanType");
+		Assert.paramNotNull(beanIdentityResolver, "beanIdentityResolver");
 		Assert.paramNotNull(dtoFactory, "dtoFactory");
 		Assert.paramNotNull(beanInitializer, "beanInitializer");
 
-		this.beanType = beanType;
+		this.beanIdentityResolver = beanIdentityResolver;
+		this.beanType = beanIdentityResolver.getBeanType();
 		this.dtoFactory = dtoFactory;
 		this.beanInitializer = beanInitializer;
 		this.executableChecker = executableChecker;
@@ -103,7 +117,7 @@ public abstract class AbstractSyncCreatorServiceImpl<BEAN_TYPE extends IBean> im
 	}
 
 	@SuppressWarnings("unchecked")
-	private IBeanCreateInterceptor<BEAN_TYPE> createInterceptor(final Class<? extends IBean> beanType) {
+	private IBeanCreateInterceptor<BEAN_TYPE> createInterceptor(final Class<?> beanType) {
 		final BeanCreateInterceptor annotation = AnnotationCache.getTypeAnnotationFromHierarchy(
 				beanType,
 				BeanCreateInterceptor.class);
@@ -122,8 +136,7 @@ public abstract class AbstractSyncCreatorServiceImpl<BEAN_TYPE extends IBean> im
 	}
 
 	@SuppressWarnings({"rawtypes", "unchecked"})
-	private Collection<IBeanCreateInterceptorPlugin<BEAN_TYPE>> createUpdateInterceptorPlugins(
-		final Class<? extends IBean> beanType) {
+	private Collection<IBeanCreateInterceptorPlugin<BEAN_TYPE>> createUpdateInterceptorPlugins(final Class<?> beanType) {
 		final IPluginPropertiesBuilder propBuilder = PluginToolkit.pluginPropertiesBuilder();
 		propBuilder.add(IBeanCreateInterceptorPlugin.BEAN_TYPE_PROPERTY_KEY, beanType);
 		final List result = PluginProvider.getPlugins(IBeanCreateInterceptorPlugin.ID, propBuilder.build());
@@ -184,7 +197,7 @@ public abstract class AbstractSyncCreatorServiceImpl<BEAN_TYPE extends IBean> im
 		if (executableChecker != null) {
 			final IExecutableState checkResult = executableChecker.getExecutableState(bean);
 			if (checkResult != null && !checkResult.isExecutable()) {
-				throw new ExecutableCheckException(bean.getId(), checkResult.getReason());
+				throw new ExecutableCheckException(beanIdentityResolver.getId(bean), checkResult.getReason());
 			}
 		}
 	}
@@ -194,7 +207,7 @@ public abstract class AbstractSyncCreatorServiceImpl<BEAN_TYPE extends IBean> im
 			final Collection<IBeanValidationResult> validationResults = beanValidator.validate(bean);
 			final IBeanValidationResult worstFirst = BeanValidationResultUtil.getWorstFirst(validationResults);
 			if (worstFirst != null && !worstFirst.getValidationResult().isValid()) {
-				throw new BeanValidationException(bean.getId(), worstFirst);
+				throw new BeanValidationException(beanIdentityResolver.getId(bean), worstFirst);
 			}
 		}
 	}

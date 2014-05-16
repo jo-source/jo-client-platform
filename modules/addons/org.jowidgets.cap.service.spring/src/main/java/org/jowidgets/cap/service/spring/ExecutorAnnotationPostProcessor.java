@@ -99,7 +99,7 @@ public final class ExecutorAnnotationPostProcessor implements BeanPostProcessor,
 		try {
 			final ExecutorBean beanAnnotation = beanFactory.findAnnotationOnBean(beanName, ExecutorBean.class);
 			if (beanAnnotation != null) {
-				final IBeanAccess<?> beanAccess = beanAccessProvider.getBeanAccess(beanAnnotation.value());
+				final IBeanAccess<? extends IBean> beanAccess = beanAccessProvider.getBeanAccess(beanAnnotation.value());
 				final List<String> propertyNames = new BeanTypeUtil(beanAccess.getBeanType()).getPropertyNames();
 
 				final Set<Method> methods = getExecutorMethods(bean);

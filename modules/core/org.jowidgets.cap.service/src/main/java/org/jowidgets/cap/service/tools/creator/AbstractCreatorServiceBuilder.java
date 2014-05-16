@@ -46,13 +46,16 @@ import org.jowidgets.cap.common.tools.validation.BeanPropertyToBeanValidatorAdap
 import org.jowidgets.cap.common.tools.validation.BeanValidatorComposite;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
+import org.jowidgets.cap.service.api.bean.IBeanIdentityResolver;
 import org.jowidgets.cap.service.api.bean.IBeanInitializer;
 import org.jowidgets.cap.service.api.creator.ICreatorServiceBuilder;
+import org.jowidgets.cap.service.tools.bean.DefaultBeanIdentityResolver;
 import org.jowidgets.util.Assert;
 import org.jowidgets.validation.IValidator;
 
-public abstract class AbstractCreatorServiceBuilder<BEAN_TYPE extends IBean> implements ICreatorServiceBuilder<BEAN_TYPE> {
+public abstract class AbstractCreatorServiceBuilder<BEAN_TYPE> implements ICreatorServiceBuilder<BEAN_TYPE> {
 
+	private final IBeanIdentityResolver<BEAN_TYPE> beanIdentityResolver;
 	private final Class<? extends BEAN_TYPE> beanType;
 	private final Object beanTypeId;
 	private final List<IExecutableChecker<? extends BEAN_TYPE>> executableCheckers;
@@ -62,14 +65,21 @@ public abstract class AbstractCreatorServiceBuilder<BEAN_TYPE extends IBean> imp
 	private IBeanDtoFactory<BEAN_TYPE> beanDtoFactory;
 	private IBeanInitializer<BEAN_TYPE> beanInitializer;
 
-	public AbstractCreatorServiceBuilder(final Class<? extends BEAN_TYPE> beanType) {
+	public AbstractCreatorServiceBuilder(final Class<? extends IBean> beanType) {
 		this(beanType, beanType);
 	}
 
 	@SuppressWarnings({"rawtypes", "unchecked"})
-	public AbstractCreatorServiceBuilder(final Class<? extends BEAN_TYPE> beanType, final Object beanTypeId) {
-		this.beanType = beanType;
-		this.beanTypeId = beanTypeId;
+	public AbstractCreatorServiceBuilder(final Class<? extends IBean> beanType, final Object beanTypeId) {
+		this(new DefaultBeanIdentityResolver(beanType, beanTypeId));
+	}
+
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	public AbstractCreatorServiceBuilder(final IBeanIdentityResolver<BEAN_TYPE> beanIdentityResolver) {
+		Assert.paramNotNull(beanIdentityResolver, "beanIdentityResolver");
+		this.beanIdentityResolver = beanIdentityResolver;
+		this.beanType = beanIdentityResolver.getBeanType();
+		this.beanTypeId = beanIdentityResolver.getBeanTypeId();
 		this.executableCheckers = new LinkedList<IExecutableChecker<? extends BEAN_TYPE>>();
 		this.beanValidators = new LinkedList<IBeanValidator<BEAN_TYPE>>();
 		this.propertyValidators = new HashMap<String, List<IValidator<? extends Object>>>();
@@ -139,7 +149,7 @@ public abstract class AbstractCreatorServiceBuilder<BEAN_TYPE extends IBean> imp
 
 	@Override
 	public final ICreatorServiceBuilder<BEAN_TYPE> setBeanDtoFactoryAndBeanInitializer(final Collection<String> propertyNames) {
-		this.beanDtoFactory = CapServiceToolkit.dtoFactory(beanType, propertyNames);
+		this.beanDtoFactory = CapServiceToolkit.dtoFactory(beanIdentityResolver, propertyNames);
 		this.beanInitializer = CapServiceToolkit.beanInitializer(beanType, propertyNames);
 		return this;
 	}

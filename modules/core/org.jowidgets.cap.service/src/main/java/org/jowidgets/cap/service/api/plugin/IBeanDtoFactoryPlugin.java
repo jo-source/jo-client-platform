@@ -28,17 +28,16 @@
 
 package org.jowidgets.cap.service.api.plugin;
 
-import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactoryInterceptor;
 import org.jowidgets.plugin.api.IPluginId;
 import org.jowidgets.util.ITypedKey;
 
 //CHECKSTYLE:OFF
-public interface IBeanDtoFactoryPlugin<BEAN_TYPE extends IBean> extends IBeanDtoFactoryInterceptor<BEAN_TYPE> {
+public interface IBeanDtoFactoryPlugin<BEAN_TYPE> extends IBeanDtoFactoryInterceptor<BEAN_TYPE> {
 	//CHECKSTYLE:ON
 
-	IPluginId<IBeanDtoFactoryPlugin<IBean>> ID = new IPluginId<IBeanDtoFactoryPlugin<IBean>>() {};
+	IPluginId<IBeanDtoFactoryPlugin<?>> ID = new IPluginId<IBeanDtoFactoryPlugin<?>>() {};
 
-	ITypedKey<Class<? extends IBean>> BEAN_TYPE_PROPERTY_KEY = new ITypedKey<Class<? extends IBean>>() {};
+	ITypedKey<Class<?>> BEAN_TYPE_PROPERTY_KEY = new ITypedKey<Class<?>>() {};
 
 }
