@@ -88,9 +88,7 @@ public interface ICapServiceToolkit {
 
 	<BEAN_TYPE> IBeanInitializer<BEAN_TYPE> beanInitializer(Class<? extends BEAN_TYPE> beanType, Collection<String> propertyNames);
 
-	<BEAN_TYPE extends IBean> IBeanModifier<BEAN_TYPE> beanModifier(
-		Class<? extends BEAN_TYPE> beanType,
-		Collection<String> propertyNames);
+	<BEAN_TYPE> IBeanModifier<BEAN_TYPE> beanModifier(Class<? extends BEAN_TYPE> beanType, Collection<String> propertyNames);
 
 	IBeanPropertyMap beanPropertyMap(Object entityTypeId);
 
@@ -107,9 +105,9 @@ public interface ICapServiceToolkit {
 	<BEAN_TYPE, PARAM_TYPE> IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> executorServiceBuilder(
 		IBeanAccess<? extends BEAN_TYPE> beanAccess);
 
-	<BEAN_TYPE extends IBean> IUpdaterServiceBuilder<BEAN_TYPE> updaterServiceBuilder(IBeanAccess<? extends BEAN_TYPE> beanAccess);
+	<BEAN_TYPE> IUpdaterServiceBuilder<BEAN_TYPE> updaterServiceBuilder(IBeanAccess<? extends BEAN_TYPE> beanAccess);
 
-	<BEAN_TYPE extends IBean> IRefreshServiceBuilder<BEAN_TYPE> refreshServiceBuilder(IBeanAccess<? extends BEAN_TYPE> beanAccess);
+	<BEAN_TYPE> IRefreshServiceBuilder<BEAN_TYPE> refreshServiceBuilder(IBeanAccess<? extends BEAN_TYPE> beanAccess);
 
 	IExecutionCallback delayedExecutionCallback(
 		IExecutionCallback executionCallback,

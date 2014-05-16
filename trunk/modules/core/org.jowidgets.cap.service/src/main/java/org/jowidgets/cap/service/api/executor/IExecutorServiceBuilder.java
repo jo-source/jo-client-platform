@@ -35,6 +35,7 @@ import org.jowidgets.cap.common.api.service.IExecutorService;
 import org.jowidgets.cap.common.api.validation.IBeanValidator;
 import org.jowidgets.cap.service.api.adapter.ISyncExecutorService;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
+import org.jowidgets.cap.service.api.bean.IBeanUpdateInterceptor;
 import org.jowidgets.validation.IValidator;
 
 public interface IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> {
@@ -65,6 +66,8 @@ public interface IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> {
 	IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> addPropertyValidator(
 		String propertyName,
 		IValidator<? extends Object> validator);
+
+	IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> addUpdaterInterceptor(IBeanUpdateInterceptor<BEAN_TYPE> interceptor);
 
 	IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> setExecutableChecker(IExecutableChecker<? extends BEAN_TYPE> executableChecker);
 

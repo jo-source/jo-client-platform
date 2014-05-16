@@ -111,10 +111,10 @@ public class HashMapCrudRepository<BEAN_TYPE> implements ICrudSupportBeanReposit
 	}
 
 	@Override
-	public void preUpdate(final BEAN_TYPE bean, final IExecutionCallback executionCallback) {}
+	public void preUpdate(final BEAN_TYPE bean) {}
 
 	@Override
-	public void postUpdate(final BEAN_TYPE bean, final IExecutionCallback executionCallback) {}
+	public void postUpdate(final BEAN_TYPE bean) {}
 
 	@Override
 	public void delete(final BEAN_TYPE bean, final IExecutionCallback executionCallback) {

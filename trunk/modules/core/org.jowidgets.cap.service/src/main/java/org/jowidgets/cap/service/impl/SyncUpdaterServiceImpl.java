@@ -35,7 +35,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.bean.IBeanModification;
@@ -43,24 +42,29 @@ import org.jowidgets.cap.common.api.exception.StaleBeanException;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.service.api.adapter.ISyncExecutorService;
 import org.jowidgets.cap.service.api.adapter.ISyncUpdaterService;
+import org.jowidgets.cap.service.api.bean.IBeanIdentityResolver;
 import org.jowidgets.cap.service.api.bean.IBeanModifier;
 import org.jowidgets.cap.service.api.executor.IBeanExecutor;
 import org.jowidgets.util.Assert;
 
-public final class SyncUpdaterServiceImpl<BEAN_TYPE extends IBean> implements ISyncUpdaterService {
+public final class SyncUpdaterServiceImpl<BEAN_TYPE> implements ISyncUpdaterService {
 
 	private final ISyncExecutorService<Collection<? extends IBeanModification>> executorService;
 
+	@SuppressWarnings("rawtypes")
 	SyncUpdaterServiceImpl(
+		final IBeanIdentityResolver beanIdentityResolver,
 		final IBeanModifier<BEAN_TYPE> beanModifier,
 		final ExecutorServiceBuilderImpl<BEAN_TYPE, Collection<? extends IBeanModification>> executorServiceBuilder) {
 
+		Assert.paramNotNull(beanIdentityResolver, "beanIdentityResolver");
 		Assert.paramNotNull(beanModifier, "beanModifier");
 		Assert.paramNotNull(executorServiceBuilder, "executorServiceBuilder");
 
 		final boolean allowStaleBeans = executorServiceBuilder.isAllowStaleBeans();
 
 		executorServiceBuilder.setExecutor(new IBeanExecutor<BEAN_TYPE, Collection<? extends IBeanModification>>() {
+			@SuppressWarnings("unchecked")
 			@Override
 			public BEAN_TYPE execute(
 				final BEAN_TYPE bean,
@@ -70,7 +74,7 @@ public final class SyncUpdaterServiceImpl<BEAN_TYPE extends IBean> implements IS
 				if (!allowStaleBeans) {
 					for (final IBeanModification modification : modifications) {
 						if (!allowStaleBeans && beanModifier.isPropertyStale(bean, modification)) {
-							throw new StaleBeanException(bean.getId(), "The bean property '"
+							throw new StaleBeanException(beanIdentityResolver.getId(bean), "The bean property '"
 								+ modification.getPropertyName()
 								+ "' is stale");
 						}

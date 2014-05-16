@@ -28,25 +28,21 @@
 
 package org.jowidgets.cap.service.repository.api;
 
-import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-
 public interface IUpdateSupportBeanRepository<BEAN_TYPE> extends IBeanRepository<BEAN_TYPE> {
 
 	/**
-	 * Will be invoked before a bean will be updated (the properties was modified).
+	 * Will be invoked before a bean will be updated
 	 * 
-	 * @param executionCallback The execution callback of the request
-	 * @return The bean that will be updated
+	 * @param bean The bean to update
 	 */
-	void preUpdate(BEAN_TYPE bean, final IExecutionCallback executionCallback);
+	void preUpdate(BEAN_TYPE bean);
 
 	/**
 	 * Will be invoked after a bean was updated (the properties was modified).
 	 * The implementor may persist the beans changes when this method was invoked
 	 * 
-	 * @param executionCallback The execution callback of the request
-	 * @return The bean that was updated
+	 * @param bean The bean to update
 	 */
-	void postUpdate(BEAN_TYPE bean, final IExecutionCallback executionCallback);
+	void postUpdate(BEAN_TYPE bean);
 
 }

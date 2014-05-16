@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, grossmann
+ * Copyright (c) 2014, Michael
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -28,40 +28,60 @@
 
 package org.jowidgets.cap.service.repository.impl;
 
-import org.jowidgets.cap.common.api.service.ICreatorService;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+
+import org.jowidgets.cap.common.api.bean.IBeanKey;
+import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
-import org.jowidgets.cap.service.api.adapter.ISyncCreatorService;
-import org.jowidgets.cap.service.repository.api.ICreateSupportBeanRepository;
-import org.jowidgets.cap.service.tools.creator.AbstractCreatorServiceBuilder;
-import org.jowidgets.util.IAdapterFactory;
-import org.jowidgets.util.IDecorator;
-import org.jowidgets.util.reflection.BeanUtils;
+import org.jowidgets.cap.service.api.bean.IBeanAccess;
+import org.jowidgets.cap.service.repository.api.IBeanRepository;
+import org.jowidgets.util.Assert;
 
-class BeanRepositoryCreatorServiceBuilderImpl<BEAN_TYPE> extends AbstractCreatorServiceBuilder<BEAN_TYPE> {
+final class BeanRepositoryBeanAccess<BEAN_TYPE> implements IBeanAccess<BEAN_TYPE> {
 
-	private static final IAdapterFactory<ICreatorService, ISyncCreatorService> ADAPTER_FACTORY = CapServiceToolkit.adapterFactoryProvider().creator();
+	private final IBeanRepository<BEAN_TYPE> repository;
 
-	private final ICreateSupportBeanRepository<BEAN_TYPE> repository;
-	private final IDecorator<ICreatorService> asyncDecorator;
-
-	BeanRepositoryCreatorServiceBuilderImpl(
-		final ICreateSupportBeanRepository<BEAN_TYPE> repository,
-		final IDecorator<ICreatorService> asyncDecorator) {
-		super(repository);
+	BeanRepositoryBeanAccess(final IBeanRepository<BEAN_TYPE> repository) {
+		Assert.paramNotNull(repository, "repository");
 		this.repository = repository;
-		this.asyncDecorator = asyncDecorator;
-		setBeanDtoFactoryAndBeanInitializer(BeanUtils.getProperties(repository.getBeanType()));
 	}
 
 	@Override
-	public ICreatorService build() {
-		final ISyncCreatorService result = new SyncBeanRepositoryCreatorServiceImpl<BEAN_TYPE>(
-			repository,
-			getBeanDtoFactory(),
-			getBeanInitializer(),
-			getExecutableChecker(),
-			getBeanValidator());
-		return asyncDecorator.decorate(ADAPTER_FACTORY.createAdapter(result));
+	public Class<BEAN_TYPE> getBeanType() {
+		return repository.getBeanType();
 	}
+
+	@Override
+	public Object getBeanTypeId() {
+		return repository.getBeanTypeId();
+	}
+
+	@Override
+	public Object getId(final BEAN_TYPE bean) {
+		return repository.getId(bean);
+	}
+
+	@Override
+	public long getVersion(final BEAN_TYPE bean) {
+		return repository.getVersion(bean);
+	}
+
+	@Override
+	public List<BEAN_TYPE> getBeans(final Collection<? extends IBeanKey> keys, final IExecutionCallback executionCallback) {
+		final List<BEAN_TYPE> result = new LinkedList<BEAN_TYPE>();
+		for (final IBeanKey key : keys) {
+			final BEAN_TYPE bean = repository.find(key.getId(), executionCallback);
+			if (bean != null) {
+				result.add(bean);
+			}
+			CapServiceToolkit.checkCanceled(executionCallback);
+		}
+		return result;
+	}
+
+	@Override
+	public void flush() {}
 
 }

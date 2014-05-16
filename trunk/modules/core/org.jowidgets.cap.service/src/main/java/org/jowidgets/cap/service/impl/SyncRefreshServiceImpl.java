@@ -33,7 +33,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.exception.DeletedBeanException;
@@ -43,7 +42,7 @@ import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.tools.bean.BeanDtoFactoryHelper;
 
-public final class SyncRefreshServiceImpl<BEAN_TYPE extends IBean> implements ISyncRefreshService {
+public final class SyncRefreshServiceImpl<BEAN_TYPE> implements ISyncRefreshService {
 
 	private final IBeanAccess<BEAN_TYPE> beanAccess;
 	private final IBeanDtoFactory<BEAN_TYPE> dtoFactory;
@@ -80,10 +79,10 @@ public final class SyncRefreshServiceImpl<BEAN_TYPE extends IBean> implements IS
 		}
 
 		//check if beans are deleted or stale
-		for (final IBean bean : beans) {
-			final IBeanKey key = beanMap.get(bean.getId());
+		for (final BEAN_TYPE bean : beans) {
+			final IBeanKey key = beanMap.get(beanAccess.getId(bean));
 			if (!allowDeletedBeans && key == null) {
-				throw new DeletedBeanException(bean.getId());
+				throw new DeletedBeanException(beanAccess.getId(bean));
 			}
 		}
 	}

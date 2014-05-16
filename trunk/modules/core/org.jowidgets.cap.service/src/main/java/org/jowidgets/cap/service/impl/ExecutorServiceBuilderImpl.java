@@ -50,6 +50,7 @@ import org.jowidgets.cap.service.api.adapter.IAdapterFactoryProvider;
 import org.jowidgets.cap.service.api.adapter.ISyncExecutorService;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
+import org.jowidgets.cap.service.api.bean.IBeanUpdateInterceptor;
 import org.jowidgets.cap.service.api.executor.IBeanExecutor;
 import org.jowidgets.cap.service.api.executor.IBeanListExecutor;
 import org.jowidgets.cap.service.api.executor.IExecutorServiceBuilder;
@@ -63,6 +64,7 @@ final class ExecutorServiceBuilderImpl<BEAN_TYPE, PARAM_TYPE> implements IExecut
 	private final IBeanAccess<? extends BEAN_TYPE> beanAccess;
 	private final List<IExecutableChecker<? extends BEAN_TYPE>> executableCheckers;
 	private final List<IBeanValidator<BEAN_TYPE>> beanValidators;
+	private final List<IBeanUpdateInterceptor<BEAN_TYPE>> updateInterceptors;
 	private final Map<String, Collection<IValidator<? extends Object>>> propertyValidators;
 
 	private Object executor;
@@ -78,6 +80,7 @@ final class ExecutorServiceBuilderImpl<BEAN_TYPE, PARAM_TYPE> implements IExecut
 		this.executableCheckers = new LinkedList<IExecutableChecker<? extends BEAN_TYPE>>();
 		this.beanValidators = new LinkedList<IBeanValidator<BEAN_TYPE>>();
 		this.propertyValidators = new HashMap<String, Collection<IValidator<? extends Object>>>();
+		this.updateInterceptors = new LinkedList<IBeanUpdateInterceptor<BEAN_TYPE>>();
 
 		this.beanType = beanAccess.getBeanType();
 		this.beanAccess = beanAccess;
@@ -102,6 +105,14 @@ final class ExecutorServiceBuilderImpl<BEAN_TYPE, PARAM_TYPE> implements IExecut
 	public IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> setExecutor(
 		final IBeanListExecutor<? extends BEAN_TYPE, ? extends PARAM_TYPE> beanListExecutor) {
 		this.executor = beanListExecutor;
+		return this;
+	}
+
+	@Override
+	public IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> addUpdaterInterceptor(
+		final IBeanUpdateInterceptor<BEAN_TYPE> interceptor) {
+		Assert.paramNotNull(interceptor, "interceptor");
+		updateInterceptors.add(interceptor);
 		return this;
 	}
 
@@ -253,6 +264,7 @@ final class ExecutorServiceBuilderImpl<BEAN_TYPE, PARAM_TYPE> implements IExecut
 			getBeanValidator(),
 			getBeanDtoFactory(),
 			allowDeletedBeans,
-			allowStaleBeans);
+			allowStaleBeans,
+			updateInterceptors);
 	}
 }

@@ -28,40 +28,45 @@
 
 package org.jowidgets.cap.service.repository.impl;
 
-import org.jowidgets.cap.common.api.service.ICreatorService;
+import org.jowidgets.cap.common.api.service.IDeleterService;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
-import org.jowidgets.cap.service.api.adapter.ISyncCreatorService;
-import org.jowidgets.cap.service.repository.api.ICreateSupportBeanRepository;
-import org.jowidgets.cap.service.tools.creator.AbstractCreatorServiceBuilder;
+import org.jowidgets.cap.service.api.adapter.ISyncDeleterService;
+import org.jowidgets.cap.service.api.bean.IBeanAccess;
+import org.jowidgets.cap.service.repository.api.IDeleteSupportBeanRepository;
+import org.jowidgets.cap.service.tools.deleter.AbstractDeleterServiceBuilder;
 import org.jowidgets.util.IAdapterFactory;
 import org.jowidgets.util.IDecorator;
-import org.jowidgets.util.reflection.BeanUtils;
 
-class BeanRepositoryCreatorServiceBuilderImpl<BEAN_TYPE> extends AbstractCreatorServiceBuilder<BEAN_TYPE> {
+final class BeanRepositoryDeleterServiceBuilderImpl<BEAN_TYPE> extends AbstractDeleterServiceBuilder<BEAN_TYPE> {
 
-	private static final IAdapterFactory<ICreatorService, ISyncCreatorService> ADAPTER_FACTORY = CapServiceToolkit.adapterFactoryProvider().creator();
+	private static final IAdapterFactory<IDeleterService, ISyncDeleterService> DELETER_ADAPTER_FACTORY = CapServiceToolkit.adapterFactoryProvider().deleter();
 
-	private final ICreateSupportBeanRepository<BEAN_TYPE> repository;
-	private final IDecorator<ICreatorService> asyncDecorator;
+	private final IBeanAccess<BEAN_TYPE> beanAccess;
+	private final IDeleteSupportBeanRepository<BEAN_TYPE> repository;
+	private final IDecorator<IDeleterService> asyncDecorator;
 
-	BeanRepositoryCreatorServiceBuilderImpl(
-		final ICreateSupportBeanRepository<BEAN_TYPE> repository,
-		final IDecorator<ICreatorService> asyncDecorator) {
-		super(repository);
+	BeanRepositoryDeleterServiceBuilderImpl(
+		final IBeanAccess<BEAN_TYPE> beanAccess,
+		final IDeleteSupportBeanRepository<BEAN_TYPE> repository,
+		final IDecorator<IDeleterService> asyncDecorator) {
+
+		this.beanAccess = beanAccess;
 		this.repository = repository;
 		this.asyncDecorator = asyncDecorator;
-		setBeanDtoFactoryAndBeanInitializer(BeanUtils.getProperties(repository.getBeanType()));
 	}
 
 	@Override
-	public ICreatorService build() {
-		final ISyncCreatorService result = new SyncBeanRepositoryCreatorServiceImpl<BEAN_TYPE>(
-			repository,
-			getBeanDtoFactory(),
-			getBeanInitializer(),
-			getExecutableChecker(),
-			getBeanValidator());
-		return asyncDecorator.decorate(ADAPTER_FACTORY.createAdapter(result));
+	public IDeleterService build() {
+		return asyncDecorator.decorate(DELETER_ADAPTER_FACTORY.createAdapter(buildSyncService()));
 	}
 
+	private ISyncDeleterService buildSyncService() {
+		return new SyncBeanRepositoryDeleterServiceImpl<BEAN_TYPE>(
+			repository,
+			beanAccess,
+			getExecutableChecker(),
+			getInterceptor(),
+			isAllowDeletedBeans(),
+			isAllowStaleBeans());
+	}
 }

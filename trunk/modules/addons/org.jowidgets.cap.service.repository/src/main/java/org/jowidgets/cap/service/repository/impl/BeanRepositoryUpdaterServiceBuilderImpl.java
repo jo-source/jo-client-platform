@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2014, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,44 +26,62 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.impl;
+package org.jowidgets.cap.service.repository.impl;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
-import org.jowidgets.cap.common.api.bean.IBeanModification;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.service.IUpdaterService;
 import org.jowidgets.cap.common.api.validation.IBeanValidator;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
-import org.jowidgets.cap.service.api.adapter.IAdapterFactoryProvider;
 import org.jowidgets.cap.service.api.adapter.ISyncUpdaterService;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.api.bean.IBeanModifier;
 import org.jowidgets.cap.service.api.bean.IBeanUpdateInterceptor;
 import org.jowidgets.cap.service.api.updater.IUpdaterServiceBuilder;
-import org.jowidgets.util.Assert;
-import org.jowidgets.util.IAdapterFactory;
+import org.jowidgets.cap.service.repository.api.IUpdateSupportBeanRepository;
+import org.jowidgets.util.IDecorator;
 import org.jowidgets.validation.IValidator;
 
-final class UpdaterServiceBuilderImpl<BEAN_TYPE> implements IUpdaterServiceBuilder<BEAN_TYPE> {
+final class BeanRepositoryUpdaterServiceBuilderImpl<BEAN_TYPE> implements IUpdaterServiceBuilder<BEAN_TYPE> {
 
-	private final ExecutorServiceBuilderImpl<BEAN_TYPE, Collection<? extends IBeanModification>> dataExecutorServiceBuilder;
-	private final IBeanAccess<? extends BEAN_TYPE> beanAccess;
+	private final IUpdaterServiceBuilder<BEAN_TYPE> builder;
+	private final IDecorator<IUpdaterService> asyncDecorator;
 
-	private IBeanModifier<BEAN_TYPE> beanModifier;
+	BeanRepositoryUpdaterServiceBuilderImpl(
+		final IUpdateSupportBeanRepository<BEAN_TYPE> repository,
+		final IBeanAccess<BEAN_TYPE> beanAccess,
+		final List<String> allProperties,
+		final IDecorator<IUpdaterService> asyncDecorator) {
 
-	UpdaterServiceBuilderImpl(final IBeanAccess<? extends BEAN_TYPE> beanAccess) {
-		this.beanAccess = beanAccess;
-		this.dataExecutorServiceBuilder = new ExecutorServiceBuilderImpl<BEAN_TYPE, Collection<? extends IBeanModification>>(
-			beanAccess);
+		this.asyncDecorator = asyncDecorator;
+
+		this.builder = CapServiceToolkit.updaterServiceBuilder(beanAccess);
+		this.builder.setBeanDtoFactoryAndBeanModifier(allProperties);
+		this.builder.addUpdaterInterceptor(new IBeanUpdateInterceptor<BEAN_TYPE>() {
+			@Override
+			public void beforeUpdate(final BEAN_TYPE bean) {
+				repository.preUpdate(bean);
+			}
+
+			@Override
+			public void afterUpdate(final BEAN_TYPE bean) {
+				repository.postUpdate(bean);
+			}
+		});
+	}
+
+	@Override
+	public IUpdaterServiceBuilder<BEAN_TYPE> addUpdaterInterceptor(final IBeanUpdateInterceptor<BEAN_TYPE> interceptor) {
+		builder.addUpdaterInterceptor(interceptor);
+		return this;
 	}
 
 	@Override
 	public IUpdaterServiceBuilder<BEAN_TYPE> addBeanValidator(final IBeanValidator<? extends BEAN_TYPE> validator) {
-		dataExecutorServiceBuilder.addBeanValidator(validator);
+		builder.addBeanValidator(validator);
 		return this;
 	}
 
@@ -71,79 +89,60 @@ final class UpdaterServiceBuilderImpl<BEAN_TYPE> implements IUpdaterServiceBuild
 	public IUpdaterServiceBuilder<BEAN_TYPE> addPropertyValidator(
 		final String propertyName,
 		final IValidator<? extends Object> validator) {
-		dataExecutorServiceBuilder.addPropertyValidator(propertyName, validator);
-		return this;
-	}
-
-	@Override
-	public IUpdaterServiceBuilder<BEAN_TYPE> addUpdaterInterceptor(final IBeanUpdateInterceptor<BEAN_TYPE> interceptor) {
-		dataExecutorServiceBuilder.addUpdaterInterceptor(interceptor);
+		builder.addPropertyValidator(propertyName, validator);
 		return this;
 	}
 
 	@Override
 	public IUpdaterServiceBuilder<BEAN_TYPE> addExecutableChecker(final IExecutableChecker<? extends BEAN_TYPE> executableChecker) {
-		dataExecutorServiceBuilder.addExecutableChecker(executableChecker);
+		builder.addExecutableChecker(executableChecker);
 		return this;
 	}
 
 	@Override
 	public IUpdaterServiceBuilder<BEAN_TYPE> setExecutableChecker(final IExecutableChecker<? extends BEAN_TYPE> executableChecker) {
-		dataExecutorServiceBuilder.setExecutableChecker(executableChecker);
+		builder.setExecutableChecker(executableChecker);
 		return this;
 	}
 
 	@Override
 	public IUpdaterServiceBuilder<BEAN_TYPE> setBeanDtoFactory(final IBeanDtoFactory<BEAN_TYPE> beanDtoFactory) {
-		dataExecutorServiceBuilder.setBeanDtoFactory(beanDtoFactory);
+		builder.setBeanDtoFactory(beanDtoFactory);
 		return this;
 	}
 
 	@Override
 	public IUpdaterServiceBuilder<BEAN_TYPE> setBeanModifier(final IBeanModifier<BEAN_TYPE> beanModifier) {
-		Assert.paramNotNull(beanModifier, "beanModifier");
-		this.beanModifier = beanModifier;
+		builder.setBeanModifier(beanModifier);
 		return this;
 	}
 
 	@Override
 	public IUpdaterServiceBuilder<BEAN_TYPE> setBeanDtoFactoryAndBeanModifier(final Collection<String> propertyNames) {
-		dataExecutorServiceBuilder.setBeanDtoFactory(propertyNames);
-		this.beanModifier = CapServiceToolkit.beanModifier(beanAccess.getBeanType(), propertyNames);
+		builder.setBeanDtoFactoryAndBeanModifier(propertyNames);
 		return this;
 	}
 
 	@Override
 	public IUpdaterServiceBuilder<BEAN_TYPE> setAllowDeletedBeans(final boolean allowDeletedBeans) {
-		dataExecutorServiceBuilder.setAllowDeletedBeans(allowDeletedBeans);
+		builder.setAllowDeletedBeans(allowDeletedBeans);
 		return this;
 	}
 
 	@Override
 	public IUpdaterServiceBuilder<BEAN_TYPE> setAllowStaleBeans(final boolean allowStaleBeans) {
-		dataExecutorServiceBuilder.setAllowStaleBeans(allowStaleBeans);
+		builder.setAllowStaleBeans(allowStaleBeans);
 		return this;
-	}
-
-	private IBeanModifier<BEAN_TYPE> getBeanModifier() {
-		if (beanModifier != null) {
-			return beanModifier;
-		}
-		else {
-			final List<String> properties = Collections.emptyList();
-			return CapServiceToolkit.beanModifier(beanAccess.getBeanType(), properties);
-		}
 	}
 
 	@Override
 	public ISyncUpdaterService buildSyncService() {
-		return new SyncUpdaterServiceImpl<BEAN_TYPE>(beanAccess, getBeanModifier(), dataExecutorServiceBuilder);
+		return builder.buildSyncService();
 	}
 
 	@Override
 	public IUpdaterService build() {
-		final IAdapterFactoryProvider afp = CapServiceToolkit.adapterFactoryProvider();
-		final IAdapterFactory<IUpdaterService, ISyncUpdaterService> adapterFactory = afp.updater();
-		return adapterFactory.createAdapter(buildSyncService());
+		return asyncDecorator.decorate(builder.build());
 	}
+
 }
