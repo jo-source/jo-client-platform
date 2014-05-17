@@ -170,7 +170,7 @@ final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 			if (bean != null && bean.isTransient()) {
 				transientBeans.add(bean);
 			}
-			else if (bean != null && !bean.isDummy()) {
+			else if (bean != null && !bean.isDummy() && !bean.isLastRowDummy()) {
 				bean.setExecutionTask(executionTask);
 				beanKeys.add(beanKeyFactory.createKey(bean));
 				beans.add(bean);

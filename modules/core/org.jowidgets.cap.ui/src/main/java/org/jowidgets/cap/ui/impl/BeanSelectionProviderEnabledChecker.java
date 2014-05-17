@@ -212,6 +212,9 @@ final class BeanSelectionProviderEnabledChecker<BEAN_TYPE> extends ChangeObserva
 				if (bean == null) {
 					return UNLOADED_DATA_STATE.get();
 				}
+				if (bean.isDummy() || bean.isLastRowDummy()) {
+					return EnabledState.DISABLED;
+				}
 				final IBeanMessage worstMessage = bean.getFirstWorstMessage();
 				final IBeanMessage worstMandatoryMessage = bean.getFirstWorstMandatoryMessage();
 				if (bean.getExecutionTask() != null) {

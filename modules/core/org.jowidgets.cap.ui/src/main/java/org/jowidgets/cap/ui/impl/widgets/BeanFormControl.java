@@ -495,7 +495,7 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 
 	@Override
 	public boolean hasModifications() {
-		if (bean != null && bean.hasModifications() && !bean.isDummy()) {
+		if (bean != null && bean.hasModifications() && !bean.isDummy() && !bean.isLastRowDummy()) {
 			return true;
 		}
 		for (final IInputControl<Object> control : controls.values()) {

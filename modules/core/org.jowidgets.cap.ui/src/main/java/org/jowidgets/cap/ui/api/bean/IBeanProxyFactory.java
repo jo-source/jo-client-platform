@@ -47,6 +47,8 @@ public interface IBeanProxyFactory<BEAN_TYPE> {
 
 	IBeanProxy<BEAN_TYPE> createTransientProxy(Collection<? extends IAttribute<?>> attributes, Map<String, Object> defaultValues);
 
+	IBeanProxy<BEAN_TYPE> createLastRowDummyProxy(Collection<? extends IAttribute<?>> attributes);
+
 	IBeanProxy<BEAN_TYPE> createDummyProxy(Collection<? extends IAttribute<?>> attributes);
 
 }

@@ -82,7 +82,10 @@ final class BeanListExecutionHelper<BEAN_TYPE> {
 			final List<IBeanProxy<BEAN_TYPE>> subList = new LinkedList<IBeanProxy<BEAN_TYPE>>();
 			result.add(subList);
 			for (final IBeanProxy<BEAN_TYPE> bean : beans) {
-				if (bean.getExecutionTask() == null && !bean.isDummy() && (allowTransient || !bean.isTransient())) {
+				if (bean.getExecutionTask() == null
+					&& !bean.isDummy()
+					&& !bean.isLastRowDummy()
+					&& (allowTransient || !bean.isTransient())) {
 					bean.setExecutionTask(executionTask);
 					subList.add(bean);
 				}

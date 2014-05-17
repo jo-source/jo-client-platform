@@ -67,6 +67,7 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> extends
 	private boolean autoRowCount;
 	private boolean autoSelection;
 	private boolean clearOnEmptyFilter;
+	private boolean lastBeanEnabled;
 	private Boolean clearOnEmptyParentBeans;
 	private int pageSize;
 
@@ -81,6 +82,7 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> extends
 		this.autoRowCount = true;
 		this.autoSelection = true;
 		this.clearOnEmptyFilter = false;
+		this.lastBeanEnabled = false;
 		this.sortModelConfig = new SortModelConfigImpl();
 		this.pageSize = DEFAULT_PAGE_SIZE;
 
@@ -195,6 +197,12 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> extends
 		return this;
 	}
 
+	@Override
+	public IBeanTableModelBuilder<BEAN_TYPE> setLastBeanEnabled(final boolean lastBeanEnabled) {
+		this.lastBeanEnabled = lastBeanEnabled;
+		return this;
+	}
+
 	private String getEntityLabelSingular() {
 		if (EmptyCheck.isEmpty(entityLabelSingular)) {
 			entityLabelSingular = Messages.getString("BeanTableModelBuilderImpl.dataset");
@@ -256,6 +264,7 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> extends
 			autoRefreshSelection,
 			clearOnEmptyFilter,
 			getClearOnEmptyParentBeans(),
+			lastBeanEnabled,
 			pageSize,
 			getBeanProxyContext(),
 			cellRenderers);

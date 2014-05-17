@@ -123,6 +123,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 	private Map<String, IAttribute<Object>> lazyAttributesMap;
 	private IExecutionTask executionTask;
 	private boolean isTransient;
+	private boolean isLastRowDummy;
 	private String lastProgress;
 	private IBeanDto beanDto;
 	private BEAN_TYPE proxy;
@@ -136,7 +137,8 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 		final Class<? extends BEAN_TYPE> beanType,
 		final Collection<? extends IAttribute<?>> attributes,
 		final boolean isDummy,
-		final boolean isTransient) {
+		final boolean isTransient,
+		final boolean isLastRowDummy) {
 		Assert.paramNotNull(beanDto, "beanDto");
 		Assert.paramNotNull(beanTypeId, "beanTypeId");
 		Assert.paramNotNull(beanType, "beanType");
@@ -153,6 +155,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 		this.beanTypeId = beanTypeId;
 		this.beanType = beanType;
 		this.isDummy = isDummy;
+		this.isLastRowDummy = isLastRowDummy;
 		this.isTransient = isTransient;
 		this.modifications = new HashMap<String, IBeanModification>();
 		this.customProperties = new HashMap<ITypedKey<? extends Object>, Object>();
@@ -209,7 +212,8 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 			beanType,
 			attributes,
 			isDummy,
-			isTransient);
+			isTransient,
+			isLastRowDummy);
 		for (final IBeanModification modification : modifications.values()) {
 			result.setValue(modification.getPropertyName(), modification.getNewValue());
 		}
@@ -237,7 +241,8 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 			beanType,
 			attributes,
 			isDummy,
-			isTransient);
+			isTransient,
+			isLastRowDummy);
 		setValidators(result);
 
 		return result;
@@ -1015,6 +1020,19 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 	public boolean isDummy() {
 		checkDisposed();
 		return isDummy;
+	}
+
+	@Override
+	public boolean isLastRowDummy() {
+		checkDisposed();
+		return isLastRowDummy;
+	}
+
+	@Override
+	public void clearLastRowDummyState() {
+		checkDisposed();
+		isLastRowDummy = false;
+		fireValidationConditionsChanged();
 	}
 
 	@Override
