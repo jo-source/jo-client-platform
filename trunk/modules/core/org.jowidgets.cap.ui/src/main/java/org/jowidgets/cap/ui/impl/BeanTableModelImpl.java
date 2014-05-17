@@ -149,6 +149,7 @@ import org.jowidgets.util.CollectionUtils;
 import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.util.IProvider;
 import org.jowidgets.util.NullCompatibleEquivalence;
+import org.jowidgets.util.ValueHolder;
 import org.jowidgets.util.concurrent.DaemonThreadFactory;
 import org.jowidgets.util.event.ChangeObservable;
 import org.jowidgets.util.event.IChangeListener;
@@ -225,6 +226,8 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 	private final IBeanExceptionConverter exceptionConverter;
 
+	private IBeanProxy<BEAN_TYPE> lastBean;
+
 	private ScheduledExecutorService scheduledExecutorService;
 	private PageLoader evenPageLoader;
 	private PageLoader oddPageLoader;
@@ -267,6 +270,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		final boolean autoRefreshSelection,
 		final boolean clearOnEmptyFilter,
 		final boolean clearOnEmptyParentBeans,
+		final boolean lastBeanEnabled,
 		final int pageSize,
 		final IBeanProxyContext beanProxyContext,
 		final List<IBeanTableCellRenderer<BEAN_TYPE>> cellRenderers) {
@@ -405,6 +409,57 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 				fireBeansChanged();
 			}
 		});
+
+		setLastBeanEnabled(lastBeanEnabled);
+	}
+
+	@Override
+	public void setLastBeanEnabled(final boolean lastBeanEnabled) {
+		if (lastBeanEnabled) {
+			addLastBean();
+		}
+		else {
+			removeLastBean();
+		}
+	}
+
+	private void addLastBean() {
+		if (lastBean == null) {
+			lastBean = beanProxyFactory.createLastRowDummyProxy(attributes);
+			for (final IBeanPropertyValidator<BEAN_TYPE> validator : beanPropertyValidators) {
+				lastBean.addBeanPropertyValidator(validator);
+			}
+			final ValueHolder<PropertyChangeListener> listenerHolder = new ValueHolder<PropertyChangeListener>();
+			final PropertyChangeListener listener = new PropertyChangeListener() {
+				@Override
+				public void propertyChange(final PropertyChangeEvent evt) {
+					if (lastBean.hasModifications()) {
+						lastBean.removePropertyChangeListener(listenerHolder.get());
+						for (final Entry<String, Object> entry : defaultValues.entrySet()) {
+							final String propertyName = entry.getKey();
+							if (!NullCompatibleEquivalence.equals(evt.getPropertyName(), propertyName)) {
+								lastBean.setValue(propertyName, entry.getValue());
+							}
+						}
+						final IBeanProxy<BEAN_TYPE> beanToAdd = lastBean;
+						addBeanImpl(beanToAdd, false);
+						beanToAdd.clearLastRowDummyState();
+						lastBean = null;
+						addLastBean();
+					}
+				}
+			};
+			listenerHolder.set(listener);
+			lastBean.addPropertyChangeListener(listener);
+			fireBeansChanged();
+		}
+	}
+
+	private void removeLastBean() {
+		if (lastBean != null) {
+			lastBean = null;
+			fireBeansChanged();
+		}
 	}
 
 	private List<IAttribute<Object>> createModifiedByPluginsAttributes(
@@ -947,6 +1002,9 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		for (final IBeanProxy<BEAN_TYPE> bean : new HashSet<IBeanProxy<BEAN_TYPE>>(beansStateTracker.getBeansToUpdate())) {
 			bean.undoModifications();
 		}
+		if (lastBean != null) {
+			lastBean.undoModifications();
+		}
 		final Set<IBeanProxy<BEAN_TYPE>> beansToCreate = beansStateTracker.getBeansToCreate();
 		if (!beansToCreate.isEmpty()) {
 			final List<IBeanProxy<BEAN_TYPE>> removedBeans = removeBeansImpl(beansToCreate, false);
@@ -1055,7 +1113,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 	private void addBeanImpl(final IBeanProxy<BEAN_TYPE> bean, final boolean fireBeansChanged) {
 		addedData.add(bean);
-		final int index = getSize() - 1;
+		final int index = dataModel.getRowCount() - dataModel.getLastBeanCount() - 1;
 		bean.addPropertyChangeListener(new PropertyChangeListener() {
 			@Override
 			public void propertyChange(final PropertyChangeEvent evt) {
@@ -1721,7 +1779,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 		@Override
 		public int getRowCount() {
-			return getDataRowCount() + addedData.size();
+			return getDataRowCount() + addedData.size() + getLastBeanCount();
 		}
 
 		private int getDataRowCount() {
@@ -1730,6 +1788,15 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			}
 			else {
 				return rowCount;
+			}
+		}
+
+		private int getLastBeanCount() {
+			if (lastBean != null) {
+				return 1;
+			}
+			else {
+				return 0;
 			}
 		}
 
@@ -1752,7 +1819,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 				if (bean == null) {
 					//TODO MG this should not happen, if happens the the addedData array might be fixed
 					//CHECKSTYLE:OFF
-					System.out.println("Uup's, added data might be inconsistent");
+					System.out.println("Uup's, added data might be inconsistent" + rowIndex);
 					//CHECKSTYLE:ON
 					return new TableCellBuilder().build();
 				}
@@ -1789,7 +1856,12 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 		private IBeanProxy<BEAN_TYPE> getBean(final int rowIndex) {
 			if (rowIndex >= getDataRowCount()) {
-				return getBeanFromAddedData(rowIndex);
+				if (rowIndex == (getRowCount() - 1) && lastBean != null) {
+					return lastBean;
+				}
+				else {
+					return getBeanFromAddedData(rowIndex);
+				}
 			}
 			else {
 				return getBeanFromPages(rowIndex);
@@ -1841,7 +1913,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			final IObjectLabelConverter<Object> converter = attribute.getCurrentControlPanel().getObjectLabelConverter();
 			final Object value = bean.getValue(attribute.getPropertyName());
 
-			final ITableCellBuilder cellBuilder = createDefaultCellBuilder(rowIndex, columnIndex);
+			final ITableCellBuilder cellBuilder = createDefaultCellBuilder(bean, rowIndex, columnIndex);
 
 			//set label
 			cellBuilder.setText(getCellText(converter, value));
@@ -1982,7 +2054,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 				cellBuilder = createCellBuilder(rowIndex, columnIndex, bean, false);
 			}
 			else {
-				cellBuilder = createDefaultCellBuilder(rowIndex, columnIndex);
+				cellBuilder = createDefaultCellBuilder(bean, rowIndex, columnIndex);
 				if (hasMessages) {
 					final IBeanMessage worstMessage = bean.getFirstWorstMessage();
 					cellBuilder.setText("---").setToolTipText(worstMessage.getLabel());
@@ -1997,9 +2069,12 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			return cellBuilder.build();
 		}
 
-		private ITableCellBuilder createDefaultCellBuilder(final int rowIndex, final int columnIndex) {
+		private ITableCellBuilder createDefaultCellBuilder(
+			final IBeanProxy<BEAN_TYPE> bean,
+			final int rowIndex,
+			final int columnIndex) {
 			final ITableCellBuilder cellBuilder = new TableCellBuilder();
-			if (rowIndex % 2 == 0) {
+			if (bean != lastBean && rowIndex % 2 == 0) {
 				cellBuilder.setBackgroundColor(Colors.DEFAULT_TABLE_EVEN_BACKGROUND_COLOR);
 			}
 			return cellBuilder;

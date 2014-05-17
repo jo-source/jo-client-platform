@@ -229,7 +229,7 @@ final class BeanRelationTreeModelBuilderImpl<CHILD_BEAN_TYPE> extends
 
 				for (final Integer index : getSelection()) {
 					final IBeanProxy<?> bean = parent.getBean(index);
-					if (bean != null && !bean.isDisposed() && !bean.isDummy()) {
+					if (bean != null && !bean.isDisposed() && !bean.isDummy() && !bean.isLastRowDummy()) {
 						result.add(bean);
 					}
 					if (result.size() >= maxRows) {

@@ -137,6 +137,10 @@ public interface IBeanProxy<BEAN_TYPE> extends
 	 */
 	boolean isDummy();
 
+	boolean isLastRowDummy();
+
+	void clearLastRowDummyState();
+
 	void dispose();
 
 	boolean isDisposed();

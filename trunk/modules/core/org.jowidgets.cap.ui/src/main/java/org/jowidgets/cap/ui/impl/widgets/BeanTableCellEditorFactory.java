@@ -100,6 +100,7 @@ final class BeanTableCellEditorFactory extends AbstractTableCellEditorFactory<IT
 		private final IAttribute<Object> attribute;
 
 		private Object lastValue;
+		private IBeanProxy<?> lastBean;
 		private IInputListener inputListener;
 		private PropertyChangeListener propertyChangeListener;
 		private IChangeListener attributeListener;
@@ -115,6 +116,7 @@ final class BeanTableCellEditorFactory extends AbstractTableCellEditorFactory<IT
 			final IBeanProxy<?> bean = model.getBean(row);
 			editor.setValue(bean.getValue(attribute.getPropertyName()));
 			lastValue = editor.getValue();
+			lastBean = bean;
 
 			if (lastValue != null) {
 				if (editor instanceof ITextControl) {
@@ -184,15 +186,23 @@ final class BeanTableCellEditorFactory extends AbstractTableCellEditorFactory<IT
 
 		@Override
 		public void stopEditing(final ITableCell cell, final int row, final int column) {
-			model.getBean(row).setValue(attribute.getPropertyName(), editor.getValue());
-			lastValue = null;
+			setValueToBean(row, editor.getValue());
 			removeInputListener();
 		}
 
 		@Override
 		public void cancelEditing(final ITableCell cell, final int row, final int column) {
-			model.getBean(row).setValue(attribute.getPropertyName(), lastValue);
+			setValueToBean(row, lastValue);
 			removeInputListener();
+		}
+
+		private void setValueToBean(final int row, final Object value) {
+			final IBeanProxy<?> bean = model.getBean(row);
+			if (bean != null && bean == lastBean && !bean.isDisposed()) {
+				bean.setValue(attribute.getPropertyName(), value);
+			}
+			lastBean = null;
+			lastValue = null;
 		}
 
 		private void removeInputListener() {

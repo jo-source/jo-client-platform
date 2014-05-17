@@ -83,6 +83,17 @@ public interface IBeanTableModelBuilder<BEAN_TYPE> extends IBeanModelBuilder<BEA
 
 	IBeanTableModelBuilder<BEAN_TYPE> setPageSize(int pageSize);
 
+	/**
+	 * If last bean is enabled, the table has a transient bean at the end of the table that can be used
+	 * to create new data. If the last been will be modified, a new last bean will be added to the table, so
+	 * data can be created by clicking into the last row or navigation with help of cell editors into the last
+	 * row.
+	 * 
+	 * @param lastBeanEnabled
+	 * @return this builder
+	 */
+	IBeanTableModelBuilder<BEAN_TYPE> setLastBeanEnabled(boolean lastBeanEnabled);
+
 	IBeanTableModelBuilder<BEAN_TYPE> addCellRenderer(IBeanTableCellRenderer<BEAN_TYPE> renderer);
 
 	IBeanTableModel<BEAN_TYPE> build();

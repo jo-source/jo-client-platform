@@ -73,7 +73,7 @@ final class BeanProxyFactoryImpl<BEAN_TYPE> implements IBeanProxyFactory<BEAN_TY
 	public IBeanProxy<BEAN_TYPE> createProxy(final IBeanDto beanDto, final Collection<? extends IAttribute<?>> attributes) {
 		Assert.paramNotNull(beanDto, "beanDto");
 		Assert.paramNotNull(attributes, "attributes");
-		return new BeanProxyImpl<BEAN_TYPE>(beanDto, beanTypeId, beanType, attributes, false, false);
+		return new BeanProxyImpl<BEAN_TYPE>(beanDto, beanTypeId, beanType, attributes, false, false, false);
 	}
 
 	@Override
@@ -88,13 +88,25 @@ final class BeanProxyFactoryImpl<BEAN_TYPE> implements IBeanProxyFactory<BEAN_TY
 		if (defaultValues == null) {
 			defaultValues = new HashMap<String, Object>();
 		}
-		return new BeanProxyImpl<BEAN_TYPE>(new BeanDto(defaultValues), beanTypeId, beanType, attributes, false, true);
+		return new BeanProxyImpl<BEAN_TYPE>(new BeanDto(defaultValues), beanTypeId, beanType, attributes, false, true, false);
+	}
+
+	@Override
+	public IBeanProxy<BEAN_TYPE> createLastRowDummyProxy(final Collection<? extends IAttribute<?>> attributes) {
+		return new BeanProxyImpl<BEAN_TYPE>(
+			new BeanDto(new HashMap<String, Object>()),
+			beanTypeId,
+			beanType,
+			attributes,
+			false,
+			true,
+			true);
 	}
 
 	@Override
 	public IBeanProxy<BEAN_TYPE> createDummyProxy(final Collection<? extends IAttribute<?>> attributes) {
 		Assert.paramNotNull(attributes, "attributes");
-		return new BeanProxyImpl<BEAN_TYPE>(new DummyBeanDto(), beanTypeId, beanType, attributes, true, false);
+		return new BeanProxyImpl<BEAN_TYPE>(new DummyBeanDto(), beanTypeId, beanType, attributes, true, false, false);
 	}
 
 	private static class DummyBeanDto implements IBeanDto {

@@ -142,7 +142,7 @@ final class ExecutorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 		final List<IBeanProxy> beans = new LinkedList<IBeanProxy>();
 		for (final Integer index : listModel.getSelection()) {
 			final IBeanProxy<BEAN_TYPE> bean = listModel.getBean(index.intValue());
-			if (bean != null && !bean.isDummy() && selectionFilter.accept(bean)) {
+			if (bean != null && !bean.isDummy() && !bean.isLastRowDummy() && selectionFilter.accept(bean)) {
 				beans.add(bean);
 			}
 		}
