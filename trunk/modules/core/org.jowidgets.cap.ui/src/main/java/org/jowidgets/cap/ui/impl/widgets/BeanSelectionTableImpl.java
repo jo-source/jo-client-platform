@@ -507,8 +507,8 @@ final class BeanSelectionTableImpl<BEAN_TYPE> extends AbstractInputControl<List<
 	}
 
 	@Override
-	public void editCell(final int row, final int column) {
-		table.editCell(row, column);
+	public boolean editCell(final int row, final int column) {
+		return table.editCell(row, column);
 	}
 
 	@Override
