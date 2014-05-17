@@ -33,4 +33,6 @@ public interface IBeanTableSetupConvenience<INSTANCE_TYPE, BEAN_TYPE> {
 
 	INSTANCE_TYPE addMenuInterceptor(IBeanTableMenuInterceptor<BEAN_TYPE> interceptor);
 
+	INSTANCE_TYPE setRowHeight(int rowHeight);
+
 }

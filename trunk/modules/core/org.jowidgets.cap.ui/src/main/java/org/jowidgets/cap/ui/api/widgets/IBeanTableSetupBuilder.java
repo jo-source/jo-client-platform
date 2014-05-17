@@ -106,6 +106,8 @@ public interface IBeanTableSetupBuilder<INSTANCE_TYPE extends IBeanTableSetupBui
 
 	INSTANCE_TYPE setEditable(boolean editable);
 
+	INSTANCE_TYPE setRowHeight(Integer rowHeight);
+
 	@Mandatory
 	TableSelectionPolicy getSelectionPolicy();
 
@@ -164,5 +166,7 @@ public interface IBeanTableSetupBuilder<INSTANCE_TYPE extends IBeanTableSetupBui
 
 	@Mandatory
 	boolean getAutoKeyBinding();
+
+	Integer getRowHeight();
 
 }

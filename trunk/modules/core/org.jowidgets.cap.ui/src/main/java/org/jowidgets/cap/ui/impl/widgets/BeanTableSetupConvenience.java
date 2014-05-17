@@ -45,4 +45,9 @@ final class BeanTableSetupConvenience extends AbstractSetupBuilderConvenience<IB
 		builder.setMenuInterceptor(BeanTableMenuInterceptorComposite.create(currentInterceptor, addedInterceptor));
 		return builder;
 	}
+
+	@Override
+	public IBeanTableSetupBuilder<?, Object> setRowHeight(final int rowHeight) {
+		return getBuilder().setRowHeight(Integer.valueOf(rowHeight));
+	}
 }
