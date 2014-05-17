@@ -115,11 +115,14 @@ final class BeanTableCellEditorFactory extends AbstractTableCellEditorFactory<IT
 			final IBeanProxy<?> bean = model.getBean(row);
 			editor.setValue(bean.getValue(attribute.getPropertyName()));
 			lastValue = editor.getValue();
-			if (editor instanceof ITextControl) {
-				((ITextControl) editor).selectAll();
-			}
-			else if (editor instanceof IInputField) {
-				((IInputField<?>) editor).selectAll();
+
+			if (lastValue != null) {
+				if (editor instanceof ITextControl) {
+					((ITextControl) editor).selectAll();
+				}
+				else if (editor instanceof IInputField) {
+					((IInputField<?>) editor).selectAll();
+				}
 			}
 
 			removeInputListener();
