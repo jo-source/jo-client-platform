@@ -88,6 +88,7 @@ import org.jowidgets.cap.ui.api.attribute.IAttributeCollectionModifierBuilder;
 import org.jowidgets.cap.ui.api.attribute.IAttributeConfig;
 import org.jowidgets.cap.ui.api.attribute.IAttributeFilter;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
+import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
 import org.jowidgets.cap.ui.api.bean.BeanMessageType;
 import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanKeyFactory;
@@ -1948,10 +1949,24 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 		private boolean isCellEditable(final IBeanProxy<BEAN_TYPE> bean, final IAttribute<Object> attribute) {
 			boolean result = attribute.isEditable();
-			result = result && !attribute.isCollectionType();
 			result = result && !bean.hasExecution();
-			result = result && attribute.getCurrentControlPanel().getStringObjectConverter() != null;
+			if (result) {
+				result = result && hasEditor(attribute);
+			}
 			return result;
+		}
+
+		private boolean hasEditor(final IAttribute<Object> attribute) {
+			final IControlPanelProvider<Object> controlPanel = attribute.getCurrentControlPanel();
+			if (controlPanel != null) {
+				if (attribute.isCollectionType()) {
+					return controlPanel.getCollectionControlCreator() != null;
+				}
+				else {
+					return controlPanel.getControlCreator() != null;
+				}
+			}
+			return false;
 		}
 
 		private ITableCell createDummyCell(
