@@ -421,6 +421,9 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 			model.addBeanListModelListener(new AutoPackListener());
 		}
 
+		if (bluePrint.getRowHeight() != null) {
+			table.setRowHeight(bluePrint.getRowHeight().intValue());
+		}
 	}
 
 	private void modifyBeanTableBpByPlugins(final Object entityId, final IBeanTableBluePrint<BEAN_TYPE> beanTableBp) {
