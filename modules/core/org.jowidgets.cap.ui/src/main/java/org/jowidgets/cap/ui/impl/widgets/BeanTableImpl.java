@@ -1346,8 +1346,8 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 	}
 
 	@Override
-	public void editCell(final int row, final int column) {
-		table.editCell(row, column);
+	public boolean editCell(final int row, final int column) {
+		return table.editCell(row, column);
 	}
 
 	@Override
