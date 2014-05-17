@@ -62,6 +62,7 @@ import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.filter.FilterType;
+import org.jowidgets.cap.ui.api.model.IProcessStateListener;
 import org.jowidgets.cap.ui.api.plugin.IBeanTableMenuContributionPlugin;
 import org.jowidgets.cap.ui.api.plugin.IBeanTableMenuInterceptorPlugin;
 import org.jowidgets.cap.ui.api.plugin.IBeanTablePlugin;
@@ -219,6 +220,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 
 		final ITableBluePrint tableBp = BPF.table(model.getTableModel());
 		tableBp.setSetup(bluePrint);
+		tableBp.setEditor(new BeanTableCellEditorFactory(this));
 		tableBp.setSelectionPolicy(bluePrint.getSelectionPolicy());
 
 		final IComposite contentComposite = mainComposite.add(BPF.composite(), MigLayoutFactory.GROWING_CELL_CONSTRAINTS
@@ -420,6 +422,15 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 		if (AutoPackPolicy.OFF != autoPackPolicy) {
 			model.addBeanListModelListener(new AutoPackListener());
 		}
+
+		model.addBeanListModelListener(new ModelListener());
+
+		model.addProcessStateListener(new IProcessStateListener() {
+			@Override
+			public void processStateChanged() {
+				table.stopEditing();
+			}
+		});
 
 		if (bluePrint.getRowHeight() != null) {
 			table.setRowHeight(bluePrint.getRowHeight().intValue());
@@ -1073,6 +1084,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 			if (modelColumn < 0) {
 				return;
 			}
+			table.stopEditing();
 			if (event.getModifiers().contains(Modifier.SHIFT)) {
 				pack();
 				return;
@@ -1105,6 +1117,13 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 			if (AutoPackPolicy.ONCE == autoPackPolicy) {
 				model.removeBeanListModelListener(this);
 			}
+		}
+	}
+
+	private class ModelListener extends BeanListModelListenerAdapter<BEAN_TYPE> {
+		@Override
+		public void beansChanged() {
+			table.stopEditing();
 		}
 	}
 
