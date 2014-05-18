@@ -414,6 +414,11 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	}
 
 	@Override
+	public boolean isLastBeanEnabled() {
+		return lastBean != null;
+	}
+
+	@Override
 	public void setLastBeanEnabled(final boolean lastBeanEnabled) {
 		if (lastBeanEnabled) {
 			addLastBean();

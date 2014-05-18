@@ -194,6 +194,11 @@ public interface IBeanTableModel<BEAN_TYPE> extends IDataModel, IBeanListModel<B
 	 */
 	void setLastBeanEnabled(boolean lastBeanEnabled);
 
+	/**
+	 * @return true, if the last bean is enabled, false otherwise
+	 */
+	boolean isLastBeanEnabled();
+
 	void setConfig(IBeanTableModelConfig config);
 
 	IBeanTableModelConfig getConfig();
