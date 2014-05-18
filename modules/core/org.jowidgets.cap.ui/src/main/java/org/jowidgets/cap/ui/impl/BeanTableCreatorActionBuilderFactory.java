@@ -56,7 +56,11 @@ final class BeanTableCreatorActionBuilderFactory {
 			@Override
 			public void addBean(final IBeanProxy<BEAN_TYPE> bean) {
 				super.addBean(bean);
-				if (model.getSize() > 0) {
+				if (model.isLastBeanEnabled() && model.getSize() > 1) {
+					model.setSelection(Collections.singletonList(Integer.valueOf(model.getSize() - 2)));
+					table.scrollToSelection();
+				}
+				else if (model.getSize() > 0) {
 					model.setSelection(Collections.singletonList(Integer.valueOf(model.getSize() - 1)));
 					table.scrollToSelection();
 				}
