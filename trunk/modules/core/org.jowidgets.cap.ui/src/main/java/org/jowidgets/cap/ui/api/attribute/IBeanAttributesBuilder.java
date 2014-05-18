@@ -32,7 +32,7 @@ import java.util.List;
 
 public interface IBeanAttributesBuilder {
 
-	IBeanAttributeBluePrint<Object, IBeanAttributeBluePrint<Object, ?>> add(String propertyName);
+	<ELEMENT_VALUE_TYPE> IBeanAttributeBluePrint<ELEMENT_VALUE_TYPE> add(String propertyName);
 
 	List<IAttribute<Object>> build();
 

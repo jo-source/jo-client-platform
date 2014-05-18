@@ -94,6 +94,15 @@ public interface IBeanTableModelBuilder<BEAN_TYPE> extends IBeanModelBuilder<BEA
 	 */
 	IBeanTableModelBuilder<BEAN_TYPE> setLastBeanEnabled(boolean lastBeanEnabled);
 
+	/**
+	 * If set to true, the default values of the attributes changes each time a property will be modified
+	 * 
+	 * @param useLastModificationForDefault
+	 * 
+	 * @return This builder
+	 */
+	IBeanTableModelBuilder<BEAN_TYPE> setUseLastModificationForDefault(boolean useLastModificationForDefault);
+
 	IBeanTableModelBuilder<BEAN_TYPE> addCellRenderer(IBeanTableCellRenderer<BEAN_TYPE> renderer);
 
 	IBeanTableModel<BEAN_TYPE> build();

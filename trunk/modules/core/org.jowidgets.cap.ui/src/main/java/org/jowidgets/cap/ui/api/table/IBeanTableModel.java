@@ -199,6 +199,13 @@ public interface IBeanTableModel<BEAN_TYPE> extends IDataModel, IBeanListModel<B
 	 */
 	boolean isLastBeanEnabled();
 
+	/**
+	 * If set to true, the default values of the attributes changes each time a property will be modified
+	 * 
+	 * @param useLastModificationForDefault
+	 */
+	void setUseLastModificationForDefault(boolean useLastModificationForDefault);
+
 	void setConfig(IBeanTableModelConfig config);
 
 	IBeanTableModelConfig getConfig();

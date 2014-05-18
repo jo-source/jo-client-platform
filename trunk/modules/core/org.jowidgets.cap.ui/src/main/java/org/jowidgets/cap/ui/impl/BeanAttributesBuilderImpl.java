@@ -34,40 +34,38 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.jowidgets.cap.ui.api.attribute.Attribute;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IBeanAttributeBluePrint;
-import org.jowidgets.cap.ui.api.attribute.IBeanAttributeBuilder;
 import org.jowidgets.cap.ui.api.attribute.IBeanAttributesBuilder;
 import org.jowidgets.util.Assert;
 
 final class BeanAttributesBuilderImpl implements IBeanAttributesBuilder {
 
 	private final Class<?> beanType;
-	private final Map<String, IBeanAttributeBuilder<Object>> attributes;
+	private final Map<String, BeanAttributeBluePrintImpl<Object>> attributes;
 
 	BeanAttributesBuilderImpl(final Class<?> beanType) {
 		Assert.paramNotNull(beanType, "beanType");
 		this.beanType = beanType;
-		this.attributes = new LinkedHashMap<String, IBeanAttributeBuilder<Object>>();
+		this.attributes = new LinkedHashMap<String, BeanAttributeBluePrintImpl<Object>>();
 	}
 
-	@SuppressWarnings({"rawtypes", "unchecked"})
+	@SuppressWarnings("unchecked")
 	@Override
-	public IBeanAttributeBluePrint<Object, IBeanAttributeBluePrint<Object, ?>> add(final String propertyName) {
+	public <ELEMENT_VALUE_TYPE> IBeanAttributeBluePrint<ELEMENT_VALUE_TYPE> add(final String propertyName) {
 		Assert.paramNotNull(propertyName, "propertyName");
 		if (attributes.containsKey(propertyName)) {
 			throw new IllegalArgumentException("The property with the name '" + propertyName + "' was already added");
 		}
-		final IBeanAttributeBuilder result = Attribute.builder(beanType, propertyName);
+		final BeanAttributeBluePrintImpl<Object> result = new BeanAttributeBluePrintImpl<Object>(beanType, propertyName);
 		attributes.put(propertyName, result);
-		return result;
+		return (IBeanAttributeBluePrint<ELEMENT_VALUE_TYPE>) result;
 	}
 
 	@Override
 	public List<IAttribute<Object>> build() {
 		final List<IAttribute<Object>> result = new LinkedList<IAttribute<Object>>();
-		for (final IBeanAttributeBuilder<Object> builder : attributes.values()) {
+		for (final BeanAttributeBluePrintImpl<Object> builder : attributes.values()) {
 			result.add(builder.build());
 		}
 		return Collections.unmodifiableList(result);
