@@ -159,27 +159,57 @@ final class BeanTableStatusBar<BEAN_TYPE> {
 	}
 
 	private String getStatusBarText() {
+		final int selectionSize = getSelectionSize();
+		final int modelSize = getModelSize();
 		final ArrayList<Integer> selection = model.getSelection();
-		if (selection.size() == 1) {
+		if (selectionSize == 1) {
 			final String selected = "" + (selection.get(0).intValue() + 1);
-			return MessageReplacer.replace(
-					MESSAGE_SELECTION.get(),
-					model.getEntityLabelSingular(),
-					selected,
-					"" + model.getSize());
+			return MessageReplacer.replace(MESSAGE_SELECTION.get(), model.getEntityLabelSingular(), selected, "" + getModelSize());
 		}
-		else if (selection.size() > 1) {
-			return MessageReplacer.replace(
-					MESSAGE_MULTI_SELECTION.get(),
-					"" + (selection.size()),
-					model.getEntityLabelPlural(),
-					"" + model.getSize());
+		else if (selectionSize > 1) {
+			return MessageReplacer.replace(MESSAGE_MULTI_SELECTION.get(), "" + selectionSize, model.getEntityLabelPlural(), ""
+				+ modelSize);
 		}
-		else if (model.getSize() == 1) {
+		else if (modelSize == 1) {
 			return MessageReplacer.replace(MESSAGE_NO_SELECTION_ONE_ROW.get(), model.getEntityLabelSingular());
 		}
 		else {
-			return MessageReplacer.replace(MESSAGE_NO_SELECTION.get(), "" + model.getSize(), model.getEntityLabelPlural());
+			return MessageReplacer.replace(MESSAGE_NO_SELECTION.get(), "" + modelSize, model.getEntityLabelPlural());
+		}
+	}
+
+	/**
+	 * @return The selection size ignoring the lastBean if enabled
+	 */
+	private int getSelectionSize() {
+		final int size = model.getSelection().size();
+		if (size == 0) {
+			return 0;
+		}
+		else if (!model.isLastBeanEnabled()) {
+			return size;
+		}
+		else {//lastBeanEnabled && > 0
+			final Integer lastSelected = model.getSelection().get(size - 1);
+			if (lastSelected.intValue() == model.getSize() - 1) {
+				return size - 1;
+			}
+			else {
+				return size;
+			}
+		}
+	}
+
+	/**
+	 * @return The model size ignoring the lastBean if enabled
+	 */
+	private int getModelSize() {
+		final int size = model.getSize();
+		if (model.isLastBeanEnabled() && size > 0) {
+			return size - 1;
+		}
+		else {
+			return 0;
 		}
 	}
 

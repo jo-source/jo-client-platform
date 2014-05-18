@@ -457,6 +457,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			listenerHolder.set(listener);
 			lastBean.addPropertyChangeListener(listener);
 			fireBeansChanged();
+			fireSelectionChanged();
 		}
 	}
 
