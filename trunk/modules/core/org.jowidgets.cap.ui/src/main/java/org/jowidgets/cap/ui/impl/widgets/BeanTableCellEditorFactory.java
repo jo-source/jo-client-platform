@@ -43,6 +43,7 @@ import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.common.model.ITableCell;
 import org.jowidgets.common.widgets.controller.IInputListener;
+import org.jowidgets.common.widgets.editor.EditActivation;
 import org.jowidgets.common.widgets.editor.ITableCellEditor;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 import org.jowidgets.common.widgets.factory.ICustomWidgetFactory;
@@ -92,6 +93,17 @@ final class BeanTableCellEditorFactory extends AbstractTableCellEditorFactory<IT
 		}
 
 		return null;
+	}
+
+	@Override
+	public EditActivation getActivation(final ITableCell cell, final int row, final int column) {
+		final IBeanProxy<?> bean = model.getBean(row);
+		if (bean != null && bean.isLastRowDummy()) {
+			return EditActivation.SINGLE_CLICK;
+		}
+		else {
+			return super.getActivation(cell, row, column);
+		}
 	}
 
 	private final class AttributeTableCellEditor extends AbstractTableCellEditor {
