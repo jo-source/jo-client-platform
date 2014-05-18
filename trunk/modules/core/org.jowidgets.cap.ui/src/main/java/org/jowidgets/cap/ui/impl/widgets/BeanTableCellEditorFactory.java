@@ -97,6 +97,9 @@ final class BeanTableCellEditorFactory extends AbstractTableCellEditorFactory<IT
 
 	@Override
 	public EditActivation getActivation(final ITableCell cell, final int row, final int column) {
+		if (table.isEditing()) {
+			return EditActivation.SINGLE_CLICK;
+		}
 		final IBeanProxy<?> bean = model.getBean(row);
 		if (bean != null && bean.isLastRowDummy()) {
 			return EditActivation.SINGLE_CLICK;

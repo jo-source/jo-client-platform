@@ -1128,7 +1128,6 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	private void addBeanImpl(final IBeanProxy<BEAN_TYPE> bean, final boolean fireBeansChanged) {
 		addedData.add(bean);
 		final int index = dataModel.getRowCount() - dataModel.getLastBeanCount() - 1;
-
 		bean.addPropertyChangeListener(new BeanPropertyChangeListener(index));
 		beansStateTracker.register(bean);
 		if (fireBeansChanged) {
