@@ -63,6 +63,7 @@ final class BeanTableCellEditorFactory extends AbstractTableCellEditorFactory<IT
 		this.model = table.getModel();
 	}
 
+	@SuppressWarnings({"rawtypes", "unchecked"})
 	@Override
 	public ITableCellEditor create(
 		final ITableCell cell,
@@ -77,8 +78,7 @@ final class BeanTableCellEditorFactory extends AbstractTableCellEditorFactory<IT
 				if (attribute.isCollectionType()) {
 					final ICustomWidgetCreator<IInputControl<? extends Collection<Object>>> controlCreator = controlPanel.getCollectionControlCreator();
 					if (controlCreator != null) {
-						@SuppressWarnings("unchecked")
-						final IInputControl<Object> editor = (IInputControl<Object>) controlCreator.create(widgetFactory);
+						final IInputControl editor = controlCreator.create(widgetFactory);
 						return new AttributeTableCellEditor(attribute, editor);
 					}
 				}
