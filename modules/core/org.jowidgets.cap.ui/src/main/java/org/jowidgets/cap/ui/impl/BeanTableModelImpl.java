@@ -227,6 +227,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	private final IBeanExceptionConverter exceptionConverter;
 
 	private IBeanProxy<BEAN_TYPE> lastBean;
+	private boolean useLastModificationAsDefault;
 
 	private ScheduledExecutorService scheduledExecutorService;
 	private PageLoader evenPageLoader;
@@ -271,6 +272,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		final boolean clearOnEmptyFilter,
 		final boolean clearOnEmptyParentBeans,
 		final boolean lastBeanEnabled,
+		final boolean useLastModificationAsDefault,
 		final int pageSize,
 		final IBeanProxyContext beanProxyContext,
 		final List<IBeanTableCellRenderer<BEAN_TYPE>> cellRenderers) {
@@ -337,6 +339,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		this.autoRefreshSelection = autoRefreshSelection;
 		this.onSetConfig = false;
 		this.exceptionConverter = exceptionConverter;
+		this.useLastModificationAsDefault = useLastModificationAsDefault;
 
 		this.filters = new HashMap<String, IUiFilter>();
 		this.data = new HashMap<Integer, ArrayList<IBeanProxy<BEAN_TYPE>>>();
@@ -411,6 +414,11 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		});
 
 		setLastBeanEnabled(lastBeanEnabled);
+	}
+
+	@Override
+	public void setUseLastModificationForDefault(final boolean useLastModificationForDefault) {
+		this.useLastModificationAsDefault = useLastModificationForDefault;
 	}
 
 	@Override
@@ -1120,12 +1128,8 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	private void addBeanImpl(final IBeanProxy<BEAN_TYPE> bean, final boolean fireBeansChanged) {
 		addedData.add(bean);
 		final int index = dataModel.getRowCount() - dataModel.getLastBeanCount() - 1;
-		bean.addPropertyChangeListener(new PropertyChangeListener() {
-			@Override
-			public void propertyChange(final PropertyChangeEvent evt) {
-				dataModel.fireRowsChanged(new int[] {index});
-			}
-		});
+
+		bean.addPropertyChangeListener(new BeanPropertyChangeListener(index));
 		beansStateTracker.register(bean);
 		if (fireBeansChanged) {
 			fireBeansChanged();
@@ -2670,6 +2674,10 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			}
 			if (rowIndex != -1) {
 				dataModel.fireRowsChanged(new int[] {rowIndex});
+				final String propertyName = evt.getPropertyName();
+				if (useLastModificationAsDefault && defaultValues.containsKey(propertyName)) {
+					defaultValues.put(propertyName, evt.getNewValue());
+				}
 			}
 			else {
 				if (!source.isDisposed()) {

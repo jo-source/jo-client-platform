@@ -29,7 +29,7 @@
 package org.jowidgets.cap.ui.api.attribute;
 
 public interface IBeanAttributeBuilder<ELEMENT_VALUE_TYPE> extends
-		IBeanAttributeBluePrint<ELEMENT_VALUE_TYPE, IBeanAttributeBuilder<ELEMENT_VALUE_TYPE>> {
+		IGenericBeanAttributeBluePrint<ELEMENT_VALUE_TYPE, IBeanAttributeBuilder<ELEMENT_VALUE_TYPE>> {
 
 	IAttribute<ELEMENT_VALUE_TYPE> build();
 
