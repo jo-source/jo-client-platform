@@ -376,7 +376,8 @@ final class LinkCreatorServiceImpl<SOURCE_BEAN_TYPE extends IBean, LINKED_BEAN_T
 
 		if (creatorService != null && beanData != null) {
 			final SyncResultCallback<List<IBeanDto>> resultCallback = new SyncResultCallback<List<IBeanDto>>();
-			creatorService.create(resultCallback, Collections.singleton(beanData), executionCallback);
+			final List<IBeanKey> emptyList = Collections.emptyList();
+			creatorService.create(resultCallback, emptyList, Collections.singleton(beanData), executionCallback);
 			final List<IBeanDto> result = resultCallback.getResultSynchronious();
 			if (result.size() == 1) {
 				CapServiceToolkit.checkCanceled(executionCallback);

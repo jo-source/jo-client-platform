@@ -28,6 +28,9 @@
 
 package org.jowidgets.cap.service.repository.impl;
 
+import java.util.Collection;
+
+import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.validation.IBeanValidator;
@@ -51,13 +54,16 @@ final class SyncBeanRepositoryCreatorServiceImpl<BEAN_TYPE> extends AbstractSync
 	}
 
 	@Override
-	protected BEAN_TYPE createBean(final IExecutionCallback executionCallback) {
-		return repository.create(executionCallback);
+	protected BEAN_TYPE createBean(final Collection<IBeanKey> parentBeanKeys, final IExecutionCallback executionCallback) {
+		return repository.create(parentBeanKeys, executionCallback);
 	}
 
 	@Override
-	protected void persistBean(final BEAN_TYPE bean, final IExecutionCallback executionCallback) {
-		repository.postCreate(bean, executionCallback);
+	protected void persistBean(
+		final Collection<IBeanKey> parentBeanKeys,
+		final BEAN_TYPE bean,
+		final IExecutionCallback executionCallback) {
+		repository.postCreate(parentBeanKeys, bean, executionCallback);
 	}
 
 }

@@ -30,7 +30,6 @@ package org.jowidgets.cap.ui.impl;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -47,6 +46,7 @@ import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanData;
 import org.jowidgets.cap.common.api.bean.IBeanDataBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallbackListener;
 import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
@@ -70,6 +70,7 @@ import org.jowidgets.cap.ui.tools.execution.AbstractUiResultCallback;
 import org.jowidgets.common.types.Rectangle;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCheck;
+import org.jowidgets.util.IProvider;
 
 final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 
@@ -79,11 +80,12 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 	private final IBeanFormBluePrint<BEAN_TYPE> beanFormBp;
 	private final List<IBeanPropertyValidator<BEAN_TYPE>> beanPropertyValidators;
 	private final ICreatorService creatorService;
+	private final IProvider<List<IBeanKey>> parentBeanKeysProvider;
 	private final IBeanExceptionConverter exceptionConverter;
 	private final BeanSelectionProviderEnabledChecker<BEAN_TYPE> enabledChecker;
 	private final IBeanProxyFactory<BEAN_TYPE> beanFactory;
 	private final ExecutionObservable<List<IBeanDto>> executionObservable;
-	private final Map<String, Object> defaultValues;
+	private final IProvider<Map<String, Object>> defaultValuesProvider;
 	private final Collection<IAttribute<?>> attributes;
 	private final List<ICreatorInterceptor<BEAN_TYPE>> creatorInterceptors;
 
@@ -99,6 +101,8 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 		final List<IEnabledChecker> enabledCheckers,
 		final boolean anySelection,
 		final ICreatorService creatorService,
+		final IProvider<List<IBeanKey>> parentBeanKeysProvider,
+		final IProvider<Map<String, Object>> defaultValuesProvider,
 		final IBeanExceptionConverter exceptionConverter,
 		final List<IExecutionInterceptor<List<IBeanDto>>> executionInterceptors,
 		final List<ICreatorInterceptor<BEAN_TYPE>> creatorInterceptors) {
@@ -111,6 +115,8 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 		Assert.paramNotNull(enabledCheckers, "enabledCheckers");
 		Assert.paramNotNull(anySelection, "anySelection");
 		Assert.paramNotNull(creatorService, "creatorService");
+		Assert.paramNotNull(parentBeanKeysProvider, "parentBeanKeysProvider");
+		Assert.paramNotNull(defaultValuesProvider, "defaultValuesProvider");
 		Assert.paramNotNull(exceptionConverter, "exceptionConverter");
 		Assert.paramNotNull(executionInterceptors, "executionInterceptors");
 		Assert.paramNotNull(creatorInterceptors, "creatorInterceptors");
@@ -131,17 +137,10 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 		this.model = model;
 		this.beanFormBp = beanFormBp;
 		this.creatorService = creatorService;
+		this.parentBeanKeysProvider = parentBeanKeysProvider;
 		this.exceptionConverter = exceptionConverter;
-
-		this.defaultValues = new HashMap<String, Object>();
 		this.attributes = attributes;
-		for (final IAttribute<?> attribute : attributes) {
-			final String propertyName = attribute.getPropertyName();
-			final Object defaultValue = attribute.getDefaultValue();
-			if (defaultValue != null) {
-				defaultValues.put(propertyName, defaultValue);
-			}
-		}
+		this.defaultValuesProvider = defaultValuesProvider;
 		this.beanPropertyValidators = new LinkedList<IBeanPropertyValidator<BEAN_TYPE>>(beanPropertyValidators);
 	}
 
@@ -166,7 +165,7 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 			return;
 		}
 
-		IBeanProxy<BEAN_TYPE> bean = beanFactory.createTransientProxy(attributes, defaultValues);
+		IBeanProxy<BEAN_TYPE> bean = beanFactory.createTransientProxy(attributes, defaultValuesProvider.get());
 		for (final ICreatorInterceptor<BEAN_TYPE> interceptor : creatorInterceptors) {
 			interceptor.onBeanInitialized(bean);
 		}
@@ -226,7 +225,7 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 		final List<IBeanData> data = Collections.singletonList(beanData);
 
 		executionObservable.fireAfterExecutionPrepared(executionContext);
-		creatorService.create(new ResultCallback(executionContext, bean), data, executionTask);
+		creatorService.create(new ResultCallback(executionContext, bean), parentBeanKeysProvider.get(), data, executionTask);
 	}
 
 	private IBeanData createBeanData(final IBeanProxy<BEAN_TYPE> bean) {

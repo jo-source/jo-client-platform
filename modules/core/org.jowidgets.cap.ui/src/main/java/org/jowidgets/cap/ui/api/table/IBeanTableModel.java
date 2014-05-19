@@ -34,6 +34,7 @@ import java.util.List;
 import org.jowidgets.api.controller.IDisposeObservable;
 import org.jowidgets.api.model.table.ITableModel;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.service.ICreatorService;
@@ -139,6 +140,8 @@ public interface IBeanTableModel<BEAN_TYPE> extends IDataModel, IBeanListModel<B
 	IExternalReader createExternalReader();
 
 	IBeanSelectionProvider<Object> getParent();
+
+	List<IBeanKey> getParentBeanKeys();
 
 	int getColumnCount();
 

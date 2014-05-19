@@ -28,9 +28,12 @@
 
 package org.jowidgets.cap.service.jpa.impl;
 
+import java.util.Collection;
+
 import javax.persistence.EntityManager;
 
 import org.jowidgets.cap.common.api.bean.IBean;
+import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.validation.IBeanValidator;
@@ -57,7 +60,7 @@ final class SyncJpaCreatorServiceImpl<BEAN_TYPE extends IBean> extends AbstractS
 	}
 
 	@Override
-	protected BEAN_TYPE createBean(final IExecutionCallback executionCallback) {
+	protected BEAN_TYPE createBean(final Collection<IBeanKey> parentBeanKeys, final IExecutionCallback executionCallback) {
 		try {
 			return beanType.newInstance();
 		}
@@ -67,7 +70,10 @@ final class SyncJpaCreatorServiceImpl<BEAN_TYPE extends IBean> extends AbstractS
 	}
 
 	@Override
-	protected void persistBean(final BEAN_TYPE bean, final IExecutionCallback executionCallback) {
+	protected void persistBean(
+		final Collection<IBeanKey> parentBeanKeys,
+		final BEAN_TYPE bean,
+		final IExecutionCallback executionCallback) {
 		final EntityManager entityManager = EntityManagerProvider.get();
 		entityManager.persist(bean);
 		CapServiceToolkit.checkCanceled(executionCallback);

@@ -30,9 +30,11 @@ package org.jowidgets.cap.ui.api.command;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.jowidgets.api.command.IEnabledChecker;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
@@ -40,6 +42,7 @@ import org.jowidgets.cap.ui.api.bean.IBeanPropertyValidator;
 import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
 import org.jowidgets.service.api.IServiceId;
+import org.jowidgets.util.IProvider;
 
 public interface ICreatorActionBuilder<BEAN_TYPE> extends ICapActionBuilder<ICreatorActionBuilder<BEAN_TYPE>> {
 
@@ -68,6 +71,10 @@ public interface ICreatorActionBuilder<BEAN_TYPE> extends ICapActionBuilder<ICre
 	ICreatorActionBuilder<BEAN_TYPE> setCreatorService(IServiceId<ICreatorService> creatorServiceId);
 
 	ICreatorActionBuilder<BEAN_TYPE> setCreatorService(String creatorServiceId);
+
+	ICreatorActionBuilder<BEAN_TYPE> setParentBeansProvider(IProvider<List<IBeanKey>> parentBeanKeysProvider);
+
+	ICreatorActionBuilder<BEAN_TYPE> setDefaultValuesProvider(IProvider<Map<String, Object>> defaultValuesProvider);
 
 	ICreatorActionBuilder<BEAN_TYPE> setAnySelection(boolean anySelection);
 

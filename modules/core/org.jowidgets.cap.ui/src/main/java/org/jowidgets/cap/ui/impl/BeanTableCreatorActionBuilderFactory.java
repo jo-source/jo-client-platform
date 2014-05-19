@@ -33,6 +33,7 @@ import java.util.List;
 
 import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
@@ -45,6 +46,7 @@ import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.cap.ui.tools.execution.ExecutionInterceptorAdapter;
 import org.jowidgets.cap.ui.tools.model.BeanListModelWrapper;
 import org.jowidgets.common.types.IVetoable;
+import org.jowidgets.util.IProvider;
 
 final class BeanTableCreatorActionBuilderFactory {
 
@@ -74,6 +76,13 @@ final class BeanTableCreatorActionBuilderFactory {
 
 		builder.setBeanPropertyValidators(model.getBeanPropertyValidators());
 		builder.setEntityLabelSingular(model.getEntityLabelSingular());
+
+		builder.setParentBeansProvider(new IProvider<List<IBeanKey>>() {
+			@Override
+			public List<IBeanKey> get() {
+				return model.getParentBeanKeys();
+			}
+		});
 
 		final ICreatorService creatorService = model.getCreatorService();
 		if (creatorService != null) {

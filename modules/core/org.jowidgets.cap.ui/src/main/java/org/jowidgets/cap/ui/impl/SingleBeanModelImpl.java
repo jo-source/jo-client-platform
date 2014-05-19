@@ -206,6 +206,13 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 		this.beanSelectionObservable = new BeanSelectionObservable<BEAN_TYPE>();
 		this.processStateObservable = new ProcessStateObservable();
 
+		final IProvider<List<IBeanKey>> parentBeansProvider = new IProvider<List<IBeanKey>>() {
+			@Override
+			public List<IBeanKey> get() {
+				return getParentBeanKeys();
+			}
+		};
+
 		this.saveDelegate = new BeanListSaveDelegate<BEAN_TYPE>(
 			this,
 			beansStateTracker,
@@ -213,7 +220,8 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 			BeanExecutionPolicy.BATCH,
 			updaterService,
 			creatorService,
-			propertyNames);
+			propertyNames,
+			parentBeansProvider);
 
 		this.refreshDelegate = new BeanListRefreshDelegate<BEAN_TYPE>(
 			this,
@@ -572,7 +580,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 		beanSelectionObservable.removeBeanSelectionListener(listener);
 	}
 
-	private List<? extends IBeanKey> getParentBeanKeys() {
+	private List<IBeanKey> getParentBeanKeys() {
 		if (parent == null) {
 			return null;
 		}

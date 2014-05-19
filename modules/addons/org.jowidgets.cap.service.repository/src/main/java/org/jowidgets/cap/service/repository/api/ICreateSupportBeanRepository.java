@@ -28,6 +28,9 @@
 
 package org.jowidgets.cap.service.repository.api;
 
+import java.util.Collection;
+
+import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 
 public interface ICreateSupportBeanRepository<BEAN_TYPE> extends IBeanRepository<BEAN_TYPE> {
@@ -35,18 +38,20 @@ public interface ICreateSupportBeanRepository<BEAN_TYPE> extends IBeanRepository
 	/**
 	 * Creates a new instance of an bean
 	 * 
+	 * @param parentBeanKeys The key of the selected parent
 	 * @param executionCallback
 	 * @return The bean that was created
 	 */
-	BEAN_TYPE create(final IExecutionCallback executionCallback);
+	BEAN_TYPE create(final Collection<IBeanKey> parentBeanKeys, final IExecutionCallback executionCallback);
 
 	/**
 	 * Will be invoked after a bean was created and all properties was set.
 	 * The implementor may persist the given bean when this method was invoked
 	 * 
+	 * @param parentBeanKeys The key of the selected parent
 	 * @param executionCallback The execution callback of the request
 	 * @return The bean that was created
 	 */
-	void postCreate(BEAN_TYPE bean, final IExecutionCallback executionCallback);
+	void postCreate(final Collection<IBeanKey> parentBeanKeys, BEAN_TYPE bean, final IExecutionCallback executionCallback);
 
 }

@@ -33,10 +33,14 @@ import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBeanData;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 
 public interface ISyncCreatorService {
 
-	List<IBeanDto> create(Collection<? extends IBeanData> beansData, IExecutionCallback executionCallback);
+	List<IBeanDto> create(
+		List<? extends IBeanKey> parentBeanKeys,
+		Collection<? extends IBeanData> beansData,
+		IExecutionCallback executionCallback);
 
 }

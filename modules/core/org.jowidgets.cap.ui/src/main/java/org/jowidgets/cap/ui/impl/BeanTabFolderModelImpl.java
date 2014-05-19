@@ -255,6 +255,13 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 		sortModel.setConfig(sortModelConfig);
 		sortModel.addChangeListener(sortModelChangeListener);
 
+		final IProvider<List<IBeanKey>> parentBeansProvider = new IProvider<List<IBeanKey>>() {
+			@Override
+			public List<IBeanKey> get() {
+				return getParentBeanKeys();
+			}
+		};
+
 		this.saveDelegate = new BeanListSaveDelegate<BEAN_TYPE>(
 			this,
 			beansStateTracker,
@@ -262,7 +269,8 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 			BeanExecutionPolicy.BATCH,
 			updaterService,
 			creatorService,
-			propertyNames);
+			propertyNames,
+			parentBeansProvider);
 
 		this.refreshDelegate = new BeanListRefreshDelegate<BEAN_TYPE>(
 			this,
@@ -842,7 +850,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 		}
 	}
 
-	private List<? extends IBeanKey> getParentBeanKeys() {
+	private List<IBeanKey> getParentBeanKeys() {
 		if (parent == null) {
 			return null;
 		}
