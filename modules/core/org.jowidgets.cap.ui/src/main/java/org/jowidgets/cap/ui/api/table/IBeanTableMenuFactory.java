@@ -113,6 +113,10 @@ public interface IBeanTableMenuFactory<BEAN_TYPE> {
 
 	IAction setToAllAction(IBeanTable<BEAN_TYPE> table, int columnIndex);
 
+	IActionBuilder editAllActionBuilder(IBeanTable<BEAN_TYPE> table, int columnIndex);
+
+	IAction editAllAction(IBeanTable<BEAN_TYPE> table, int columnIndex);
+
 	IActionBuilder addIncludingFilterActionBuilder(IBeanTable<BEAN_TYPE> table, int columnIndex);
 
 	IAction addIncludingFilterAction(IBeanTable<BEAN_TYPE> table, int columnIndex);

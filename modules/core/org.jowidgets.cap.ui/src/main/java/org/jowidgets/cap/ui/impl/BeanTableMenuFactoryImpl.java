@@ -579,6 +579,16 @@ final class BeanTableMenuFactoryImpl<BEAN_TYPE> implements IBeanTableMenuFactory
 	}
 
 	@Override
+	public IActionBuilder editAllActionBuilder(final IBeanTable<BEAN_TYPE> table, final int columnIndex) {
+		return new BeanTableEditAllActionBuilder(table, columnIndex);
+	}
+
+	@Override
+	public IAction editAllAction(final IBeanTable<BEAN_TYPE> table, final int columnIndex) {
+		return editAllActionBuilder(table, columnIndex).build();
+	}
+
+	@Override
 	public ICreatorActionBuilder<BEAN_TYPE> creatorActionBuilder(final IBeanTable<BEAN_TYPE> table) {
 		Assert.paramNotNull(table, "table");
 		Assert.paramNotNull(table.getModel(), "table.getModel()");
