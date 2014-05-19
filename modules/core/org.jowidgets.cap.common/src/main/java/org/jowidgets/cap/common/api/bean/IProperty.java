@@ -117,6 +117,11 @@ public interface IProperty {
 	boolean isEditable();
 
 	/**
+	 * @return True if a batch edit can be done by the user, false otherwise
+	 */
+	boolean isBatchEditable();
+
+	/**
 	 * @return True if the property could be used in the sorting
 	 */
 	boolean isSortable();

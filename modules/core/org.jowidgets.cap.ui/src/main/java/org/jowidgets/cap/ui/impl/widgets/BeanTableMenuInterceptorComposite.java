@@ -134,6 +134,15 @@ final class BeanTableMenuInterceptorComposite {
 		}
 
 		@Override
+		public IMenuModel editMenu(final IBeanTable<BEAN_TYPE> table, final int columnIndex, final IMenuModel menuModel) {
+			IMenuModel result = interceptor1.editMenu(table, columnIndex, menuModel);
+			if (result != null) {
+				result = interceptor2.editMenu(table, columnIndex, result);
+			}
+			return result;
+		}
+
+		@Override
 		public IMenuModel alignmentMenu(final IBeanTableModel<?> model, final int columnIndex, final IMenuModel menuModel) {
 			IMenuModel result = interceptor1.alignmentMenu(model, columnIndex, menuModel);
 			if (result != null) {

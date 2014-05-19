@@ -71,6 +71,7 @@ final class AttributeModifierBluePrint<ELEMENT_VALUE_TYPE> implements IAttribute
 	private Boolean visible;
 	private Boolean mandatory;
 	private Boolean editable;
+	private Boolean batchEditable;
 	private Boolean readonly;
 	private AlignmentHorizontal tableAlignment;
 	private Integer tableColumnWidth;
@@ -219,6 +220,13 @@ final class AttributeModifierBluePrint<ELEMENT_VALUE_TYPE> implements IAttribute
 	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> setEditable(final boolean editable) {
 		checkExhausted();
 		this.editable = Boolean.valueOf(editable);
+		return this;
+	}
+
+	@Override
+	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> setBatchEditable(final boolean editable) {
+		checkExhausted();
+		this.batchEditable = Boolean.valueOf(editable);
 		return this;
 	}
 
@@ -390,6 +398,9 @@ final class AttributeModifierBluePrint<ELEMENT_VALUE_TYPE> implements IAttribute
 		}
 		if (editable != null) {
 			attributeBluePrint.setEditable(editable.booleanValue());
+		}
+		if (batchEditable != null) {
+			attributeBluePrint.setEditable(batchEditable.booleanValue());
 		}
 		if (readonly != null) {
 			attributeBluePrint.setReadonly(readonly.booleanValue());

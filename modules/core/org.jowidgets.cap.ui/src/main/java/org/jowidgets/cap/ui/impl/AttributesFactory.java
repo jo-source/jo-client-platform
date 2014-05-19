@@ -160,6 +160,11 @@ final class AttributesFactory {
 			}
 
 			@Override
+			public boolean isBatchEditable() {
+				return attribute.isBatchEditable();
+			}
+
+			@Override
 			public boolean isMandatoryDefault() {
 				return attribute.isMandatory();
 			}

@@ -53,6 +53,8 @@ public interface IBeanTableMenuFactory<BEAN_TYPE> {
 
 	IMenuModel filterHeaderMenu(IBeanTable<BEAN_TYPE> table, int columnIndex);
 
+	IMenuModel editMenu(IBeanTable<BEAN_TYPE> table, int columnIndex);
+
 	IMenuModel alignmentMenu(IBeanTableModel<BEAN_TYPE> model, int columnIndex);
 
 	/**
@@ -106,6 +108,10 @@ public interface IBeanTableMenuFactory<BEAN_TYPE> {
 	IActionBuilder clearDefaultSortActionBuilder(IBeanTableModel<BEAN_TYPE> model);
 
 	IAction clearDefaultSortAction(IBeanTableModel<BEAN_TYPE> model);
+
+	IActionBuilder setToAllActionBuilder(IBeanTable<BEAN_TYPE> table, int columnIndex);
+
+	IAction setToAllAction(IBeanTable<BEAN_TYPE> table, int columnIndex);
 
 	IActionBuilder addIncludingFilterActionBuilder(IBeanTable<BEAN_TYPE> table, int columnIndex);
 

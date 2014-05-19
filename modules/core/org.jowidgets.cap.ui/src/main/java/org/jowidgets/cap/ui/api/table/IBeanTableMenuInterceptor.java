@@ -52,6 +52,8 @@ public interface IBeanTableMenuInterceptor<BEAN_TYPE> {
 
 	IMenuModel filterHeaderMenu(IBeanTable<?> table, int columnIndex, IMenuModel menuModel);
 
+	IMenuModel editMenu(IBeanTable<BEAN_TYPE> table, final int columnIndex, IMenuModel menuModel);
+
 	IMenuModel alignmentMenu(IBeanTableModel<?> model, int columnIndex, IMenuModel menuModel);
 
 	IMenuModel headerFormatMenu(IBeanTableModel<?> model, int columnIndex, IMenuModel menuModel);

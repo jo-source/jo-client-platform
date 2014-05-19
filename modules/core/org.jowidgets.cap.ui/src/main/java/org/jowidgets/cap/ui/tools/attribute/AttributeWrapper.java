@@ -107,6 +107,11 @@ public class AttributeWrapper<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_
 	}
 
 	@Override
+	public boolean isBatchEditable() {
+		return original.isBatchEditable();
+	}
+
+	@Override
 	public boolean isReadonly() {
 		return original.isReadonly();
 	}

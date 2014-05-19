@@ -83,6 +83,23 @@ final class BeanSelectionProviderEnabledChecker<BEAN_TYPE> extends ChangeObserva
 		final BeanSelectionPolicy beanSelectionPolicy,
 		final BeanModificationStatePolicy beanModificationStatePolicy,
 		final BeanMessageStatePolicy beanMessageStatePolicy,
+		final boolean ignoreSelectedBeansState) {
+		this(
+			beanSelectionProvider,
+			beanSelectionPolicy,
+			beanModificationStatePolicy,
+			beanMessageStatePolicy,
+			Collections.EMPTY_LIST,
+			Collections.EMPTY_LIST,
+			ignoreSelectedBeansState);
+
+	}
+
+	BeanSelectionProviderEnabledChecker(
+		final IBeanSelectionProvider<BEAN_TYPE> beanSelectionProvider,
+		final BeanSelectionPolicy beanSelectionPolicy,
+		final BeanModificationStatePolicy beanModificationStatePolicy,
+		final BeanMessageStatePolicy beanMessageStatePolicy,
 		final List<IEnabledChecker> enabledCheckers,
 		final List<IExecutableChecker<BEAN_TYPE>> executableCheckers,
 		final boolean ignoreSelectedBeansState) {
