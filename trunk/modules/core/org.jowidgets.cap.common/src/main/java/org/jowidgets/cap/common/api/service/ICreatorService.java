@@ -33,6 +33,7 @@ import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBeanData;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
 
@@ -40,11 +41,8 @@ public interface ICreatorService {
 
 	void create(
 		IResultCallback<List<IBeanDto>> result,
+		List<? extends IBeanKey> parentBeanKeys,
 		Collection<? extends IBeanData> beansData,
 		IExecutionCallback executionCallback);
 
-	//	void getExecutableState(
-	//		IResultCallback<IExecutableState> result,
-	//		Collection<? extends IBeanData> beansData,
-	//		IExecutionCallback executionCallback);
 }

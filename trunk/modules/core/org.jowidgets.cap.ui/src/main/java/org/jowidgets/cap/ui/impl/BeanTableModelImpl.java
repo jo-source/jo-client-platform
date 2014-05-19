@@ -387,6 +387,13 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		//update the columns
 		updateColumnModel();
 
+		final IProvider<List<IBeanKey>> parentBeansProvider = new IProvider<List<IBeanKey>>() {
+			@Override
+			public List<IBeanKey> get() {
+				return getParentBeanKeys();
+			}
+		};
+
 		this.saveDelegate = new BeanListSaveDelegate<BEAN_TYPE>(
 			this,
 			beansStateTracker,
@@ -394,7 +401,8 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			BeanExecutionPolicy.BATCH,
 			updaterService,
 			creatorService,
-			propertyNames);
+			propertyNames,
+			parentBeansProvider);
 
 		this.refreshDelegate = new BeanListRefreshDelegate<BEAN_TYPE>(
 			this,
@@ -1743,7 +1751,8 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		return null;
 	}
 
-	private List<? extends IBeanKey> getParentBeanKeys() {
+	@Override
+	public List<IBeanKey> getParentBeanKeys() {
 		if (parent == null) {
 			return null;
 		}

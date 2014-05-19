@@ -35,6 +35,7 @@ import java.util.List;
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanData;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.exception.BeanValidationException;
 import org.jowidgets.cap.common.api.exception.ExecutableCheckException;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
@@ -108,9 +109,12 @@ public abstract class AbstractSyncCreatorServiceImpl<BEAN_TYPE> implements ISync
 		this.interceptorPlugins = createUpdateInterceptorPlugins(beanType);
 	}
 
-	protected abstract BEAN_TYPE createBean(final IExecutionCallback executionCallback);
+	protected abstract BEAN_TYPE createBean(final Collection<IBeanKey> parentBeanKeys, final IExecutionCallback executionCallback);
 
-	protected abstract void persistBean(BEAN_TYPE bean, final IExecutionCallback executionCallback);
+	protected abstract void persistBean(
+		Collection<IBeanKey> parentBeanKeys,
+		BEAN_TYPE bean,
+		final IExecutionCallback executionCallback);
 
 	protected Class<? extends BEAN_TYPE> getBeanType() {
 		return beanType;
@@ -143,11 +147,15 @@ public abstract class AbstractSyncCreatorServiceImpl<BEAN_TYPE> implements ISync
 		return result;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public final List<IBeanDto> create(final Collection<? extends IBeanData> beansData, final IExecutionCallback executionCallback) {
+	public final List<IBeanDto> create(
+		final List<? extends IBeanKey> parentBeanKeys,
+		final Collection<? extends IBeanData> beansData,
+		final IExecutionCallback executionCallback) {
 		final List<IBeanDto> result = new LinkedList<IBeanDto>();
 		for (final IBeanData beanData : beansData) {
-			final BEAN_TYPE bean = createBean(executionCallback);
+			final BEAN_TYPE bean = createBean((Collection<IBeanKey>) parentBeanKeys, executionCallback);
 			CapServiceToolkit.checkCanceled(executionCallback);
 
 			beforeInitialize(bean);
@@ -162,7 +170,7 @@ public abstract class AbstractSyncCreatorServiceImpl<BEAN_TYPE> implements ISync
 			validate(bean);
 			CapServiceToolkit.checkCanceled(executionCallback);
 
-			persistBean(bean, executionCallback);
+			persistBean((Collection<IBeanKey>) parentBeanKeys, bean, executionCallback);
 			CapServiceToolkit.checkCanceled(executionCallback);
 
 			afterCreate(bean);

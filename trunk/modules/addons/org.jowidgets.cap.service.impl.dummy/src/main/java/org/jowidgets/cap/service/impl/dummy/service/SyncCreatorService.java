@@ -28,7 +28,10 @@
 
 package org.jowidgets.cap.service.impl.dummy.service;
 
+import java.util.Collection;
+
 import org.jowidgets.cap.common.api.bean.IBean;
+import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.api.bean.IBeanInitializer;
@@ -54,12 +57,15 @@ final class SyncCreatorService<BEAN_TYPE extends IBean> extends AbstractSyncCrea
 	}
 
 	@Override
-	protected BEAN_TYPE createBean(final IExecutionCallback executionCallback) {
+	protected BEAN_TYPE createBean(final Collection<IBeanKey> parentBeanKeys, final IExecutionCallback executionCallback) {
 		return data.createData();
 	}
 
 	@Override
-	protected void persistBean(final BEAN_TYPE bean, final IExecutionCallback executionCallback) {
+	protected void persistBean(
+		final Collection<IBeanKey> parentBeanKeys,
+		final BEAN_TYPE bean,
+		final IExecutionCallback executionCallback) {
 		//NOTHING TO DO
 	}
 

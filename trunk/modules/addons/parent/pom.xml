@@ -22,7 +22,7 @@
 		<module>../org.jowidgets.cap.service.hibernate.oracle</module>
 		<module>../org.jowidgets.cap.service.neo4j.api</module>
 		<module>../org.jowidgets.cap.service.neo4j.impl</module>	
-		<module>../org.jowidgets.cap.service.impl.dummy</module>
+		<module>../org.jowidgets.cap.service.impl.dummy</module>	
 		<module>../org.jowidgets.cap.service.repository</module>
 		<module>../org.jowidgets.cap.service.spring</module>
 		<module>../org.jowidgets.message.impl.http.client</module>	

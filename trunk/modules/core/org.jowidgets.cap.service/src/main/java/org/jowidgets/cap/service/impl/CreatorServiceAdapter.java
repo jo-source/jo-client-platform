@@ -33,6 +33,7 @@ import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBeanData;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.service.ICreatorService;
@@ -49,10 +50,11 @@ public final class CreatorServiceAdapter implements ICreatorService {
 	@Override
 	public void create(
 		final IResultCallback<List<IBeanDto>> resultCallback,
+		final List<? extends IBeanKey> parentBeanKeys,
 		final Collection<? extends IBeanData> beansData,
 		final IExecutionCallback executionCallback) {
 		try {
-			final List<IBeanDto> result = adaptee.create(beansData, executionCallback);
+			final List<IBeanDto> result = adaptee.create(parentBeanKeys, beansData, executionCallback);
 			resultCallback.finished(result);
 		}
 		catch (final Exception exception) {

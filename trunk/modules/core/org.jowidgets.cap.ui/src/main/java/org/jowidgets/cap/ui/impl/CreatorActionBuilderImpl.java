@@ -29,8 +29,11 @@
 package org.jowidgets.cap.ui.impl;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.command.IActionBuilder;
@@ -39,6 +42,7 @@ import org.jowidgets.api.command.IEnabledChecker;
 import org.jowidgets.api.image.IconsSmall;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
+import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
@@ -65,6 +69,7 @@ import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.service.tools.ServiceId;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.IProvider;
 
 final class CreatorActionBuilderImpl<BEAN_TYPE> extends AbstractCapActionBuilderImpl<ICreatorActionBuilder<BEAN_TYPE>> implements
 		ICreatorActionBuilder<BEAN_TYPE> {
@@ -83,6 +88,8 @@ final class CreatorActionBuilderImpl<BEAN_TYPE> extends AbstractCapActionBuilder
 	private IBeanFormBluePrint<BEAN_TYPE> beanFormBp;
 	private List<IAttribute<?>> attributes;
 	private IBeanExceptionConverter exceptionConverter;
+	private IProvider<List<IBeanKey>> parentBeanKeysProvider;
+	private IProvider<Map<String, Object>> defaultValuesProvider;
 
 	CreatorActionBuilderImpl(
 		final Object entityId,
@@ -104,6 +111,13 @@ final class CreatorActionBuilderImpl<BEAN_TYPE> extends AbstractCapActionBuilder
 		this.exceptionConverter = BeanExceptionConverter.get();
 		this.beanPropertyValidators = new LinkedList<IBeanPropertyValidator<BEAN_TYPE>>();
 		this.creatorInterceptors = new LinkedList<ICreatorInterceptor<BEAN_TYPE>>();
+
+		this.parentBeanKeysProvider = new IProvider<List<IBeanKey>>() {
+			@Override
+			public List<IBeanKey> get() {
+				return Collections.emptyList();
+			}
+		};
 
 		this.anySelection = true;
 
@@ -186,6 +200,20 @@ final class CreatorActionBuilderImpl<BEAN_TYPE> extends AbstractCapActionBuilder
 		checkExhausted();
 		Assert.paramNotNull(creatorServiceId, "creatorServiceId");
 		return setCreatorService(new ServiceId<ICreatorService>(creatorServiceId, ICreatorService.class));
+	}
+
+	@Override
+	public ICreatorActionBuilder<BEAN_TYPE> setParentBeansProvider(final IProvider<List<IBeanKey>> parentBeanKeysProvider) {
+		Assert.paramNotNull(parentBeanKeysProvider, "parentBeanKeysProvider");
+		this.parentBeanKeysProvider = parentBeanKeysProvider;
+		return this;
+	}
+
+	@Override
+	public ICreatorActionBuilder<BEAN_TYPE> setDefaultValuesProvider(final IProvider<Map<String, Object>> defaultValuesProvider) {
+		Assert.paramNotNull(defaultValuesProvider, "defaultValuesProvider");
+		this.defaultValuesProvider = defaultValuesProvider;
+		return this;
 	}
 
 	@Override
@@ -280,6 +308,32 @@ final class CreatorActionBuilderImpl<BEAN_TYPE> extends AbstractCapActionBuilder
 		return result;
 	}
 
+	private IProvider<Map<String, Object>> getDefaultValueProvider(final Collection<IAttribute<?>> attr) {
+		if (defaultValuesProvider == null) {
+			return new IProvider<Map<String, Object>>() {
+				private final Map<String, Object> defaults;
+				{
+					this.defaults = new HashMap<String, Object>();
+					for (final IAttribute<?> attribute : attr) {
+						final String propertyName = attribute.getPropertyName();
+						final Object defaultValue = attribute.getDefaultValue();
+						if (defaultValue != null) {
+							defaults.put(propertyName, defaultValue);
+						}
+					}
+				}
+
+				@Override
+				public Map<String, Object> get() {
+					return defaults;
+				}
+			};
+		}
+		else {
+			return defaultValuesProvider;
+		}
+	}
+
 	private IAction buildAction() {
 		final IBeanFormBluePrint<BEAN_TYPE> formBp = getBeanFormBp();
 		Collection<IAttribute<?>> attr = attributes;
@@ -296,6 +350,8 @@ final class CreatorActionBuilderImpl<BEAN_TYPE> extends AbstractCapActionBuilder
 			enabledCheckers,
 			anySelection,
 			creatorService,
+			parentBeanKeysProvider,
+			getDefaultValueProvider(attr),
 			exceptionConverter,
 			executionInterceptors,
 			creatorInterceptors);

@@ -226,6 +226,13 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 		this.data = new ArrayList<IBeanProxy<CHILD_BEAN_TYPE>>();
 		this.addedData = new ArrayList<IBeanProxy<CHILD_BEAN_TYPE>>();
 
+		final IProvider<List<IBeanKey>> parentBeansProvider = new IProvider<List<IBeanKey>>() {
+			@Override
+			public List<IBeanKey> get() {
+				return getParentBeanKeys();
+			}
+		};
+
 		this.saveDelegate = new BeanListSaveDelegate<CHILD_BEAN_TYPE>(
 			this,
 			beanStateTracker,
@@ -234,6 +241,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 			updaterService,
 			creatorService,
 			propertyNames,
+			parentBeansProvider,
 			false);
 
 		this.refreshDelegate = new BeanListRefreshDelegate<CHILD_BEAN_TYPE>(
@@ -834,9 +842,11 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 		beanSelectionObservable.removeBeanSelectionListener(listener);
 	}
 
-	private List<? extends IBeanKey> getParentBeanKeys() {
+	private List<IBeanKey> getParentBeanKeys() {
 		if (parentBean != null && !parentBean.isTransient() && !parentBean.isDummy()) {
-			return Collections.singletonList(new BeanKey(parentBean.getId(), parentBean.getVersion()));
+			final List<IBeanKey> result = new LinkedList<IBeanKey>();
+			result.add(new BeanKey(parentBean.getId(), parentBean.getVersion()));
+			return result;
 		}
 		else {
 			return Collections.emptyList();

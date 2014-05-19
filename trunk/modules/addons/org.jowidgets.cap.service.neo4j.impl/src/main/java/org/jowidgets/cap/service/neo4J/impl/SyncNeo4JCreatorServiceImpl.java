@@ -28,7 +28,10 @@
 
 package org.jowidgets.cap.service.neo4J.impl;
 
+import java.util.Collection;
+
 import org.jowidgets.cap.common.api.bean.IBean;
+import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.validation.IBeanValidator;
@@ -67,7 +70,7 @@ final class SyncNeo4JCreatorServiceImpl<BEAN_TYPE extends IBean> extends Abstrac
 	}
 
 	@Override
-	protected BEAN_TYPE createBean(final IExecutionCallback executionCallback) {
+	protected BEAN_TYPE createBean(final Collection<IBeanKey> parentBeanKeys, final IExecutionCallback executionCallback) {
 		if (beanFactory.isNodeBean(beanType, beanTypeId)) {
 			return beanFactory.createNodeBean(beanType, beanTypeId, NodeAccess.createNewNode(beanTypeId));
 		}
@@ -83,7 +86,10 @@ final class SyncNeo4JCreatorServiceImpl<BEAN_TYPE extends IBean> extends Abstrac
 	}
 
 	@Override
-	protected void persistBean(final BEAN_TYPE bean, final IExecutionCallback executionCallback) {
+	protected void persistBean(
+		final Collection<IBeanKey> parentBeanKeys,
+		final BEAN_TYPE bean,
+		final IExecutionCallback executionCallback) {
 		// Nothing to do
 	}
 

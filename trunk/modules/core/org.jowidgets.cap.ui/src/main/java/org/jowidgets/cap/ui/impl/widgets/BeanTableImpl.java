@@ -767,6 +767,14 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 		autoUpdateItemModel.setSelected(false);
 	}
 
+	@Override
+	public void setEnabled(final boolean enabled) {
+		if (isEditing() && !enabled) {
+			stopEditing();
+		}
+		super.setEnabled(enabled);
+	}
+
 	private void startAutoUpdateModeImpl() {
 		startAutoUpdateMode(currentAutoUpdateInterval);
 	}

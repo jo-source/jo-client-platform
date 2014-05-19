@@ -38,6 +38,7 @@ import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanData;
 import org.jowidgets.cap.common.api.bean.IBeanDataBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.bean.IBeanModification;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.service.ICreatorService;
@@ -51,6 +52,7 @@ import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCheck;
+import org.jowidgets.util.IProvider;
 
 final class BeanListSaveDelegate<BEAN_TYPE> {
 
@@ -66,6 +68,7 @@ final class BeanListSaveDelegate<BEAN_TYPE> {
 	private final IUpdaterService updaterService;
 	private final ICreatorService creatorService;
 	private final Collection<String> propertyNames;
+	private final IProvider<List<IBeanKey>> parentBeansProvider;
 	private final boolean fireBeansChanged;
 
 	BeanListSaveDelegate(
@@ -75,7 +78,8 @@ final class BeanListSaveDelegate<BEAN_TYPE> {
 		final BeanExecutionPolicy beanExecutionPolicy,
 		final IUpdaterService updaterService,
 		final ICreatorService creatorService,
-		final Collection<String> propertyNames) {
+		final Collection<String> propertyNames,
+		final IProvider<List<IBeanKey>> parentBeansProvider) {
 		this(
 			listModel,
 			beansStateTracker,
@@ -84,6 +88,7 @@ final class BeanListSaveDelegate<BEAN_TYPE> {
 			updaterService,
 			creatorService,
 			propertyNames,
+			parentBeansProvider,
 			true);
 	}
 
@@ -95,6 +100,7 @@ final class BeanListSaveDelegate<BEAN_TYPE> {
 		final IUpdaterService updaterService,
 		final ICreatorService creatorService,
 		final Collection<String> propertyNames,
+		final IProvider<List<IBeanKey>> parentBeansProvider,
 		final boolean fireBeansChanged) {
 
 		Assert.paramNotNull(listModel, "listModel");
@@ -110,6 +116,7 @@ final class BeanListSaveDelegate<BEAN_TYPE> {
 		this.updaterService = updaterService;
 		this.creatorService = creatorService;
 		this.propertyNames = new LinkedList<String>(propertyNames);
+		this.parentBeansProvider = parentBeansProvider;
 		this.fireBeansChanged = fireBeansChanged;
 	}
 
@@ -145,7 +152,7 @@ final class BeanListSaveDelegate<BEAN_TYPE> {
 							beansData.add(createBeanData(bean));
 						}
 						final IResultCallback<List<IBeanDto>> helperCallback = executionHelper.createResultCallback(preparedBeans);
-						creatorService.create(helperCallback, beansData, executionTask);
+						creatorService.create(helperCallback, parentBeansProvider.get(), beansData, executionTask);
 					}
 				}
 			}

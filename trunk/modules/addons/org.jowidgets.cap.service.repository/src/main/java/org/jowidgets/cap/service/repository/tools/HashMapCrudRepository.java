@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.service.repository.tools;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -96,7 +97,7 @@ public class HashMapCrudRepository<BEAN_TYPE> implements ICrudSupportBeanReposit
 	}
 
 	@Override
-	public BEAN_TYPE create(final IExecutionCallback executionCallback) {
+	public BEAN_TYPE create(final Collection<IBeanKey> parentBeanKeys, final IExecutionCallback executionCallback) {
 		try {
 			return beanType.newInstance();
 		}
@@ -106,7 +107,10 @@ public class HashMapCrudRepository<BEAN_TYPE> implements ICrudSupportBeanReposit
 	}
 
 	@Override
-	public void postCreate(final BEAN_TYPE bean, final IExecutionCallback executionCallback) {
+	public void postCreate(
+		final Collection<IBeanKey> parentBeanKeys,
+		final BEAN_TYPE bean,
+		final IExecutionCallback executionCallback) {
 		data.put(getId(bean), bean);
 	}
 
