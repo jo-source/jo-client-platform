@@ -31,6 +31,7 @@ package org.jowidgets.cap.ui.impl;
 import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.image.IconsSmall;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuFactory;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
@@ -48,8 +49,25 @@ final class BeanTableEditMenuModel<BEAN_TYPE> extends MenuModel {
 
 		final IAttribute<Object> attribute = model.getAttribute(columnIndex);
 		if (attribute.isBatchEditable()) {
+			if (hasPropertyEditor(attribute)) {
+				tryAddAction(menuFactory.editAllAction(table, columnIndex));
+			}
 			tryAddAction(menuFactory.setToAllAction(table, columnIndex));
+
 		}
+	}
+
+	private static boolean hasPropertyEditor(final IAttribute<?> attribute) {
+		final IControlPanelProvider<?> controlPanel = attribute.getCurrentControlPanel();
+		if (controlPanel != null) {
+			if (attribute.isCollectionType()) {
+				return controlPanel.getCollectionControlCreator() != null;
+			}
+			else {
+				return controlPanel.getControlCreator() != null;
+			}
+		}
+		return false;
 	}
 
 	private void tryAddAction(final IAction action) {
