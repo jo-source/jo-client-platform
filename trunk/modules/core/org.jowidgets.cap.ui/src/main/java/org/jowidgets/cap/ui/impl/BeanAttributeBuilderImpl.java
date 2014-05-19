@@ -172,6 +172,12 @@ final class BeanAttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IBeanAttribu
 	}
 
 	@Override
+	public IBeanAttributeBuilder<ELEMENT_VALUE_TYPE> setBatchEditable(final boolean editable) {
+		attributeBuilder.setBatchEditable(editable);
+		return this;
+	}
+
+	@Override
 	public IBeanAttributeBuilder<ELEMENT_VALUE_TYPE> setReadonly(final boolean readonly) {
 		attributeBuilder.setReadonly(readonly);
 		return this;
@@ -271,6 +277,10 @@ final class BeanAttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IBeanAttribu
 	@Override
 	public IControlPanelProviderBluePrint<ELEMENT_VALUE_TYPE> setControlPanel() {
 		return attributeBuilder.setControlPanel();
+	}
+
+	boolean isEditable() {
+		return attributeBuilder.isEditable();
 	}
 
 	@Override

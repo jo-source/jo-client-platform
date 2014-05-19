@@ -29,42 +29,27 @@
 package org.jowidgets.cap.ui.impl;
 
 import org.jowidgets.api.command.IAction;
-import org.jowidgets.api.model.item.IMenuItemModel;
-import org.jowidgets.api.model.item.IMenuModel;
-import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.api.image.IconsSmall;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuFactory;
+import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.tools.model.item.MenuModel;
 
-final class BeanTableCellMenuModel<BEAN_TYPE> extends MenuModel {
+final class BeanTableEditMenuModel<BEAN_TYPE> extends MenuModel {
 
-	BeanTableCellMenuModel(
+	BeanTableEditMenuModel(
 		final IBeanTable<BEAN_TYPE> table,
-		final IMenuModel headerPopupMenuModel,
 		final int columnIndex,
 		final IBeanTableMenuFactory<BEAN_TYPE> menuFactory) {
-		super();
+		super(Messages.getString("BeanTableEditMenuModel.edit"), IconsSmall.EDIT);
 
-		final IAction settingsDialogAction = menuFactory.settingsAction(table);
-		if (headerPopupMenuModel != null) {
-			tryAddItem(headerPopupMenuModel);
-		}
+		final IBeanTableModel<BEAN_TYPE> model = table.getModel();
 
-		//TODO update this check if the bean edit command will be part of the edit menu
-		final IAttribute<Object> attribute = table.getModel().getAttribute(columnIndex);
+		final IAttribute<Object> attribute = model.getAttribute(columnIndex);
 		if (attribute.isBatchEditable()) {
-			tryAddItem(menuFactory.editMenu(table, columnIndex));
+			tryAddAction(menuFactory.setToAllAction(table, columnIndex));
 		}
-		tryAddItem(menuFactory.filterCellMenu(table, columnIndex));
-		tryAddAction(settingsDialogAction);
-		if (Toolkit.getSupportedWidgets().hasFileChooser()) {
-			tryAddAction(menuFactory.csvExportAction(table.getModel()));
-		}
-		if (table.isAutoUpdateConfigurable()) {
-			tryAddItem(table.getAutoUpdateItemModel());
-		}
-		tryAddItem(table.getStatusBarItemModel());
 	}
 
 	private void tryAddAction(final IAction action) {
@@ -73,9 +58,4 @@ final class BeanTableCellMenuModel<BEAN_TYPE> extends MenuModel {
 		}
 	}
 
-	private void tryAddItem(final IMenuItemModel item) {
-		if (item != null) {
-			addItem(item);
-		}
-	}
 }

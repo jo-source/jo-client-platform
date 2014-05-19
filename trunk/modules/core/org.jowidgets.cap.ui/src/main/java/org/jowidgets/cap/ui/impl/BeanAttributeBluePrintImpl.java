@@ -35,7 +35,6 @@ import org.jowidgets.cap.common.api.bean.IValueRange;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeGroup;
 import org.jowidgets.cap.ui.api.attribute.IBeanAttributeBluePrint;
-import org.jowidgets.cap.ui.api.attribute.IBeanAttributeBuilder;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProviderBluePrint;
 import org.jowidgets.cap.ui.api.control.DisplayFormat;
@@ -47,13 +46,16 @@ import org.jowidgets.validation.IValidator;
 
 final class BeanAttributeBluePrintImpl<ELEMENT_VALUE_TYPE> implements IBeanAttributeBluePrint<ELEMENT_VALUE_TYPE> {
 
-	private final IBeanAttributeBuilder<ELEMENT_VALUE_TYPE> attributeBuilder;
+	private final BeanAttributeBuilderImpl<ELEMENT_VALUE_TYPE> attributeBuilder;
+
+	private boolean batchEditableModified;
 
 	BeanAttributeBluePrintImpl(final Class<?> beanType, final String propertyName) {
 		Assert.paramNotNull(beanType, "beanType");
 		Assert.paramNotNull(propertyName, "propertyName");
 
 		this.attributeBuilder = new BeanAttributeBuilderImpl<ELEMENT_VALUE_TYPE>(beanType, propertyName);
+		this.batchEditableModified = false;
 	}
 
 	@Override
@@ -170,6 +172,13 @@ final class BeanAttributeBluePrintImpl<ELEMENT_VALUE_TYPE> implements IBeanAttri
 	}
 
 	@Override
+	public IBeanAttributeBluePrint<ELEMENT_VALUE_TYPE> setBatchEditable(final boolean editable) {
+		attributeBuilder.setBatchEditable(editable);
+		batchEditableModified = true;
+		return this;
+	}
+
+	@Override
 	public IBeanAttributeBluePrint<ELEMENT_VALUE_TYPE> setReadonly(final boolean readonly) {
 		attributeBuilder.setReadonly(readonly);
 		return this;
@@ -272,7 +281,9 @@ final class BeanAttributeBluePrintImpl<ELEMENT_VALUE_TYPE> implements IBeanAttri
 	}
 
 	public IAttribute<ELEMENT_VALUE_TYPE> build() {
+		if (!batchEditableModified) {
+			attributeBuilder.setBatchEditable(attributeBuilder.isEditable());
+		}
 		return attributeBuilder.build();
 	}
-
 }

@@ -62,6 +62,7 @@ final class PropertyBuilder implements IPropertyBuilder {
 	private Class<?> elementValueType;
 	private boolean readonly;
 	private Boolean editable;
+	private Boolean batchEditable;
 	private boolean sortable;
 	private boolean filterable;
 	private Boolean searchable;
@@ -223,6 +224,12 @@ final class PropertyBuilder implements IPropertyBuilder {
 	}
 
 	@Override
+	public IPropertyBuilder setBatchEditable(final boolean editable) {
+		this.batchEditable = Boolean.valueOf(editable);
+		return this;
+	}
+
+	@Override
 	public IPropertyBuilder setSortable(final boolean sortable) {
 		this.sortable = sortable;
 		return this;
@@ -286,6 +293,18 @@ final class PropertyBuilder implements IPropertyBuilder {
 		}
 	}
 
+	private boolean getBatchEditable() {
+		if (batchEditable != null) {
+			return batchEditable.booleanValue();
+		}
+		else if (editable != null) {
+			return editable.booleanValue();
+		}
+		else {
+			return readonly;
+		}
+	}
+
 	@Override
 	public IProperty build() {
 		for (final Class<?> beanValidatorClass : addedBeanValidators) {
@@ -308,6 +327,7 @@ final class PropertyBuilder implements IPropertyBuilder {
 			getCardinality(),
 			readonly,
 			editable != null ? editable.booleanValue() : !readonly,
+			getBatchEditable(),
 			sortable,
 			filterable,
 			getSearchable());

@@ -152,6 +152,21 @@ final class BeanTableMenuFactoryImpl<BEAN_TYPE> implements IBeanTableMenuFactory
 	}
 
 	@Override
+	public IMenuModel editMenu(final IBeanTable<BEAN_TYPE> table, final int columnIndex) {
+		Assert.paramNotNull(table, "table");
+		IMenuModel menuModel = new BeanTableEditMenuModel<BEAN_TYPE>(table, columnIndex, this);
+		for (final IBeanTableMenuInterceptor<BEAN_TYPE> interceptor : interceptors) {
+			if (menuModel != null) {
+				menuModel = interceptor.editMenu(table, columnIndex, menuModel);
+			}
+			else {
+				break;
+			}
+		}
+		return menuModel;
+	}
+
+	@Override
 	public IMenuModel alignmentMenu(final IBeanTableModel<BEAN_TYPE> model, final int columnIndex) {
 		Assert.paramNotNull(model, "model");
 		IMenuModel menuModel = new BeanTableAlignmentMenuModel(model, columnIndex);
@@ -551,6 +566,16 @@ final class BeanTableMenuFactoryImpl<BEAN_TYPE> implements IBeanTableMenuFactory
 	@Override
 	public IAction deleteColumnFiltersAction(final IBeanTableModel<BEAN_TYPE> model, final int columnIndex) {
 		return deleteColumnFiltersActionBuilder(model, columnIndex).build();
+	}
+
+	@Override
+	public IActionBuilder setToAllActionBuilder(final IBeanTable<BEAN_TYPE> table, final int columnIndex) {
+		return new BeanTableSetToAllActionBuilder(table, columnIndex);
+	}
+
+	@Override
+	public IAction setToAllAction(final IBeanTable<BEAN_TYPE> table, final int columnIndex) {
+		return setToAllActionBuilder(table, columnIndex).build();
 	}
 
 	@Override

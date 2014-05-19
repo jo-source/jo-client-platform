@@ -76,6 +76,8 @@ public interface IGenericBeanAttributeBluePrint<ELEMENT_VALUE_TYPE, BLUE_PRINT_T
 
 	BLUE_PRINT_TYPE setEditable(boolean editable);
 
+	BLUE_PRINT_TYPE setBatchEditable(boolean editable);
+
 	BLUE_PRINT_TYPE setReadonly(boolean readonly);
 
 	BLUE_PRINT_TYPE setMandatory(boolean mandatory);

@@ -57,6 +57,7 @@ final class PropertyImpl implements IProperty, Serializable {
 	private final Cardinality cardinality;
 	private final boolean readonly;
 	private final boolean editable;
+	private final boolean batchEditable;
 	private final boolean sortable;
 	private final boolean filterable;
 	private final boolean searchable;
@@ -76,6 +77,7 @@ final class PropertyImpl implements IProperty, Serializable {
 		final Cardinality cardinality,
 		final boolean readonly,
 		final boolean editable,
+		final boolean batchEditable,
 		final boolean sortable,
 		final boolean filterable,
 		final boolean searchable) {
@@ -119,6 +121,7 @@ final class PropertyImpl implements IProperty, Serializable {
 		this.cardinality = cardinality;
 		this.readonly = readonly;
 		this.editable = editable;
+		this.batchEditable = batchEditable;
 		this.sortable = sortable;
 		this.filterable = filterable;
 		this.searchable = searchable;
@@ -192,6 +195,11 @@ final class PropertyImpl implements IProperty, Serializable {
 	@Override
 	public boolean isEditable() {
 		return editable;
+	}
+
+	@Override
+	public boolean isBatchEditable() {
+		return batchEditable;
 	}
 
 	@Override

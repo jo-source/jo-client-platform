@@ -71,6 +71,7 @@ final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALU
 	private DisplayFormat labelDisplayFormat;
 	private final boolean mandatory;
 	private final boolean editable;
+	private final boolean batchEditable;
 	private final boolean readonly;
 	private final IAttributeGroup attributeGroup;
 	private final boolean sortable;
@@ -99,6 +100,7 @@ final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALU
 		final boolean visible,
 		final boolean mandatory,
 		final boolean editable,
+		final boolean batchEditable,
 		final boolean readonly,
 		final AlignmentHorizontal tableAlignment,
 		final int tableColumnWidth,
@@ -163,6 +165,7 @@ final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALU
 		this.visible = visible;
 		this.mandatory = mandatory;
 		this.editable = editable;
+		this.batchEditable = batchEditable;
 		this.readonly = readonly;
 		this.tableAlignment = tableAlignment;
 		this.tableColumnWidth = tableColumnWidth;
@@ -232,6 +235,11 @@ final class AttributeImpl<ELEMENT_VALUE_TYPE> implements IAttribute<ELEMENT_VALU
 	@Override
 	public boolean isEditable() {
 		return editable;
+	}
+
+	@Override
+	public boolean isBatchEditable() {
+		return batchEditable;
 	}
 
 	@Override

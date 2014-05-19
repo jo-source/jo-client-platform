@@ -78,6 +78,11 @@ public class BeanTableMenuInterceptorAdapter<BEAN_TYPE> implements IBeanTableMen
 	}
 
 	@Override
+	public IMenuModel editMenu(final IBeanTable<BEAN_TYPE> table, final int columnIndex, final IMenuModel menuModel) {
+		return menuModel;
+	}
+
+	@Override
 	public IMenuModel alignmentMenu(final IBeanTableModel<?> model, final int columnIndex, final IMenuModel menuModel) {
 		return menuModel;
 	}

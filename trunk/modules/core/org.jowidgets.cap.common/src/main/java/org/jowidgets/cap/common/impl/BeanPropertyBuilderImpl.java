@@ -264,6 +264,12 @@ final class BeanPropertyBuilderImpl implements IBeanPropertyBuilder {
 	}
 
 	@Override
+	public IBeanPropertyBuilder setBatchEditable(final boolean editable) {
+		propertyBuilder.setBatchEditable(editable);
+		return this;
+	}
+
+	@Override
 	public IBeanPropertyBuilder setElementValueType(final Class<?> elementValueType) {
 		propertyBuilder.setElementValueType(elementValueType);
 		return this;

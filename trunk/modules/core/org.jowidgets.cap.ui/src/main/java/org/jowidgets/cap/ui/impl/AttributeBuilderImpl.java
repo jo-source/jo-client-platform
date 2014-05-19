@@ -75,6 +75,7 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 	private boolean visible;
 	private boolean mandatory;
 	private boolean editable;
+	private boolean batchEditable;
 	private boolean readonly;
 	private AlignmentHorizontal tableAlignment;
 	private int tableColumnWidth;
@@ -123,6 +124,7 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 		this.visible = attribute.isVisible();
 		this.mandatory = attribute.isMandatory();
 		this.editable = attribute.isEditable();
+		this.batchEditable = attribute.isBatchEditable();
 		this.readonly = attribute.isReadonly();
 		this.tableAlignment = attribute.getTableAlignment();
 		this.tableColumnWidth = attribute.getTableWidth();
@@ -155,6 +157,7 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 		this.visible = property.isVisibleDefault();
 		this.mandatory = property.isMandatoryDefault();
 		this.editable = property.isEditable();
+		this.batchEditable = property.isBatchEditable();
 		this.readonly = property.isReadonly();
 		this.sortable = property.isSortable();
 		this.filterable = property.isFilterable();
@@ -169,6 +172,7 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 		this.visible = true;
 		this.mandatory = false;
 		this.editable = true;
+		this.batchEditable = true;
 		this.readonly = false;
 		this.tableAlignment = AlignmentHorizontal.LEFT;
 		this.tableColumnWidth = 100;
@@ -301,6 +305,12 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 	}
 
 	@Override
+	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> setBatchEditable(final boolean editable) {
+		this.batchEditable = editable;
+		return this;
+	}
+
+	@Override
 	public IAttributeBuilder<ELEMENT_VALUE_TYPE> setReadonly(final boolean readonly) {
 		this.readonly = readonly;
 		return this;
@@ -408,6 +418,10 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 	public IAttributeBluePrint<ELEMENT_VALUE_TYPE> setDisplayFormat(final IDisplayFormat displayFormat) {
 		this.displayFormat = displayFormat;
 		return this;
+	}
+
+	boolean isEditable() {
+		return editable;
 	}
 
 	@SuppressWarnings({"rawtypes", "unchecked"})
@@ -560,6 +574,7 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 			visible,
 			mandatory,
 			editable,
+			batchEditable,
 			readonly,
 			tableAlignment,
 			tableColumnWidth,

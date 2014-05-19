@@ -69,6 +69,8 @@ public interface IBeanPropertyBluePrint {
 
 	IBeanPropertyBluePrint setEditable(boolean editable);
 
+	IBeanPropertyBluePrint setBatchEditable(boolean editable);
+
 	IBeanPropertyBluePrint setElementValueType(Class<?> elementValueType);
 
 	IBeanPropertyBluePrint addValidator(IValidator<? extends Object> validator);

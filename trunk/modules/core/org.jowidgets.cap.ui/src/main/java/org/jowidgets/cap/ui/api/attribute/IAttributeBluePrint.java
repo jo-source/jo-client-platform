@@ -72,6 +72,8 @@ public interface IAttributeBluePrint<ELEMENT_VALUE_TYPE> {
 
 	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setEditable(boolean editable);
 
+	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setBatchEditable(boolean editable);
+
 	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setReadonly(boolean readonly);
 
 	IAttributeBluePrint<ELEMENT_VALUE_TYPE> setMandatory(boolean mandatory);

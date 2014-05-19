@@ -60,6 +60,8 @@ public interface IAttribute<ELEMENT_VALUE_TYPE> extends IChangeObservable {
 
 	boolean isEditable();
 
+	boolean isBatchEditable();
+
 	boolean isReadonly();
 
 	IAttributeGroup getGroup();
