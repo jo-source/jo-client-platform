@@ -29,8 +29,8 @@
 package org.jowidgets.cap.ui.impl;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Map;
@@ -81,7 +81,7 @@ final class BeansStateTrackerImpl<BEAN_TYPE> implements IBeansStateTracker<BEAN_
 		this.beanProxyContext = beanProxyContext;
 		this.registeredBeans = new HashSet<IBeanProxy<BEAN_TYPE>>();
 		this.modifiedBeans = new HashSet<IBeanProxy<BEAN_TYPE>>();
-		this.transientBeans = new HashMap<Object, IBeanProxy<BEAN_TYPE>>();
+		this.transientBeans = new LinkedHashMap<Object, IBeanProxy<BEAN_TYPE>>();
 		this.processingBeans = new HashSet<IBeanProxy<BEAN_TYPE>>();
 		this.validationDirtyBeans = new LinkedHashSet<IBeanProxy<BEAN_TYPE>>();
 
@@ -265,7 +265,7 @@ final class BeansStateTrackerImpl<BEAN_TYPE> implements IBeansStateTracker<BEAN_
 
 	@Override
 	public Set<IBeanProxy<BEAN_TYPE>> getBeansToCreate() {
-		return Collections.unmodifiableSet(new HashSet<IBeanProxy<BEAN_TYPE>>(transientBeans.values()));
+		return Collections.unmodifiableSet(new LinkedHashSet<IBeanProxy<BEAN_TYPE>>(transientBeans.values()));
 	}
 
 	@Override
