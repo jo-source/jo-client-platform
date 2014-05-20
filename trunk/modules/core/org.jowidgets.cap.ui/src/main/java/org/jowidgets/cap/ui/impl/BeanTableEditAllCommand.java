@@ -107,7 +107,7 @@ final class BeanTableEditAllCommand<BEAN_TYPE> implements ICommand, ICommandExec
 		final int rowIndex = event.getRowIndex();
 		final Object currentValue = model.getValue(rowIndex, columnIndex);
 
-		final IMaybe<Object> valueMaybe = getNewValue(currentValue, model.getAttribute(columnIndex));
+		final IMaybe<Object> valueMaybe = getNewValue(executionContext, currentValue, model.getAttribute(columnIndex));
 
 		if (valueMaybe.isNothing()) {
 			return;
@@ -134,7 +134,10 @@ final class BeanTableEditAllCommand<BEAN_TYPE> implements ICommand, ICommandExec
 	}
 
 	@SuppressWarnings("unchecked")
-	private IMaybe<Object> getNewValue(final Object currentValue, final IAttribute<Object> attribute) {
+	private IMaybe<Object> getNewValue(
+		final IExecutionContext executionContext,
+		final Object currentValue,
+		final IAttribute<Object> attribute) {
 
 		final ICustomWidgetCreator<IInputControl<Object>> widgetCreator = getWidgetCreator(attribute);
 		if (widgetCreator == null) {
@@ -143,6 +146,7 @@ final class BeanTableEditAllCommand<BEAN_TYPE> implements ICommand, ICommandExec
 		}
 
 		final IInputDialogBluePrint<Object> dialogBp = BPF.inputDialog(new CurrentValueContentCreator(widgetCreator, attribute));
+		dialogBp.setExecutionContext(executionContext);
 		dialogBp.setAutoDispose(true);
 		dialogBp.setMinPackSize(new Dimension(400, 200));
 		dialogBp.setMaxPackSize(new Dimension(800, 600));
