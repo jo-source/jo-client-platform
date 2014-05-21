@@ -37,6 +37,7 @@ import org.jowidgets.api.widgets.blueprint.IInputDialogBluePrint;
 import org.jowidgets.cap.ui.api.filter.IFilterType;
 import org.jowidgets.cap.ui.api.filter.IUiConfigurableFilter;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
+import org.jowidgets.cap.ui.tools.model.DataModelContextExecutor;
 import org.jowidgets.tools.command.ActionBuilder;
 
 final class BeanTableAddFilterActionBuilder extends ActionBuilder {
@@ -50,23 +51,28 @@ final class BeanTableAddFilterActionBuilder extends ActionBuilder {
 		setCommand(new ICommandExecutor() {
 			@Override
 			public void execute(final IExecutionContext executionContext) throws Exception {
+				DataModelContextExecutor.executeDataChange(model, new Runnable() {
+					@Override
+					public void run() {
+						final IInputDialogBluePrint<IUiConfigurableFilter<? extends Object>> dialogBp;
+						dialogBp = AttributeFilterDialogBluePrintFactory.createDialogBluePrint(
+								model,
+								columnIndex,
+								executionContext,
+								filterType);
 
-				final IInputDialogBluePrint<IUiConfigurableFilter<? extends Object>> dialogBp;
-				dialogBp = AttributeFilterDialogBluePrintFactory.createDialogBluePrint(
-						model,
-						columnIndex,
-						executionContext,
-						filterType);
+						final IInputDialog<IUiConfigurableFilter<?>> dialog = Toolkit.getActiveWindow().createChildWindow(
+								dialogBp);
+						dialog.setVisible(true);
 
-				final IInputDialog<IUiConfigurableFilter<?>> dialog = Toolkit.getActiveWindow().createChildWindow(dialogBp);
-				dialog.setVisible(true);
+						if (dialog.isOkPressed()) {
+							model.addFilter(IBeanTableModel.UI_FILTER_ID, dialog.getValue());
+							model.load();
+						}
 
-				if (dialog.isOkPressed()) {
-					model.addFilter(IBeanTableModel.UI_FILTER_ID, dialog.getValue());
-					model.load();
-				}
-
-				dialog.dispose();
+						dialog.dispose();
+					}
+				});
 			}
 
 		});

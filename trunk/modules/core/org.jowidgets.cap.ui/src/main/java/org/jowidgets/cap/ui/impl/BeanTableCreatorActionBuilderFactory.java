@@ -28,7 +28,6 @@
 
 package org.jowidgets.cap.ui.impl;
 
-import java.util.Collections;
 import java.util.List;
 
 import org.jowidgets.api.command.IExecutionContext;
@@ -36,7 +35,6 @@ import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
-import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.command.ICapActionFactory;
 import org.jowidgets.cap.ui.api.command.ICreatorActionBuilder;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
@@ -44,7 +42,6 @@ import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.cap.ui.tools.execution.ExecutionInterceptorAdapter;
-import org.jowidgets.cap.ui.tools.model.BeanListModelWrapper;
 import org.jowidgets.common.types.IVetoable;
 import org.jowidgets.util.IProvider;
 
@@ -54,20 +51,7 @@ final class BeanTableCreatorActionBuilderFactory {
 
 	static <BEAN_TYPE> ICreatorActionBuilder<BEAN_TYPE> createBuilder(final IBeanTable<BEAN_TYPE> table) {
 		final IBeanTableModel<BEAN_TYPE> model = table.getModel();
-		final IBeanListModel<BEAN_TYPE> wrappedModel = new BeanListModelWrapper<BEAN_TYPE>(model) {
-			@Override
-			public void addBean(final IBeanProxy<BEAN_TYPE> bean) {
-				super.addBean(bean);
-				if (model.isLastBeanEnabled() && model.getSize() > 1) {
-					model.setSelection(Collections.singletonList(Integer.valueOf(model.getSize() - 2)));
-					table.scrollToSelection();
-				}
-				else if (model.getSize() > 0) {
-					model.setSelection(Collections.singletonList(Integer.valueOf(model.getSize() - 1)));
-					table.scrollToSelection();
-				}
-			}
-		};
+		final IBeanListModel<BEAN_TYPE> wrappedModel = new ScrollToEndAtAddTableModel<BEAN_TYPE>(table);
 		final ICapActionFactory actionFactory = CapUiToolkit.actionFactory();
 		final ICreatorActionBuilder<BEAN_TYPE> builder = actionFactory.creatorActionBuilder(
 				model.getEntityId(),
@@ -108,4 +92,5 @@ final class BeanTableCreatorActionBuilderFactory {
 		});
 		return builder;
 	}
+
 }

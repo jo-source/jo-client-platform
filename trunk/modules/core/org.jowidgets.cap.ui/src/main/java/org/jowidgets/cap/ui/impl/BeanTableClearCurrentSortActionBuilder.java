@@ -33,6 +33,7 @@ import org.jowidgets.api.command.ICommandExecutor;
 import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.cap.ui.api.sort.ISortModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
+import org.jowidgets.cap.ui.tools.model.DataModelContextExecutor;
 import org.jowidgets.tools.command.ActionBuilder;
 import org.jowidgets.tools.command.EnabledChecker;
 import org.jowidgets.util.event.IChangeListener;
@@ -60,7 +61,12 @@ final class BeanTableClearCurrentSortActionBuilder extends ActionBuilder {
 		final ICommandExecutor executor = new ICommandExecutor() {
 			@Override
 			public void execute(final IExecutionContext executionContext) throws Exception {
-				model.getSortModel().clearCurrentSorting();
+				DataModelContextExecutor.executeDataChange(model, new Runnable() {
+					@Override
+					public void run() {
+						model.getSortModel().clearCurrentSorting();
+					}
+				});
 			}
 		};
 

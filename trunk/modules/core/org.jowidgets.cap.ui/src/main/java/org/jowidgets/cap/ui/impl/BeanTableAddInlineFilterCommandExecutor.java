@@ -51,7 +51,7 @@ final class BeanTableAddInlineFilterCommandExecutor extends AbstractBeanTableAdd
 	}
 
 	@Override
-	public void execute(final IExecutionContext executionContext) throws Exception {
+	void doExecution(final IExecutionContext executionContext) {
 		IUiFilter includingFilter = getIncludingFilter(executionContext);
 		if (invert) {
 			includingFilter = CapUiToolkit.filterToolkit().filterTools().invert(includingFilter);

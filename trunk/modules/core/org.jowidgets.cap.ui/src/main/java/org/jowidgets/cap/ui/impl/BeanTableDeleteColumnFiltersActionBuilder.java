@@ -38,6 +38,7 @@ import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.filter.IUiFilter;
 import org.jowidgets.cap.ui.api.filter.IUiFilterTools;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
+import org.jowidgets.cap.ui.tools.model.DataModelContextExecutor;
 import org.jowidgets.tools.command.ActionBuilder;
 import org.jowidgets.tools.command.EnabledChecker;
 import org.jowidgets.util.event.IChangeListener;
@@ -66,8 +67,13 @@ final class BeanTableDeleteColumnFiltersActionBuilder extends ActionBuilder {
 		final ICommandExecutor executor = new ICommandExecutor() {
 			@Override
 			public void execute(final IExecutionContext executionContext) throws Exception {
-				model.removeFiltersForProperty(IBeanTableModel.UI_FILTER_ID, attribute.getPropertyName());
-				model.load();
+				DataModelContextExecutor.executeDataChange(model, new Runnable() {
+					@Override
+					public void run() {
+						model.removeFiltersForProperty(IBeanTableModel.UI_FILTER_ID, attribute.getPropertyName());
+						model.load();
+					}
+				});
 			}
 		};
 

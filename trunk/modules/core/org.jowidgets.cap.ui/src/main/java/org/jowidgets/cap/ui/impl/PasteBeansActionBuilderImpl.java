@@ -40,7 +40,10 @@ import org.jowidgets.api.controller.IDisposeObservable;
 import org.jowidgets.api.image.IconsSmall;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.command.IPasteBeansActionBuilder;
+import org.jowidgets.cap.ui.api.model.DataModelChangeType;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
+import org.jowidgets.cap.ui.api.model.IDataModelContextProvider;
+import org.jowidgets.cap.ui.tools.command.DataModelContextCommandWrapper;
 import org.jowidgets.common.types.Modifier;
 import org.jowidgets.common.types.VirtualKey;
 import org.jowidgets.i18n.api.MessageReplacer;
@@ -128,7 +131,16 @@ final class PasteBeansActionBuilderImpl<BEAN_TYPE> extends AbstractCapActionBuil
 			anySelection);
 
 		final IActionBuilder builder = getBuilder();
-		builder.setCommand((ICommand) command);
+
+		if (model instanceof IDataModelContextProvider) {
+			builder.setCommand(new DataModelContextCommandWrapper(
+				(IDataModelContextProvider) model,
+				DataModelChangeType.SELECTION_CHANGE,
+				command));
+		}
+		else {
+			builder.setCommand((ICommand) command);
+		}
 		return builder.build();
 	}
 

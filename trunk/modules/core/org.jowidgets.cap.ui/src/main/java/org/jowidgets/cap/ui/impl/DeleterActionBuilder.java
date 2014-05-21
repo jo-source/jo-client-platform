@@ -44,8 +44,11 @@ import org.jowidgets.cap.ui.api.command.IDeleterActionBuilder;
 import org.jowidgets.cap.ui.api.execution.BeanMessageStatePolicy;
 import org.jowidgets.cap.ui.api.execution.BeanModificationStatePolicy;
 import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
+import org.jowidgets.cap.ui.api.model.DataModelChangeType;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
+import org.jowidgets.cap.ui.api.model.IDataModelContextProvider;
 import org.jowidgets.cap.ui.api.plugin.IServiceActionDecoratorPlugin;
+import org.jowidgets.cap.ui.tools.command.DataModelContextCommandWrapper;
 import org.jowidgets.common.types.VirtualKey;
 import org.jowidgets.i18n.api.MessageReplacer;
 import org.jowidgets.plugin.api.IPluginProperties;
@@ -252,7 +255,7 @@ final class DeleterActionBuilder<BEAN_TYPE> extends AbstractCapActionBuilderImpl
 		setDefaultTextIfNecessary();
 		setDefaultToolTipTextIfNecessary();
 
-		final BeanDeleterCommand<BEAN_TYPE> deleterCommand = new BeanDeleterCommand<BEAN_TYPE>(
+		final BeanDeleterCommand<BEAN_TYPE> command = new BeanDeleterCommand<BEAN_TYPE>(
 			model,
 			enabledCheckers,
 			executableCheckers,
@@ -266,7 +269,15 @@ final class DeleterActionBuilder<BEAN_TYPE> extends AbstractCapActionBuilderImpl
 			deletionConfirmDialog);
 
 		final IActionBuilder builder = getBuilder();
-		builder.setCommand((ICommand) deleterCommand);
+		if (model instanceof IDataModelContextProvider) {
+			builder.setCommand(new DataModelContextCommandWrapper(
+				(IDataModelContextProvider) model,
+				DataModelChangeType.SELECTION_CHANGE,
+				command));
+		}
+		else {
+			builder.setCommand((ICommand) command);
+		}
 		return builder.build();
 	}
 }

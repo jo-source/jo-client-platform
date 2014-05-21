@@ -64,6 +64,8 @@ final class DataModelContextImpl implements IDataModelContext {
 	private final Set<IDataModel> dataChangeModels;
 	private final IDataModelSaveDelegate saveDelegate;
 
+	private boolean hasAsyncRequest;
+
 	DataModelContextImpl(
 		final IDataModel rootModel,
 		final DataModelChangeType rootModelDepenency,
@@ -74,6 +76,8 @@ final class DataModelContextImpl implements IDataModelContext {
 		this.selectionChangeModels = new LinkedHashSet<IDataModel>();
 		this.dataChangeModels = new LinkedHashSet<IDataModel>();
 		this.saveDelegate = saveDelegate;
+
+		this.hasAsyncRequest = false;
 
 		addDependency(rootModel, rootModelDepenency);
 	}
@@ -106,7 +110,12 @@ final class DataModelContextImpl implements IDataModelContext {
 
 	@Override
 	public IChangeResponse permitChange(final DataModelChangeType changeType) {
+		if ((hasAsyncRequest)) {
+			return new ChangeResponseImpl(ResponseType.NO, changeType);
+		}
+
 		if (hasChanged(getRelevantModels(changeType))) {
+			hasAsyncRequest = true;
 			return new ChangeResponseImpl(ResponseType.ASYNC, changeType);
 		}
 		else {
@@ -124,11 +133,16 @@ final class DataModelContextImpl implements IDataModelContext {
 
 		if (hasInvalidChanged(relevantModels)) {
 			if (shouldDataBeRefused()) {
+				for (final IDataModel model : relevantModels) {
+					model.undo();
+				}
 				callback.call(Boolean.TRUE);
+				hasAsyncRequest = false;
 				return;
 			}
 			else {
 				callback.call(Boolean.FALSE);
+				hasAsyncRequest = false;
 				return;
 			}
 		}
@@ -140,13 +154,19 @@ final class DataModelContextImpl implements IDataModelContext {
 			}
 			if (QuestionResult.CANCEL == questionResult) {//to not permit in case of cancel
 				callback.call(Boolean.FALSE);
+				hasAsyncRequest = false;
 				return;
 			}
 			else {//do not save, do refuse, in this case permit the change
+				for (final IDataModel model : relevantModels) {
+					model.undo();
+				}
 				callback.call(Boolean.TRUE);
+				hasAsyncRequest = false;
 				return;
 			}
 		}
+		hasAsyncRequest = false;
 
 	}
 
@@ -262,12 +282,15 @@ final class DataModelContextImpl implements IDataModelContext {
 		public void modificationStateChanged() {
 			if ((System.currentTimeMillis() - timestamp) > MAX_TIME_TO_REFUSE) {
 				model.removeModificationStateListener(this);
+				hasAsyncRequest = false;
+				return;
 			}
 
 			if (!model.hasModifications()) {
 				modifiedModels.remove(model);
 				if (modifiedModels.isEmpty()) {
 					callback.call(Boolean.TRUE);
+					hasAsyncRequest = false;
 				}
 			}
 		}

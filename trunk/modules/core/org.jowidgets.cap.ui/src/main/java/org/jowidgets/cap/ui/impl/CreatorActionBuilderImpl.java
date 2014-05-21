@@ -54,10 +54,13 @@ import org.jowidgets.cap.ui.api.command.ICreatorActionBuilder;
 import org.jowidgets.cap.ui.api.command.ICreatorInterceptor;
 import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
 import org.jowidgets.cap.ui.api.image.ImageResolver;
+import org.jowidgets.cap.ui.api.model.DataModelChangeType;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
+import org.jowidgets.cap.ui.api.model.IDataModelContextProvider;
 import org.jowidgets.cap.ui.api.plugin.IServiceActionDecoratorPlugin;
 import org.jowidgets.cap.ui.api.types.IEntityTypeId;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
+import org.jowidgets.cap.ui.tools.command.DataModelContextCommandWrapper;
 import org.jowidgets.common.image.IImageConstant;
 import org.jowidgets.common.types.Modifier;
 import org.jowidgets.common.types.VirtualKey;
@@ -357,7 +360,15 @@ final class CreatorActionBuilderImpl<BEAN_TYPE> extends AbstractCapActionBuilder
 			creatorInterceptors);
 
 		final IActionBuilder builder = getBuilder();
-		builder.setCommand((ICommand) command);
+		if (model instanceof IDataModelContextProvider) {
+			builder.setCommand(new DataModelContextCommandWrapper(
+				(IDataModelContextProvider) model,
+				DataModelChangeType.SELECTION_CHANGE,
+				command));
+		}
+		else {
+			builder.setCommand((ICommand) command);
+		}
 		return builder.build();
 	}
 

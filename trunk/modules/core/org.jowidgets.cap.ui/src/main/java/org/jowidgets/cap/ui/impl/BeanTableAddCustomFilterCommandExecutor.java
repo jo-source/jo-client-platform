@@ -52,7 +52,7 @@ final class BeanTableAddCustomFilterCommandExecutor extends AbstractBeanTableAdd
 	}
 
 	@Override
-	public void execute(final IExecutionContext executionContext) throws Exception {
+	void doExecution(final IExecutionContext executionContext) {
 
 		final IUiConfigurableFilter<?> includingFilter = getIncludingFilter(executionContext);
 

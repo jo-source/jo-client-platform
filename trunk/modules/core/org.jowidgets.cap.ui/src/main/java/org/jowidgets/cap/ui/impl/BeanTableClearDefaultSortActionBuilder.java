@@ -35,6 +35,7 @@ import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.types.QuestionResult;
 import org.jowidgets.cap.ui.api.sort.ISortModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
+import org.jowidgets.cap.ui.tools.model.DataModelContextExecutor;
 import org.jowidgets.tools.command.ActionBuilder;
 import org.jowidgets.tools.command.EnabledChecker;
 import org.jowidgets.util.event.IChangeListener;
@@ -62,12 +63,17 @@ final class BeanTableClearDefaultSortActionBuilder extends ActionBuilder {
 		final ICommandExecutor executor = new ICommandExecutor() {
 			@Override
 			public void execute(final IExecutionContext executionContext) throws Exception {
-				final QuestionResult questionResult = Toolkit.getQuestionPane().askYesNoQuestion(
-						Messages.getString("BeanTableClearDefaultSortActionBuilder.clear_default_sorting"), //$NON-NLS-1$
-						Messages.getString("BeanTableClearDefaultSortActionBuilder.do_you_really_want_to_clear_the_default_sorting__this_can_not_be_undone")); //$NON-NLS-1$
-				if (questionResult == QuestionResult.YES) {
-					model.getSortModel().clearDefaultSorting();
-				}
+				DataModelContextExecutor.executeDataChange(model, new Runnable() {
+					@Override
+					public void run() {
+						final QuestionResult questionResult = Toolkit.getQuestionPane().askYesNoQuestion(
+								Messages.getString("BeanTableClearDefaultSortActionBuilder.clear_default_sorting"), //$NON-NLS-1$
+								Messages.getString("BeanTableClearDefaultSortActionBuilder.do_you_really_want_to_clear_the_default_sorting__this_can_not_be_undone")); //$NON-NLS-1$
+						if (questionResult == QuestionResult.YES) {
+							model.getSortModel().clearDefaultSorting();
+						}
+					}
+				});
 			}
 		};
 

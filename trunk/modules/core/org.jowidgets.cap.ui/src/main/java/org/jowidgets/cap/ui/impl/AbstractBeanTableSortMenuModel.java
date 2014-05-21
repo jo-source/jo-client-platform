@@ -34,6 +34,7 @@ import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.sort.IPropertySort;
 import org.jowidgets.cap.ui.api.sort.ISortModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
+import org.jowidgets.cap.ui.tools.model.DataModelContextExecutor;
 import org.jowidgets.common.widgets.controller.IItemStateListener;
 import org.jowidgets.tools.model.item.MenuModel;
 import org.jowidgets.util.event.IChangeListener;
@@ -72,9 +73,15 @@ abstract class AbstractBeanTableSortMenuModel extends MenuModel {
 			@Override
 			public void itemStateChanged() {
 				if (noSortItem.isSelected()) {
-					sortModel.removeChangeListener(sortModelChangeListener);
-					removeProperty(attribute.getPropertyName());
-					sortModel.addChangeListener(sortModelChangeListener);
+					setCurrentSort();
+					DataModelContextExecutor.executeDataChange(model, new Runnable() {
+						@Override
+						public void run() {
+							noSortItem.removeItemListener(noSortItemListener);
+							removeProperty(attribute.getPropertyName());
+							noSortItem.addItemListener(noSortItemListener);
+						}
+					});
 				}
 			}
 		};
@@ -83,9 +90,15 @@ abstract class AbstractBeanTableSortMenuModel extends MenuModel {
 			@Override
 			public void itemStateChanged() {
 				if (ascendingItem.isSelected()) {
-					sortModel.removeChangeListener(sortModelChangeListener);
-					addOrSetProperty(attribute.getPropertyName(), SortOrder.ASC);
-					sortModel.addChangeListener(sortModelChangeListener);
+					setCurrentSort();
+					DataModelContextExecutor.executeDataChange(model, new Runnable() {
+						@Override
+						public void run() {
+							ascendingItem.removeItemListener(ascendingItemListener);
+							addOrSetProperty(attribute.getPropertyName(), SortOrder.ASC);
+							ascendingItem.addItemListener(ascendingItemListener);
+						}
+					});
 				}
 			}
 		};
@@ -94,9 +107,15 @@ abstract class AbstractBeanTableSortMenuModel extends MenuModel {
 			@Override
 			public void itemStateChanged() {
 				if (descendingItem.isSelected()) {
-					sortModel.removeChangeListener(sortModelChangeListener);
-					addOrSetProperty(attribute.getPropertyName(), SortOrder.DESC);
-					sortModel.addChangeListener(sortModelChangeListener);
+					setCurrentSort();
+					DataModelContextExecutor.executeDataChange(model, new Runnable() {
+						@Override
+						public void run() {
+							descendingItem.removeItemListener(descendingItemListener);
+							addOrSetProperty(attribute.getPropertyName(), SortOrder.DESC);
+							descendingItem.addItemListener(descendingItemListener);
+						}
+					});
 				}
 			}
 		};

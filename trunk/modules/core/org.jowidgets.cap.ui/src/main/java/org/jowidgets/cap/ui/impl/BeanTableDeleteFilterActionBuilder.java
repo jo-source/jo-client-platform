@@ -34,6 +34,7 @@ import org.jowidgets.api.command.IEnabledState;
 import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.api.image.IconsSmall;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
+import org.jowidgets.cap.ui.tools.model.DataModelContextExecutor;
 import org.jowidgets.tools.command.ActionBuilder;
 import org.jowidgets.tools.command.EnabledChecker;
 import org.jowidgets.util.event.IChangeListener;
@@ -58,8 +59,13 @@ final class BeanTableDeleteFilterActionBuilder extends ActionBuilder {
 		final ICommandExecutor executor = new ICommandExecutor() {
 			@Override
 			public void execute(final IExecutionContext executionContext) throws Exception {
-				model.removeFilter(IBeanTableModel.UI_FILTER_ID);
-				model.load();
+				DataModelContextExecutor.executeDataChange(model, new Runnable() {
+					@Override
+					public void run() {
+						model.removeFilter(IBeanTableModel.UI_FILTER_ID);
+						model.load();
+					}
+				});
 			}
 		};
 
