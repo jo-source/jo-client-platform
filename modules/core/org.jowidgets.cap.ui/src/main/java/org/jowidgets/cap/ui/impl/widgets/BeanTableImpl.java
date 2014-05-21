@@ -89,6 +89,7 @@ import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
 import org.jowidgets.cap.ui.api.widgets.IPopupMenuListener;
 import org.jowidgets.cap.ui.api.widgets.ITableMenuCreationInterceptor;
 import org.jowidgets.cap.ui.tools.model.BeanListModelListenerAdapter;
+import org.jowidgets.cap.ui.tools.model.DataModelContextExecutor;
 import org.jowidgets.common.types.Dimension;
 import org.jowidgets.common.types.IVetoable;
 import org.jowidgets.common.types.Interval;
@@ -1039,10 +1040,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 
 		@Override
 		public void beforeSelectionChange(final List<Integer> newSelection, final IVetoable veto) {
-			if (this.newSelection != null) {
-				veto.veto();
-				return;
-			}
+
 			final IDataModelContext dataContext = model.getDataModelContext();
 			final IChangeResponse response = dataContext.permitChange(DataModelChangeType.SELECTION_CHANGE);
 			if (ResponseType.NO.equals(response.getType())) {
@@ -1159,6 +1157,23 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 				}
 				return;
 			}
+			final IAttribute<?> attribute = model.getAttribute(modelColumn);
+			if (attribute != null && attribute.isSortable()) {
+				toggleSortWithPermitCheck(event);
+			}
+		}
+
+		private void toggleSortWithPermitCheck(final ITableColumnMouseEvent event) {
+			DataModelContextExecutor.executeDataChange(model, new Runnable() {
+				@Override
+				public void run() {
+					toggleSort(event);
+				}
+			});
+		}
+
+		private void toggleSort(final ITableColumnMouseEvent event) {
+			final int modelColumn = event.getColumnIndex();
 			final IAttribute<?> attribute = model.getAttribute(modelColumn);
 			if (attribute != null && attribute.isSortable()) {
 				final ISortModel sortModel = model.getSortModel();

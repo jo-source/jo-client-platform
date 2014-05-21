@@ -28,7 +28,8 @@
 
 package org.jowidgets.cap.ui.impl;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.Set;
 
 import org.jowidgets.cap.ui.api.bean.IBeanModificationStateListener;
@@ -40,7 +41,7 @@ class BeanModificationStateObservable<BEAN_TYPE> implements IBeanModificationSta
 	private final Set<IBeanModificationStateListener<BEAN_TYPE>> listeners;
 
 	BeanModificationStateObservable() {
-		this.listeners = new HashSet<IBeanModificationStateListener<BEAN_TYPE>>();
+		this.listeners = new LinkedHashSet<IBeanModificationStateListener<BEAN_TYPE>>();
 	}
 
 	@Override
@@ -54,7 +55,8 @@ class BeanModificationStateObservable<BEAN_TYPE> implements IBeanModificationSta
 	}
 
 	public final void fireModificationStateChanged(final IBeanProxy<BEAN_TYPE> bean) {
-		for (final IBeanModificationStateListener<BEAN_TYPE> listener : listeners) {
+		for (final IBeanModificationStateListener<BEAN_TYPE> listener : new LinkedList<IBeanModificationStateListener<BEAN_TYPE>>(
+			listeners)) {
 			listener.modificationStateChanged(bean);
 		}
 	}

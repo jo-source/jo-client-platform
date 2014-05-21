@@ -45,6 +45,7 @@ import org.jowidgets.cap.ui.api.filter.IUiConfigurableFilter;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.cap.ui.api.widgets.IPopupMenuListener;
+import org.jowidgets.cap.ui.tools.model.DataModelContextExecutor;
 import org.jowidgets.common.widgets.controller.ITableCellPopupEvent;
 import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.i18n.api.MessageReplacer;
@@ -76,6 +77,18 @@ abstract class AbstractBeanTableAddFilterCommandExecutor implements ICommand, IC
 			}
 		});
 	}
+
+	@Override
+	public final void execute(final IExecutionContext executionContext) throws Exception {
+		DataModelContextExecutor.executeDataChange(model, new Runnable() {
+			@Override
+			public void run() {
+				doExecution(executionContext);
+			}
+		});
+	}
+
+	abstract void doExecution(IExecutionContext executionContext);
 
 	@Override
 	public final IEnabledState getEnabledState() {

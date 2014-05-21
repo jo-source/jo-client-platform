@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2014, Michael
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -28,31 +28,45 @@
 
 package org.jowidgets.cap.ui.impl;
 
-import org.jowidgets.api.command.ICommandExecutor;
-import org.jowidgets.api.command.IExecutionContext;
-import org.jowidgets.cap.ui.api.icons.CapIcons;
+import java.util.Collections;
+
+import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.cap.ui.api.model.IBeanListModel;
+import org.jowidgets.cap.ui.api.model.IDataModelContext;
+import org.jowidgets.cap.ui.api.model.IDataModelContextProvider;
+import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
-import org.jowidgets.cap.ui.tools.model.DataModelContextExecutor;
-import org.jowidgets.tools.command.ActionBuilder;
+import org.jowidgets.cap.ui.tools.model.BeanListModelWrapper;
 
-final class BeanTableSettingsActionBuilder extends ActionBuilder {
+public class ScrollToEndAtAddTableModel<BEAN_TYPE> extends BeanListModelWrapper<BEAN_TYPE> implements
+		IBeanListModel<BEAN_TYPE>,
+		IDataModelContextProvider {
 
-	BeanTableSettingsActionBuilder(final IBeanTable<?> table) {
-		super();
-		setText(Messages.getString("BeanTableSettingsActionBuilder.settings_periode")); //$NON-NLS-1$
-		setToolTipText(Messages.getString("BeanTableSettingsActionBuilder.opens_the_table_settings_dialog")); //$NON-NLS-1$
-		setIcon(CapIcons.TABLE_SETTINGS);
-		setCommand(new ICommandExecutor() {
-			@Override
-			public void execute(final IExecutionContext executionContext) throws Exception {
-				DataModelContextExecutor.executeDataChange(table.getModel(), new Runnable() {
-					@Override
-					public void run() {
-						table.showSettingsDialog();
-					}
-				});
-			}
-		});
+	private final IBeanTable<BEAN_TYPE> table;
+	private final IBeanTableModel<BEAN_TYPE> model;
+
+	ScrollToEndAtAddTableModel(final IBeanTable<BEAN_TYPE> table) {
+		super(table.getModel());
+		this.table = table;
+		this.model = table.getModel();
+	}
+
+	@Override
+	public void addBean(final IBeanProxy<BEAN_TYPE> bean) {
+		super.addBean(bean);
+		if (model.isLastBeanEnabled() && model.getSize() > 1) {
+			model.setSelection(Collections.singletonList(Integer.valueOf(model.getSize() - 2)));
+			table.scrollToSelection();
+		}
+		else if (model.getSize() > 0) {
+			model.setSelection(Collections.singletonList(Integer.valueOf(model.getSize() - 1)));
+			table.scrollToSelection();
+		}
+	}
+
+	@Override
+	public IDataModelContext getDataModelContext() {
+		return model.getDataModelContext();
 	}
 
 }

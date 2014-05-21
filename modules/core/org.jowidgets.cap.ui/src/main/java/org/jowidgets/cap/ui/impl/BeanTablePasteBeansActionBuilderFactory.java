@@ -28,16 +28,12 @@
 
 package org.jowidgets.cap.ui.impl;
 
-import java.util.Collections;
-
 import org.jowidgets.cap.ui.api.CapUiToolkit;
-import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.command.ICapActionFactory;
 import org.jowidgets.cap.ui.api.command.IPasteBeansActionBuilder;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
-import org.jowidgets.cap.ui.tools.model.BeanListModelWrapper;
 
 final class BeanTablePasteBeansActionBuilderFactory {
 
@@ -45,20 +41,7 @@ final class BeanTablePasteBeansActionBuilderFactory {
 
 	static <BEAN_TYPE> IPasteBeansActionBuilder<BEAN_TYPE> createBuilder(final IBeanTable<BEAN_TYPE> table) {
 		final IBeanTableModel<BEAN_TYPE> model = table.getModel();
-		final IBeanListModel<BEAN_TYPE> wrappedModel = new BeanListModelWrapper<BEAN_TYPE>(model) {
-			@Override
-			public void addBean(final IBeanProxy<BEAN_TYPE> bean) {
-				super.addBean(bean);
-				if (model.isLastBeanEnabled() && model.getSize() > 1) {
-					model.setSelection(Collections.singletonList(Integer.valueOf(model.getSize() - 2)));
-					table.scrollToSelection();
-				}
-				else if (model.getSize() > 0) {
-					model.setSelection(Collections.singletonList(Integer.valueOf(model.getSize() - 1)));
-					table.scrollToSelection();
-				}
-			}
-		};
+		final IBeanListModel<BEAN_TYPE> wrappedModel = new ScrollToEndAtAddTableModel<BEAN_TYPE>(table);
 		final ICapActionFactory actionFactory = CapUiToolkit.actionFactory();
 		final IPasteBeansActionBuilder<BEAN_TYPE> builder = actionFactory.pasteBeansActionBuilder(
 				model.getBeanTypeId(),
