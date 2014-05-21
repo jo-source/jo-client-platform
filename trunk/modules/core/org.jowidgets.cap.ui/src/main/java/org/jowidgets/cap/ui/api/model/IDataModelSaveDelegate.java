@@ -28,13 +28,8 @@
 
 package org.jowidgets.cap.ui.api.model;
 
-public interface IDataModelContextBuilder {
+public interface IDataModelSaveDelegate {
 
-	IDataModelContextBuilder setRootModel(IDataModel model);
+	void save();
 
-	IDataModelContextBuilder setRootModelDependency(DataModelChangeType changeType);
-
-	IDataModelContextBuilder setSaveDelegate(IDataModelSaveDelegate saveDelegate);
-
-	IDataModelContext build();
 }

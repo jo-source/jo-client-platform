@@ -32,26 +32,21 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import org.jowidgets.api.command.IAction;
-import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.types.QuestionResult;
 import org.jowidgets.api.widgets.IQuestionDialog;
-import org.jowidgets.api.widgets.IWidget;
 import org.jowidgets.api.widgets.blueprint.IQuestionDialogBluePrint;
-import org.jowidgets.cap.ui.api.command.IDataModelAction;
 import org.jowidgets.cap.ui.api.model.DataModelChangeType;
 import org.jowidgets.cap.ui.api.model.IChangeResponse;
 import org.jowidgets.cap.ui.api.model.IChangeResponse.ResponseType;
 import org.jowidgets.cap.ui.api.model.IDataModel;
 import org.jowidgets.cap.ui.api.model.IDataModelContext;
+import org.jowidgets.cap.ui.api.model.IDataModelSaveDelegate;
 import org.jowidgets.cap.ui.api.model.IModificationStateListener;
-import org.jowidgets.cap.ui.api.workbench.CapWorkbenchActionsProvider;
 import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.tools.widgets.blueprint.BPF;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.ICallback;
-import org.jowidgets.util.ITypedKey;
 
 final class DataModelContextImpl implements IDataModelContext {
 
@@ -67,13 +62,20 @@ final class DataModelContextImpl implements IDataModelContext {
 
 	private final Set<IDataModel> selectionChangeModels;
 	private final Set<IDataModel> dataChangeModels;
+	private final IDataModelSaveDelegate saveDelegate;
 
-	DataModelContextImpl(final IDataModel rootModel, final DataModelChangeType rootModelDepenency) {
+	DataModelContextImpl(
+		final IDataModel rootModel,
+		final DataModelChangeType rootModelDepenency,
+		final IDataModelSaveDelegate saveDelegate) {
 		Assert.paramNotNull(rootModel, "rootModel");
 		Assert.paramNotNull(rootModelDepenency, "rootModelDepenency");
 
 		this.selectionChangeModels = new LinkedHashSet<IDataModel>();
 		this.dataChangeModels = new LinkedHashSet<IDataModel>();
+		this.saveDelegate = saveDelegate;
+
+		addDependency(rootModel, rootModelDepenency);
 	}
 
 	@Override
@@ -192,30 +194,7 @@ final class DataModelContextImpl implements IDataModelContext {
 		for (final IDataModel model : modifiedModels) {
 			model.addModificationStateListener(new ModificationStateListener(modifiedModels, model, callback));
 		}
-
-		try {
-			//TODO this must be changeable, may no save actions will be used
-			final IDataModelAction saveAction = CapWorkbenchActionsProvider.saveAction();
-			saveAction.execute(new IExecutionContext() {
-				@Override
-				public <VALUE_TYPE> VALUE_TYPE getValue(final ITypedKey<VALUE_TYPE> key) {
-					return null;
-				}
-
-				@Override
-				public IWidget getSource() {
-					return Toolkit.getActiveWindow();
-				}
-
-				@Override
-				public IAction getAction() {
-					return saveAction;
-				}
-			});
-		}
-		catch (final Exception e) {
-			throw new RuntimeException();
-		}
+		saveDelegate.save();
 	}
 
 	private boolean hasInvalidChanged(final Collection<IDataModel> models) {
