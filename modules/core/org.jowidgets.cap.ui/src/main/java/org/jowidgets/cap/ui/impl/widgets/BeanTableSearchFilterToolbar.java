@@ -68,6 +68,10 @@ import org.jowidgets.cap.ui.api.filter.IUiFilter;
 import org.jowidgets.cap.ui.api.filter.IUiFilterFactory;
 import org.jowidgets.cap.ui.api.lookup.ILookUp;
 import org.jowidgets.cap.ui.api.lookup.ILookUpAccess;
+import org.jowidgets.cap.ui.api.model.DataModelChangeType;
+import org.jowidgets.cap.ui.api.model.IChangeResponse;
+import org.jowidgets.cap.ui.api.model.IChangeResponse.ResponseType;
+import org.jowidgets.cap.ui.api.model.IDataModelContext;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.tools.filter.UiBooleanFilterWrapper;
 import org.jowidgets.common.types.VirtualKey;
@@ -79,6 +83,7 @@ import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
 import org.jowidgets.tools.controller.KeyAdapter;
 import org.jowidgets.tools.widgets.blueprint.BPF;
 import org.jowidgets.util.EmptyCheck;
+import org.jowidgets.util.ICallback;
 import org.jowidgets.util.concurrent.DaemonThreadFactory;
 import org.jowidgets.util.event.IChangeListener;
 
@@ -102,6 +107,7 @@ final class BeanTableSearchFilterToolbar<BEAN_TYPE> {
 
 	private FilterResultLoader loader;
 	private ScheduledExecutorService executorService;
+	private String lastText;
 
 	BeanTableSearchFilterToolbar(final IComposite composite, final BeanTableImpl<BEAN_TYPE> table) {
 		this.composite = composite;
@@ -136,8 +142,38 @@ final class BeanTableSearchFilterToolbar<BEAN_TYPE> {
 		this.inputListener = new IInputListener() {
 			@Override
 			public void inputChanged() {
-				load(textField.getText(), false);
-				if (EmptyCheck.isEmpty(textField.getText())) {
+				final IDataModelContext context = model.getDataModelContext();
+				final String newText = textField.getText();
+				final IChangeResponse response = context.permitChange(DataModelChangeType.DATA_CHANGE);
+				if (ResponseType.ASYNC == response.getType()) {
+					context.permitChangeAsync(response, new ICallback<Boolean>() {
+						@Override
+						public void call(final Boolean parameter) {
+							if (Boolean.TRUE.equals(parameter)) {
+								doLoad(newText);
+							}
+							else {
+								textField.removeInputListener(inputListener);
+								textField.setText(lastText);
+								textField.addInputListener(inputListener);
+							}
+						}
+					});
+				}
+				else if (ResponseType.NO == response.getType()) {
+					textField.removeInputListener(inputListener);
+					textField.setText(lastText);
+					textField.addInputListener(inputListener);
+				}
+				else {
+					doLoad(newText);
+				}
+			}
+
+			private void doLoad(final String newText) {
+				lastText = newText;
+				load(newText, false);
+				if (EmptyCheck.isEmpty(newText)) {
 					searchFilterItemModel.setEnabled(true);
 					searchFilterItemModel.setToolTipText(searchFilterItemTooltip);
 					closeButton.setEnabled(true);
@@ -158,7 +194,10 @@ final class BeanTableSearchFilterToolbar<BEAN_TYPE> {
 			@Override
 			public void keyPressed(final IKeyEvent event) {
 				if (event.getVirtualKey() == VirtualKey.ENTER) {
-					load(textField.getText(), true);
+					final IChangeResponse response = model.getDataModelContext().permitChange(DataModelChangeType.DATA_CHANGE);
+					if (ResponseType.YES == response.getType()) {
+						load(textField.getText(), true);
+					}
 				}
 			}
 
