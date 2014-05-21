@@ -28,19 +28,29 @@
 
 package org.jowidgets.cap.ui.impl;
 
+import org.jowidgets.api.command.IAction;
+import org.jowidgets.api.command.IExecutionContext;
+import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.api.widgets.IWidget;
+import org.jowidgets.cap.ui.api.command.IDataModelAction;
 import org.jowidgets.cap.ui.api.model.DataModelChangeType;
 import org.jowidgets.cap.ui.api.model.IDataModel;
 import org.jowidgets.cap.ui.api.model.IDataModelContext;
 import org.jowidgets.cap.ui.api.model.IDataModelContextBuilder;
+import org.jowidgets.cap.ui.api.model.IDataModelSaveDelegate;
+import org.jowidgets.cap.ui.api.workbench.CapWorkbenchActionsProvider;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.ITypedKey;
 
 final class DataModelContextBuilderImpl implements IDataModelContextBuilder {
 
 	private IDataModel rootModel;
 	private DataModelChangeType rootModelDepenency;
+	private IDataModelSaveDelegate saveDelegate;
 
 	DataModelContextBuilderImpl() {
 		rootModelDepenency = DataModelChangeType.DATA_CHANGE;
+		this.saveDelegate = new DefaultCapDataModelSaveDelegate();
 	}
 
 	@Override
@@ -58,8 +68,45 @@ final class DataModelContextBuilderImpl implements IDataModelContextBuilder {
 	}
 
 	@Override
-	public IDataModelContext build() {
-		return new DataModelContextImpl(rootModel, rootModelDepenency);
+	public IDataModelContextBuilder setSaveDelegate(final IDataModelSaveDelegate saveDelegate) {
+		Assert.paramNotNull(saveDelegate, "saveDelegate");
+		this.saveDelegate = saveDelegate;
+		return this;
 	}
 
+	@Override
+	public IDataModelContext build() {
+		return new DataModelContextImpl(rootModel, rootModelDepenency, saveDelegate);
+	}
+
+	private final class DefaultCapDataModelSaveDelegate implements IDataModelSaveDelegate {
+
+		@Override
+		public void save() {
+			try {
+				final IDataModelAction saveAction = CapWorkbenchActionsProvider.saveAction();
+				saveAction.execute(new IExecutionContext() {
+
+					@Override
+					public <VALUE_TYPE> VALUE_TYPE getValue(final ITypedKey<VALUE_TYPE> key) {
+						return null;
+					}
+
+					@Override
+					public IWidget getSource() {
+						return Toolkit.getActiveWindow();
+					}
+
+					@Override
+					public IAction getAction() {
+						return saveAction;
+					}
+				});
+			}
+			catch (final Exception e) {
+				throw new RuntimeException();
+			}
+		}
+
+	}
 }
