@@ -37,7 +37,11 @@ import org.jowidgets.cap.ui.api.attribute.IAttributeFilter;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.util.event.IChangeObservable;
 
-public interface ISingleBeanModel<BEAN_TYPE> extends IDataModel, IBeanListModel<BEAN_TYPE>, IChangeObservable {
+public interface ISingleBeanModel<BEAN_TYPE> extends
+		IDataModel,
+		IDataModelContextProvider,
+		IBeanListModel<BEAN_TYPE>,
+		IChangeObservable {
 
 	Object getBeanTypeId();
 

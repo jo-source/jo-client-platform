@@ -41,6 +41,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.command.IExecutionContext;
+import org.jowidgets.api.controller.IListSelectionVetoListener;
 import org.jowidgets.api.convert.IStringObjectConverter;
 import org.jowidgets.api.model.item.ICheckedItemModel;
 import org.jowidgets.api.model.item.ICheckedItemModelBuilder;
@@ -62,6 +63,10 @@ import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.filter.FilterType;
+import org.jowidgets.cap.ui.api.model.DataModelChangeType;
+import org.jowidgets.cap.ui.api.model.IChangeResponse;
+import org.jowidgets.cap.ui.api.model.IChangeResponse.ResponseType;
+import org.jowidgets.cap.ui.api.model.IDataModelContext;
 import org.jowidgets.cap.ui.api.model.IProcessStateListener;
 import org.jowidgets.cap.ui.api.plugin.IBeanTableMenuContributionPlugin;
 import org.jowidgets.cap.ui.api.plugin.IBeanTableMenuInterceptorPlugin;
@@ -126,6 +131,7 @@ import org.jowidgets.tools.widgets.blueprint.BPF;
 import org.jowidgets.tools.widgets.wrapper.CompositeWrapper;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCheck;
+import org.jowidgets.util.ICallback;
 import org.jowidgets.util.IDecorator;
 import org.jowidgets.util.ITypedKey;
 import org.jowidgets.util.concurrent.DaemonThreadFactory;
@@ -167,6 +173,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 	private final ICheckedItemModel autoUpdateItemModel;
 	private final AutoPackPolicy autoPackPolicy;
 	private final MenuModelKeyBinding menuModelKeyBinding;
+	private final IListSelectionVetoListener selectionVetoListener;
 
 	private IAction creatorAction;
 	private IAction deleteAction;
@@ -435,6 +442,9 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 		if (bluePrint.getRowHeight() != null) {
 			table.setRowHeight(bluePrint.getRowHeight().intValue());
 		}
+
+		this.selectionVetoListener = new SelectionVetoListener();
+		table.addSelectionVetoListener(selectionVetoListener);
 	}
 
 	private void modifyBeanTableBpByPlugins(final Object entityId, final IBeanTableBluePrint<BEAN_TYPE> beanTableBp) {
@@ -1021,6 +1031,51 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 		};
 	}
 
+	private final class SelectionVetoListener implements IListSelectionVetoListener {
+
+		private List<Integer> newSelection;
+
+		private SelectionVetoListener() {}
+
+		@Override
+		public void beforeSelectionChange(final List<Integer> newSelection, final IVetoable veto) {
+			if (this.newSelection != null) {
+				veto.veto();
+				return;
+			}
+			final IDataModelContext dataContext = model.getDataModelContext();
+			final IChangeResponse response = dataContext.permitChange(DataModelChangeType.SELECTION_CHANGE);
+			if (ResponseType.NO.equals(response.getType())) {
+				veto.veto();
+				return;
+			}
+			else if (ResponseType.ASYNC.equals(response.getType())) {
+				this.newSelection = newSelection;
+				final ICallback<Boolean> permitCallback = new ICallback<Boolean>() {
+					@Override
+					public void call(final Boolean permit) {
+						if (permit.booleanValue()) {
+							table.removeSelectionVetoListener(selectionVetoListener);
+							table.setSelection(SelectionVetoListener.this.newSelection);
+							table.addSelectionVetoListener(selectionVetoListener);
+						}
+						SelectionVetoListener.this.newSelection = null;
+					}
+				};
+				Toolkit.getUiThreadAccess().invokeLater(new Runnable() {
+					@Override
+					public void run() {
+						dataContext.permitChangeAsync(response, permitCallback);
+					}
+				});
+
+				veto.veto();
+				return;
+			}
+		}
+
+	}
+
 	private final class AutoUpdateRunnable implements Runnable {
 
 		private final IUiThreadAccess uiThreadAccess;
@@ -1276,6 +1331,16 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 	@Override
 	public void removeTableSelectionListener(final ITableSelectionListener listener) {
 		table.removeTableSelectionListener(listener);
+	}
+
+	@Override
+	public void addSelectionVetoListener(final IListSelectionVetoListener listener) {
+		table.addSelectionVetoListener(listener);
+	}
+
+	@Override
+	public void removeSelectionVetoListener(final IListSelectionVetoListener listener) {
+		table.removeSelectionVetoListener(listener);
 	}
 
 	@Override

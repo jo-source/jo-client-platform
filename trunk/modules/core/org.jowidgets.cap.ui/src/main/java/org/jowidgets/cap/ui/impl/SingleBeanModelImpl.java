@@ -71,7 +71,9 @@ import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
 import org.jowidgets.cap.ui.api.bean.IBeansStateTracker;
 import org.jowidgets.cap.ui.api.execution.BeanExecutionPolicy;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
+import org.jowidgets.cap.ui.api.model.DataModelContext;
 import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
+import org.jowidgets.cap.ui.api.model.IDataModelContext;
 import org.jowidgets.cap.ui.api.model.IModificationStateListener;
 import org.jowidgets.cap.ui.api.model.IProcessStateListener;
 import org.jowidgets.cap.ui.api.model.ISingleBeanModel;
@@ -122,6 +124,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 	private final List<IBeanPropertyValidator<BEAN_TYPE>> beanPropertyValidators;
 	private final IBeansStateTracker<BEAN_TYPE> beansStateTracker;
 	private final IBeanProxyFactory<BEAN_TYPE> beanProxyFactory;
+	private final IDataModelContext dataModelContext;
 
 	private IBeanProxy<BEAN_TYPE> bean;
 	private DataLoader dataLoader;
@@ -143,7 +146,8 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 		final LinkType linkType,
 		final Long listenerDelay,
 		List<IAttribute<Object>> attributes,
-		final IBeanProxyContext beanProxyContext) {
+		final IBeanProxyContext beanProxyContext,
+		final IDataModelContext dataModelContext) {
 
 		Assert.paramNotNull(beanTypeId, "beanTypeId");
 		Assert.paramNotNull(beanType, "beanType");
@@ -228,6 +232,13 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 			exceptionConverter,
 			BeanExecutionPolicy.BATCH,
 			refreshService);
+
+		this.dataModelContext = dataModelContext != null ? dataModelContext : DataModelContext.create(this);
+	}
+
+	@Override
+	public IDataModelContext getDataModelContext() {
+		return dataModelContext;
 	}
 
 	private List<IAttribute<Object>> createModifiedByPluginsAttributes(

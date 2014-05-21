@@ -43,7 +43,9 @@ import org.jowidgets.cap.ui.api.bean.IBeanSelection;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionEvent;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionListener;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
+import org.jowidgets.cap.ui.api.model.DataModelContext;
 import org.jowidgets.cap.ui.api.model.IDataModel;
+import org.jowidgets.cap.ui.api.model.IDataModelContext;
 import org.jowidgets.cap.ui.api.model.IModificationStateListener;
 import org.jowidgets.cap.ui.api.model.IProcessStateListener;
 import org.jowidgets.cap.ui.api.model.LinkType;
@@ -89,6 +91,7 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE> implements
 	private final BeanSelectionListener beanSelectionListener;
 	private final Map relationNodes;
 	private final Set<IDataModel> externalDataModels;
+	private final IDataModelContext dataModelContext;
 
 	private IBeanSelection<Object> selection;
 	private IBeanRelationTreeSelection treeSelection;
@@ -97,6 +100,7 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE> implements
 		final IBeanRelationNodeModel<Void, CHILD_BEAN_TYPE> root,
 		final IBeanRelationNodeModelConfigurator nodeConfigurator,
 		final IBeanProxyContext beanProxyContext,
+		final IDataModelContext dataModelContext,
 		final IBeanSelectionProvider<Object> parent,
 		final LinkType linkType,
 		final Long listenerDelay) {
@@ -136,6 +140,13 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE> implements
 		this.processStateListener = new ProcessStateListener();
 
 		registerListeners(root);
+
+		this.dataModelContext = dataModelContext != null ? dataModelContext : DataModelContext.create(this);
+	}
+
+	@Override
+	public IDataModelContext getDataModelContext() {
+		return dataModelContext;
 	}
 
 	@Override

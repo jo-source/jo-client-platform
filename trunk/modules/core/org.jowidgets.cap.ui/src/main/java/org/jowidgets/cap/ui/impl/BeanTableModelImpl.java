@@ -112,7 +112,9 @@ import org.jowidgets.cap.ui.api.filter.IUiFilterFactory;
 import org.jowidgets.cap.ui.api.filter.IUiFilterTools;
 import org.jowidgets.cap.ui.api.lookup.ILookUpAccess;
 import org.jowidgets.cap.ui.api.lookup.ILookUpListener;
+import org.jowidgets.cap.ui.api.model.DataModelContext;
 import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
+import org.jowidgets.cap.ui.api.model.IDataModelContext;
 import org.jowidgets.cap.ui.api.model.IModificationStateListener;
 import org.jowidgets.cap.ui.api.model.IProcessStateListener;
 import org.jowidgets.cap.ui.api.model.LinkType;
@@ -220,6 +222,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	private final IDefaultTableColumnModel columnModel;
 	private final DataModel dataModel;
 	private final ITableModel tableModel;
+	private final IDataModelContext dataModelContext;
 
 	private final Set<AttributeLookUpListener> lookUpListenersStrongRef;
 	private final Map<Integer, PageLoader> programmaticPageLoader;
@@ -275,6 +278,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		final boolean useLastModificationAsDefault,
 		final int pageSize,
 		final IBeanProxyContext beanProxyContext,
+		final IDataModelContext dataModelContext,
 		final List<IBeanTableCellRenderer<BEAN_TYPE>> cellRenderers) {
 
 		//arguments checks
@@ -422,6 +426,13 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		});
 
 		setLastBeanEnabled(lastBeanEnabled);
+
+		this.dataModelContext = dataModelContext != null ? dataModelContext : DataModelContext.create(this);
+	}
+
+	@Override
+	public IDataModelContext getDataModelContext() {
+		return dataModelContext;
 	}
 
 	@Override

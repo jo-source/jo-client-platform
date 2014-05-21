@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, grossmann
+ * Copyright (c) 2014, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,39 +26,22 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl;
+package org.jowidgets.cap.ui.api.model;
 
-import org.jowidgets.cap.ui.api.model.ISingleBeanModel;
-import org.jowidgets.cap.ui.api.model.ISingleBeanModelBuilder;
+import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.util.Assert;
 
-public class SingleBeanModelBuilder<BEAN_TYPE> extends
-		AbstractBeanModelBuilderImpl<BEAN_TYPE, ISingleBeanModelBuilder<BEAN_TYPE>> implements ISingleBeanModelBuilder<BEAN_TYPE> {
+public final class DataModelContext {
 
-	SingleBeanModelBuilder(final Object entityId, final Object beanTypeId, final Class<BEAN_TYPE> beanType) {
-		super(entityId, beanTypeId, beanType);
-		setMetaAttributes(new String[0]);
+	private DataModelContext() {}
+
+	public static IDataModelContext create(final IDataModel rootModel) {
+		Assert.paramNotNull(rootModel, "rootModel");
+		return builder().setRootModel(rootModel).build();
 	}
 
-	@Override
-	public ISingleBeanModel<BEAN_TYPE> build() {
-		return new SingleBeanModelImpl<BEAN_TYPE>(
-			getBeanTypeId(),
-			getBeanType(),
-			getEntityId(),
-			getReaderService(),
-			getReaderParameterProvider(),
-			getCreatorService(),
-			getRefreshService(),
-			getUpdaterService(),
-			getDeleterService(),
-			getExceptionConverter(),
-			getBeanValidators(),
-			getParent(),
-			getLinkType(),
-			getListenerDelay(),
-			getAttributes(),
-			getBeanProxyContext(),
-			getDataModelContext());
+	public static IDataModelContextBuilder builder() {
+		return CapUiToolkit.dataModelContextBuilder();
 	}
 
 }

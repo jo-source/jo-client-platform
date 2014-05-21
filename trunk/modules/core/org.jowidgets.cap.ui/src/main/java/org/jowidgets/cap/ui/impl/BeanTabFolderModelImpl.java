@@ -79,7 +79,9 @@ import org.jowidgets.cap.ui.api.filter.IUiBooleanFilter;
 import org.jowidgets.cap.ui.api.filter.IUiFilter;
 import org.jowidgets.cap.ui.api.filter.IUiFilterFactory;
 import org.jowidgets.cap.ui.api.filter.IUiFilterTools;
+import org.jowidgets.cap.ui.api.model.DataModelContext;
 import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
+import org.jowidgets.cap.ui.api.model.IDataModelContext;
 import org.jowidgets.cap.ui.api.model.IModificationStateListener;
 import org.jowidgets.cap.ui.api.model.IProcessStateListener;
 import org.jowidgets.cap.ui.api.model.LinkType;
@@ -147,6 +149,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 	private final DisposeObservable disposeObservable;
 	private final IChangeListener sortModelChangeListener;
 	private final IBeanSelectionListener<Object> parentSelectionListener;
+	private final IDataModelContext dataModelContext;
 
 	private final IBeanProxyLabelRenderer<BEAN_TYPE> renderer;
 
@@ -177,7 +180,8 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 		final Long listenerDelay,
 		final boolean clearOnEmptyFilter,
 		final boolean clearOnEmptyParentBeans,
-		final IBeanProxyContext beanProxyContext) {
+		final IBeanProxyContext beanProxyContext,
+		final IDataModelContext dataModelContext) {
 
 		//arguments checks
 		Assert.paramNotNull(interceptors, "interceptors");
@@ -277,6 +281,13 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 			exceptionConverter,
 			BeanExecutionPolicy.BATCH,
 			refreshService);
+
+		this.dataModelContext = dataModelContext != null ? dataModelContext : DataModelContext.create(this);
+	}
+
+	@Override
+	public IDataModelContext getDataModelContext() {
+		return dataModelContext;
 	}
 
 	private List<IAttribute<Object>> createModifiedByPluginsAttributes(

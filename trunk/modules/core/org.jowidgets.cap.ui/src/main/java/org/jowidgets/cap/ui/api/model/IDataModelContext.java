@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, grossmann
+ * Copyright (c) 2014, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,39 +26,58 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl;
+package org.jowidgets.cap.ui.api.model;
 
-import org.jowidgets.cap.ui.api.model.ISingleBeanModel;
-import org.jowidgets.cap.ui.api.model.ISingleBeanModelBuilder;
+import org.jowidgets.util.ICallback;
 
-public class SingleBeanModelBuilder<BEAN_TYPE> extends
-		AbstractBeanModelBuilderImpl<BEAN_TYPE, ISingleBeanModelBuilder<BEAN_TYPE>> implements ISingleBeanModelBuilder<BEAN_TYPE> {
+public interface IDataModelContext {
 
-	SingleBeanModelBuilder(final Object entityId, final Object beanTypeId, final Class<BEAN_TYPE> beanType) {
-		super(entityId, beanTypeId, beanType);
-		setMetaAttributes(new String[0]);
-	}
+	/**
+	 * Adds a dependency to the context with the default DataModelChangeType.SELECTION
+	 * 
+	 * @param model the model to add
+	 */
+	void addDependency(IDataModel model);
 
-	@Override
-	public ISingleBeanModel<BEAN_TYPE> build() {
-		return new SingleBeanModelImpl<BEAN_TYPE>(
-			getBeanTypeId(),
-			getBeanType(),
-			getEntityId(),
-			getReaderService(),
-			getReaderParameterProvider(),
-			getCreatorService(),
-			getRefreshService(),
-			getUpdaterService(),
-			getDeleterService(),
-			getExceptionConverter(),
-			getBeanValidators(),
-			getParent(),
-			getLinkType(),
-			getListenerDelay(),
-			getAttributes(),
-			getBeanProxyContext(),
-			getDataModelContext());
-	}
+	/**
+	 * Adds a dependency to the context
+	 * 
+	 * @param model The model to add
+	 * @param changeType The change type
+	 */
+	void addDependency(IDataModel model, DataModelChangeType changeType);
+
+	/**
+	 * Removes a dependency from the context
+	 * 
+	 * @param model The model to remove
+	 */
+	void removeDependency(IDataModel model);
+
+	/**
+	 * Ask for permission of a change.
+	 * In some cases this can not be done with synchronous signature, so the result my be ResponseType.ASYNC.
+	 * 
+	 * In this case, the permitChangeAsync method can be used, to get the permission with async signature
+	 * 
+	 * @param changeType The change type
+	 * @return The ChangeResponse
+	 */
+	IChangeResponse permitChange(DataModelChangeType changeType);
+
+	/**
+	 * Ask for permission with async signature. The answer will be provided on the given callback.
+	 * 
+	 * Invokers may not assume than the callback will ever be invoked.
+	 * 
+	 * @param changeRespose The response of the sync request
+	 * @param callback The callback to get the result
+	 */
+	void permitChangeAsync(IChangeResponse changeRespose, ICallback<Boolean> callback);
+
+	/**
+	 * Dispose the context.
+	 */
+	void dispose();
 
 }

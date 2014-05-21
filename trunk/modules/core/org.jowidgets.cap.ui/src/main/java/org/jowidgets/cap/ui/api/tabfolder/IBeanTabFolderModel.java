@@ -43,10 +43,15 @@ import org.jowidgets.cap.ui.api.bean.IBeanProxyLabelRenderer;
 import org.jowidgets.cap.ui.api.filter.IUiFilter;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.model.IDataModel;
+import org.jowidgets.cap.ui.api.model.IDataModelContextProvider;
 import org.jowidgets.cap.ui.api.sort.ISortModel;
 import org.jowidgets.util.event.IChangeListener;
 
-public interface IBeanTabFolderModel<BEAN_TYPE> extends IDataModel, IBeanListModel<BEAN_TYPE>, IDisposeObservable {
+public interface IBeanTabFolderModel<BEAN_TYPE> extends
+		IDataModel,
+		IDataModelContextProvider,
+		IBeanListModel<BEAN_TYPE>,
+		IDisposeObservable {
 
 	Object getEntityId();
 

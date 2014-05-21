@@ -34,10 +34,12 @@ import java.util.List;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
 import org.jowidgets.cap.ui.api.model.IDataModel;
+import org.jowidgets.cap.ui.api.model.IDataModelContextProvider;
 import org.jowidgets.cap.ui.api.types.IEntityTypeId;
 
 public interface IBeanRelationTreeModel<CHILD_BEAN_TYPE> extends
 		IDataModel,
+		IDataModelContextProvider,
 		IBeanSelectionProvider<Object>,
 		IBeanRelationTreeSelectionObservable {
 
