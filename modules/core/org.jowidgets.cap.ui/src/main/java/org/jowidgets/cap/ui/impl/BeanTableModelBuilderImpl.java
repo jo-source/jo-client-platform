@@ -276,6 +276,7 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> extends
 			useLastModificationAsDefault,
 			pageSize,
 			getBeanProxyContext(),
+			getDataModelContext(),
 			cellRenderers);
 	}
 

@@ -123,7 +123,8 @@ final class BeanTabFolderModelBuilderImpl<BEAN_TYPE> extends
 			getListenerDelay(),
 			clearOnEmptyFilter,
 			getClearOnEmptyParentBeans(),
-			getBeanProxyContext());
+			getBeanProxyContext(),
+			getDataModelContext());
 	}
 
 }

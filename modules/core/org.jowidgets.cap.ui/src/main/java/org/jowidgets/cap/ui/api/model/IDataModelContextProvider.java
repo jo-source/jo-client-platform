@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, grossmann
+ * Copyright (c) 2014, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,39 +26,10 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl;
+package org.jowidgets.cap.ui.api.model;
 
-import org.jowidgets.cap.ui.api.model.ISingleBeanModel;
-import org.jowidgets.cap.ui.api.model.ISingleBeanModelBuilder;
+public interface IDataModelContextProvider {
 
-public class SingleBeanModelBuilder<BEAN_TYPE> extends
-		AbstractBeanModelBuilderImpl<BEAN_TYPE, ISingleBeanModelBuilder<BEAN_TYPE>> implements ISingleBeanModelBuilder<BEAN_TYPE> {
-
-	SingleBeanModelBuilder(final Object entityId, final Object beanTypeId, final Class<BEAN_TYPE> beanType) {
-		super(entityId, beanTypeId, beanType);
-		setMetaAttributes(new String[0]);
-	}
-
-	@Override
-	public ISingleBeanModel<BEAN_TYPE> build() {
-		return new SingleBeanModelImpl<BEAN_TYPE>(
-			getBeanTypeId(),
-			getBeanType(),
-			getEntityId(),
-			getReaderService(),
-			getReaderParameterProvider(),
-			getCreatorService(),
-			getRefreshService(),
-			getUpdaterService(),
-			getDeleterService(),
-			getExceptionConverter(),
-			getBeanValidators(),
-			getParent(),
-			getLinkType(),
-			getListenerDelay(),
-			getAttributes(),
-			getBeanProxyContext(),
-			getDataModelContext());
-	}
+	IDataModelContext getDataModelContext();
 
 }

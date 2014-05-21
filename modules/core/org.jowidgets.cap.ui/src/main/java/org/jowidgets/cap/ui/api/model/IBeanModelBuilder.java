@@ -92,4 +92,6 @@ public interface IBeanModelBuilder<BEAN_TYPE, INSTANCE_TYPE> {
 
 	INSTANCE_TYPE setBeanProxyContext(IBeanProxyContext context);
 
+	INSTANCE_TYPE setDataModelContext(IDataModelContext context);
+
 }

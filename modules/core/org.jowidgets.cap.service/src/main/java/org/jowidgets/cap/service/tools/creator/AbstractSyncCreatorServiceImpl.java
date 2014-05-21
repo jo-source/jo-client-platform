@@ -154,6 +154,7 @@ public abstract class AbstractSyncCreatorServiceImpl<BEAN_TYPE> implements ISync
 		final Collection<? extends IBeanData> beansData,
 		final IExecutionCallback executionCallback) {
 		final List<IBeanDto> result = new LinkedList<IBeanDto>();
+
 		for (final IBeanData beanData : beansData) {
 			final BEAN_TYPE bean = createBean((Collection<IBeanKey>) parentBeanKeys, executionCallback);
 			CapServiceToolkit.checkCanceled(executionCallback);

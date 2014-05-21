@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, grossmann
+ * Copyright (c) 2014, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -28,37 +28,38 @@
 
 package org.jowidgets.cap.ui.impl;
 
-import org.jowidgets.cap.ui.api.model.ISingleBeanModel;
-import org.jowidgets.cap.ui.api.model.ISingleBeanModelBuilder;
+import org.jowidgets.cap.ui.api.model.DataModelChangeType;
+import org.jowidgets.cap.ui.api.model.IDataModel;
+import org.jowidgets.cap.ui.api.model.IDataModelContext;
+import org.jowidgets.cap.ui.api.model.IDataModelContextBuilder;
+import org.jowidgets.util.Assert;
 
-public class SingleBeanModelBuilder<BEAN_TYPE> extends
-		AbstractBeanModelBuilderImpl<BEAN_TYPE, ISingleBeanModelBuilder<BEAN_TYPE>> implements ISingleBeanModelBuilder<BEAN_TYPE> {
+final class DataModelContextBuilderImpl implements IDataModelContextBuilder {
 
-	SingleBeanModelBuilder(final Object entityId, final Object beanTypeId, final Class<BEAN_TYPE> beanType) {
-		super(entityId, beanTypeId, beanType);
-		setMetaAttributes(new String[0]);
+	private IDataModel rootModel;
+	private DataModelChangeType rootModelDepenency;
+
+	DataModelContextBuilderImpl() {
+		rootModelDepenency = DataModelChangeType.DATA_CHANGE;
 	}
 
 	@Override
-	public ISingleBeanModel<BEAN_TYPE> build() {
-		return new SingleBeanModelImpl<BEAN_TYPE>(
-			getBeanTypeId(),
-			getBeanType(),
-			getEntityId(),
-			getReaderService(),
-			getReaderParameterProvider(),
-			getCreatorService(),
-			getRefreshService(),
-			getUpdaterService(),
-			getDeleterService(),
-			getExceptionConverter(),
-			getBeanValidators(),
-			getParent(),
-			getLinkType(),
-			getListenerDelay(),
-			getAttributes(),
-			getBeanProxyContext(),
-			getDataModelContext());
+	public IDataModelContextBuilder setRootModel(final IDataModel rootModel) {
+		Assert.paramNotNull(rootModel, "rootModel");
+		this.rootModel = rootModel;
+		return this;
+	}
+
+	@Override
+	public IDataModelContextBuilder setRootModelDependency(final DataModelChangeType rootModelDepenency) {
+		Assert.paramNotNull(rootModelDepenency, "rootModelDepenency");
+		this.rootModelDepenency = rootModelDepenency;
+		return this;
+	}
+
+	@Override
+	public IDataModelContext build() {
+		return new DataModelContextImpl(rootModel, rootModelDepenency);
 	}
 
 }

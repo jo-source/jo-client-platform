@@ -171,6 +171,7 @@ final class BeanRelationTreeModelBuilderImpl<CHILD_BEAN_TYPE> extends
 			rootNode,
 			getNodeConfigurator(),
 			getBeanProxyContext(),
+			getDataModelContext(),
 			getParent(),
 			getLinkType(),
 			getListenerDelay());

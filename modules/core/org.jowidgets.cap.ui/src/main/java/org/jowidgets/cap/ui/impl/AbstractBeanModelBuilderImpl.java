@@ -53,6 +53,7 @@ import org.jowidgets.cap.ui.api.bean.IBeanProxyContext;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionObservable;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
 import org.jowidgets.cap.ui.api.model.IBeanModelBuilder;
+import org.jowidgets.cap.ui.api.model.IDataModelContext;
 import org.jowidgets.cap.ui.api.model.LinkType;
 import org.jowidgets.cap.ui.api.types.IEntityTypeId;
 import org.jowidgets.service.api.IServiceId;
@@ -81,6 +82,7 @@ abstract class AbstractBeanModelBuilderImpl<BEAN_TYPE, INSTANCE_TYPE> implements
 	private IDeleterService deleterService;
 
 	private IBeanProxyContext beanProxyContext;
+	private IDataModelContext dataModelContext;
 
 	private IBeanExceptionConverter exceptionConverter;
 
@@ -294,6 +296,14 @@ abstract class AbstractBeanModelBuilderImpl<BEAN_TYPE, INSTANCE_TYPE> implements
 		return (INSTANCE_TYPE) this;
 	}
 
+	@SuppressWarnings("unchecked")
+	@Override
+	public INSTANCE_TYPE setDataModelContext(final IDataModelContext context) {
+		Assert.paramNotNull(context, "context");
+		this.dataModelContext = context;
+		return (INSTANCE_TYPE) this;
+	}
+
 	protected List<IAttribute<Object>> getAttributes() {
 		final List<IAttribute<Object>> result = new LinkedList<IAttribute<Object>>(attributes);
 		if (metaPropertyNames != null) {
@@ -374,6 +384,10 @@ abstract class AbstractBeanModelBuilderImpl<BEAN_TYPE, INSTANCE_TYPE> implements
 
 	protected IBeanProxyContext getBeanProxyContext() {
 		return beanProxyContext;
+	}
+
+	protected IDataModelContext getDataModelContext() {
+		return dataModelContext;
 	}
 
 }
