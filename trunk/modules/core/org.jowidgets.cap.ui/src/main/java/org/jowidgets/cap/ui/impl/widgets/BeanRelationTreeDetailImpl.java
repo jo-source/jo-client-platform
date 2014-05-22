@@ -70,8 +70,9 @@ import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
 import org.jowidgets.cap.ui.tools.bean.SingleBeanSelectionProvider;
 import org.jowidgets.cap.ui.tools.execution.ExecutionInterceptorAdapter;
 import org.jowidgets.cap.ui.tools.model.BeanListModelListenerAdapter;
-import org.jowidgets.cap.ui.tools.table.BeanTableMenuInterceptorAdapter;
 import org.jowidgets.common.types.IVetoable;
+import org.jowidgets.common.types.Modifier;
+import org.jowidgets.common.types.VirtualKey;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
 import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.tools.layout.MigLayoutFactory;
@@ -96,6 +97,8 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 	private final RelationModelChangeListener relationModelChangeListener;
 	private final FilterChangeListener filterChangeListener;
 	private final SortChangeListener sortChangeListener;
+	private final boolean hasCopyAction;
+	private final boolean hasPasteAction;
 
 	private IBeanTable<Object> lastBeanTable;
 	private IBeanRelationNodeModel<Object, Object> lastParentRelation;
@@ -106,6 +109,8 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 
 		this.treeModel = bluePrint.getModel();
 		this.menuInterceptor = bluePrint.getMenuInterceptor();
+		this.hasCopyAction = bluePrint.hasDefaultCopyAction();
+		this.hasPasteAction = bluePrint.hasDefaultLinkPasteAction();
 		this.tableConfigs = new HashMap<Object, Tuple<IBeanTableModelConfig, IBeanTableConfig>>();
 		this.tableLifecycleInterceptors = new LinkedHashSet<IBeanTableLifecycleInterceptor<Object>>();
 		this.cbpf = CapUiToolkit.bluePrintFactory();
@@ -210,17 +215,13 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 			final IBeanTableModel<Object> tableModel = createBeanTableModel(lastParentRelation);
 
 			final IBeanTableBluePrint<Object> beanTableBp = cbpf.beanTable(tableModel);
+
+			final boolean hasDeleterAction = beanTableBp.hasDefaultDeleterAction() && tableModel.getDeleterService() != null;
+
 			beanTableBp.setDefaultCreatorAction(false);
+			beanTableBp.setDefaultCopyAction(false);
 			beanTableBp.setDefaultPasteAction(false);
-			beanTableBp.addMenuInterceptor(new BeanTableMenuInterceptorAdapter<Object>() {
-				@Override
-				public IDeleterActionBuilder<Object> deleterActionBuilder(
-					final IBeanTable<Object> table,
-					final IDeleterActionBuilder<Object> builder) {
-					builder.addExecutionInterceptor(new DeleteBeanInterceptor(tableModel, relation));
-					return builder;
-				}
-			});
+			beanTableBp.setDefaultDeleterAction(false);
 
 			fireOnTableCreate(relation, beanTableBp);
 			lastBeanTable = tableContainer.add(beanTableBp, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
@@ -232,7 +233,7 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 
 			tableModel.getSortModel().setConfig(relation.getSortModel().getConfig());
 
-			addTableActions(relation, lastBeanTable);
+			addTableActions(relation, hasDeleterAction, lastBeanTable);
 			fireAfterTableCreated(relation, lastBeanTable);
 
 			tableModel.load();
@@ -348,28 +349,56 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 		}
 	}
 
-	private void addTableActions(final IBeanRelationNodeModel<Object, Object> relationNode, final IBeanTable<Object> table) {
+	private void addTableActions(
+		final IBeanRelationNodeModel<Object, Object> relationNode,
+		final boolean hasDeleterAction,
+		final IBeanTable<Object> table) {
 		final IEntityLinkDescriptor link = getLinkDescriptor(relationNode);
-		if (link != null && link.getLinkCreatorService() != null) {
-			final IAction pasteLinkAction = createPasteLinkAction(relationNode, table, link);
-			if (pasteLinkAction != null) {
-				table.getCellPopMenu().addAction(pasteLinkAction);
-				table.getTablePopupMenu().addAction(pasteLinkAction);
-			}
-		}
+
+		boolean needSeparator = false;
+
 		if (link != null && link.getLinkCreatorService() != null) {
 			final IAction linkCreatorAction = createLinkCreatorAction(relationNode, table, link);
 			if (linkCreatorAction != null) {
 				table.getCellPopMenu().addAction(linkCreatorAction);
 				table.getTablePopupMenu().addAction(linkCreatorAction);
+				needSeparator = true;
 			}
 		}
+		if (hasCopyAction) {
+			table.getCellPopMenu().addAction(CapUiToolkit.beanTableMenuFactory().copyAction(table));
+			needSeparator = true;
+		}
+		if (hasPasteAction && link != null && link.getLinkCreatorService() != null) {
+			final IAction pasteLinkAction = createPasteLinkAction(relationNode, table, link);
+			if (pasteLinkAction != null) {
+				table.getCellPopMenu().addAction(pasteLinkAction);
+				table.getTablePopupMenu().addAction(pasteLinkAction);
+				needSeparator = true;
+			}
+		}
+
+		if (needSeparator) {
+			table.getCellPopMenu().addSeparator();
+		}
+
 		if (link != null && link.getLinkDeleterService() != null) {
 			final IAction linkDeleterAction = createLinkDeleterAction(relationNode, table, link);
 			if (linkDeleterAction != null) {
 				table.getCellPopMenu().addAction(linkDeleterAction);
 			}
 		}
+
+		if (hasDeleterAction) {
+			table.getCellPopMenu().addAction(createDeleterAction(table, relationNode));
+		}
+	}
+
+	private IAction createDeleterAction(final IBeanTable<Object> table, final IBeanRelationNodeModel<Object, Object> relationNode) {
+		final IDeleterActionBuilder<Object> builder = CapUiToolkit.beanTableMenuFactory().deleterActionBuilder(table);
+		builder.addExecutionInterceptor(new DeleteBeanInterceptor(table.getModel(), relationNode));
+		builder.setAccelerator(VirtualKey.DELETE, Modifier.ALT);
+		return builder.build();
 	}
 
 	private IAction createPasteLinkAction(
@@ -438,6 +467,7 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 			relationNode.getParentBeanTypeId(),
 			relationNode.getParentBeanType());
 		builder = CapUiToolkit.actionFactory().linkDeleterActionBuilder(linkSource, table.getModel(), link);
+		builder.setAccelerator(VirtualKey.DELETE);
 		builder.addExecutionInterceptor(new RemoveBeanInterceptor(relationNode, table.getModel()));
 		if (menuInterceptor != null) {
 			builder = menuInterceptor.linkDeleterActionBuilder(table, builder);
