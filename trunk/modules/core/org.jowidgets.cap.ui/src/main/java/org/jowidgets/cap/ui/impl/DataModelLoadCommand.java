@@ -32,6 +32,8 @@ import org.jowidgets.api.command.EnabledState;
 import org.jowidgets.api.command.IEnabledState;
 import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.cap.ui.api.model.IDataModel;
+import org.jowidgets.cap.ui.api.model.IDataModelContextProvider;
+import org.jowidgets.cap.ui.tools.model.DataModelContextExecutor;
 
 final class DataModelLoadCommand extends AbstractDataModelCommand {
 
@@ -41,7 +43,17 @@ final class DataModelLoadCommand extends AbstractDataModelCommand {
 
 	@Override
 	void execute(final IDataModel dataModel, final IExecutionContext executionContext) {
-		dataModel.load();
+		if (dataModel instanceof IDataModelContextProvider) {
+			DataModelContextExecutor.executeDataChange((IDataModelContextProvider) dataModel, new Runnable() {
+				@Override
+				public void run() {
+					dataModel.load();
+				}
+			});
+		}
+		else {
+			dataModel.load();
+		}
 	}
 
 	@Override
