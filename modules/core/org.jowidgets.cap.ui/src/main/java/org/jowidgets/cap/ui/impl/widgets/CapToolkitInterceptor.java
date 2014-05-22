@@ -128,6 +128,7 @@ final class CapToolkitInterceptor implements IToolkitInterceptor {
 		bpf.addDefaultsInitializer(IBeanDialogBluePrint.class, new BeanDialogDefaults());
 		bpf.addDefaultsInitializer(IBeanFormBluePrint.class, new BeanFormDefaults());
 		bpf.addDefaultsInitializer(IBeanRelationTreeBluePrint.class, new BeanRelationTreeDefaults());
+		bpf.addDefaultsInitializer(IBeanRelationTreeDetailBluePrint.class, new BeanRelationTreeDetailDefaults());
 		bpf.addDefaultsInitializer(IBeanSelectionFormSetupBuilder.class, new BeanSelectionFormDefaults());
 		bpf.addDefaultsInitializer(IExecutionTaskDialogBluePrint.class, new ExecutionTaskDialogDefaults());
 	}

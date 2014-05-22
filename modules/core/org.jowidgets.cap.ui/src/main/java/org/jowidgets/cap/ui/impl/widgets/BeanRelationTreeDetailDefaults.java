@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2014, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,36 +26,15 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.widgets;
+package org.jowidgets.cap.ui.impl.widgets;
 
-import org.jowidgets.api.widgets.blueprint.builder.IComponentSetupBuilder;
-import org.jowidgets.api.widgets.descriptor.setup.IComponentSetup;
-import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeDetailMenuInterceptor;
-import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModel;
-import org.jowidgets.common.widgets.descriptor.setup.mandatory.Mandatory;
+import org.jowidgets.api.widgets.blueprint.defaults.IDefaultInitializer;
+import org.jowidgets.cap.ui.api.widgets.IBeanRelationTreeDetailBluePrint;
 
-public interface IBeanRelationTreeDetailSetupBuilder<CHILD_BEAN_TYPE> extends
-		IComponentSetup,
-		IComponentSetupBuilder<IBeanRelationTreeDetailSetupBuilder<CHILD_BEAN_TYPE>>,
-		IBeanRelationTreeDetailSetupConvenience<IBeanRelationTreeDetailSetupBuilder<CHILD_BEAN_TYPE>> {
-
-	IBeanRelationTreeDetailSetupBuilder<CHILD_BEAN_TYPE> setModel(IBeanRelationTreeModel<CHILD_BEAN_TYPE> model);
-
-	IBeanRelationTreeDetailSetupBuilder<CHILD_BEAN_TYPE> setMenuInterceptor(IBeanRelationTreeDetailMenuInterceptor interceptor);
-
-	IBeanRelationTreeDetailSetupBuilder<CHILD_BEAN_TYPE> setDefaultCopyAction(boolean copyAction);
-
-	IBeanRelationTreeDetailSetupBuilder<CHILD_BEAN_TYPE> setDefaultLinkPasteAction(boolean pasteAction);
-
-	@Mandatory
-	IBeanRelationTreeModel<CHILD_BEAN_TYPE> getModel();
-
-	IBeanRelationTreeDetailMenuInterceptor getMenuInterceptor();
-
-	@Mandatory
-	boolean hasDefaultCopyAction();
-
-	@Mandatory
-	boolean hasDefaultLinkPasteAction();
-
+final class BeanRelationTreeDetailDefaults implements IDefaultInitializer<IBeanRelationTreeDetailBluePrint<?>> {
+	@Override
+	public void initialize(final IBeanRelationTreeDetailBluePrint<?> bluePrint) {
+		bluePrint.setDefaultCopyAction(false);
+		bluePrint.setDefaultLinkPasteAction(false);
+	}
 }
