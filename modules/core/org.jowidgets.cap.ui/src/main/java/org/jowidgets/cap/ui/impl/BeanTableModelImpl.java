@@ -2711,7 +2711,15 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 				rowIndex = getBeanIndex(source);
 			}
 			if (rowIndex != -1) {
-				dataModel.fireRowsChanged(new int[] {rowIndex});
+				try {
+					//sometimes this leads to an index out of bound exception
+					//but because everything runs in the ui thread i do not
+					//understand why
+					dataModel.fireRowsChanged(new int[] {rowIndex});
+				}
+				catch (final Exception e) {
+					dataModel.fireDataChanged();
+				}
 				final String propertyName = evt.getPropertyName();
 				if (useLastModificationAsDefault && defaultValues.containsKey(propertyName)) {
 					defaultValues.put(propertyName, evt.getNewValue());
