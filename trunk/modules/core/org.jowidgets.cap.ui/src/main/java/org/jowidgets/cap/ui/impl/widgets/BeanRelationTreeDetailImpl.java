@@ -166,7 +166,6 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 
 	private void onSelectionChanged(final IBeanRelationTreeSelection selection) {
 		saveTableConfig();
-
 		final IBeanRelationNodeModel<Object, Object> relation = selection.getParentRelation();
 		if (selection.getFirstBean() == null && relation != null) {
 			onParentRelationChanged(relation);

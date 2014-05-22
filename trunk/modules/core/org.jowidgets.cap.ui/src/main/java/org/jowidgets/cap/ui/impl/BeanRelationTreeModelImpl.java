@@ -212,6 +212,10 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE> implements
 			dataModel.clear();
 		}
 		relationNodes.clear();
+
+		if (selection != null && !selection.getSelection().isEmpty()) {
+			setSelection(null);
+		}
 	}
 
 	@Override
@@ -476,7 +480,6 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE> implements
 				selection = treeSelectionEvent;
 				beanSelectionObservable.fireBeanSelectionEvent(treeSelectionEvent);
 			}
-
 		}
 	}
 
