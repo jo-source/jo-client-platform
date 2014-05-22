@@ -398,6 +398,13 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 		getWidget().addKeyListener(keyListener);
 		table.addKeyListener(keyListener);
 
+		model.addProcessStateListener(new IProcessStateListener() {
+			@Override
+			public void processStateChanged() {
+				table.stopEditing();
+			}
+		});
+
 		customTablePopupMenuModel.addListModelListener(new ListModelAdapter() {
 
 			@Override
