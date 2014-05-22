@@ -260,10 +260,9 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 				relation.getParentBeanTypeId(),
 				relation.getParentBeanType()), LinkType.SELECTION_FIRST);
 		}
-
 		fireOnModelCreate(relation, builder);
 		final IBeanTableModel<Object> result = builder.build();
-
+		result.setLastBeanEnabled(false);
 		fireAfterModelCreated(relation, result);
 		treeModel.addDataModel(result);
 		return result;
