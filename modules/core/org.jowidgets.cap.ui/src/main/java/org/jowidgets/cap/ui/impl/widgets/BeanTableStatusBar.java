@@ -209,7 +209,7 @@ final class BeanTableStatusBar<BEAN_TYPE> {
 			return size - 1;
 		}
 		else {
-			return 0;
+			return size;
 		}
 	}
 
