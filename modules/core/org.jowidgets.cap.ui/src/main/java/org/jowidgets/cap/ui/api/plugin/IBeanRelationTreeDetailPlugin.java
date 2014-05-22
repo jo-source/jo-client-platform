@@ -26,31 +26,20 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.tree;
+package org.jowidgets.cap.ui.api.plugin;
 
-import org.jowidgets.cap.ui.api.command.ICopyActionBuilder;
-import org.jowidgets.cap.ui.api.command.IDeleterActionBuilder;
-import org.jowidgets.cap.ui.api.command.ILinkCreatorActionBuilder;
-import org.jowidgets.cap.ui.api.command.ILinkDeleterActionBuilder;
-import org.jowidgets.cap.ui.api.command.IPasteLinkActionBuilder;
-import org.jowidgets.cap.ui.api.widgets.IBeanTable;
+import org.jowidgets.cap.ui.api.widgets.IBeanRelationTreeDetailBluePrint;
+import org.jowidgets.plugin.api.IPluginId;
+import org.jowidgets.plugin.api.IPluginProperties;
+import org.jowidgets.util.ITypedKey;
 
-public interface IBeanRelationTreeDetailMenuInterceptor {
+public interface IBeanRelationTreeDetailPlugin<CHILD_BEAN_TYPE> {
 
-	ILinkCreatorActionBuilder<Object, Object, Object> linkCreatorActionBuilder(
-		IBeanTable<Object> table,
-		ILinkCreatorActionBuilder<Object, Object, Object> builder);
+	IPluginId<IBeanRelationTreeDetailPlugin<?>> ID = new IPluginId<IBeanRelationTreeDetailPlugin<?>>() {};
 
-	IPasteLinkActionBuilder<Object, Object, Object> pasteLinkActionBuilder(
-		IBeanTable<Object> table,
-		IPasteLinkActionBuilder<Object, Object, Object> builder);
+	ITypedKey<Object> ENTITIY_ID_PROPERTY_KEY = new ITypedKey<Object>() {};
+	ITypedKey<Class<?>> BEAN_TYPE_PROPERTY_KEY = new ITypedKey<Class<?>>() {};
 
-	ILinkDeleterActionBuilder<Object, Object> linkDeleterActionBuilder(
-		IBeanTable<Object> table,
-		ILinkDeleterActionBuilder<Object, Object> builder);
-
-	IDeleterActionBuilder<Object> deleterActionBuilder(IBeanTable<Object> table, IDeleterActionBuilder<Object> builder);
-
-	ICopyActionBuilder<Object> copyActionBuilder(IBeanTable<Object> table, ICopyActionBuilder<Object> builder);
+	void modifySetup(IPluginProperties properties, IBeanRelationTreeDetailBluePrint<CHILD_BEAN_TYPE> builder);
 
 }
