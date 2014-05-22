@@ -304,6 +304,16 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 
 			boolean defaultMenuSeparatorAdded = false;
 
+			if (hasDefaultCreatorAction && model.getCreatorService() != null) {
+				this.creatorAction = menuFactory.creatorAction(this);
+				if (creatorAction != null) {
+					if (hasDefaultMenus && !defaultMenuSeparatorAdded) {
+						tablePopupMenuModel.addSeparator();
+						defaultMenuSeparatorAdded = true;
+					}
+					tablePopupMenuModel.addAction(creatorAction);
+				}
+			}
 			if (hasDefaultCopyAction) {
 				this.copyAction = menuFactory.copyAction(this);
 				if (hasDefaultMenus && !defaultMenuSeparatorAdded) {
@@ -319,16 +329,6 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 					defaultMenuSeparatorAdded = true;
 				}
 				tablePopupMenuModel.addAction(pasteAction);
-			}
-			if (hasDefaultCreatorAction && model.getCreatorService() != null) {
-				this.creatorAction = menuFactory.creatorAction(this);
-				if (creatorAction != null) {
-					if (hasDefaultMenus && !defaultMenuSeparatorAdded) {
-						tablePopupMenuModel.addSeparator();
-						defaultMenuSeparatorAdded = true;
-					}
-					tablePopupMenuModel.addAction(creatorAction);
-				}
 			}
 			if (hasDefaultDeleterAction && model.getDeleterService() != null) {
 				this.deleteAction = menuFactory.deleterAction(this);
@@ -680,6 +680,13 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 
 		boolean separatorNeeded = menuModel.getChildren().size() > 0;
 
+		if (creatorAction != null) {
+			if (separatorNeeded) {
+				menuModel.addSeparator();
+				separatorNeeded = false;
+			}
+			menuModel.addAction(creatorAction);
+		}
 		if (copyAction != null) {
 			if (separatorNeeded) {
 				menuModel.addSeparator();
@@ -693,13 +700,6 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 				separatorNeeded = false;
 			}
 			menuModel.addAction(pasteAction);
-		}
-		if (creatorAction != null) {
-			if (separatorNeeded) {
-				menuModel.addSeparator();
-				separatorNeeded = false;
-			}
-			menuModel.addAction(creatorAction);
 		}
 		if (deleteAction != null) {
 			if (separatorNeeded) {
