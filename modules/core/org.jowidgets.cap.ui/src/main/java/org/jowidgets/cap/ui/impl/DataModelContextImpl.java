@@ -119,6 +119,7 @@ final class DataModelContextImpl implements IDataModelContext {
 			return new ChangeResponseImpl(ResponseType.ASYNC, changeType);
 		}
 		else {
+			hasAsyncRequest = false;
 			return new ChangeResponseImpl(ResponseType.YES, changeType);
 		}
 	}
