@@ -44,12 +44,14 @@ import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
+import org.jowidgets.cap.ui.api.command.ICopyActionBuilder;
 import org.jowidgets.cap.ui.api.command.IDeleterActionBuilder;
 import org.jowidgets.cap.ui.api.command.ILinkCreatorActionBuilder;
 import org.jowidgets.cap.ui.api.command.ILinkDeleterActionBuilder;
 import org.jowidgets.cap.ui.api.command.IPasteLinkActionBuilder;
 import org.jowidgets.cap.ui.api.filter.IUiFilter;
 import org.jowidgets.cap.ui.api.model.LinkType;
+import org.jowidgets.cap.ui.api.plugin.IBeanRelationTreeDetailPlugin;
 import org.jowidgets.cap.ui.api.sort.ISortModelConfig;
 import org.jowidgets.cap.ui.api.table.BeanTableModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableConfig;
@@ -74,6 +76,10 @@ import org.jowidgets.common.types.IVetoable;
 import org.jowidgets.common.types.Modifier;
 import org.jowidgets.common.types.VirtualKey;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
+import org.jowidgets.plugin.api.IPluginProperties;
+import org.jowidgets.plugin.api.IPluginPropertiesBuilder;
+import org.jowidgets.plugin.api.PluginProperties;
+import org.jowidgets.plugin.api.PluginProvider;
 import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.tools.widgets.blueprint.BPF;
@@ -103,9 +109,11 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 	private IBeanTable<Object> lastBeanTable;
 	private IBeanRelationNodeModel<Object, Object> lastParentRelation;
 
-	BeanRelationTreeDetailImpl(final IComposite composite, final IBeanRelationTreeDetailBluePrint<CHILD_BEAN_TYPE> bluePrint) {
+	BeanRelationTreeDetailImpl(final IComposite composite, IBeanRelationTreeDetailBluePrint<CHILD_BEAN_TYPE> bluePrint) {
 		super(composite);
 		Assert.paramNotNull(bluePrint.getModel(), "bluePrint.getModel()");
+
+		bluePrint = modififySetupFromPlugins(bluePrint);
 
 		this.treeModel = bluePrint.getModel();
 		this.menuInterceptor = bluePrint.getMenuInterceptor();
@@ -135,6 +143,28 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 			}
 		};
 		treeModel.addBeanRelationTreeSelectionListener(treeSelectionListener);
+	}
+
+	@SuppressWarnings({"unchecked", "rawtypes"})
+	private IBeanRelationTreeDetailBluePrint<CHILD_BEAN_TYPE> modififySetupFromPlugins(
+		final IBeanRelationTreeDetailBluePrint<CHILD_BEAN_TYPE> bluePrint) {
+
+		final IBeanRelationTreeDetailBluePrint<CHILD_BEAN_TYPE> result = CapUiToolkit.bluePrintFactory().beanRelationTreeDetail();
+		result.setSetup(bluePrint);
+
+		final IBeanRelationNodeModel<Void, CHILD_BEAN_TYPE> rootNode = bluePrint.getModel().getRoot();
+		final IPluginPropertiesBuilder propertiesBuilder = PluginProperties.builder();
+		propertiesBuilder.add(IBeanRelationTreeDetailPlugin.ENTITIY_ID_PROPERTY_KEY, rootNode.getChildEntityId());
+		propertiesBuilder.add(IBeanRelationTreeDetailPlugin.BEAN_TYPE_PROPERTY_KEY, rootNode.getChildBeanType());
+		final IPluginProperties pluginProperties = propertiesBuilder.build();
+		final List<IBeanRelationTreeDetailPlugin<?>> plugins = PluginProvider.getPlugins(
+				IBeanRelationTreeDetailPlugin.ID,
+				pluginProperties);
+		for (final IBeanRelationTreeDetailPlugin plugin : plugins) {
+			plugin.modifySetup(pluginProperties, result);
+		}
+
+		return result;
 	}
 
 	@Override
@@ -366,8 +396,11 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 			}
 		}
 		if (hasCopyAction) {
-			table.getCellPopMenu().addAction(CapUiToolkit.beanTableMenuFactory().copyAction(table));
-			needSeparator = true;
+			final IAction copyAction = createCopyAction(table);
+			if (copyAction != null) {
+				table.getCellPopMenu().addAction(copyAction);
+				needSeparator = true;
+			}
 		}
 		if (hasPasteAction && link != null && link.getLinkCreatorService() != null) {
 			final IAction pasteLinkAction = createPasteLinkAction(relationNode, table, link);
@@ -394,11 +427,34 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 		}
 	}
 
+	private IAction createCopyAction(final IBeanTable<Object> table) {
+		ICopyActionBuilder<Object> builder = CapUiToolkit.beanTableMenuFactory().copyActionBuilder(table);
+
+		if (menuInterceptor != null) {
+			builder = menuInterceptor.copyActionBuilder(table, builder);
+		}
+		if (builder != null) {
+			return builder.build();
+		}
+		else {
+			return null;
+		}
+	}
+
 	private IAction createDeleterAction(final IBeanTable<Object> table, final IBeanRelationNodeModel<Object, Object> relationNode) {
-		final IDeleterActionBuilder<Object> builder = CapUiToolkit.beanTableMenuFactory().deleterActionBuilder(table);
+		IDeleterActionBuilder<Object> builder = CapUiToolkit.beanTableMenuFactory().deleterActionBuilder(table);
 		builder.addExecutionInterceptor(new DeleteBeanInterceptor(table.getModel(), relationNode));
 		builder.setAccelerator(VirtualKey.DELETE, Modifier.ALT);
-		return builder.build();
+
+		if (menuInterceptor != null) {
+			builder = menuInterceptor.deleterActionBuilder(table, builder);
+		}
+		if (builder != null) {
+			return builder.build();
+		}
+		else {
+			return null;
+		}
 	}
 
 	private IAction createPasteLinkAction(
