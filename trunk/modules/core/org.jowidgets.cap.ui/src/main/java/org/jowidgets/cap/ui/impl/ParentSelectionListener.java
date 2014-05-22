@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.ui.impl;
 
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -43,6 +44,7 @@ import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
 import org.jowidgets.cap.ui.api.bean.IBeanTransientStateListener;
 import org.jowidgets.cap.ui.api.model.IDataModel;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.util.EmptyCompatibleEquivalence;
 import org.jowidgets.util.concurrent.DaemonThreadFactory;
 
@@ -58,6 +60,7 @@ final class ParentSelectionListener<BEAN_TYPE> implements IBeanSelectionListener
 	private ScheduledExecutorService executorService;
 	private ScheduledFuture<?> schedule;
 	private IBeanSelection<Object> lastSelection;
+	private boolean hadLastRowDummy;
 
 	@SuppressWarnings("unchecked")
 	ParentSelectionListener(final IBeanSelectionProvider<?> parent, final IDataModel childModel, final Long listenerDelay) {
@@ -68,12 +71,14 @@ final class ParentSelectionListener<BEAN_TYPE> implements IBeanSelectionListener
 		this.parent = (IBeanSelectionProvider<Object>) parent;
 		this.listenerDelay = listenerDelay != null ? listenerDelay.longValue() : LISTENER_DELAY;
 
+		this.hadLastRowDummy = false;
+
 		this.transientStateListener = new TransientStateListener();
 	}
 
 	@Override
 	public void selectionChanged(final IBeanSelectionEvent<BEAN_TYPE> selectionEvent) {
-		if (!EmptyCompatibleEquivalence.equals(lastSelection, parent.getBeanSelection())) {
+		if (hadLastRowDummy || !EmptyCompatibleEquivalence.equals(lastSelection, parent.getBeanSelection())) {
 			removeTransientStateListeners();
 			if (listenerDelay > 0) {
 				loadScheduled();
@@ -118,12 +123,24 @@ final class ParentSelectionListener<BEAN_TYPE> implements IBeanSelectionListener
 
 	private void load() {
 		lastSelection = parent.getBeanSelection();
+		hadLastRowDummy = isLastRowDummySelected(lastSelection);
 		for (final IBeanProxy<Object> lastSelectedBean : parent.getBeanSelection().getSelection()) {
 			if (lastSelectedBean.isTransient()) {
 				lastSelectedBean.addTransientStateListener(transientStateListener);
 			}
 		}
 		childModel.load();
+	}
+
+	private boolean isLastRowDummySelected(final IBeanSelection<Object> beanSelection) {
+		final List<IBeanProxy<Object>> selection = beanSelection.getSelection();
+		if (!EmptyCheck.isEmpty(selection)) {
+			final IBeanProxy<Object> lastBean = selection.get(selection.size() - 1);
+			if (lastBean.isLastRowDummy()) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private ScheduledExecutorService getExecutorService() {
