@@ -50,6 +50,7 @@ import org.jowidgets.api.controller.IDisposeListener;
 import org.jowidgets.api.controller.ITreeSelectionEvent;
 import org.jowidgets.api.controller.ITreeSelectionListener;
 import org.jowidgets.api.image.IconsSmall;
+import org.jowidgets.api.model.item.IActionItemModel;
 import org.jowidgets.api.model.item.IMenuItemModel;
 import org.jowidgets.api.model.item.IMenuModel;
 import org.jowidgets.api.toolkit.Toolkit;
@@ -474,12 +475,12 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 		final IAction linkCreatorAction) {
 		final IMenuModel result = new MenuModel();
 
-		if (pasteLinkAction != null) {
-			result.addAction(pasteLinkAction);
-		}
-
 		if (linkCreatorAction != null) {
 			result.addAction(linkCreatorAction);
+		}
+
+		if (pasteLinkAction != null) {
+			result.addAction(pasteLinkAction);
 		}
 
 		if (menuInterceptor != null) {
@@ -559,13 +560,14 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 
 	private IMenuModel createNodeMenus(
 		final IBeanRelationNodeModel<Object, Object> relationNodeModel,
-		final IMenuModel relationMenu) {
+		final IMenuModel relationMenu,
+		final IAction createAction) {
 		final IMenuModel result = new MenuModel();
 
 		boolean needSeparator = false;
 
 		final IAction copyAction = createCopyAction(relationNodeModel);
-		if (copyAction != null) {
+		if (copyAction != null && createAction == null) {
 			result.addAction(copyAction);
 			needSeparator = true;
 		}
@@ -573,6 +575,12 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 		if (relationMenu.getChildren().size() > 0) {
 			for (final IMenuItemModel item : relationMenu.getChildren()) {
 				result.addItem(item);
+				if (copyAction != null && createAction != null && item instanceof IActionItemModel) {
+					final IAction action = ((IActionItemModel) item).getAction();
+					if (NullCompatibleEquivalence.equals(createAction, action)) {
+						result.addAction(copyAction);
+					}
+				}
 			}
 			needSeparator = true;
 		}
@@ -1073,7 +1081,7 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 						nodeActionMap.put(childRelationNode, createAction);
 
 						//create the menu for the nodes
-						final IMenuModel nodesMenu = createNodeMenus(childRelationNodeModel, relationMenu);
+						final IMenuModel nodesMenu = createNodeMenus(childRelationNodeModel, relationMenu, createAction);
 
 						if (expansionCacheEnabled) {
 							childRelationNode.addTreeNodeListener(new TreeNodeExpansionTrackingListener(childRelationNode));
