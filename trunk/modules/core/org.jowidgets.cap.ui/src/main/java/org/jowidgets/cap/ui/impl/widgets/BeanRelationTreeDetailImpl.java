@@ -385,21 +385,21 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 		final IBeanTable<Object> table) {
 		final IEntityLinkDescriptor link = getLinkDescriptor(relationNode);
 
-		boolean needSeparator = false;
+		int addedActions = 0;
 
 		if (link != null && link.getLinkCreatorService() != null) {
 			final IAction linkCreatorAction = createLinkCreatorAction(relationNode, table, link);
 			if (linkCreatorAction != null) {
 				table.getCellPopMenu().addAction(linkCreatorAction);
 				table.getTablePopupMenu().addAction(linkCreatorAction);
-				needSeparator = true;
+				addedActions++;
 			}
 		}
 		if (hasCopyAction) {
 			final IAction copyAction = createCopyAction(table);
 			if (copyAction != null) {
 				table.getCellPopMenu().addAction(copyAction);
-				needSeparator = true;
+				addedActions++;
 			}
 		}
 		if (hasPasteAction && link != null && link.getLinkCreatorService() != null) {
@@ -407,11 +407,11 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 			if (pasteLinkAction != null) {
 				table.getCellPopMenu().addAction(pasteLinkAction);
 				table.getTablePopupMenu().addAction(pasteLinkAction);
-				needSeparator = true;
+				addedActions++;
 			}
 		}
 
-		if (needSeparator) {
+		if (addedActions >= 2) {
 			table.getCellPopMenu().addSeparator();
 		}
 
