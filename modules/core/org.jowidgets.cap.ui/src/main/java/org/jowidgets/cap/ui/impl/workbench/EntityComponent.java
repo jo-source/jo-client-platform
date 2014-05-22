@@ -105,6 +105,7 @@ class EntityComponent extends AbstractComponent implements IComponent, IEntityCo
 		final List<IEntityLinkDescriptor> entityLinks = entityService.getEntityLinks(applicationNode.getEntityId());
 		if (entityLinks != null && !entityLinks.isEmpty()) {
 			this.relationTreeModel = createRelationTreeModel(tableModel, applicationNode);
+			tableModel.getDataModelContext().addDependency(relationTreeModel);
 			for (final IEntityLinkDescriptor link : entityLinks) {
 				if (link.getLinkCreatorService() != null) {
 					final IAction linkCreatorAction = createLinkCreatorAction(link);
