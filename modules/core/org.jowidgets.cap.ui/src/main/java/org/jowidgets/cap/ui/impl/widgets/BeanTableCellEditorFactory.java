@@ -96,8 +96,13 @@ final class BeanTableCellEditorFactory extends AbstractTableCellEditorFactory<IT
 	}
 
 	@Override
-	public EditActivation getActivation(final ITableCell cell, final int row, final int column) {
-		if (table.isEditing()) {
+	public EditActivation getActivation(
+		final ITableCell cell,
+		final int row,
+		final int column,
+		final boolean editMode,
+		final long editModeStopped) {
+		if (editMode || (System.currentTimeMillis() - editModeStopped < 100)) {
 			return EditActivation.SINGLE_CLICK;
 		}
 		final IBeanProxy<?> bean = model.getBean(row);
@@ -105,7 +110,7 @@ final class BeanTableCellEditorFactory extends AbstractTableCellEditorFactory<IT
 			return EditActivation.SINGLE_CLICK;
 		}
 		else {
-			return super.getActivation(cell, row, column);
+			return super.getActivation(cell, row, column, editMode, editModeStopped);
 		}
 	}
 
