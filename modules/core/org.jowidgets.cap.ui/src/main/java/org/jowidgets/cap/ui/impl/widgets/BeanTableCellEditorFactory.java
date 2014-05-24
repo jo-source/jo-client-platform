@@ -146,7 +146,9 @@ final class BeanTableCellEditorFactory extends AbstractTableCellEditorFactory<IT
 					Toolkit.getUiThreadAccess().invokeLater(new Runnable() {
 						@Override
 						public void run() {
-							((ISelectable) editor).select();
+							if (!editor.isDisposed()) {
+								((ISelectable) editor).select();
+							}
 						}
 					});
 				}
