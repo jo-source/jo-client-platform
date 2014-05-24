@@ -33,15 +33,15 @@ import java.beans.PropertyChangeListener;
 import java.util.Collection;
 
 import org.jowidgets.api.controller.IDisposeListener;
+import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.IInputControl;
-import org.jowidgets.api.widgets.IInputField;
-import org.jowidgets.api.widgets.ITextControl;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.common.model.ITableCell;
+import org.jowidgets.common.widgets.ISelectable;
 import org.jowidgets.common.widgets.controller.IInputListener;
 import org.jowidgets.common.widgets.editor.EditActivation;
 import org.jowidgets.common.widgets.editor.ITableCellEditor;
@@ -138,12 +138,17 @@ final class BeanTableCellEditorFactory extends AbstractTableCellEditorFactory<IT
 			lastValue = editor.getValue();
 			lastBean = bean;
 
-			if (lastValue != null) {
-				if (editor instanceof ITextControl) {
-					((ITextControl) editor).selectAll();
+			if (lastValue != null && (editor instanceof ISelectable)) {
+				if (editor.hasFocus()) {
+					((ISelectable) editor).select();
 				}
-				else if (editor instanceof IInputField) {
-					((IInputField<?>) editor).selectAll();
+				else {
+					Toolkit.getUiThreadAccess().invokeLater(new Runnable() {
+						@Override
+						public void run() {
+							((ISelectable) editor).select();
+						}
+					});
 				}
 			}
 
