@@ -54,7 +54,6 @@ import org.jowidgets.common.types.Interval;
 import org.jowidgets.common.types.Position;
 import org.jowidgets.common.types.TablePackPolicy;
 import org.jowidgets.common.types.TableSelectionPolicy;
-import org.jowidgets.common.widgets.controller.ITableCellEditorListener;
 import org.jowidgets.common.widgets.controller.ITableCellListener;
 import org.jowidgets.common.widgets.controller.ITableCellPopupDetectionListener;
 import org.jowidgets.common.widgets.controller.ITableCellPopupEvent;
@@ -370,16 +369,6 @@ final class BeanSelectionTableImpl<BEAN_TYPE> extends AbstractInputControl<List<
 	@Override
 	public void removeTableColumnPopupDetectionListener(final ITableColumnPopupDetectionListener listener) {
 		table.removeTableColumnPopupDetectionListener(listener);
-	}
-
-	@Override
-	public void addTableCellEditorListener(final ITableCellEditorListener listener) {
-		table.addTableCellEditorListener(listener);
-	}
-
-	@Override
-	public void removeTableCellEditorListener(final ITableCellEditorListener listener) {
-		table.removeTableCellEditorListener(listener);
 	}
 
 	@Override

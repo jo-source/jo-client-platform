@@ -42,7 +42,6 @@ import java.util.concurrent.TimeUnit;
 import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.api.controller.IListSelectionVetoListener;
-import org.jowidgets.api.convert.IStringObjectConverter;
 import org.jowidgets.api.model.item.ICheckedItemModel;
 import org.jowidgets.api.model.item.ICheckedItemModelBuilder;
 import org.jowidgets.api.model.item.IItemModelFactory;
@@ -61,7 +60,6 @@ import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.tools.execution.ResultCallbackAdapter;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
-import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.filter.FilterType;
 import org.jowidgets.cap.ui.api.model.DataModelChangeType;
 import org.jowidgets.cap.ui.api.model.IChangeResponse;
@@ -101,8 +99,6 @@ import org.jowidgets.common.widgets.controller.IItemStateListener;
 import org.jowidgets.common.widgets.controller.IKeyEvent;
 import org.jowidgets.common.widgets.controller.IKeyListener;
 import org.jowidgets.common.widgets.controller.IPopupDetectionListener;
-import org.jowidgets.common.widgets.controller.ITableCellEditEvent;
-import org.jowidgets.common.widgets.controller.ITableCellEditorListener;
 import org.jowidgets.common.widgets.controller.ITableCellListener;
 import org.jowidgets.common.widgets.controller.ITableCellPopupDetectionListener;
 import org.jowidgets.common.widgets.controller.ITableCellPopupEvent;
@@ -123,7 +119,6 @@ import org.jowidgets.tools.command.ActionWrapper;
 import org.jowidgets.tools.command.ExecutionContextWrapper;
 import org.jowidgets.tools.controller.KeyAdapter;
 import org.jowidgets.tools.controller.ListModelAdapter;
-import org.jowidgets.tools.controller.TableCellEditorAdapter;
 import org.jowidgets.tools.controller.TableColumnAdapter;
 import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.tools.model.item.MenuModel;
@@ -382,7 +377,6 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 			}
 		});
 
-		table.addTableCellEditorListener(new TableCellEditorListener());
 		table.addTableColumnListener(new TableSortColumnListener());
 
 		final IKeyListener keyListener = new KeyAdapter() {
@@ -1115,36 +1109,6 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 		}
 	}
 
-	private class TableCellEditorListener extends TableCellEditorAdapter {
-
-		@Override
-		public void editFinished(final ITableCellEditEvent event) {
-			final IBeanProxy<BEAN_TYPE> bean = model.getBean(event.getRowIndex());
-			final IAttribute<Object> attribute = model.getAttribute(event.getColumnIndex());
-			if (bean != null && attribute != null && !attribute.isCollectionType()) {
-				final IStringObjectConverter<Object> converter = attribute.getCurrentControlPanel().getStringObjectConverter();
-				if (converter != null) {
-					if (converter.getStringValidator() == null
-						|| converter.getStringValidator().validate(event.getCurrentText()).isValid()) {
-						final Object value = converter.convertToObject(event.getCurrentText());
-						bean.setValue(attribute.getPropertyName(), value);
-					}
-				}
-			}
-		}
-
-		@Override
-		public void onEdit(final IVetoable veto, final ITableCellEditEvent event) {
-			final IBeanProxy<BEAN_TYPE> bean = model.getBean(event.getRowIndex());
-			final IAttribute<Object> attribute = model.getAttribute(event.getColumnIndex());
-			if (bean != null && attribute != null && !attribute.isCollectionType()) {
-				if (bean.hasExecution()) {
-					veto.veto();
-				}
-			}
-		}
-	}
-
 	private class TableSortColumnListener extends TableColumnAdapter {
 		@Override
 		public void mouseClicked(final ITableColumnMouseEvent event) {
@@ -1333,16 +1297,6 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 	@Override
 	public void removeTableColumnPopupDetectionListener(final ITableColumnPopupDetectionListener listener) {
 		table.removeTableColumnPopupDetectionListener(listener);
-	}
-
-	@Override
-	public void addTableCellEditorListener(final ITableCellEditorListener listener) {
-		table.addTableCellEditorListener(listener);
-	}
-
-	@Override
-	public void removeTableCellEditorListener(final ITableCellEditorListener listener) {
-		table.removeTableCellEditorListener(listener);
 	}
 
 	@Override
