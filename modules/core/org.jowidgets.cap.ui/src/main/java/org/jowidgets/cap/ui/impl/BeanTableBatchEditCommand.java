@@ -63,23 +63,25 @@ import org.jowidgets.util.maybe.Nothing;
 import org.jowidgets.util.maybe.Some;
 import org.jowidgets.validation.IValidator;
 
-final class BeanTableEditAllCommand<BEAN_TYPE> implements ICommand, ICommandExecutor, IEnabledChecker {
+final class BeanTableBatchEditCommand<BEAN_TYPE> implements ICommand, ICommandExecutor, IEnabledChecker {
 
 	private final IBeanTableModel<BEAN_TYPE> model;
 	private final int columnIndex;
 	private final String propertyName;
+	private final boolean allData;
 
 	private final IEnabledChecker enabledChecker;
 
-	BeanTableEditAllCommand(final IBeanTableModel<BEAN_TYPE> model, final int columnIndex) {
+	BeanTableBatchEditCommand(final IBeanTableModel<BEAN_TYPE> model, final int columnIndex, final boolean allData) {
 
 		this.model = model;
 		this.columnIndex = columnIndex;
+		this.allData = allData;
 		this.propertyName = model.getAttribute(columnIndex).getPropertyName();
 
 		this.enabledChecker = new BeanSelectionProviderEnabledChecker<BEAN_TYPE>(
 			model,
-			BeanSelectionPolicy.MULTI_SELECTION,
+			allData ? BeanSelectionPolicy.ANY_SELECTION : BeanSelectionPolicy.MULTI_SELECTION,
 			BeanModificationStatePolicy.ANY_MODIFICATION,
 			BeanMessageStatePolicy.NO_ERROR,
 			true);
@@ -115,17 +117,17 @@ final class BeanTableEditAllCommand<BEAN_TYPE> implements ICommand, ICommandExec
 
 		final Object value = valueMaybe.getValue();
 
-		final List<IBeanProxy<BEAN_TYPE>> selectedBeans = model.getSelectedBeans();
-		if (model.getSelectedBeans().size() > 1) {
-			for (final IBeanProxy<BEAN_TYPE> bean : selectedBeans) {
+		if (allData) {
+			for (int i = 0; i < model.getSize(); i++) {
+				final IBeanProxy<?> bean = model.getBean(i);
 				if (bean != null && !bean.isDisposed() && !bean.isDummy() && !bean.isLastRowDummy()) {
 					bean.setValue(propertyName, value);
 				}
 			}
 		}
 		else {
-			for (int i = 0; i < model.getSize(); i++) {
-				final IBeanProxy<?> bean = model.getBean(i);
+			final List<IBeanProxy<BEAN_TYPE>> selectedBeans = model.getSelectedBeans();
+			for (final IBeanProxy<BEAN_TYPE> bean : selectedBeans) {
 				if (bean != null && !bean.isDisposed() && !bean.isDummy() && !bean.isLastRowDummy()) {
 					bean.setValue(propertyName, value);
 				}

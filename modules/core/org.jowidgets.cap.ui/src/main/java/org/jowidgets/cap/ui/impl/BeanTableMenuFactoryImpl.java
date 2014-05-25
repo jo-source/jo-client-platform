@@ -546,7 +546,13 @@ final class BeanTableMenuFactoryImpl<BEAN_TYPE> implements IBeanTableMenuFactory
 
 	@Override
 	public IAction deleteFilterAction(final IBeanTableModel<BEAN_TYPE> model) {
-		return deleteFilterActionBuilder(model).build();
+		final IActionBuilder builder = deleteFilterActionBuilder(model);
+		if (builder != null) {
+			return builder.build();
+		}
+		else {
+			return null;
+		}
 	}
 
 	@Override
@@ -565,27 +571,88 @@ final class BeanTableMenuFactoryImpl<BEAN_TYPE> implements IBeanTableMenuFactory
 
 	@Override
 	public IAction deleteColumnFiltersAction(final IBeanTableModel<BEAN_TYPE> model, final int columnIndex) {
-		return deleteColumnFiltersActionBuilder(model, columnIndex).build();
+		final IActionBuilder builder = deleteColumnFiltersActionBuilder(model, columnIndex);
+		if (builder != null) {
+			return builder.build();
+		}
+		else {
+			return null;
+		}
 	}
 
 	@Override
 	public IActionBuilder setToAllActionBuilder(final IBeanTable<BEAN_TYPE> table, final int columnIndex) {
-		return new BeanTableSetToAllActionBuilder(table, columnIndex);
+		IActionBuilder builder = new BeanTableSetToAllActionBuilder(table, columnIndex);
+		for (final IBeanTableMenuInterceptor<BEAN_TYPE> interceptor : interceptors) {
+			if (builder != null) {
+				builder = interceptor.setToAllActionBuilder(table, columnIndex, builder);
+			}
+			else {
+				break;
+			}
+		}
+		return builder;
 	}
 
 	@Override
 	public IAction setToAllAction(final IBeanTable<BEAN_TYPE> table, final int columnIndex) {
-		return setToAllActionBuilder(table, columnIndex).build();
+		final IActionBuilder builder = setToAllActionBuilder(table, columnIndex);
+		if (builder != null) {
+			return builder.build();
+		}
+		else {
+			return null;
+		}
 	}
 
 	@Override
 	public IActionBuilder editAllActionBuilder(final IBeanTable<BEAN_TYPE> table, final int columnIndex) {
-		return new BeanTableEditAllActionBuilder(table, columnIndex);
+		IActionBuilder builder = new BeanTableEditAllActionBuilder(table, columnIndex);
+		for (final IBeanTableMenuInterceptor<BEAN_TYPE> interceptor : interceptors) {
+			if (builder != null) {
+				builder = interceptor.editAllActionBuilder(table, columnIndex, builder);
+			}
+			else {
+				break;
+			}
+		}
+		return builder;
 	}
 
 	@Override
 	public IAction editAllAction(final IBeanTable<BEAN_TYPE> table, final int columnIndex) {
-		return editAllActionBuilder(table, columnIndex).build();
+		final IActionBuilder builder = editAllActionBuilder(table, columnIndex);
+		if (builder != null) {
+			return builder.build();
+		}
+		else {
+			return null;
+		}
+	}
+
+	@Override
+	public IActionBuilder editSelectionActionBuilder(final IBeanTable<BEAN_TYPE> table, final int columnIndex) {
+		IActionBuilder builder = new BeanTableEditSelectionActionBuilder(table, columnIndex);
+		for (final IBeanTableMenuInterceptor<BEAN_TYPE> interceptor : interceptors) {
+			if (builder != null) {
+				builder = interceptor.editSelectionActionBuilder(table, columnIndex, builder);
+			}
+			else {
+				break;
+			}
+		}
+		return builder;
+	}
+
+	@Override
+	public IAction editSelectionAction(final IBeanTable<BEAN_TYPE> table, final int columnIndex) {
+		final IActionBuilder builder = editSelectionActionBuilder(table, columnIndex);
+		if (builder != null) {
+			return builder.build();
+		}
+		else {
+			return null;
+		}
 	}
 
 	@Override

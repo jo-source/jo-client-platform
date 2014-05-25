@@ -94,6 +94,12 @@ public interface IBeanTableMenuInterceptor<BEAN_TYPE> {
 		int columnIndex,
 		IActionBuilder builder);
 
+	IActionBuilder setToAllActionBuilder(IBeanTable<BEAN_TYPE> table, int columnIndex, IActionBuilder builder);
+
+	IActionBuilder editAllActionBuilder(IBeanTable<BEAN_TYPE> table, int columnIndex, IActionBuilder builder);
+
+	IActionBuilder editSelectionActionBuilder(IBeanTable<BEAN_TYPE> table, int columnIndex, IActionBuilder builder);
+
 	IActionBuilder editFilterActionBuilder(IBeanTableModel<?> model, IActionBuilder builder);
 
 	IActionBuilder deleteFilterActionBuilder(IBeanTableModel<?> model, IActionBuilder builder);

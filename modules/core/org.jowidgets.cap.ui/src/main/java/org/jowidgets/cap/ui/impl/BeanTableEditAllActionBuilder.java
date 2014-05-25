@@ -28,59 +28,32 @@
 
 package org.jowidgets.cap.ui.impl;
 
-import java.util.ArrayList;
-
 import org.jowidgets.api.command.ICommand;
-import org.jowidgets.api.command.ICommandAction;
 import org.jowidgets.api.image.IconsSmall;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
-import org.jowidgets.cap.ui.api.widgets.IPopupMenuListener;
-import org.jowidgets.common.widgets.controller.ITableCellPopupEvent;
 import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.i18n.api.MessageReplacer;
 import org.jowidgets.tools.command.ActionBuilder;
 
 final class BeanTableEditAllActionBuilder extends ActionBuilder {
 
-	private static final IMessage EDIT_SELECTION = Messages.getMessage("BeanTableEditAllActionBuilder.editSelection");
 	private static final IMessage EDIT_ALL = Messages.getMessage("BeanTableEditAllActionBuilder.editAll");
-
-	private final IBeanTable<?> table;
 
 	@SuppressWarnings({"rawtypes", "unchecked"})
 	BeanTableEditAllActionBuilder(final IBeanTable<?> table, final int columnIndex) {
 		super();
-		this.table = table;
 		setIcon(IconsSmall.EDIT);
-		setCommand((ICommand) new BeanTableEditAllCommand(table.getModel(), columnIndex));
-	}
+		setCommand((ICommand) new BeanTableBatchEditCommand(table.getModel(), columnIndex, true));
 
-	@Override
-	public ICommandAction build() {
-		final ICommandAction result = super.build();
-		table.addCellMenuListener(new IPopupMenuListener<ITableCellPopupEvent>() {
-			@Override
-			public void beforeMenuShow(final ITableCellPopupEvent event) {
-				final int columnIndex = event.getColumnIndex();
+		final IBeanTableModel<?> model = table.getModel();
+		final String entityLabelPlural = model.getEntityLabelPlural();
 
-				final IBeanTableModel<?> model = table.getModel();
-				final String entityLabelPlural = model.getEntityLabelPlural();
+		final IAttribute<Object> attribute = model.getAttribute(columnIndex);
+		final String columnLabel = attribute.getLabel().get();
 
-				final IAttribute<Object> attribute = model.getAttribute(columnIndex);
-				final String columnLabel = attribute.getLabel().get();
-
-				final ArrayList<Integer> selection = model.getSelection();
-				if (selection.size() > 1) {//set to selection
-					result.setText(MessageReplacer.replace(EDIT_SELECTION.get(), columnLabel, entityLabelPlural));
-				}
-				else if (selection.size() <= 1) {//set to all
-					result.setText(MessageReplacer.replace(EDIT_ALL.get(), columnLabel, entityLabelPlural));
-				}
-			}
-		});
-		return result;
+		setText(MessageReplacer.replace(EDIT_ALL.get(), columnLabel, entityLabelPlural));
 	}
 
 }
