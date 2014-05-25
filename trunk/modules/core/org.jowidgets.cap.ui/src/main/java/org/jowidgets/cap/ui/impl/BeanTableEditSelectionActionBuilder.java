@@ -28,52 +28,29 @@
 
 package org.jowidgets.cap.ui.impl;
 
-import org.jowidgets.api.command.IAction;
+import org.jowidgets.api.command.ICommand;
 import org.jowidgets.api.image.IconsSmall;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
-import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
-import org.jowidgets.cap.ui.api.table.IBeanTableMenuFactory;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
-import org.jowidgets.tools.model.item.MenuModel;
+import org.jowidgets.i18n.api.IMessage;
+import org.jowidgets.i18n.api.MessageReplacer;
+import org.jowidgets.tools.command.ActionBuilder;
 
-final class BeanTableEditMenuModel<BEAN_TYPE> extends MenuModel {
+final class BeanTableEditSelectionActionBuilder extends ActionBuilder {
 
-	BeanTableEditMenuModel(
-		final IBeanTable<BEAN_TYPE> table,
-		final int columnIndex,
-		final IBeanTableMenuFactory<BEAN_TYPE> menuFactory) {
-		super(Messages.getString("BeanTableEditMenuModel.edit"), IconsSmall.EDIT);
+	private static final IMessage EDIT_SELECTION = Messages.getMessage("BeanTableEditSelectionActionBuilder.editSelection");
 
-		final IBeanTableModel<BEAN_TYPE> model = table.getModel();
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	BeanTableEditSelectionActionBuilder(final IBeanTable<?> table, final int columnIndex) {
+		super();
+		setIcon(IconsSmall.EDIT);
+		setCommand((ICommand) new BeanTableBatchEditCommand(table.getModel(), columnIndex, false));
+		final IBeanTableModel<?> model = table.getModel();
 
 		final IAttribute<Object> attribute = model.getAttribute(columnIndex);
-		if (attribute.isBatchEditable()) {
-			if (hasPropertyEditor(attribute)) {
-				tryAddAction(menuFactory.editSelectionAction(table, columnIndex));
-				tryAddAction(menuFactory.editAllAction(table, columnIndex));
-			}
-			tryAddAction(menuFactory.setToAllAction(table, columnIndex));
-		}
-	}
-
-	private static boolean hasPropertyEditor(final IAttribute<?> attribute) {
-		final IControlPanelProvider<?> controlPanel = attribute.getCurrentControlPanel();
-		if (controlPanel != null) {
-			if (attribute.isCollectionType()) {
-				return controlPanel.getCollectionControlCreator() != null;
-			}
-			else {
-				return controlPanel.getControlCreator() != null;
-			}
-		}
-		return false;
-	}
-
-	private void tryAddAction(final IAction action) {
-		if (action != null) {
-			addAction(action);
-		}
+		final String columnLabel = attribute.getLabel().get();
+		setText(MessageReplacer.replace(EDIT_SELECTION.get(), columnLabel, model.getEntityLabelPlural()));
 	}
 
 }

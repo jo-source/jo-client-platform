@@ -344,6 +344,42 @@ final class BeanTableMenuInterceptorComposite {
 		}
 
 		@Override
+		public IActionBuilder setToAllActionBuilder(
+			final IBeanTable<BEAN_TYPE> table,
+			final int columnIndex,
+			final IActionBuilder builder) {
+			IActionBuilder result = interceptor1.setToAllActionBuilder(table, columnIndex, builder);
+			if (result != null) {
+				result = interceptor2.setToAllActionBuilder(table, columnIndex, result);
+			}
+			return result;
+		}
+
+		@Override
+		public IActionBuilder editAllActionBuilder(
+			final IBeanTable<BEAN_TYPE> table,
+			final int columnIndex,
+			final IActionBuilder builder) {
+			IActionBuilder result = interceptor1.editAllActionBuilder(table, columnIndex, builder);
+			if (result != null) {
+				result = interceptor2.editAllActionBuilder(table, columnIndex, result);
+			}
+			return result;
+		}
+
+		@Override
+		public IActionBuilder editSelectionActionBuilder(
+			final IBeanTable<BEAN_TYPE> table,
+			final int columnIndex,
+			final IActionBuilder builder) {
+			IActionBuilder result = interceptor1.editSelectionActionBuilder(table, columnIndex, builder);
+			if (result != null) {
+				result = interceptor2.editSelectionActionBuilder(table, columnIndex, result);
+			}
+			return result;
+		}
+
+		@Override
 		public ICreatorActionBuilder<BEAN_TYPE> creatorActionBuilder(
 			final IBeanTable<BEAN_TYPE> table,
 			final ICreatorActionBuilder<BEAN_TYPE> builder) {

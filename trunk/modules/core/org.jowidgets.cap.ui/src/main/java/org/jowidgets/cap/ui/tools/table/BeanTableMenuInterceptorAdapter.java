@@ -204,6 +204,30 @@ public class BeanTableMenuInterceptorAdapter<BEAN_TYPE> implements IBeanTableMen
 	}
 
 	@Override
+	public IActionBuilder setToAllActionBuilder(
+		final IBeanTable<BEAN_TYPE> table,
+		final int columnIndex,
+		final IActionBuilder builder) {
+		return builder;
+	}
+
+	@Override
+	public IActionBuilder editAllActionBuilder(
+		final IBeanTable<BEAN_TYPE> table,
+		final int columnIndex,
+		final IActionBuilder builder) {
+		return builder;
+	}
+
+	@Override
+	public IActionBuilder editSelectionActionBuilder(
+		final IBeanTable<BEAN_TYPE> table,
+		final int columnIndex,
+		final IActionBuilder builder) {
+		return builder;
+	}
+
+	@Override
 	public ICreatorActionBuilder<BEAN_TYPE> creatorActionBuilder(
 		final IBeanTable<BEAN_TYPE> table,
 		final ICreatorActionBuilder<BEAN_TYPE> builder) {
