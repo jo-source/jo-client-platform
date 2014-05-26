@@ -41,6 +41,7 @@ import org.jowidgets.cap.ui.api.widgets.IBeanForm;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
 import org.jowidgets.common.widgets.controller.IActionListener;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
+import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.tools.layout.MigLayoutFactory;
 import org.jowidgets.tools.widgets.blueprint.BPF;
 import org.jowidgets.tools.widgets.wrapper.WindowWrapper;
@@ -49,6 +50,9 @@ import org.jowidgets.validation.IValidationResult;
 
 class BeanDialogImpl<BEAN_TYPE> extends WindowWrapper implements IBeanDialog<BEAN_TYPE> {
 
+	private static final IMessage NO_MODIFICATIONS = Messages.getMessage("BeanDialogImpl.no_modifications");
+
+	private final IButton okButton;
 	private final IBeanForm<BEAN_TYPE> beanForm;
 	private final String okButtonTooltip;
 
@@ -71,21 +75,13 @@ class BeanDialogImpl<BEAN_TYPE> extends WindowWrapper implements IBeanDialog<BEA
 		final IButtonBluePrint okButtonBp = createButtonBluePrint(bluePrint.getOkButton());
 		okButtonTooltip = okButtonBp.getToolTipText();
 		final String buttonConstraints = "w 100::, sg bg";
-		final IButton okButton = buttonBar.add(okButtonBp, buttonConstraints);
+		this.okButton = buttonBar.add(okButtonBp, buttonConstraints);
 		final IButton cancelButton = buttonBar.add(createButtonBluePrint(bluePrint.getCancelButton()), buttonConstraints);
 
 		beanForm.addValidationConditionListener(new IValidationConditionListener() {
 			@Override
 			public void validationConditionsChanged() {
-				final IValidationResult validationResult = beanForm.validate();
-				if (validationResult.isValid()) {
-					okButton.setToolTipText(okButtonTooltip);
-					okButton.setEnabled(true);
-				}
-				else {
-					okButton.setToolTipText(validationResult.getWorstFirst().getText());
-					okButton.setEnabled(false);
-				}
+				setOkButtonEnabledState();
 			}
 		});
 
@@ -108,6 +104,25 @@ class BeanDialogImpl<BEAN_TYPE> extends WindowWrapper implements IBeanDialog<BEA
 		frame.setDefaultButton(okButton);
 	}
 
+	private void setOkButtonEnabledState() {
+		final IValidationResult validationResult = beanForm.validate();
+		final IBeanProxy<BEAN_TYPE> bean = beanForm.getValue();
+		if (validationResult.isValid()) {
+			if (!bean.isTransient() && !bean.hasModifications()) {
+				okButton.setToolTipText(NO_MODIFICATIONS.get());
+				okButton.setEnabled(false);
+			}
+			else {
+				okButton.setToolTipText(okButtonTooltip);
+				okButton.setEnabled(true);
+			}
+		}
+		else {
+			okButton.setToolTipText(validationResult.getWorstFirst().getText());
+			okButton.setEnabled(false);
+		}
+	}
+
 	private static IButtonBluePrint createButtonBluePrint(final IButtonSetup buttonSetup) {
 		return BPF.button().setSetup(buttonSetup);
 	}
@@ -125,6 +140,7 @@ class BeanDialogImpl<BEAN_TYPE> extends WindowWrapper implements IBeanDialog<BEA
 	@Override
 	public void setBean(final IBeanProxy<BEAN_TYPE> bean) {
 		beanForm.setValue(bean);
+		setOkButtonEnabledState();
 	}
 
 	@Override

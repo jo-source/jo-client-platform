@@ -34,6 +34,7 @@ import org.jowidgets.api.model.item.IMenuModel;
 import org.jowidgets.cap.ui.api.command.ICopyActionBuilder;
 import org.jowidgets.cap.ui.api.command.ICreatorActionBuilder;
 import org.jowidgets.cap.ui.api.command.IDeleterActionBuilder;
+import org.jowidgets.cap.ui.api.command.IEditActionBuilder;
 import org.jowidgets.cap.ui.api.command.IExecutorActionBuilder;
 import org.jowidgets.cap.ui.api.command.IPasteBeansActionBuilder;
 import org.jowidgets.cap.ui.api.filter.IFilterType;
@@ -148,6 +149,10 @@ public interface IBeanTableMenuFactory<BEAN_TYPE> {
 	IActionBuilder deleteColumnFiltersActionBuilder(IBeanTableModel<BEAN_TYPE> model, int columnIndex);
 
 	IAction deleteColumnFiltersAction(IBeanTableModel<BEAN_TYPE> model, int columnIndex);
+
+	IEditActionBuilder<BEAN_TYPE> editActionBuilder(IBeanTableModel<BEAN_TYPE> model);
+
+	IAction editAction(IBeanTableModel<BEAN_TYPE> model);
 
 	ICreatorActionBuilder<BEAN_TYPE> creatorActionBuilder(IBeanTable<BEAN_TYPE> table);
 

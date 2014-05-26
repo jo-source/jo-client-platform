@@ -33,6 +33,7 @@ import org.jowidgets.api.controller.IDisposeObservable;
 import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
+import org.jowidgets.cap.ui.api.model.IDataModel;
 
 public interface ICapActionFactory {
 
@@ -61,6 +62,13 @@ public interface ICapActionFactory {
 	IAction refreshLookUpsAction();
 
 	<BEAN_TYPE, PARAM_TYPE> IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> executorActionBuilder(IBeanListModel<BEAN_TYPE> model);
+
+	<BEAN_TYPE> IEditActionBuilder<BEAN_TYPE> editActionBuilder(
+		Object entityId,
+		IBeanListModel<BEAN_TYPE> model,
+		IDataModel dataModel);
+
+	<BEAN_TYPE> IEditActionBuilder<BEAN_TYPE> editActionBuilder(IBeanListModel<BEAN_TYPE> model, IDataModel dataModel);
 
 	<BEAN_TYPE> ICreatorActionBuilder<BEAN_TYPE> creatorActionBuilder(Object entityId, IBeanListModel<BEAN_TYPE> model);
 

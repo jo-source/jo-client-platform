@@ -57,6 +57,8 @@ public interface IBeanTableSetupBuilder<INSTANCE_TYPE extends IBeanTableSetupBui
 
 	INSTANCE_TYPE setDefaultDeleterAction(boolean deleterAction);
 
+	INSTANCE_TYPE setDefaultEditAction(boolean editAction);
+
 	INSTANCE_TYPE setDefaultCopyAction(boolean copyAction);
 
 	INSTANCE_TYPE setDefaultPasteAction(boolean pasteAction);
@@ -128,6 +130,9 @@ public interface IBeanTableSetupBuilder<INSTANCE_TYPE extends IBeanTableSetupBui
 
 	@Mandatory
 	boolean hasDefaultDeleterAction();
+
+	@Mandatory
+	boolean hasDefaultEditAction();
 
 	@Mandatory
 	boolean hasDefaultCopyAction();

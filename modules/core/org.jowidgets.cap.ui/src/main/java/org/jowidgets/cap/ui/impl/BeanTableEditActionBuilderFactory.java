@@ -28,53 +28,37 @@
 
 package org.jowidgets.cap.ui.impl;
 
-import org.jowidgets.api.command.IAction;
-import org.jowidgets.api.model.item.IMenuItemModel;
-import org.jowidgets.api.model.item.IMenuModel;
-import org.jowidgets.api.toolkit.Toolkit;
-import org.jowidgets.cap.ui.api.table.IBeanTableMenuFactory;
-import org.jowidgets.cap.ui.api.widgets.IBeanTable;
-import org.jowidgets.tools.model.item.MenuModel;
+import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.cap.ui.api.command.ICapActionFactory;
+import org.jowidgets.cap.ui.api.command.IEditActionBuilder;
+import org.jowidgets.cap.ui.api.table.IBeanTableModel;
+import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
+import org.jowidgets.cap.ui.tools.attribute.MetaAttributesFilter;
 
-final class BeanTableCellMenuModel<BEAN_TYPE> extends MenuModel {
+final class BeanTableEditActionBuilderFactory {
 
-	BeanTableCellMenuModel(
-		final IBeanTable<BEAN_TYPE> table,
-		final IMenuModel headerPopupMenuModel,
-		final int columnIndex,
-		final IBeanTableMenuFactory<BEAN_TYPE> menuFactory) {
-		super();
+	private BeanTableEditActionBuilderFactory() {}
 
-		final IAction settingsDialogAction = menuFactory.settingsAction(table);
-		if (headerPopupMenuModel != null) {
-			tryAddItem(headerPopupMenuModel);
+	static <BEAN_TYPE> IEditActionBuilder<BEAN_TYPE> createBuilder(final IBeanTableModel<BEAN_TYPE> model) {
+
+		final Object entityId = model.getEntityId();
+
+		final ICapActionFactory actionFactory = CapUiToolkit.actionFactory();
+		final IEditActionBuilder<BEAN_TYPE> builder = actionFactory.editActionBuilder(entityId, model, model);
+
+		builder.setEntityLabelSingular(model.getEntityLabelSingular());
+
+		final IBeanFormBluePrint<BEAN_TYPE> beanFormBp;
+		if (entityId != null) {
+			beanFormBp = CapUiToolkit.bluePrintFactory().beanForm(
+					model.getEntityId(),
+					model.getAttributes(MetaAttributesFilter.getInstance()));
+		}
+		else {
+			beanFormBp = CapUiToolkit.bluePrintFactory().beanForm(model.getAttributes(MetaAttributesFilter.getInstance()));
 		}
 
-		final IMenuModel editMenu = menuFactory.editMenu(table, columnIndex);
-		if (editMenu != null && editMenu.getChildren().size() > 0) {
-			tryAddItem(editMenu);
-		}
-
-		tryAddItem(menuFactory.filterCellMenu(table, columnIndex));
-		tryAddAction(settingsDialogAction);
-		if (Toolkit.getSupportedWidgets().hasFileChooser()) {
-			tryAddAction(menuFactory.csvExportAction(table.getModel()));
-		}
-		if (table.isAutoUpdateConfigurable()) {
-			tryAddItem(table.getAutoUpdateItemModel());
-		}
-		tryAddItem(table.getStatusBarItemModel());
-	}
-
-	private void tryAddAction(final IAction action) {
-		if (action != null) {
-			addAction(action);
-		}
-	}
-
-	private void tryAddItem(final IMenuItemModel item) {
-		if (item != null) {
-			addItem(item);
-		}
+		builder.setBeanForm(beanFormBp);
+		return builder;
 	}
 }

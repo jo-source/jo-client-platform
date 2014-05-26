@@ -197,6 +197,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	private final List<IBeanPropertyValidator<BEAN_TYPE>> beanPropertyValidatorsView;
 
 	private final ICreatorService creatorService;
+	private final IUpdaterService updaterService;
 	private final IReaderService<Object> readerService;
 	private final IRefreshService refreshService;
 	private final IProvider<Object> readerParameterProvider;
@@ -339,6 +340,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		this.readerParameterProvider = (IProvider<Object>) paramProvider;
 		this.creatorService = creatorService;
 		this.deleterService = deleterService;
+		this.updaterService = updaterService;
 		this.autoSelection = autoSelect;
 		this.autoRefreshSelection = autoRefreshSelection;
 		this.onSetConfig = false;
@@ -716,6 +718,11 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	@Override
 	public ICreatorService getCreatorService() {
 		return creatorService;
+	}
+
+	@Override
+	public IUpdaterService getUpdaterService() {
+		return updaterService;
 	}
 
 	@Override

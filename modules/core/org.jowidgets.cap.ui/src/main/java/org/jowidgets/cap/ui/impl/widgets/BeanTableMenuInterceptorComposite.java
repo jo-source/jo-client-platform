@@ -33,6 +33,7 @@ import org.jowidgets.api.model.item.IMenuModel;
 import org.jowidgets.cap.ui.api.command.ICopyActionBuilder;
 import org.jowidgets.cap.ui.api.command.ICreatorActionBuilder;
 import org.jowidgets.cap.ui.api.command.IDeleterActionBuilder;
+import org.jowidgets.cap.ui.api.command.IEditActionBuilder;
 import org.jowidgets.cap.ui.api.command.IExecutorActionBuilder;
 import org.jowidgets.cap.ui.api.command.IPasteBeansActionBuilder;
 import org.jowidgets.cap.ui.api.filter.IFilterType;
@@ -375,6 +376,17 @@ final class BeanTableMenuInterceptorComposite {
 			IActionBuilder result = interceptor1.editSelectionActionBuilder(table, columnIndex, builder);
 			if (result != null) {
 				result = interceptor2.editSelectionActionBuilder(table, columnIndex, result);
+			}
+			return result;
+		}
+
+		@Override
+		public IEditActionBuilder<BEAN_TYPE> editActionBuilder(
+			final IBeanTableModel<BEAN_TYPE> model,
+			final IEditActionBuilder<BEAN_TYPE> builder) {
+			IEditActionBuilder<BEAN_TYPE> result = interceptor1.editActionBuilder(model, builder);
+			if (result != null) {
+				result = interceptor2.editActionBuilder(model, result);
 			}
 			return result;
 		}

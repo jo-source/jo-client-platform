@@ -38,6 +38,7 @@ import org.jowidgets.api.model.item.IMenuModel;
 import org.jowidgets.cap.ui.api.command.ICopyActionBuilder;
 import org.jowidgets.cap.ui.api.command.ICreatorActionBuilder;
 import org.jowidgets.cap.ui.api.command.IDeleterActionBuilder;
+import org.jowidgets.cap.ui.api.command.IEditActionBuilder;
 import org.jowidgets.cap.ui.api.command.IExecutorActionBuilder;
 import org.jowidgets.cap.ui.api.command.IPasteBeansActionBuilder;
 import org.jowidgets.cap.ui.api.filter.IFilterType;
@@ -647,6 +648,31 @@ final class BeanTableMenuFactoryImpl<BEAN_TYPE> implements IBeanTableMenuFactory
 	@Override
 	public IAction editSelectionAction(final IBeanTable<BEAN_TYPE> table, final int columnIndex) {
 		final IActionBuilder builder = editSelectionActionBuilder(table, columnIndex);
+		if (builder != null) {
+			return builder.build();
+		}
+		else {
+			return null;
+		}
+	}
+
+	@Override
+	public IEditActionBuilder<BEAN_TYPE> editActionBuilder(final IBeanTableModel<BEAN_TYPE> model) {
+		IEditActionBuilder<BEAN_TYPE> builder = BeanTableEditActionBuilderFactory.createBuilder(model);
+		for (final IBeanTableMenuInterceptor<BEAN_TYPE> interceptor : interceptors) {
+			if (builder != null) {
+				builder = interceptor.editActionBuilder(model, builder);
+			}
+			else {
+				break;
+			}
+		}
+		return builder;
+	}
+
+	@Override
+	public IAction editAction(final IBeanTableModel<BEAN_TYPE> model) {
+		final IEditActionBuilder<BEAN_TYPE> builder = editActionBuilder(model);
 		if (builder != null) {
 			return builder.build();
 		}
