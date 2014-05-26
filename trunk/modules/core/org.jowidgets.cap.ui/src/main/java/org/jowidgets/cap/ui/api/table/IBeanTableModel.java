@@ -40,6 +40,7 @@ import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.common.api.service.IDeleterService;
 import org.jowidgets.cap.common.api.service.IReaderService;
+import org.jowidgets.cap.common.api.service.IUpdaterService;
 import org.jowidgets.cap.common.api.validation.IBeanValidator;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeFilter;
@@ -128,6 +129,8 @@ public interface IBeanTableModel<BEAN_TYPE> extends
 	ICreatorService getCreatorService();
 
 	IDeleterService getDeleterService();
+
+	IUpdaterService getUpdaterService();
 
 	IReaderService<Object> getReaderService();
 

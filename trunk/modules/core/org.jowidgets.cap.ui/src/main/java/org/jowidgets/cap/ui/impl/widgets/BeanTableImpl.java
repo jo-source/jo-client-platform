@@ -88,6 +88,7 @@ import org.jowidgets.cap.ui.api.widgets.IPopupMenuListener;
 import org.jowidgets.cap.ui.api.widgets.ITableMenuCreationInterceptor;
 import org.jowidgets.cap.ui.tools.model.BeanListModelListenerAdapter;
 import org.jowidgets.cap.ui.tools.model.DataModelContextExecutor;
+import org.jowidgets.cap.ui.tools.table.BeanTableMenuInterceptorAdapter;
 import org.jowidgets.common.types.Dimension;
 import org.jowidgets.common.types.IVetoable;
 import org.jowidgets.common.types.Interval;
@@ -218,6 +219,22 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 				bluePrint.getMenuInterceptor(),
 				model.getEntityId(),
 				model.getBeanType());
+
+		final IMenuModel editMenuModel = new MenuModel();
+		if (bluePrint.hasDefaultEditAction() && model.getUpdaterService() != null) {
+			final IBeanTableMenuFactory<BEAN_TYPE> beanTableMenuFactory = CapUiToolkit.beanTableMenuFactory();
+			final IAction editAction = beanTableMenuFactory.editAction(model);
+			editMenuModel.addAction(editAction);
+			menuInterceptors.add(new BeanTableMenuInterceptorAdapter<BEAN_TYPE>() {
+				@Override
+				public IMenuModel editMenu(final IBeanTable<BEAN_TYPE> table, final int columnIndex, final IMenuModel menuModel) {
+					menuModel.addAction(0, editAction);
+					return menuModel;
+				}
+
+			});
+		}
+
 		this.menuFactory = CapUiToolkit.beanTableMenuFactory(menuInterceptors);
 		this.autoUpdateItemModel = createAutoUpdateItemModel();
 
@@ -255,6 +272,9 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 
 		if (bluePrint.getAutoKeyBinding()) {
 			final List<IMenuModel> keyBindingModels = new LinkedList<IMenuModel>();
+			if (editMenuModel != null) {
+				keyBindingModels.add(editMenuModel);
+			}
 			keyBindingModels.add(cellPopupMenuModel);
 			keyBindingModels.add(pluggedCellPopupMenuModel);
 			keyBindingModels.add(tablePopupMenuModel);

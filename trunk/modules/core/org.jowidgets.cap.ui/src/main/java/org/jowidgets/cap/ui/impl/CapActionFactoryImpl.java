@@ -39,6 +39,7 @@ import org.jowidgets.cap.ui.api.command.ICreatorActionBuilder;
 import org.jowidgets.cap.ui.api.command.IDataModelAction;
 import org.jowidgets.cap.ui.api.command.IDataModelActionBuilder;
 import org.jowidgets.cap.ui.api.command.IDeleterActionBuilder;
+import org.jowidgets.cap.ui.api.command.IEditActionBuilder;
 import org.jowidgets.cap.ui.api.command.IExecutorActionBuilder;
 import org.jowidgets.cap.ui.api.command.ILinkCreatorActionBuilder;
 import org.jowidgets.cap.ui.api.command.ILinkDeleterActionBuilder;
@@ -47,6 +48,7 @@ import org.jowidgets.cap.ui.api.command.IPasteBeansActionBuilder;
 import org.jowidgets.cap.ui.api.command.IPasteLinkActionBuilder;
 import org.jowidgets.cap.ui.api.command.IRefreshLookUpsActionBuilder;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
+import org.jowidgets.cap.ui.api.model.IDataModel;
 import org.jowidgets.common.types.Modifier;
 
 final class CapActionFactoryImpl implements ICapActionFactory {
@@ -86,7 +88,7 @@ final class CapActionFactoryImpl implements ICapActionFactory {
 	@Override
 	public IDataModelActionBuilder dataModelCancelActionBuilder() {
 		final IDataModelActionBuilder builder = new DataModelActionBuilderImpl(new DataModelCancelCommand());
-		builder.setText(Messages.getString("CapActionFactoryImpl.cancel")); //$NON-NLS-1$
+		builder.setText(Messages.getString("CapActionFactoryImpl.cancel"));
 		builder.setIcon(IconsSmall.CANCEL);
 		return builder;
 	}
@@ -94,7 +96,7 @@ final class CapActionFactoryImpl implements ICapActionFactory {
 	@Override
 	public IDataModelActionBuilder dataModelSaveActionBuilder() {
 		final IDataModelActionBuilder builder = new DataModelActionBuilderImpl(new DataModelSaveCommand());
-		builder.setText(Messages.getString("CapActionFactoryImpl.save")); //$NON-NLS-1$
+		builder.setText(Messages.getString("CapActionFactoryImpl.save"));
 		builder.setIcon(IconsSmall.DISK);
 		builder.setAccelerator('S', Modifier.CTRL);
 		return builder;
@@ -103,7 +105,7 @@ final class CapActionFactoryImpl implements ICapActionFactory {
 	@Override
 	public IDataModelActionBuilder dataModelUndoActionBuilder() {
 		final IDataModelActionBuilder builder = new DataModelActionBuilderImpl(new DataModelUndoCommand());
-		builder.setText(Messages.getString("CapActionFactoryImpl.undo")); //$NON-NLS-1$
+		builder.setText(Messages.getString("CapActionFactoryImpl.undo"));
 		builder.setAccelerator('Z', Modifier.CTRL);
 		builder.setIcon(IconsSmall.UNDO);
 		return builder;
@@ -112,7 +114,7 @@ final class CapActionFactoryImpl implements ICapActionFactory {
 	@Override
 	public IDataModelActionBuilder dataModelLoadActionBuilder() {
 		final IDataModelActionBuilder builder = new DataModelActionBuilderImpl(new DataModelLoadCommand());
-		builder.setText(Messages.getString("CapActionFactoryImpl.reload")); //$NON-NLS-1$
+		builder.setText(Messages.getString("CapActionFactoryImpl.reload"));
 		builder.setIcon(IconsSmall.REFRESH);
 		return builder;
 	}
@@ -131,6 +133,21 @@ final class CapActionFactoryImpl implements ICapActionFactory {
 	public <BEAN_TYPE, PARAM_TYPE> IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> executorActionBuilder(
 		final IBeanListModel<BEAN_TYPE> model) {
 		return new ExecutorActionBuilderImpl<BEAN_TYPE, PARAM_TYPE>(model);
+	}
+
+	@Override
+	public <BEAN_TYPE> IEditActionBuilder<BEAN_TYPE> editActionBuilder(
+		final Object entityId,
+		final IBeanListModel<BEAN_TYPE> model,
+		final IDataModel dataModel) {
+		return new EditActionBuilderImpl<BEAN_TYPE>(entityId, model, dataModel);
+	}
+
+	@Override
+	public <BEAN_TYPE> IEditActionBuilder<BEAN_TYPE> editActionBuilder(
+		final IBeanListModel<BEAN_TYPE> model,
+		final IDataModel dataModel) {
+		return new EditActionBuilderImpl<BEAN_TYPE>(model, dataModel);
 	}
 
 	@Override

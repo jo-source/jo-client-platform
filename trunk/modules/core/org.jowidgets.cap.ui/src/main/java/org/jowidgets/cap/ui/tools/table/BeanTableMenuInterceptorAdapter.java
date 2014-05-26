@@ -33,6 +33,7 @@ import org.jowidgets.api.model.item.IMenuModel;
 import org.jowidgets.cap.ui.api.command.ICopyActionBuilder;
 import org.jowidgets.cap.ui.api.command.ICreatorActionBuilder;
 import org.jowidgets.cap.ui.api.command.IDeleterActionBuilder;
+import org.jowidgets.cap.ui.api.command.IEditActionBuilder;
 import org.jowidgets.cap.ui.api.command.IExecutorActionBuilder;
 import org.jowidgets.cap.ui.api.command.IPasteBeansActionBuilder;
 import org.jowidgets.cap.ui.api.filter.IFilterType;
@@ -224,6 +225,13 @@ public class BeanTableMenuInterceptorAdapter<BEAN_TYPE> implements IBeanTableMen
 		final IBeanTable<BEAN_TYPE> table,
 		final int columnIndex,
 		final IActionBuilder builder) {
+		return builder;
+	}
+
+	@Override
+	public IEditActionBuilder<BEAN_TYPE> editActionBuilder(
+		final IBeanTableModel<BEAN_TYPE> model,
+		final IEditActionBuilder<BEAN_TYPE> builder) {
 		return builder;
 	}
 
