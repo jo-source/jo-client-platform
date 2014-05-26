@@ -31,6 +31,7 @@ package org.jowidgets.cap.common.tools.dto;
 import java.io.Serializable;
 
 import org.jowidgets.cap.common.api.dto.IDocument;
+import org.jowidgets.util.NullCompatibleEquivalence;
 
 public final class Document implements IDocument, Serializable {
 
@@ -63,19 +64,10 @@ public final class Document implements IDocument, Serializable {
 		if (obj == null) {
 			return false;
 		}
-		if (!(obj instanceof Document)) {
+		if (!(obj instanceof IDocument)) {
 			return false;
 		}
-		final Document other = (Document) obj;
-		if (url == null) {
-			if (other.url != null) {
-				return false;
-			}
-		}
-		else if (!url.equals(other.url)) {
-			return false;
-		}
-		return true;
+		return NullCompatibleEquivalence.equals(url, ((IDocument) obj).getUrl());
 	}
 
 	@Override
