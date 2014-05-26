@@ -31,6 +31,7 @@ package org.jowidgets.cap.ui.impl.widgets;
 import org.jowidgets.cap.common.api.dto.IDocument;
 import org.jowidgets.cap.common.tools.dto.Document;
 import org.jowidgets.tools.converter.AbstractConverter;
+import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.validation.IValidator;
 import org.jowidgets.validation.Validator;
 
@@ -38,7 +39,12 @@ public final class DocumentConverter extends AbstractConverter<IDocument> {
 
 	@Override
 	public IDocument convertToObject(final String string) {
-		return new Document(string);
+		if (EmptyCheck.isEmpty(string)) {
+			return null;
+		}
+		else {
+			return new Document(string);
+		}
 	}
 
 	@Override
