@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2014, MGrossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,13 +26,32 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.api.bean;
+package org.jowidgets.cap.common.tools.bean;
 
+import java.util.HashMap;
+import java.util.Map;
 
-public interface IPropertyMap {
+import org.jowidgets.cap.common.api.bean.IPropertyMap;
+import org.jowidgets.util.Assert;
 
-	void setValue(String propertyName, Object value);
+public class PropertyMap implements IPropertyMap {
 
-	Object getValue(String propertyName);
+	private final Map<String, Object> properties;
+
+	public PropertyMap() {
+		this.properties = new HashMap<String, Object>();
+	}
+
+	@Override
+	public void setValue(final String propertyName, final Object value) {
+		Assert.paramNotEmpty(propertyName, "propertyName");
+		properties.put(propertyName, value);
+	}
+
+	@Override
+	public Object getValue(final String propertyName) {
+		Assert.paramNotEmpty(propertyName, "propertyName");
+		return properties.get(propertyName);
+	}
 
 }

@@ -28,6 +28,8 @@
 
 package org.jowidgets.cap.service.repository.api;
 
+import java.util.Collection;
+
 import org.jowidgets.cap.service.repository.impl.BeanRepositoryServiceToolkitImpl;
 
 public final class BeanRepositoryServiceToolkit {
@@ -44,4 +46,9 @@ public final class BeanRepositoryServiceToolkit {
 		return getInstance().serviceFactory(repositiory);
 	}
 
+	public static <BEAN_TYPE> IBeanRepositoryServiceFactory<BEAN_TYPE> serviceFactory(
+		final IBeanRepository<BEAN_TYPE> repositiory,
+		final Collection<String> properties) {
+		return getInstance().serviceFactory(repositiory, properties);
+	}
 }

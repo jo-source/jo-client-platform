@@ -28,6 +28,8 @@
 
 package org.jowidgets.cap.service.repository.impl;
 
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.service.IBeanServicesProvider;
@@ -95,11 +97,28 @@ final class BeanRepositoryServiceFactoryImpl<BEAN_TYPE> implements IBeanReposito
 	private final List<String> allProperties;
 
 	BeanRepositoryServiceFactoryImpl(final IBeanRepository<BEAN_TYPE> repositiory) {
+		this(
+			repositiory,
+			BeanUtils.getReadableProperties(repositiory.getBeanType()),
+			BeanUtils.getProperties(repositiory.getBeanType()));
+	}
+
+	BeanRepositoryServiceFactoryImpl(final IBeanRepository<BEAN_TYPE> repositiory, final Collection<String> properties) {
+		this(repositiory, properties, properties);
+	}
+
+	BeanRepositoryServiceFactoryImpl(
+		final IBeanRepository<BEAN_TYPE> repositiory,
+		final Collection<String> readableProperties,
+		final Collection<String> allProperties) {
 		Assert.paramNotNull(repositiory, "repositiory");
+		Assert.paramNotNull(readableProperties, "readableProperties");
+		Assert.paramNotNull(allProperties, "allProperties");
+
 		this.repository = repositiory;
 		this.beanAccess = new BeanRepositoryBeanAccess<BEAN_TYPE>(repository);
-		this.readableProperties = BeanUtils.getReadableProperties(repositiory.getBeanType());
-		this.allProperties = BeanUtils.getProperties(repositiory.getBeanType());
+		this.readableProperties = new LinkedList<String>(readableProperties);
+		this.allProperties = new LinkedList<String>(allProperties);
 	}
 
 	@Override

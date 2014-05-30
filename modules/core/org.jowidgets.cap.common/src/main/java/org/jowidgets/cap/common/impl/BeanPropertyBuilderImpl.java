@@ -45,6 +45,7 @@ import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.Cardinality;
 import org.jowidgets.cap.common.api.bean.IBeanPropertyBuilder;
 import org.jowidgets.cap.common.api.bean.IProperty;
+import org.jowidgets.cap.common.api.bean.IPropertyMap;
 import org.jowidgets.cap.common.api.bean.IValueRange;
 import org.jowidgets.cap.common.tools.annotation.ValidatorAnnotationCache;
 import org.jowidgets.i18n.api.IMessage;
@@ -66,7 +67,11 @@ final class BeanPropertyBuilderImpl implements IBeanPropertyBuilder {
 		propertyBuilder.setName(propertyName);
 
 		final boolean isDefaultSet = setPropertyDefaults(beanType, propertyName, propertyBuilder);
-		if (!isDefaultSet) {
+		if (!isDefaultSet && IPropertyMap.class.isAssignableFrom(beanType)) {
+			propertyBuilder.setValueType(Object.class);
+		}
+
+		if (!isDefaultSet && !IPropertyMap.class.isAssignableFrom(beanType)) {
 			throw new RuntimeException("Can not set the property defaults for the property '"
 				+ propertyName
 				+ "' and the type '"

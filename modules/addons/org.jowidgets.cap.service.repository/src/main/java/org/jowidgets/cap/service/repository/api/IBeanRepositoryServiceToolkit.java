@@ -28,8 +28,14 @@
 
 package org.jowidgets.cap.service.repository.api;
 
+import java.util.Collection;
+
 public interface IBeanRepositoryServiceToolkit {
 
 	<BEAN_TYPE> IBeanRepositoryServiceFactory<BEAN_TYPE> serviceFactory(IBeanRepository<BEAN_TYPE> repositiory);
+
+	<BEAN_TYPE> IBeanRepositoryServiceFactory<BEAN_TYPE> serviceFactory(
+		IBeanRepository<BEAN_TYPE> repositiory,
+		Collection<String> properties);
 
 }

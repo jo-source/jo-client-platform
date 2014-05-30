@@ -28,6 +28,8 @@
 
 package org.jowidgets.cap.service.repository.impl;
 
+import java.util.Collection;
+
 import org.jowidgets.cap.service.repository.api.IBeanRepository;
 import org.jowidgets.cap.service.repository.api.IBeanRepositoryServiceFactory;
 import org.jowidgets.cap.service.repository.api.IBeanRepositoryServiceToolkit;
@@ -37,6 +39,13 @@ public final class BeanRepositoryServiceToolkitImpl implements IBeanRepositorySe
 	@Override
 	public <BEAN_TYPE> IBeanRepositoryServiceFactory<BEAN_TYPE> serviceFactory(final IBeanRepository<BEAN_TYPE> repositiory) {
 		return new BeanRepositoryServiceFactoryImpl<BEAN_TYPE>(repositiory);
+	}
+
+	@Override
+	public <BEAN_TYPE> IBeanRepositoryServiceFactory<BEAN_TYPE> serviceFactory(
+		final IBeanRepository<BEAN_TYPE> repositiory,
+		final Collection<String> properties) {
+		return new BeanRepositoryServiceFactoryImpl<BEAN_TYPE>(repositiory, properties);
 	}
 
 }
