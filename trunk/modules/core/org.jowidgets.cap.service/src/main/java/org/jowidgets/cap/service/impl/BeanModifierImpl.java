@@ -38,9 +38,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.jowidgets.cap.common.api.bean.IBeanModification;
+import org.jowidgets.cap.common.api.bean.IPropertyMap;
 import org.jowidgets.cap.common.api.exception.BeanException;
 import org.jowidgets.cap.service.api.bean.IBeanModifier;
-import org.jowidgets.cap.service.api.bean.IPropertyMap;
 import org.jowidgets.cap.service.api.plugin.IBeanModifierPlugin;
 import org.jowidgets.plugin.api.IPluginProperties;
 import org.jowidgets.plugin.api.IPluginPropertiesBuilder;

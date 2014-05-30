@@ -42,8 +42,8 @@ import java.util.Map;
 
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanData;
+import org.jowidgets.cap.common.api.bean.IPropertyMap;
 import org.jowidgets.cap.service.api.bean.IBeanInitializer;
-import org.jowidgets.cap.service.api.bean.IPropertyMap;
 import org.jowidgets.cap.service.api.plugin.IBeanInitializerPlugin;
 import org.jowidgets.plugin.api.IPluginProperties;
 import org.jowidgets.plugin.api.IPluginPropertiesBuilder;

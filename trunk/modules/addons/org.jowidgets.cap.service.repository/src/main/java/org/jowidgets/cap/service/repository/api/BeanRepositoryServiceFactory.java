@@ -28,6 +28,8 @@
 
 package org.jowidgets.cap.service.repository.api;
 
+import java.util.Collection;
+
 import org.jowidgets.cap.common.api.service.IBeanServicesProvider;
 import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.common.api.service.IDeleterService;
@@ -47,8 +49,18 @@ public final class BeanRepositoryServiceFactory {
 		return BeanRepositoryServiceToolkit.serviceFactory(repository);
 	};
 
+	public static <BEAN_TYPE> IBeanRepositoryServiceFactory<BEAN_TYPE> create(
+		final IBeanRepository<BEAN_TYPE> repository,
+		final Collection<String> properties) {
+		return BeanRepositoryServiceToolkit.serviceFactory(repository, properties);
+	};
+
 	public static IBeanServicesProvider beanServices(final IBeanRepository<?> repository) {
 		return create(repository).beanServices();
+	};
+
+	public static IBeanServicesProvider beanServices(final IBeanRepository<?> repository, final Collection<String> properties) {
+		return create(repository, properties).beanServices();
 	};
 
 	public static <BEAN_TYPE> ICreatorServiceBuilder<BEAN_TYPE> creatorServiceBuilder(final IBeanRepository<BEAN_TYPE> repository) {
