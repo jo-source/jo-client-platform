@@ -28,14 +28,11 @@
 
 package org.jowidgets.cap.service.api.bean;
 
-import org.jowidgets.cap.common.api.bean.IBean;
 
-public interface IBeanPropertyMap extends IBean, IPropertyMap {
+public interface IPropertyMap {
 
-	void setId(Object id);
+	void setValue(String propertyName, Object value);
 
-	void setVersion(long version);
-
-	Object getBeanTypeId();
+	Object getValue(String propertyName);
 
 }
