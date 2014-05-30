@@ -35,9 +35,9 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IBean;
@@ -47,6 +47,7 @@ import org.jowidgets.cap.service.api.bean.BeanDtoFactoryInterceptor;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactoryInterceptor;
 import org.jowidgets.cap.service.api.bean.IBeanIdentityResolver;
+import org.jowidgets.cap.service.api.bean.IPropertyMap;
 import org.jowidgets.cap.service.api.plugin.IBeanDtoFactoryPlugin;
 import org.jowidgets.cap.service.tools.bean.DefaultBeanIdentityResolver;
 import org.jowidgets.plugin.api.IPluginPropertiesBuilder;
@@ -60,6 +61,7 @@ final class BeanDtoFactoryImpl<BEAN_TYPE> implements IBeanDtoFactory<BEAN_TYPE> 
 	private final IBeanIdentityResolver<BEAN_TYPE> identityResolver;
 	private final Class<?> beanType;
 	private final Map<String, Method> methods;
+	private final Collection<String> propertyNames;
 	private final IBeanDtoFactoryInterceptor<BEAN_TYPE> interceptor;
 	private final List<IBeanDtoFactoryPlugin<BEAN_TYPE>> interceptorPlugins;
 
@@ -75,6 +77,7 @@ final class BeanDtoFactoryImpl<BEAN_TYPE> implements IBeanDtoFactory<BEAN_TYPE> 
 		Assert.paramNotNull(propertyNames, "propertyNames");
 
 		this.identityResolver = (IBeanIdentityResolver<BEAN_TYPE>) identityResolver;
+		this.propertyNames = new LinkedHashSet<String>(propertyNames);
 		this.beanType = identityResolver.getBeanType();
 		this.methods = new HashMap<String, Method>();
 		this.interceptor = createInterceptor(beanType);
@@ -139,12 +142,19 @@ final class BeanDtoFactoryImpl<BEAN_TYPE> implements IBeanDtoFactory<BEAN_TYPE> 
 
 		builder.setId(identityResolver.getId(bean));
 		builder.setVersion(identityResolver.getVersion(bean));
-		for (final Entry<String, Method> methodEntry : methods.entrySet()) {
-			try {
-				builder.setValue(methodEntry.getKey(), methodEntry.getValue().invoke(bean));
+
+		for (final String propertyName : propertyNames) {
+			final Method method = methods.get(propertyName);
+			if (method != null) {
+				try {
+					builder.setValue(propertyName, method.invoke(bean));
+				}
+				catch (final Exception e) {
+					throw new RuntimeException(e);
+				}
 			}
-			catch (final Exception e) {
-				throw new RuntimeException(e);
+			else if (bean instanceof IPropertyMap) {
+				builder.setValue(propertyName, ((IPropertyMap) bean).getValue(propertyName));
 			}
 		}
 

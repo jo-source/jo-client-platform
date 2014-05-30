@@ -40,6 +40,7 @@ import java.util.Map;
 import org.jowidgets.cap.common.api.bean.IBeanModification;
 import org.jowidgets.cap.common.api.exception.BeanException;
 import org.jowidgets.cap.service.api.bean.IBeanModifier;
+import org.jowidgets.cap.service.api.bean.IPropertyMap;
 import org.jowidgets.cap.service.api.plugin.IBeanModifierPlugin;
 import org.jowidgets.plugin.api.IPluginProperties;
 import org.jowidgets.plugin.api.IPluginPropertiesBuilder;
@@ -116,7 +117,7 @@ final class BeanModifierImpl<BEAN_TYPE> implements IBeanModifier<BEAN_TYPE> {
 	@Override
 	public void modify(final BEAN_TYPE bean, final IBeanModification modification) {
 		final Method writeMethod = writeMethods.get(modification.getPropertyName());
-		if (writeMethod != null) {
+		if (writeMethod != null || bean instanceof IPropertyMap) {
 			//plugin before invocation
 			final List<IBeanModifierPlugin<?>> plugins;
 			plugins = PluginProvider.getPlugins(IBeanModifierPlugin.ID, pluginProperties);
@@ -125,11 +126,16 @@ final class BeanModifierImpl<BEAN_TYPE> implements IBeanModifier<BEAN_TYPE> {
 			}
 
 			//do modification
-			try {
-				writeMethod.invoke(bean, modification.getNewValue());
+			if (writeMethod != null) {
+				try {
+					writeMethod.invoke(bean, modification.getNewValue());
+				}
+				catch (final Exception e) {
+					throw new RuntimeException(e);
+				}
 			}
-			catch (final Exception e) {
-				throw new RuntimeException(e);
+			else if (bean instanceof IPropertyMap) {
+				((IPropertyMap) bean).setValue(modification.getPropertyName(), modification.getNewValue());
 			}
 
 			//plugin after invocation

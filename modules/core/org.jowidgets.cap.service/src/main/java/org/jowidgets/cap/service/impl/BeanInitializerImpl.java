@@ -36,13 +36,14 @@ import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanData;
 import org.jowidgets.cap.service.api.bean.IBeanInitializer;
+import org.jowidgets.cap.service.api.bean.IPropertyMap;
 import org.jowidgets.cap.service.api.plugin.IBeanInitializerPlugin;
 import org.jowidgets.plugin.api.IPluginProperties;
 import org.jowidgets.plugin.api.IPluginPropertiesBuilder;
@@ -52,12 +53,15 @@ import org.jowidgets.util.Assert;
 
 final class BeanInitializerImpl<BEAN_TYPE> implements IBeanInitializer<BEAN_TYPE> {
 
+	private final Collection<String> propertyNames;
 	private final Map<String, Method> methods;
 	private final IPluginProperties pluginProperties;
 
 	BeanInitializerImpl(final Class<? extends BEAN_TYPE> beanType, final Collection<String> propertyNames) {
 		Assert.paramNotNull(beanType, "beanType");
 		Assert.paramNotNull(propertyNames, "propertyNames");
+
+		this.propertyNames = new LinkedHashSet<String>(propertyNames);
 
 		final Map<String, Method> unsortedMap = new HashMap<String, Method>();
 
@@ -111,12 +115,18 @@ final class BeanInitializerImpl<BEAN_TYPE> implements IBeanInitializer<BEAN_TYPE
 		}
 
 		//set the values
-		for (final Entry<String, Method> entry : methods.entrySet()) {
-			try {
-				entry.getValue().invoke(bean, beanData.getValue(entry.getKey()));
+		for (final String propertyName : propertyNames) {
+			final Method method = methods.get(propertyName);
+			if (method != null) {
+				try {
+					method.invoke(bean, beanData.getValue(propertyName));
+				}
+				catch (final Exception e) {
+					throw new RuntimeException("Error while setting property '" + propertyName + "' on bean '" + bean + "'.", e);
+				}
 			}
-			catch (final Exception e) {
-				throw new RuntimeException("Error while setting property '" + entry.getKey() + "' on bean '" + bean + "'.", e);
+			else if (bean instanceof IPropertyMap) {
+				((IPropertyMap) bean).setValue(propertyName, beanData.getValue(propertyName));
 			}
 		}
 
