@@ -135,6 +135,7 @@ final class BeanTableCellEditorFactory extends AbstractTableCellEditorFactory<IT
 		public void startEditing(final ITableCell cell, final int row, final int column) {
 			final IBeanProxy<?> bean = model.getBean(row);
 			editor.setValue(bean.getValue(attribute.getPropertyName()));
+
 			lastValue = editor.getValue();
 			lastBean = bean;
 
