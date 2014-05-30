@@ -91,6 +91,10 @@ public class HashMapCrudRepository<BEAN_TYPE> implements ICrudSupportBeanReposit
 		return data.get(id);
 	}
 
+	public List<BEAN_TYPE> read() {
+		return new LinkedList<BEAN_TYPE>(data.values());
+	}
+
 	@Override
 	public List<BEAN_TYPE> read(final List<? extends IBeanKey> parentBeanKeys, final IExecutionCallback executionCallback) {
 		return new LinkedList<BEAN_TYPE>(data.values());
