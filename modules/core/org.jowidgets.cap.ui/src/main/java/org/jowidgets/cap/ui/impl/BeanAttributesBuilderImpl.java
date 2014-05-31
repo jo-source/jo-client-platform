@@ -42,12 +42,12 @@ import org.jowidgets.util.Assert;
 final class BeanAttributesBuilderImpl implements IBeanAttributesBuilder {
 
 	private final Class<?> beanType;
-	private final Map<String, BeanAttributeBluePrintImpl<Object>> attributes;
+	private final Map<String, Object> attributes;
 
 	BeanAttributesBuilderImpl(final Class<?> beanType) {
 		Assert.paramNotNull(beanType, "beanType");
 		this.beanType = beanType;
-		this.attributes = new LinkedHashMap<String, BeanAttributeBluePrintImpl<Object>>();
+		this.attributes = new LinkedHashMap<String, Object>();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -62,11 +62,25 @@ final class BeanAttributesBuilderImpl implements IBeanAttributesBuilder {
 		return (IBeanAttributeBluePrint<ELEMENT_VALUE_TYPE>) result;
 	}
 
+	@SuppressWarnings("rawtypes")
+	@Override
+	public IBeanAttributesBuilder add(final IAttribute attribute) {
+		Assert.paramNotNull(attribute, "attribute");
+		attributes.put(attribute.getPropertyName(), attribute);
+		return this;
+	}
+
+	@SuppressWarnings({"unchecked", "rawtypes"})
 	@Override
 	public List<IAttribute<Object>> build() {
-		final List<IAttribute<Object>> result = new LinkedList<IAttribute<Object>>();
-		for (final BeanAttributeBluePrintImpl<Object> builder : attributes.values()) {
-			result.add(builder.build());
+		final List result = new LinkedList<IAttribute<Object>>();
+		for (final Object element : attributes.values()) {
+			if (element instanceof BeanAttributeBluePrintImpl<?>) {
+				result.add(((BeanAttributeBluePrintImpl) element).build());
+			}
+			else if (element instanceof IAttribute<?>) {
+				result.add(element);
+			}
 		}
 		return Collections.unmodifiableList(result);
 	}

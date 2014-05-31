@@ -34,6 +34,8 @@ public interface IBeanAttributesBuilder {
 
 	<ELEMENT_VALUE_TYPE> IBeanAttributeBluePrint<ELEMENT_VALUE_TYPE> add(String propertyName);
 
+	IBeanAttributesBuilder add(IAttribute<?> attribute);
+
 	List<IAttribute<Object>> build();
 
 }
