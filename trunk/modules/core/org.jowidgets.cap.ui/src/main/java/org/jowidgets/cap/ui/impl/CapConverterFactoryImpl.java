@@ -31,9 +31,15 @@ package org.jowidgets.cap.ui.impl;
 import org.jowidgets.api.convert.IConverter;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.cap.common.api.lookup.ILookUpProperty;
+import org.jowidgets.cap.common.api.lookup.LookUpProperty;
 import org.jowidgets.cap.ui.api.converter.ICapConverterFactory;
 
 final class CapConverterFactoryImpl implements ICapConverterFactory {
+
+	@Override
+	public <KEY_TYPE> IConverter<KEY_TYPE> lookUpConverter(final Object lookUpId) {
+		return lookUpConverter(lookUpId, LookUpProperty.create());
+	}
 
 	@Override
 	public <KEY_TYPE> IConverter<KEY_TYPE> lookUpConverter(final Object lookUpId, final ILookUpProperty lookUpProperty) {

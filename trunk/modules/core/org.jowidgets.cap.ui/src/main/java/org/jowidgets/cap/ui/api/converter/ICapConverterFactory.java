@@ -33,6 +33,8 @@ import org.jowidgets.cap.common.api.lookup.ILookUpProperty;
 
 public interface ICapConverterFactory {
 
+	<KEY_TYPE> IConverter<KEY_TYPE> lookUpConverter(Object lookUpId);
+
 	<KEY_TYPE> IConverter<KEY_TYPE> lookUpConverter(Object lookUpId, ILookUpProperty lookUpProperty);
 
 	<KEY_TYPE> IConverter<KEY_TYPE> lookUpConverter(Object lookUpId, String lookUpPropertyName, IConverter<?> valueConverter);
