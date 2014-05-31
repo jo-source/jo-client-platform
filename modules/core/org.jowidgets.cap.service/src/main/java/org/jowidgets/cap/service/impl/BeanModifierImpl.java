@@ -83,28 +83,29 @@ final class BeanModifierImpl<BEAN_TYPE> implements IBeanModifier<BEAN_TYPE> {
 
 	@Override
 	public boolean isPropertyStale(final BEAN_TYPE bean, final IBeanModification modification) {
+		//It is important that the order of the arguments will no be changed due to 
+		//the fact, that the second param (value) may be a java.sql.Timestamp for date
+		//properties and the comparison for the combination java.util.Date and java.sql.Timestamp
+		//is not symmetric (as it should be assumed, 
+		//because equivalence relation are defined as to be reflexive, transitiv and symmetric).
+		//Using this parameter order, the java.util.Data is always the first parameter, so this
+		//will not lead to problems. 
+		//(See also: http://stackoverflow.com/questions/8929242/compare-date-object-with-a-timestamp-in-java)
+		return !EmptyCompatibleEquivalence.equals(modification.getOldValue(), getCurrentValue(bean, modification));
+	}
+
+	private Object getCurrentValue(final BEAN_TYPE bean, final IBeanModification modification) {
 		final Method readMethod = readMethods.get(modification.getPropertyName());
 		if (readMethod != null) {
 			try {
-				final Object value = readMethod.invoke(bean);
-				//It is important that the order of the arguments will no be changed due to 
-				//the fact, that the second param (value) may be a java.sql.Timestamp for date
-				//properties and the comparison for the combination java.util.Date and java.sql.Timestamp
-				//is not symmetric (as it should be assumed, 
-				//because equivalence relation are defined as to be reflexive, transitiv and symmetric).
-				//Using this parameter order, the java.util.Data is always the first parameter, so this
-				//will not lead to problems. 
-				//(See also: http://stackoverflow.com/questions/8929242/compare-date-object-with-a-timestamp-in-java)
-				if (EmptyCompatibleEquivalence.equals(modification.getOldValue(), value)) {
-					return false;
-				}
-				else {
-					return true;
-				}
+				return readMethod.invoke(bean);
 			}
 			catch (final Exception e) {
 				throw new RuntimeException(e);
 			}
+		}
+		else if (bean instanceof IPropertyMap) {
+			return ((IPropertyMap) bean).getValue(modification.getPropertyName());
 		}
 		else {
 			throw new BeanException(modification.getId(), "Tryed to get the property '"
