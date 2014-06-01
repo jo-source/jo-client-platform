@@ -44,6 +44,7 @@ final class BeanTableConfigBuilderImpl implements IBeanTableConfigBuilder {
 	private boolean filterToolbarVisible;
 	private boolean searchFilterToolbarVisible;
 	private boolean statusBarVisible;
+	private boolean validationLabelVisible;
 
 	BeanTableConfigBuilderImpl() {
 		this.autoUpdate = false;
@@ -61,6 +62,8 @@ final class BeanTableConfigBuilderImpl implements IBeanTableConfigBuilder {
 		setFilterToolbarVisible(config.isFilterToolbarVisible());
 		setSearchFilterToolbarVisible(config.isSearchFilterToolbarVisible());
 		setStatusBarVisible(config.isStatusBarVisible());
+		setStatusBarVisible(config.isStatusBarVisible());
+		setValidationLabelVisible(config.isValidationLabelVisible());
 		return this;
 	}
 
@@ -109,6 +112,12 @@ final class BeanTableConfigBuilderImpl implements IBeanTableConfigBuilder {
 	}
 
 	@Override
+	public IBeanTableConfigBuilder setValidationLabelVisible(final boolean visible) {
+		this.validationLabelVisible = visible;
+		return this;
+	}
+
+	@Override
 	public IBeanTableConfig build() {
 		return new BeanTableConfigImpl(
 			columnPermutation,
@@ -117,6 +126,7 @@ final class BeanTableConfigBuilderImpl implements IBeanTableConfigBuilder {
 			autoScrollPolicy,
 			filterToolbarVisible,
 			searchFilterToolbarVisible,
-			statusBarVisible);
+			statusBarVisible,
+			validationLabelVisible);
 	}
 }

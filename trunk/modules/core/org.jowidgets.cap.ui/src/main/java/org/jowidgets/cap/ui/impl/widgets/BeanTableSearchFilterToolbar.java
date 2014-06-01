@@ -114,7 +114,7 @@ final class BeanTableSearchFilterToolbar<BEAN_TYPE> {
 		this.model = table.getModel();
 		this.attributes = model.getAttributes();
 
-		this.toolbar = composite.add(0, BPF.composite(), "growx, w 0::, wrap");
+		this.toolbar = composite.add(0, BPF.composite(), "growx, w 0::");
 		toolbar.setLayout(new MigLayoutDescriptor("0[][][grow]0", "0[grow]0[]0"));
 		toolbar.setVisible(false);
 

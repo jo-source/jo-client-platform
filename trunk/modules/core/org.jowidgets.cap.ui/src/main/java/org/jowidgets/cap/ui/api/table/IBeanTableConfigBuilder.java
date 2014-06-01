@@ -50,6 +50,8 @@ public interface IBeanTableConfigBuilder {
 
 	IBeanTableConfigBuilder setStatusBarVisible(boolean visible);
 
+	IBeanTableConfigBuilder setValidationLabelVisible(boolean visible);
+
 	IBeanTableConfig build();
 
 }

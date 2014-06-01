@@ -31,13 +31,23 @@ package org.jowidgets.cap.ui.impl.widgets;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.Set;
 
 import org.jowidgets.api.controller.IDisposeListener;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.IInputControl;
+import org.jowidgets.cap.common.api.CapCommonToolkit;
+import org.jowidgets.cap.common.api.validation.IBeanValidationResult;
+import org.jowidgets.cap.common.api.validation.IBeanValidationResultListBuilder;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.cap.ui.api.bean.IExternalBeanValidator;
+import org.jowidgets.cap.ui.api.bean.IExternalBeanValidatorListener;
+import org.jowidgets.cap.ui.api.color.CapColors;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.common.model.ITableCell;
@@ -49,8 +59,11 @@ import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 import org.jowidgets.common.widgets.factory.ICustomWidgetFactory;
 import org.jowidgets.tools.editor.AbstractTableCellEditor;
 import org.jowidgets.tools.editor.AbstractTableCellEditorFactory;
+import org.jowidgets.tools.validation.MandatoryValidator;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.event.IChangeListener;
+import org.jowidgets.validation.IValidationConditionListener;
+import org.jowidgets.validation.IValidationResult;
 
 final class BeanTableCellEditorFactory extends AbstractTableCellEditorFactory<ITableCellEditor> {
 
@@ -114,10 +127,11 @@ final class BeanTableCellEditorFactory extends AbstractTableCellEditorFactory<IT
 		}
 	}
 
-	private final class AttributeTableCellEditor extends AbstractTableCellEditor {
+	private final class AttributeTableCellEditor extends AbstractTableCellEditor implements IExternalBeanValidator {
 
 		private final IInputControl<Object> editor;
 		private final IAttribute<Object> attribute;
+		private final Set<IExternalBeanValidatorListener> externalValidatorListeners;
 
 		private Object lastValue;
 		private IBeanProxy<?> lastBean;
@@ -129,6 +143,19 @@ final class BeanTableCellEditorFactory extends AbstractTableCellEditorFactory<IT
 			super(editor);
 			this.attribute = attribute;
 			this.editor = editor;
+			this.externalValidatorListeners = new LinkedHashSet<IExternalBeanValidatorListener>();
+
+			if (attribute.isMandatory()) {
+				editor.addValidator(new MandatoryValidator<Object>());
+				editor.setBackgroundColor(CapColors.MANDATORY_BACKGROUND);
+			}
+
+			editor.addValidationConditionListener(new IValidationConditionListener() {
+				@Override
+				public void validationConditionsChanged() {
+					fireValidationConditionsChanged();
+				}
+			});
 		}
 
 		@Override
@@ -155,7 +182,8 @@ final class BeanTableCellEditorFactory extends AbstractTableCellEditorFactory<IT
 				}
 			}
 
-			removeInputListener();
+			removeListeners(row);
+			bean.registerExternalValidator(AttributeTableCellEditor.this);
 
 			inputListener = new IInputListener() {
 				@Override
@@ -199,6 +227,8 @@ final class BeanTableCellEditorFactory extends AbstractTableCellEditorFactory<IT
 			editor.addDisposeListener(new IDisposeListener() {
 				@Override
 				public void onDispose() {
+					bean.unregisterExternalValidator(AttributeTableCellEditor.this);
+
 					if (propertyChangeListener != null) {
 						bean.removePropertyChangeListener(propertyChangeListener);
 						propertyChangeListener = null;
@@ -210,18 +240,54 @@ final class BeanTableCellEditorFactory extends AbstractTableCellEditorFactory<IT
 					}
 				}
 			});
+
+		}
+
+		@Override
+		public Collection<IBeanValidationResult> validate(final Collection<IBeanValidationResult> parentResult) {
+			final IBeanValidationResultListBuilder builder = CapCommonToolkit.beanValidationResultListBuilder();
+			builder.addResult(parentResult);
+			final IValidationResult result = editor.validate();
+			if (!result.isOk()) {
+				builder.addResult(result.withContext(attribute.getCurrentLabel()), attribute.getPropertyName());
+			}
+			return builder.build();
+		}
+
+		@Override
+		public Collection<String> getObservedProperties() {
+			return Collections.singleton(attribute.getPropertyName());
+		}
+
+		@Override
+		public void addExternalValidatorListener(final IExternalBeanValidatorListener listener) {
+			externalValidatorListeners.add(listener);
+		}
+
+		@Override
+		public void removeExternalValidatorListener(final IExternalBeanValidatorListener listener) {
+			externalValidatorListeners.remove(listener);
+		}
+
+		private void fireValidationConditionsChanged() {
+			final Collection<String> properties = getObservedProperties();
+			for (final IExternalBeanValidatorListener listener : new LinkedList<IExternalBeanValidatorListener>(
+				externalValidatorListeners)) {
+				listener.validationConditionsChanged(this, properties);
+			}
 		}
 
 		@Override
 		public void stopEditing(final ITableCell cell, final int row, final int column) {
 			setValueToBean(row, editor.getValue());
-			removeInputListener();
+			removeListeners(row);
+
 		}
 
 		@Override
 		public void cancelEditing(final ITableCell cell, final int row, final int column) {
 			setValueToBean(row, lastValue);
-			removeInputListener();
+			removeListeners(row);
 		}
 
 		private void setValueToBean(final int row, final Object value) {
@@ -233,7 +299,11 @@ final class BeanTableCellEditorFactory extends AbstractTableCellEditorFactory<IT
 			lastValue = null;
 		}
 
-		private void removeInputListener() {
+		private void removeListeners(final int row) {
+			final IBeanProxy<?> bean = model.getBean(row);
+			if (bean != null && !bean.isDisposed()) {
+				bean.unregisterExternalValidator(AttributeTableCellEditor.this);
+			}
 			if (inputListener != null) {
 				editor.removeInputListener(inputListener);
 			}

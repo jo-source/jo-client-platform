@@ -141,6 +141,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 	private final ITable table;
 	private final IBeanTableModel<BEAN_TYPE> model;
 	private final BeanTableSearchFilterToolbar<BEAN_TYPE> searchFilterToolbar;
+	private final BeanTableValidationLabel<BEAN_TYPE> validationLabel;
 	private final BeanTableFilterToolbar<BEAN_TYPE> filterToolbar;
 	private final BeanTableStatusBar<BEAN_TYPE> statusBar;
 	private final List<IBeanTableMenuInterceptor<BEAN_TYPE>> menuInterceptors;
@@ -213,7 +214,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 			mainComposite = composite;
 		}
 
-		mainComposite.setLayout(new MigLayoutDescriptor("hidemode 2", "0[grow, 0::]0", "0[]0[grow, 0::]0[]0"));
+		mainComposite.setLayout(new MigLayoutDescriptor("wrap, hidemode 2", "0[grow, 0::]0", "0[]0[]0[grow, 0::]0[]0"));
 
 		this.menuInterceptors = getMenuInterceptorsFromPlugins(
 				bluePrint.getMenuInterceptor(),
@@ -243,8 +244,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 		tableBp.setEditor(new BeanTableCellEditorFactory(this));
 		tableBp.setSelectionPolicy(bluePrint.getSelectionPolicy());
 
-		final IComposite contentComposite = mainComposite.add(BPF.composite(), MigLayoutFactory.GROWING_CELL_CONSTRAINTS
-			+ ", wrap");
+		final IComposite contentComposite = mainComposite.add(BPF.composite(), MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
 		contentComposite.setLayout(new MigLayoutDescriptor("hidemode 2", "0[]0[grow, 0::]0", "0[grow, 0::]0"));
 
 		this.table = contentComposite.add(tableBp, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
@@ -292,6 +292,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 				pluggedHeaderPopupMenuModel);
 
 		this.searchFilterToolbar = new BeanTableSearchFilterToolbar<BEAN_TYPE>(mainComposite, this);
+		this.validationLabel = new BeanTableValidationLabel<BEAN_TYPE>(mainComposite, this, bluePrint.getValidationLabel());
 		this.filterToolbar = new BeanTableFilterToolbar<BEAN_TYPE>(contentComposite, this, menuFactory);
 		this.statusBar = new BeanTableStatusBar<BEAN_TYPE>(mainComposite, bluePrint.getStatusBarRenderer(), this);
 
@@ -441,6 +442,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 
 		setSearchFilterToolbarVisible(bluePrint.getSearchFilterToolbarVisible());
 		setStatusBarVisible(bluePrint.getStatusBarVisible());
+		setValidationLabelVisible(bluePrint.getValidationLabelVisible());
 
 		this.isAutoUpdateConfigurable = bluePrint.getAutoUpdateConfigurable();
 		this.currentAutoUpdateInterval = bluePrint.getAutoUpdateInterval();
@@ -882,6 +884,11 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 	}
 
 	@Override
+	public void setValidationLabelVisible(final boolean visible) {
+		validationLabel.setVisible(visible);
+	}
+
+	@Override
 	public void setStatusBarVisible(final boolean visible) {
 		statusBar.setVisible(visible);
 	}
@@ -899,6 +906,11 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 	@Override
 	public ICheckedItemModel getStatusBarItemModel() {
 		return statusBar.getStatusBarItemModel();
+	}
+
+	@Override
+	public ICheckedItemModel getValidationLabelItemModel() {
+		return validationLabel.getItemModel();
 	}
 
 	@Override
@@ -988,6 +1000,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 		builder.setFilterToolbarVisible(getFilterToolbarItemModel().isSelected());
 		builder.setSearchFilterToolbarVisible(getSearchFilterToolbarItemModel().isSelected());
 		builder.setStatusBarVisible(getStatusBarItemModel().isSelected());
+		builder.setValidationLabelVisible(getValidationLabelItemModel().isSelected());
 		return builder.build();
 	}
 
@@ -998,6 +1011,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 		setFilterToolbarVisible(config.isFilterToolbarVisible());
 		setSearchFilterToolbarVisible(config.isSearchFilterToolbarVisible());
 		setStatusBarVisible(config.isStatusBarVisible());
+		setValidationLabelVisible(config.isValidationLabelVisible());
 		autoUpdateItemModel.setSelected(config.isAutoUpdate());
 		autoScrollPolicy = config.getAutoScrollPolicy();
 		setAutoUpdateInterval(config.getAutoUpdateInterval());

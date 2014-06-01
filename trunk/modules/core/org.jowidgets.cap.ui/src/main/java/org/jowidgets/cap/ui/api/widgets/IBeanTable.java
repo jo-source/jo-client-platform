@@ -69,6 +69,10 @@ public interface IBeanTable<BEAN_TYPE> extends ITable {
 
 	ICheckedItemModel getSearchFilterToolbarItemModel();
 
+	void setValidationLabelVisible(boolean visible);
+
+	ICheckedItemModel getValidationLabelItemModel();
+
 	void setFilterToolbarVisible(boolean visible);
 
 	ICheckedItemModel getFilterToolbarItemModel();

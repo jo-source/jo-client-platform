@@ -63,6 +63,7 @@ final class BeanTableCellMenuModel<BEAN_TYPE> extends MenuModel {
 		if (table.isAutoUpdateConfigurable()) {
 			tryAddItem(table.getAutoUpdateItemModel());
 		}
+		tryAddItem(table.getValidationLabelItemModel());
 		tryAddItem(table.getStatusBarItemModel());
 	}
 
