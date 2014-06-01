@@ -186,7 +186,7 @@ final class BeanTableStatusBar<BEAN_TYPE> {
 		if (size == 0) {
 			return 0;
 		}
-		else if (!model.isLastBeanEnabled()) {
+		else if (!model.hasLastBean()) {
 			return size;
 		}
 		else {//lastBeanEnabled && > 0
@@ -205,7 +205,7 @@ final class BeanTableStatusBar<BEAN_TYPE> {
 	 */
 	private int getModelSize() {
 		final int size = model.getSize();
-		if (model.isLastBeanEnabled() && size > 0) {
+		if (model.hasLastBean() && size > 0) {
 			return size - 1;
 		}
 		else {

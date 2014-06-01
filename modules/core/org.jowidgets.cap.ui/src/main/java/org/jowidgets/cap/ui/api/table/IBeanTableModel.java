@@ -206,9 +206,17 @@ public interface IBeanTableModel<BEAN_TYPE> extends
 	void setLastBeanEnabled(boolean lastBeanEnabled);
 
 	/**
-	 * @return true, if the last bean is enabled, false otherwise
+	 * @return True if the last bean mode is enabled, false otherwise
 	 */
 	boolean isLastBeanEnabled();
+
+	/**
+	 * Determines if the the last bean is part of the table. This method may return false even if the last bean mode is enabled,
+	 * e.g. if model does not allow to add data at the moment
+	 * 
+	 * @return true, if the last bean is part of the table, false otherwise
+	 */
+	boolean hasLastBean();
 
 	/**
 	 * If set to true, the default values of the attributes changes each time a property will be modified

@@ -54,7 +54,7 @@ public class ScrollToEndAtAddTableModel<BEAN_TYPE> extends BeanListModelWrapper<
 	@Override
 	public void addBean(final IBeanProxy<BEAN_TYPE> bean) {
 		super.addBean(bean);
-		if (model.isLastBeanEnabled() && model.getSize() > 1) {
+		if (model.hasLastBean() && model.getSize() > 1) {
 			model.setSelection(Collections.singletonList(Integer.valueOf(model.getSize() - 2)));
 			table.scrollToSelection();
 		}

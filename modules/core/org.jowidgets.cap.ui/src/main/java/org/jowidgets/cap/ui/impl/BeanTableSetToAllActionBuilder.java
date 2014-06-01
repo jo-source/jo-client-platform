@@ -40,6 +40,7 @@ import org.jowidgets.common.widgets.controller.ITableCellPopupEvent;
 import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.i18n.api.MessageReplacer;
 import org.jowidgets.tools.command.ActionBuilder;
+import org.jowidgets.util.StringUtils;
 
 final class BeanTableSetToAllActionBuilder extends ActionBuilder {
 
@@ -70,7 +71,7 @@ final class BeanTableSetToAllActionBuilder extends ActionBuilder {
 				final Object cellValue = model.getValue(rowIndex, columnIndex);
 				final String cellText;
 				if (cellValue != null) {
-					cellText = model.getTableModel().getCell(rowIndex, columnIndex).getText();
+					cellText = StringUtils.truncateToLength(model.getTableModel().getCell(rowIndex, columnIndex).getText(), 30);
 				}
 				else {
 					cellText = NOT_SET.get();

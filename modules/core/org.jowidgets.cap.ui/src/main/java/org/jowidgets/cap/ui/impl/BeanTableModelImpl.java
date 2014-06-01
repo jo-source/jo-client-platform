@@ -251,6 +251,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	private boolean onSetConfig;
 	private Integer scheduledLoadDelay;
 	private boolean disposed;
+	private boolean lastBeanEnabled;
 
 	@SuppressWarnings("unchecked")
 	BeanTableModelImpl(
@@ -315,6 +316,12 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			this.parentSelectionListener = null;
 		}
 		this.parentSelectionAddabledChecker = new ParentSelectionAddabledChecker(parent, linkType);
+		parentSelectionAddabledChecker.addChangeListener(new IChangeListener() {
+			@Override
+			public void changed() {
+				setLastBeanByParentState();
+			}
+		});
 
 		//inject table model plugins
 		attributes = createModifiedByPluginsAttributes(entityId, (Class<BEAN_TYPE>) beanType, attributes);
@@ -446,23 +453,33 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	}
 
 	@Override
-	public boolean isLastBeanEnabled() {
+	public boolean hasLastBean() {
 		return lastBean != null;
 	}
 
 	@Override
+	public boolean isLastBeanEnabled() {
+		return lastBeanEnabled;
+	}
+
+	@Override
 	public void setLastBeanEnabled(final boolean lastBeanEnabled) {
-		if (lastBeanEnabled) {
-			addLastBean();
-		}
-		else {
-			removeLastBean();
-		}
+		this.lastBeanEnabled = lastBeanEnabled;
+		setLastBeanByParentState();
 	}
 
 	@Override
 	public IEnabledChecker getDataAddableChecker() {
 		return parentSelectionAddabledChecker;
+	}
+
+	private void setLastBeanByParentState() {
+		if (lastBeanEnabled && parentSelectionAddabledChecker.getEnabledState().isEnabled()) {
+			addLastBean();
+		}
+		else {
+			removeLastBean();
+		}
 	}
 
 	private void addLastBean() {
