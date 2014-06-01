@@ -144,6 +144,11 @@ final class CreatorActionBuilderImpl<BEAN_TYPE> extends AbstractCapActionBuilder
 				}
 			}
 		}
+
+		final IEnabledChecker dataAddableChecker = model.getDataAddableChecker();
+		if (dataAddableChecker != null) {
+			addEnabledChecker(dataAddableChecker);
+		}
 	}
 
 	@Override

@@ -85,6 +85,10 @@ final class PasteBeansActionBuilderImpl<BEAN_TYPE> extends AbstractCapActionBuil
 		setAccelerator(VirtualKey.V, Modifier.CTRL);
 		setIcon(IconsSmall.PASTE);
 
+		final IEnabledChecker dataAddableChecker = model.getDataAddableChecker();
+		if (dataAddableChecker != null) {
+			addEnabledChecker(dataAddableChecker);
+		}
 	}
 
 	@Override

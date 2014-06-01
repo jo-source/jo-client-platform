@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.jowidgets.api.command.IEnabledChecker;
 import org.jowidgets.api.controller.IDisposeListener;
 import org.jowidgets.api.threads.IUiThreadAccess;
 import org.jowidgets.api.toolkit.Toolkit;
@@ -149,6 +150,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 	private final DisposeObservable disposeObservable;
 	private final IChangeListener sortModelChangeListener;
 	private final IBeanSelectionListener<Object> parentSelectionListener;
+	private final ParentSelectionAddabledChecker parentSelectionAddabledChecker;
 	private final IDataModelContext dataModelContext;
 
 	private final IBeanProxyLabelRenderer<BEAN_TYPE> renderer;
@@ -209,6 +211,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 		else {
 			this.parentSelectionListener = null;
 		}
+		this.parentSelectionAddabledChecker = new ParentSelectionAddabledChecker(parent, linkType);
 
 		List<IAttribute<Object>> modfiedAttributes = createModifiedByPluginsAttributes(
 				entityId,
@@ -290,6 +293,11 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 		return dataModelContext;
 	}
 
+	@Override
+	public IEnabledChecker getDataAddableChecker() {
+		return parentSelectionAddabledChecker;
+	}
+
 	private List<IAttribute<Object>> createModifiedByPluginsAttributes(
 		final Object entityId,
 		final Class<BEAN_TYPE> beanType,
@@ -338,6 +346,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 			if (parentSelectionListener != null && parent != null) {
 				parent.removeBeanSelectionListener(parentSelectionListener);
 			}
+			parentSelectionAddabledChecker.dispose();
 			disposeBeans();
 			disposed = true;
 		}
