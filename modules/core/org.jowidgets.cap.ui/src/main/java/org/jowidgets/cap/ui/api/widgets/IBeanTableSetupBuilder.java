@@ -31,6 +31,7 @@ package org.jowidgets.cap.ui.api.widgets;
 import org.jowidgets.api.types.AutoPackPolicy;
 import org.jowidgets.api.widgets.blueprint.builder.IComponentSetupBuilder;
 import org.jowidgets.api.widgets.descriptor.setup.IComponentSetup;
+import org.jowidgets.api.widgets.descriptor.setup.IValidationLabelSetup;
 import org.jowidgets.cap.ui.api.model.ILabelRenderer;
 import org.jowidgets.cap.ui.api.table.IBeanTableMenuInterceptor;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
@@ -71,6 +72,8 @@ public interface IBeanTableSetupBuilder<INSTANCE_TYPE extends IBeanTableSetupBui
 
 	INSTANCE_TYPE setSearchFilterToolbarVisible(boolean visible);
 
+	INSTANCE_TYPE setValidationLabelVisible(boolean visible);
+
 	INSTANCE_TYPE setStatusBarVisible(boolean visible);
 
 	INSTANCE_TYPE setStatusBarRenderer(ILabelRenderer<IBeanTable<BEAN_TYPE>> renderer);
@@ -109,6 +112,8 @@ public interface IBeanTableSetupBuilder<INSTANCE_TYPE extends IBeanTableSetupBui
 	INSTANCE_TYPE setEditable(boolean editable);
 
 	INSTANCE_TYPE setRowHeight(Integer rowHeight);
+
+	INSTANCE_TYPE setValidationLabel(IValidationLabelSetup valiadationLabel);
 
 	@Mandatory
 	TableSelectionPolicy getSelectionPolicy();
@@ -155,6 +160,9 @@ public interface IBeanTableSetupBuilder<INSTANCE_TYPE extends IBeanTableSetupBui
 	@Mandatory
 	boolean getStatusBarVisible();
 
+	@Mandatory
+	boolean getValidationLabelVisible();
+
 	ILabelRenderer<IBeanTable<BEAN_TYPE>> getStatusBarRenderer();
 
 	@Mandatory
@@ -171,6 +179,9 @@ public interface IBeanTableSetupBuilder<INSTANCE_TYPE extends IBeanTableSetupBui
 
 	@Mandatory
 	boolean getAutoKeyBinding();
+
+	@Mandatory
+	IValidationLabelSetup getValidationLabel();
 
 	Integer getRowHeight();
 

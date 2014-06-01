@@ -983,7 +983,6 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 				}
 				setValidationCacheDirty();
 			}
-
 		}
 	}
 

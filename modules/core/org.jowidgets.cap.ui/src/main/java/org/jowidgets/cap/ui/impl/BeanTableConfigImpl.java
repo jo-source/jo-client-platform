@@ -43,6 +43,7 @@ final class BeanTableConfigImpl implements IBeanTableConfig {
 	private final boolean filterToolbarVisible;
 	private final boolean searchFilterToolbarVisible;
 	private final boolean statusBarVisible;
+	private final boolean validationLabelVisible;
 
 	BeanTableConfigImpl(
 		final ArrayList<Integer> columnPermutation,
@@ -51,7 +52,8 @@ final class BeanTableConfigImpl implements IBeanTableConfig {
 		final AutoScrollPolicy autoScrollPolicy,
 		final boolean filterToolbarVisible,
 		final boolean searchFilterToolbarVisible,
-		final boolean statusBarVisible) {
+		final boolean statusBarVisible,
+		final boolean validationLabelVisible) {
 
 		Assert.paramNotNull(columnPermutation, "columnPermutation");
 		Assert.paramNotNull(autoScrollPolicy, "autoScrollPolicy");
@@ -63,6 +65,7 @@ final class BeanTableConfigImpl implements IBeanTableConfig {
 		this.filterToolbarVisible = filterToolbarVisible;
 		this.searchFilterToolbarVisible = searchFilterToolbarVisible;
 		this.statusBarVisible = statusBarVisible;
+		this.validationLabelVisible = validationLabelVisible;
 	}
 
 	@Override
@@ -98,6 +101,11 @@ final class BeanTableConfigImpl implements IBeanTableConfig {
 	@Override
 	public boolean isStatusBarVisible() {
 		return statusBarVisible;
+	}
+
+	@Override
+	public boolean isValidationLabelVisible() {
+		return validationLabelVisible;
 	}
 
 }

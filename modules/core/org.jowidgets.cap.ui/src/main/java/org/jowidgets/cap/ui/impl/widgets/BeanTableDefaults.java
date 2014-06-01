@@ -28,11 +28,13 @@
 
 package org.jowidgets.cap.ui.impl.widgets;
 
+import org.jowidgets.api.image.IconsSmall;
 import org.jowidgets.api.types.AutoPackPolicy;
 import org.jowidgets.api.widgets.blueprint.defaults.IDefaultInitializer;
 import org.jowidgets.cap.ui.api.types.AutoScrollPolicy;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableSetupBuilder;
 import org.jowidgets.common.types.TableSelectionPolicy;
+import org.jowidgets.tools.widgets.blueprint.BPF;
 
 final class BeanTableDefaults implements IDefaultInitializer<IBeanTableSetupBuilder<?, ?>> {
 
@@ -55,5 +57,7 @@ final class BeanTableDefaults implements IDefaultInitializer<IBeanTableSetupBuil
 		bluePrint.setAutoPackPolicy(AutoPackPolicy.OFF);
 		bluePrint.setAutoUpdateConfigurable(false);
 		bluePrint.setAutoKeyBinding(true);
+		bluePrint.setValidationLabel(BPF.validationResultLabel().setEmptyIcon(IconsSmall.OK_GREYED));
+		bluePrint.setValidationLabelVisible(false);
 	}
 }

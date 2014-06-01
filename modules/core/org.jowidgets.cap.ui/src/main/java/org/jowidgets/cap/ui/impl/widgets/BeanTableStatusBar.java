@@ -83,7 +83,7 @@ final class BeanTableStatusBar<BEAN_TYPE> {
 		this.composite = composite;
 		this.table = table;
 		this.model = table.getModel();
-		this.statusbar = composite.add(2, BPF.composite(), "growx, w 0::");
+		this.statusbar = composite.add(3, BPF.composite(), "growx, w 0::");
 		this.renderer = renderer != null ? renderer : new DefaultLabelRenderer<IBeanTable<BEAN_TYPE>>();
 		statusbar.setLayout(new MigLayoutDescriptor("3[]1", "3[]0"));
 		statusbar.setVisible(false);

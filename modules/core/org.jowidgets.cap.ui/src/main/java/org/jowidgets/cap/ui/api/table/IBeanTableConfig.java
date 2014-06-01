@@ -48,4 +48,6 @@ public interface IBeanTableConfig {
 
 	boolean isStatusBarVisible();
 
+	boolean isValidationLabelVisible();
+
 }

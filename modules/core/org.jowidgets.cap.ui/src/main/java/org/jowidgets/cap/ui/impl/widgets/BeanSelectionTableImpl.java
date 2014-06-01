@@ -257,6 +257,11 @@ final class BeanSelectionTableImpl<BEAN_TYPE> extends AbstractInputControl<List<
 	}
 
 	@Override
+	public void setValidationLabelVisible(final boolean visible) {
+		table.setValidationLabelVisible(visible);
+	}
+
+	@Override
 	public ICheckedItemModel getSearchFilterToolbarItemModel() {
 		return table.getSearchFilterToolbarItemModel();
 	}
@@ -269,6 +274,11 @@ final class BeanSelectionTableImpl<BEAN_TYPE> extends AbstractInputControl<List<
 	@Override
 	public ICheckedItemModel getStatusBarItemModel() {
 		return table.getStatusBarItemModel();
+	}
+
+	@Override
+	public ICheckedItemModel getValidationLabelItemModel() {
+		return table.getValidationLabelItemModel();
 	}
 
 	@Override
