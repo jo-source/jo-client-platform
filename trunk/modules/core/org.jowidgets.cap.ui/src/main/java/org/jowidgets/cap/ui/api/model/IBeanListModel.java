@@ -31,6 +31,7 @@ package org.jowidgets.cap.ui.api.model;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.jowidgets.api.command.IEnabledChecker;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
@@ -56,5 +57,15 @@ public interface IBeanListModel<BEAN_TYPE> extends IBeanListModelObservable<BEAN
 	void setSelection(Collection<Integer> selection);
 
 	void fireBeansChanged();
+
+	/**
+	 * Provides a checker that checks if data can be added to the model. E.g. if the model is a child and
+	 * the parent selection is empty. so data should be added.
+	 * 
+	 * Implementors may return null if this feature should not be supported
+	 * 
+	 * @return The enabled checker or null
+	 */
+	IEnabledChecker getDataAddableChecker();
 
 }

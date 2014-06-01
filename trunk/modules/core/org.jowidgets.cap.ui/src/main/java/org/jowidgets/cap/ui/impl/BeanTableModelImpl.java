@@ -48,6 +48,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.jowidgets.api.color.Colors;
+import org.jowidgets.api.command.IEnabledChecker;
 import org.jowidgets.api.controller.IDisposeListener;
 import org.jowidgets.api.convert.IObjectLabelConverter;
 import org.jowidgets.api.image.IconsSmall;
@@ -218,6 +219,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	private final TableDataModelListener tableDataModelListener;
 	private final IChangeListener sortModelChangeListener;
 	private final ParentSelectionListener<Object> parentSelectionListener;
+	private final ParentSelectionAddabledChecker parentSelectionAddabledChecker;
 	private final List<AttributeChangeListener> attributeChangeListeners;
 
 	private final IDefaultTableColumnModel columnModel;
@@ -312,6 +314,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		else {
 			this.parentSelectionListener = null;
 		}
+		this.parentSelectionAddabledChecker = new ParentSelectionAddabledChecker(parent, linkType);
 
 		//inject table model plugins
 		attributes = createModifiedByPluginsAttributes(entityId, (Class<BEAN_TYPE>) beanType, attributes);
@@ -455,6 +458,11 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		else {
 			removeLastBean();
 		}
+	}
+
+	@Override
+	public IEnabledChecker getDataAddableChecker() {
+		return parentSelectionAddabledChecker;
 	}
 
 	private void addLastBean() {
@@ -661,6 +669,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			if (parentSelectionListener != null && parent != null) {
 				parent.removeBeanSelectionListener(parentSelectionListener);
 			}
+			parentSelectionAddabledChecker.dispose();
 			for (final AttributeChangeListener listener : attributeChangeListeners) {
 				listener.dispose();
 			}
@@ -1786,7 +1795,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 		final List<IBeanKey> beanKeys = new LinkedList<IBeanKey>();
 		for (final IBeanProxy<Object> proxy : selection) {
-			if (proxy != null && !proxy.isDummy() && !proxy.isTransient()) {
+			if (proxy != null && !proxy.isDummy() && !proxy.isTransient() && !proxy.isLastRowDummy()) {
 				beanKeys.add(new BeanKey(proxy.getId(), proxy.getVersion()));
 			}
 		}

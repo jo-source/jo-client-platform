@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.jowidgets.api.command.IEnabledChecker;
 import org.jowidgets.api.threads.IUiThreadAccess;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.cap.common.api.CapCommonToolkit;
@@ -96,6 +97,7 @@ import org.jowidgets.plugin.api.IPluginProperties;
 import org.jowidgets.plugin.api.IPluginPropertiesBuilder;
 import org.jowidgets.plugin.api.PluginProperties;
 import org.jowidgets.plugin.api.PluginProvider;
+import org.jowidgets.tools.command.EnabledAllEnabledChecker;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.util.IDecorator;
@@ -840,6 +842,11 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 	@Override
 	public void removeBeanSelectionListener(final IBeanSelectionListener<CHILD_BEAN_TYPE> listener) {
 		beanSelectionObservable.removeBeanSelectionListener(listener);
+	}
+
+	@Override
+	public IEnabledChecker getDataAddableChecker() {
+		return EnabledAllEnabledChecker.INSTANCE;
 	}
 
 	private List<IBeanKey> getParentBeanKeys() {

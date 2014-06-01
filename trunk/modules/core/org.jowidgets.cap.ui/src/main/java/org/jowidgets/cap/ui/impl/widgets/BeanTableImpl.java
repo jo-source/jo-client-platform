@@ -60,6 +60,9 @@ import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.tools.execution.ResultCallbackAdapter;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.cap.ui.api.bean.IBeanSelectionEvent;
+import org.jowidgets.cap.ui.api.bean.IBeanSelectionListener;
+import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
 import org.jowidgets.cap.ui.api.filter.FilterType;
 import org.jowidgets.cap.ui.api.model.DataModelChangeType;
 import org.jowidgets.cap.ui.api.model.IChangeResponse;
@@ -172,6 +175,8 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 	private final AutoPackPolicy autoPackPolicy;
 	private final MenuModelKeyBinding menuModelKeyBinding;
 	private final IListSelectionVetoListener selectionVetoListener;
+	private final IBeanSelectionListener<Object> parentSelectionListener;
+	private final IProcessStateListener processStateListener;
 
 	private IAction creatorAction;
 	private IAction deleteAction;
@@ -413,12 +418,24 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 		getWidget().addKeyListener(keyListener);
 		table.addKeyListener(keyListener);
 
-		model.addProcessStateListener(new IProcessStateListener() {
+		this.processStateListener = new IProcessStateListener() {
 			@Override
 			public void processStateChanged() {
 				table.stopEditing();
 			}
-		});
+		};
+		model.addProcessStateListener(processStateListener);
+
+		this.parentSelectionListener = new IBeanSelectionListener<Object>() {
+			@Override
+			public void selectionChanged(final IBeanSelectionEvent<Object> selectionEvent) {
+				table.stopEditing();
+			}
+		};
+		final IBeanSelectionProvider<Object> parent = model.getParent();
+		if (parent != null) {
+			parent.addBeanSelectionListener(parentSelectionListener);
+		}
 
 		customTablePopupMenuModel.addListModelListener(new ListModelAdapter() {
 
@@ -1024,6 +1041,11 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 		}
 		if (settingsDialog != null) {
 			settingsDialog.dispose();
+		}
+		model.removeProcessStateListener(processStateListener);
+		final IBeanSelectionProvider<Object> parent = model.getParent();
+		if (parent != null) {
+			parent.removeBeanSelectionListener(parentSelectionListener);
 		}
 		stopAutoUpdateModeImpl();
 		super.dispose();

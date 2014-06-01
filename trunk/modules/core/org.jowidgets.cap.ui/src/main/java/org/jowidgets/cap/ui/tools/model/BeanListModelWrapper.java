@@ -31,6 +31,7 @@ package org.jowidgets.cap.ui.tools.model;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.jowidgets.api.command.IEnabledChecker;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanSelection;
@@ -119,6 +120,11 @@ public class BeanListModelWrapper<BEAN_TYPE> implements IBeanListModel<BEAN_TYPE
 	@Override
 	public void fireBeansChanged() {
 		beanListModel.fireBeansChanged();
+	}
+
+	@Override
+	public IEnabledChecker getDataAddableChecker() {
+		return beanListModel.getDataAddableChecker();
 	}
 
 }

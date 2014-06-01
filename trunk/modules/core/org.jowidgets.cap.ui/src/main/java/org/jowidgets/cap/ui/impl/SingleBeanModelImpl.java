@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.jowidgets.api.command.IEnabledChecker;
 import org.jowidgets.api.threads.IUiThreadAccess;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
@@ -121,6 +122,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 	private final ProcessStateObservable processStateObservable;
 
 	private final ParentSelectionListener<Object> parentModelListener;
+	private final ParentSelectionAddabledChecker parentSelectionAddabledChecker;
 	private final List<IBeanPropertyValidator<BEAN_TYPE>> beanPropertyValidators;
 	private final IBeansStateTracker<BEAN_TYPE> beansStateTracker;
 	private final IBeanProxyFactory<BEAN_TYPE> beanProxyFactory;
@@ -166,6 +168,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 		else {
 			this.parentModelListener = null;
 		}
+		this.parentSelectionAddabledChecker = new ParentSelectionAddabledChecker(parent, linkType);
 
 		attributes = createModifiedByPluginsAttributes(entityId, (Class<BEAN_TYPE>) beanType, attributes);
 
@@ -239,6 +242,11 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 	@Override
 	public IDataModelContext getDataModelContext() {
 		return dataModelContext;
+	}
+
+	@Override
+	public IEnabledChecker getDataAddableChecker() {
+		return parentSelectionAddabledChecker;
 	}
 
 	private List<IAttribute<Object>> createModifiedByPluginsAttributes(
