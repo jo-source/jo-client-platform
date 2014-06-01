@@ -26,6 +26,7 @@
 		<module>../org.jowidgets.cap.service.neo4j.api.bundle</module>
 		<module>../org.jowidgets.cap.service.neo4j.impl.bundle</module>	
 		<module>../org.jowidgets.cap.service.impl.dummy.bundle</module>
+		<module>../org.jowidgets.cap.service.repository.bundle</module>
 		<module>../org.jowidgets.cap.service.spring.bundle</module>
 		<module>../org.jowidgets.security.impl.http.client.bundle</module>
 		<module>../org.jowidgets.security.impl.http.server.bundle</module>

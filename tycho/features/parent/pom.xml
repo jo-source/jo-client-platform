@@ -28,6 +28,7 @@
 		<module>../org.jowidgets.cap.security.ui.feature</module>
 		<module>../org.jowidgets.cap.service.hibernate.feature</module>
 		<module>../org.jowidgets.cap.service.hibernate.oracle.feature</module>
+		<module>../org.jowidgets.cap.service.repository.feature</module>		
 		<module>../org.jowidgets.cap.service.jpa.feature</module>
 		<module>../org.jowidgets.cap.service.neo4j.feature</module>
 		<module>../org.jowidgets.cap.standalone.client.feature</module>
