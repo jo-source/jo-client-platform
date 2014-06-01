@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature
     id="org.jowidgets.cap.service.repository.feature"
-    label="org.jowidgets.cap.service.repository.feature"
+    label="jo-client-platform repository service feature"
     version="0.30.0.qualifier">
 
 	<description url="http://www.example.com/description">

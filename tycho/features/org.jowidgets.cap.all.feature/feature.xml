@@ -89,6 +89,10 @@
          version="0.0.0"/>
 		 
 	<includes
+         id="org.jowidgets.cap.service.repository.feature"
+         version="0.0.0"/>
+		 
+	<includes
          id="org.jowidgets.cap.standalone.client.feature"
          version="0.0.0"/>
 		 
