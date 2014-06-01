@@ -35,15 +35,15 @@ import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionEvent;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionListener;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
+import org.jowidgets.cap.ui.api.bean.IBeanTransientStateListener;
 import org.jowidgets.cap.ui.api.model.LinkType;
 import org.jowidgets.i18n.api.IMessage;
-import org.jowidgets.i18n.tools.StaticMessage;
 import org.jowidgets.tools.command.AbstractEnabledChecker;
 
 final class ParentSelectionAddabledChecker extends AbstractEnabledChecker implements IEnabledChecker {
 
-	private static final IMessage NO_PARENT_SELECTED = new StaticMessage("Es ist kein übergordneter Datensatz ausgewählt");
-	private static final IMessage PARENT_IS_NOT_PERSISTENT = new StaticMessage("Der übergordnete Datensatz ist nicht gespeichert");
+	private static final IMessage NO_PARENT_SELECTED = Messages.getMessage("ParentSelectionAddabledChecker.noParentPelected");//new StaticMessage("Es ist kein übergordneter Datensatz ausgewählt");
+	private static final IMessage PARENT_IS_NOT_PERSISTENT = Messages.getMessage("ParentSelectionAddabledChecker.parentIsNotPersistent");//new StaticMessage("Der übergordnete Datensatz ist nicht gespeichert");
 
 	private final IBeanSelectionProvider<Object> parent;
 	@SuppressWarnings("unused")
@@ -51,13 +51,35 @@ final class ParentSelectionAddabledChecker extends AbstractEnabledChecker implem
 
 	private final IBeanSelectionListener<Object> selectionListener;
 
+	private final IBeanTransientStateListener<Object> transientStateListener;
+
+	private IBeanProxy<Object> lastTransientBean;
+
 	ParentSelectionAddabledChecker(final IBeanSelectionProvider<Object> parent, final LinkType linkType) {
 		this.parent = parent;
 		this.linkType = linkType;
 
+		this.transientStateListener = new IBeanTransientStateListener<Object>() {
+			@Override
+			public void transientStateChanged(final Object oldId, final IBeanProxy<Object> newBean) {
+				fireEnabledStateChanged();
+			}
+		};
+
 		this.selectionListener = new IBeanSelectionListener<Object>() {
 			@Override
 			public void selectionChanged(final IBeanSelectionEvent<Object> selectionEvent) {
+
+				if (lastTransientBean != null && !lastTransientBean.isDisposed()) {
+					lastTransientBean.removeTransientStateListener(transientStateListener);
+				}
+
+				final IBeanProxy<Object> firstSelected = selectionEvent.getFirstSelected();
+				if (firstSelected != null && firstSelected.isTransient()) {
+					lastTransientBean = firstSelected;
+					lastTransientBean.addTransientStateListener(transientStateListener);
+				}
+
 				fireEnabledStateChanged();
 			}
 		};
@@ -90,6 +112,9 @@ final class ParentSelectionAddabledChecker extends AbstractEnabledChecker implem
 	public void dispose() {
 		if (parent != null) {
 			parent.addBeanSelectionListener(selectionListener);
+		}
+		if (lastTransientBean != null && !lastTransientBean.isDisposed()) {
+			lastTransientBean.removeTransientStateListener(transientStateListener);
 		}
 		super.dispose();
 	}
