@@ -29,6 +29,7 @@
 package org.jowidgets.cap.common.impl;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 import org.jowidgets.cap.common.api.filter.ArithmeticOperator;
 import org.jowidgets.cap.common.api.filter.IArithmeticPropertyFilter;
@@ -96,4 +97,48 @@ final class ArithmeticPropertyFilterImpl implements IArithmeticPropertyFilter, S
 		}
 		return result.toString();
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (inverted ? 1231 : 1237);
+		result = prime * result + ((operator == null) ? 0 : operator.hashCode());
+		result = prime * result + ((propertyName == null) ? 0 : propertyName.hashCode());
+		result = prime * result + Arrays.hashCode(rightHandPropertyNames);
+		return result;
+	}
+
+	@Override
+	public boolean equals(final Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (!(obj instanceof IArithmeticPropertyFilter)) {
+			return false;
+		}
+		final IArithmeticPropertyFilter other = (IArithmeticPropertyFilter) obj;
+		if (inverted != other.isInverted()) {
+			return false;
+		}
+		if (operator != other.getOperator()) {
+			return false;
+		}
+		if (propertyName == null) {
+			if (other.getPropertyName() != null) {
+				return false;
+			}
+		}
+		else if (!propertyName.equals(other.getPropertyName())) {
+			return false;
+		}
+		if (!Arrays.equals(rightHandPropertyNames, other.getRightHandPropertyNames())) {
+			return false;
+		}
+		return true;
+	}
+
 }

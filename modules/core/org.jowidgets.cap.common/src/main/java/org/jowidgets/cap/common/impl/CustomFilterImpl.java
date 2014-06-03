@@ -100,4 +100,66 @@ final class CustomFilterImpl implements ICustomFilter, Serializable {
 		return result.toString();
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((filterType == null) ? 0 : filterType.hashCode());
+		result = prime * result + (inverted ? 1231 : 1237);
+		result = prime * result + ((operator == null) ? 0 : operator.hashCode());
+		result = prime * result + ((propertyName == null) ? 0 : propertyName.hashCode());
+		result = prime * result + ((value == null) ? 0 : value.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(final Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (!(obj instanceof ICustomFilter)) {
+			return false;
+		}
+		final ICustomFilter other = (ICustomFilter) obj;
+		if (filterType == null) {
+			if (other.getFilterType() != null) {
+				return false;
+			}
+		}
+		else if (!filterType.equals(other.getFilterType())) {
+			return false;
+		}
+		if (inverted != other.isInverted()) {
+			return false;
+		}
+		if (operator == null) {
+			if (other.getOperator() != null) {
+				return false;
+			}
+		}
+		else if (!operator.equals(other.getOperator())) {
+			return false;
+		}
+		if (propertyName == null) {
+			if (other.getPropertyName() != null) {
+				return false;
+			}
+		}
+		else if (!propertyName.equals(other.getPropertyName())) {
+			return false;
+		}
+		if (value == null) {
+			if (other.getValue() != null) {
+				return false;
+			}
+		}
+		else if (!value.equals(other.getValue())) {
+			return false;
+		}
+		return true;
+	}
+
 }

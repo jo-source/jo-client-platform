@@ -29,22 +29,32 @@
 package org.jowidgets.cap.common.impl;
 
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.jowidgets.cap.common.api.filter.BooleanOperator;
 import org.jowidgets.cap.common.api.filter.IBooleanFilter;
 import org.jowidgets.cap.common.api.filter.IFilter;
+import org.jowidgets.util.CollectionUtils;
 
 final class BooleanFilterImpl implements IBooleanFilter, Serializable {
 
 	private static final long serialVersionUID = 595551125332442715L;
 	private final BooleanOperator operator;
 	private final List<IFilter> filters;
+	private final Set<IFilter> filtersSet;
 	private final boolean inverted;
 
 	BooleanFilterImpl(final BooleanOperator operator, final List<IFilter> filters, final boolean inverted) {
 		this.operator = operator;
 		this.filters = filters;
+		if (filters != null) {
+			this.filtersSet = new HashSet<IFilter>(filters);
+		}
+		else {
+			this.filtersSet = null;
+		}
 		this.inverted = inverted;
 	}
 
@@ -87,4 +97,39 @@ final class BooleanFilterImpl implements IBooleanFilter, Serializable {
 		}
 		return result.toString();
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((filtersSet == null) ? 0 : filtersSet.hashCode());
+		result = prime * result + (inverted ? 1231 : 1237);
+		result = prime * result + ((operator == null) ? 0 : operator.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(final Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (!(obj instanceof IBooleanFilter)) {
+			return false;
+		}
+		final IBooleanFilter other = (IBooleanFilter) obj;
+		if (inverted != other.isInverted()) {
+			return false;
+		}
+		if (operator != other.getOperator()) {
+			return false;
+		}
+		if (!CollectionUtils.elementsEqual(filtersSet, other.getFilters())) {
+			return false;
+		}
+		return true;
+	}
+
 }
