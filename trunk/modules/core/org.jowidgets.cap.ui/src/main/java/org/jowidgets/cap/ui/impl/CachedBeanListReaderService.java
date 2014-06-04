@@ -66,7 +66,7 @@ final class CachedBeanListReaderService<PARAM_TYPE, BEAN_TYPE> implements IReade
 	private final boolean useCache;
 
 	CachedBeanListReaderService(final IReaderService<PARAM_TYPE> original, final int pageSize) {
-		this(original, pageSize, true);
+		this(original, pageSize, false);
 	}
 
 	CachedBeanListReaderService(final IReaderService<PARAM_TYPE> original, final int pageSize, final boolean useCache) {
@@ -147,6 +147,7 @@ final class CachedBeanListReaderService<PARAM_TYPE, BEAN_TYPE> implements IReade
 				result.finished(null);
 			}
 		}
+
 	}
 
 	void setTransientBeans(final List<? extends IBeanKey> parentBeanKeys, final Set<IBeanProxy<BEAN_TYPE>> transientBeans) {
@@ -195,27 +196,28 @@ final class CachedBeanListReaderService<PARAM_TYPE, BEAN_TYPE> implements IReade
 		final int maxRows,
 		final PARAM_TYPE parameter) {
 
-		if (firstRow > 0 || maxRows > pageSize) {
-			return false;
-		}
 		final ReadCacheEntry cacheEntry = readCache.get(getParentBeanKey(parentBeanKeys));
-		if (cacheEntry == null) {
+		if (firstRow > 0) {
 			return false;
 		}
-
-		//because the relation hasLessOrEqualResults is transitive, you can show with help of mathematical induction 
-		//that the new filter has less or equal results if this is true for at least one last filter if you assume
-		//that all used filters have less or equal results.
-		//Because the implementation of the method may return "Nothing" the test will be made for all used filters, because
-		//you can not assume that the result Nothing implies that the result is greater
-		for (final IFilter lastFilter : cacheEntry.getUsedFilters()) {
-			final IMaybe<Boolean> lessOrEqualResults = FilterUtil.hasLessOrEqualResults(lastFilter, filter);
-			if (lessOrEqualResults.isSomething() && lessOrEqualResults.getValue().booleanValue()) {
-				return true;
-			}
+		else if (cacheEntry == null || cacheEntry.getBeansSize() > pageSize) {
+			return false;
 		}
+		else {
+			//because the relation hasLessOrEqualResults is transitive, you can show with help of mathematical induction 
+			//that the new filter has less or equal results if this is true for at least one last filter if you assume
+			//that all used filters have less or equal results.
+			//Because the implementation of the method may return "Nothing" the test will be made for all used filters, because
+			//you can not assume that the result Nothing implies that the result is greater
+			for (final IFilter lastFilter : cacheEntry.getUsedFilters()) {
+				final IMaybe<Boolean> lessOrEqualResults = FilterUtil.hasLessOrEqualResults(lastFilter, filter);
+				if (lessOrEqualResults.isSomething() && lessOrEqualResults.getValue().booleanValue()) {
+					return true;
+				}
+			}
 
-		return false;
+			return false;
+		}
 	}
 
 	private IBeanKey getParentBeanKey(final List<? extends IBeanKey> parentBeanKeys) {
@@ -223,7 +225,7 @@ final class CachedBeanListReaderService<PARAM_TYPE, BEAN_TYPE> implements IReade
 			return EMPTY_PARENT_BEAN_KEY;
 		}
 		else {
-			return null;
+			return parentBeanKeys.iterator().next();
 		}
 	}
 
@@ -270,7 +272,7 @@ final class CachedBeanListReaderService<PARAM_TYPE, BEAN_TYPE> implements IReade
 	private static final class ReadCacheEntry {
 
 		private final Set<IFilter> usedFilters;
-		private final List<IBeanDto> beans;
+		private final Set<IBeanDto> beans;
 
 		private IFilter lastFilter;
 		private List<? extends ISort> lastSort;
@@ -289,10 +291,10 @@ final class CachedBeanListReaderService<PARAM_TYPE, BEAN_TYPE> implements IReade
 			final int firstRow,
 			final int maxRows) {
 
-			this.beans = new LinkedList<IBeanDto>(beans);
-			this.lastResult = this.beans;
+			this.beans = new LinkedHashSet<IBeanDto>(beans);
+			this.lastResult = new LinkedList<IBeanDto>(beans);
 			this.lastFilter = filter;
-			this.lastSort = sort;
+			this.lastSort = sort != null ? new LinkedList<ISort>(sort) : null;
 			this.lastFirstRow = firstRow;
 			this.lastMaxRows = maxRows;
 
@@ -316,19 +318,16 @@ final class CachedBeanListReaderService<PARAM_TYPE, BEAN_TYPE> implements IReade
 			}
 			else {
 				if (filter == null && EmptyCheck.isEmpty(sort)) {
-					lastResult = beans;
+					lastResult = new LinkedList<IBeanDto>(beans);
 				}
 				else {
-					List<IBeanDto> result = beans;
+					List<IBeanDto> result = new LinkedList<IBeanDto>(beans);
 
 					if (!FilterUtil.isEmpty(filter)) {
 						result = filter(result, filter, executionCallback);
 					}
 
 					if (!EmptyCheck.isEmpty(sort)) {
-						if (result == beans) {
-							result = new LinkedList<IBeanDto>(result);
-						}
 						Collections.sort(result, new BeanDtoComparatorDecorator(sort, executionCallback));
 					}
 
@@ -342,7 +341,8 @@ final class CachedBeanListReaderService<PARAM_TYPE, BEAN_TYPE> implements IReade
 					}
 				}
 				lastFilter = filter;
-				lastSort = sort;
+
+				lastSort = new LinkedList<ISort>(sort);
 				lastFirstRow = firstRow;
 				lastMaxRows = maxRows;
 				usedFilters.add(filter);
@@ -367,10 +367,9 @@ final class CachedBeanListReaderService<PARAM_TYPE, BEAN_TYPE> implements IReade
 			return result;
 		}
 
-		@SuppressWarnings({"unchecked", "rawtypes"})
 		private void addBeans(final Collection<? extends IBeanDto> beans) {
 			clearLastResult();
-			beans.addAll((Collection) beans);
+			this.beans.addAll(beans);
 		}
 
 		private Set<IFilter> getUsedFilters() {
@@ -380,6 +379,10 @@ final class CachedBeanListReaderService<PARAM_TYPE, BEAN_TYPE> implements IReade
 		private void removeBeans(final Collection<? extends IBeanDto> beans) {
 			clearLastResult();
 			beans.removeAll(beans);
+		}
+
+		private int getBeansSize() {
+			return beans.size();
 		}
 
 		private void clearLastResult() {
