@@ -795,6 +795,16 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	}
 
 	@Override
+	public void clearCache() {
+		cachedReaderService.clearCache();
+	}
+
+	@Override
+	public boolean hasModificationsCached() {
+		return cachedReaderService.isReadFromCachePossible(getFilter(), readerParameterProvider.get());
+	}
+
+	@Override
 	public void load() {
 		load(null);
 	}
@@ -1082,6 +1092,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 				beanListModelObservable.fireBeansChanged();
 			}
 		}
+		cachedReaderService.clearCache();
 		beansStateTracker.clearModifications();
 		dataModel.fireDataChanged();
 	}
@@ -1185,6 +1196,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		final int index = dataModel.getRowCount() - dataModel.getLastBeanCount() - 1;
 		bean.addPropertyChangeListener(new BeanPropertyChangeListener(index));
 		beansStateTracker.register(bean);
+		cachedReaderService.addBean(getParentBeanKeys(), bean);
 		if (fireBeansChanged) {
 			fireBeansChanged();
 		}
@@ -1254,6 +1266,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 	@Override
 	public void removeBeans(final Iterable<? extends IBeanProxy<BEAN_TYPE>> beans) {
+		cachedReaderService.removeBeans(getParentBeanKeys(), beans);
 		final List<IBeanProxy<BEAN_TYPE>> removedBeans = removeBeansImpl(beans, true);
 		if (removedBeans.size() > 0) {
 			beanListModelObservable.fireBeansRemoved(removedBeans);

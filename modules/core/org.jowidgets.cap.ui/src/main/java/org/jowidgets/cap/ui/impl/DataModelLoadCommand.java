@@ -47,11 +47,13 @@ final class DataModelLoadCommand extends AbstractDataModelCommand {
 			DataModelContextExecutor.executeDataChange((IDataModelContextProvider) dataModel, new Runnable() {
 				@Override
 				public void run() {
+					dataModel.clearCache();
 					dataModel.load();
 				}
 			});
 		}
 		else {
+			dataModel.clearCache();
 			dataModel.load();
 		}
 	}

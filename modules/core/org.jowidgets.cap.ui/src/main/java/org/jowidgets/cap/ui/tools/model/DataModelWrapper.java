@@ -94,6 +94,16 @@ public class DataModelWrapper implements IDataModel {
 	}
 
 	@Override
+	public void clearCache() {
+		original.clearCache();
+	}
+
+	@Override
+	public boolean hasModificationsCached() {
+		return original.hasModificationsCached();
+	}
+
+	@Override
 	public void save() {
 		original.save();
 	}
