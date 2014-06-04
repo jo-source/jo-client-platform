@@ -28,36 +28,53 @@
 
 package org.jowidgets.cap.ui.impl;
 
-import java.util.HashSet;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
+import org.jowidgets.cap.common.api.exception.ServiceCanceledException;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
+import org.jowidgets.cap.common.api.filter.IBeanDtoFilter;
 import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.common.api.service.IReaderService;
+import org.jowidgets.cap.common.api.sort.BeanDtoComparator;
 import org.jowidgets.cap.common.api.sort.ISort;
+import org.jowidgets.cap.common.tools.filter.FilterUtil;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.EmptyCheck;
+import org.jowidgets.util.NullCompatibleEquivalence;
+import org.jowidgets.util.maybe.IMaybe;
 
-//CHECKSTYLE:OFF
-@SuppressWarnings("unused")
 final class CachedBeanListReaderService<PARAM_TYPE, BEAN_TYPE> implements IReaderService<PARAM_TYPE> {
+
+	private static final IBeanKey EMPTY_PARENT_BEAN_KEY = new EmptyParentBeanKey();
 
 	private final IReaderService<PARAM_TYPE> original;
 	private final int pageSize;
-
-	private boolean cacheAvailable;
+	private final Map<IBeanKey, ReadCacheEntry> readCache;
+	private final boolean useCache;
 
 	CachedBeanListReaderService(final IReaderService<PARAM_TYPE> original, final int pageSize) {
+		this(original, pageSize, true);
+	}
+
+	CachedBeanListReaderService(final IReaderService<PARAM_TYPE> original, final int pageSize, final boolean useCache) {
 		Assert.paramNotNull(original, "original");
 		this.original = original;
 		this.pageSize = pageSize;
-
-		this.cacheAvailable = false;
+		this.useCache = useCache;
+		this.readCache = new HashMap<IBeanKey, CachedBeanListReaderService.ReadCacheEntry>();
 	}
 
 	@Override
@@ -71,13 +88,34 @@ final class CachedBeanListReaderService<PARAM_TYPE, BEAN_TYPE> implements IReade
 		final PARAM_TYPE parameter,
 		final IExecutionCallback executionCallback) {
 
-		if (!isReadFromCachePossible(parentBeanKeys, filter, sorting, firstRow, maxRows, parameter)) {
+		if (!useCache) {
+			original.read(result, parentBeanKeys, filter, sorting, firstRow, maxRows, parameter, executionCallback);
+		}
+		else if (!isReadFromCachePossible(parentBeanKeys, filter, firstRow, maxRows, parameter)) {
 			clearCache(parentBeanKeys);
-			final IResultCallback<List<IBeanDto>> decoratedResult = new ReadResultCallback(result, parentBeanKeys, filter);
+			final IResultCallback<List<IBeanDto>> decoratedResult = new ReadResultCallback(
+				result,
+				parentBeanKeys,
+				filter,
+				sorting,
+				firstRow,
+				maxRows);
 			original.read(decoratedResult, parentBeanKeys, filter, sorting, firstRow, maxRows, parameter, executionCallback);
 		}
 		else {
-			//TODO read from cache
+			final ReadCacheEntry cacheEntry = readCache.get(getParentBeanKey(parentBeanKeys));
+			if (cacheEntry != null) {
+				try {
+					result.finished(cacheEntry.getResult(filter, sorting, firstRow, maxRows, executionCallback));
+				}
+				catch (final Exception e) {
+					result.exception(e);
+				}
+			}
+			else {
+				final List<IBeanDto> emptyList = Collections.emptyList();
+				result.finished(emptyList);
+			}
 		}
 	}
 
@@ -88,37 +126,71 @@ final class CachedBeanListReaderService<PARAM_TYPE, BEAN_TYPE> implements IReade
 		final IFilter filter,
 		final PARAM_TYPE parameter,
 		final IExecutionCallback executionCallback) {
-		// TODO Auto-generated method stub
 
+		if (!useCache) {
+			original.count(result, parentBeanKeys, filter, parameter, executionCallback);
+		}
+		else if (!isReadFromCachePossible(parentBeanKeys, filter, 0, 1, parameter)) {
+			original.count(result, parentBeanKeys, filter, parameter, executionCallback);
+		}
+		else {
+			final ReadCacheEntry cacheEntry = readCache.get(getParentBeanKey(parentBeanKeys));
+			if (cacheEntry != null) {
+				try {
+					result.finished(cacheEntry.getResult(filter, null, 0, Integer.MAX_VALUE, executionCallback).size());
+				}
+				catch (final Exception e) {
+					result.exception(e);
+				}
+			}
+			else {
+				result.finished(null);
+			}
+		}
 	}
 
 	void setTransientBeans(final List<? extends IBeanKey> parentBeanKeys, final Set<IBeanProxy<BEAN_TYPE>> transientBeans) {
-		cacheAvailable = true;
-		//add to cache
-	}
-
-	void setModifiedBeans(final List<? extends IBeanKey> parentBeanKeys, final Set<IBeanProxy<BEAN_TYPE>> modifiedBeans) {
-		//TODO handle modifications different, e.g. with bean context
-		cacheAvailable = true;
-		//exchange in cache
+		if (!useCache) {
+			return;
+		}
+		final IBeanKey parentBeanKey = getParentBeanKey(parentBeanKeys);
+		ReadCacheEntry readCacheEntry = readCache.get(parentBeanKey);
+		if (readCacheEntry == null) {
+			readCacheEntry = new ReadCacheEntry(transientBeans);
+			readCache.put(parentBeanKey, readCacheEntry);
+		}
+		else {
+			readCacheEntry.addBeans(transientBeans);
+		}
 	}
 
 	void beansDeleted(final List<? extends IBeanKey> parentBeanKeys, final Set<IBeanProxy<BEAN_TYPE>> deletedBeans) {
-
+		if (!useCache) {
+			return;
+		}
+		final ReadCacheEntry readCacheEntry = readCache.get(getParentBeanKey(parentBeanKeys));
+		if (readCacheEntry != null) {
+			readCacheEntry.removeBeans(deletedBeans);
+		}
 	}
 
 	void clearCache(final List<? extends IBeanKey> parentBeanKeys) {
-		cacheAvailable = false;
+		if (!useCache) {
+			return;
+		}
+		readCache.remove(getParentBeanKey(parentBeanKeys));
 	}
 
 	void clearCache() {
-		cacheAvailable = false;
+		if (!useCache) {
+			return;
+		}
+		readCache.clear();
 	}
 
 	boolean isReadFromCachePossible(
 		final List<? extends IBeanKey> parentBeanKeys,
 		final IFilter filter,
-		final List<? extends ISort> sorting,
 		final int firstRow,
 		final int maxRows,
 		final PARAM_TYPE parameter) {
@@ -126,34 +198,70 @@ final class CachedBeanListReaderService<PARAM_TYPE, BEAN_TYPE> implements IReade
 		if (firstRow > 0 || maxRows > pageSize) {
 			return false;
 		}
+		final ReadCacheEntry cacheEntry = readCache.get(getParentBeanKey(parentBeanKeys));
+		if (cacheEntry == null) {
+			return false;
+		}
+
+		//because the relation hasLessOrEqualResults is transitive, you can show with help of mathematical induction 
+		//that the new filter has less or equal results if this is true for at least one last filter if you assume
+		//that all used filters have less or equal results.
+		//Because the implementation of the method may return "Nothing" the test will be made for all used filters, because
+		//you can not assume that the result Nothing implies that the result is greater
+		for (final IFilter lastFilter : cacheEntry.getUsedFilters()) {
+			final IMaybe<Boolean> lessOrEqualResults = FilterUtil.hasLessOrEqualResults(lastFilter, filter);
+			if (lessOrEqualResults.isSomething() && lessOrEqualResults.getValue().booleanValue()) {
+				return true;
+			}
+		}
 
 		return false;
+	}
+
+	private IBeanKey getParentBeanKey(final List<? extends IBeanKey> parentBeanKeys) {
+		if (EmptyCheck.isEmpty(parentBeanKeys)) {
+			return EMPTY_PARENT_BEAN_KEY;
+		}
+		else {
+			return null;
+		}
 	}
 
 	private final class ReadResultCallback implements IResultCallback<List<IBeanDto>> {
 
 		private final IResultCallback<List<IBeanDto>> original;
-		private final List<? extends IBeanKey> parentBeanKeys;
+		private final IBeanKey parentBeanKey;
 		private final IFilter filter;
+		private final List<? extends ISort> sort;
+		private final int firstRow;
+		private final int maxRows;
 
 		private ReadResultCallback(
 			final IResultCallback<List<IBeanDto>> original,
 			final List<? extends IBeanKey> parentBeanKeys,
-			final IFilter filter) {
+			final IFilter filter,
+			final List<? extends ISort> sort,
+			final int firstRow,
+			final int maxRows) {
 
 			this.original = original;
-			this.parentBeanKeys = parentBeanKeys;
+			this.parentBeanKey = getParentBeanKey(parentBeanKeys);
 			this.filter = filter;
+			this.sort = sort;
+			this.firstRow = firstRow;
+			this.maxRows = maxRows;
 		}
 
 		@Override
 		public void finished(final List<IBeanDto> result) {
-			//TODO put data into cache
+			final ReadCacheEntry cacheEntry = new ReadCacheEntry(result, filter, sort, firstRow, maxRows);
+			readCache.put(parentBeanKey, cacheEntry);
 			original.finished(result);
 		}
 
 		@Override
 		public void exception(final Throwable exception) {
+			readCache.remove(parentBeanKey);
 			original.exception(exception);
 		}
 
@@ -161,21 +269,159 @@ final class CachedBeanListReaderService<PARAM_TYPE, BEAN_TYPE> implements IReade
 
 	private static final class ReadCacheEntry {
 
-		private final IBeanKey parent;
 		private final Set<IFilter> usedFilters;
-		private final Set<IBeanDto> beans;
+		private final List<IBeanDto> beans;
 
 		private IFilter lastFilter;
 		private List<? extends ISort> lastSort;
 		private List<IBeanDto> lastResult;
+		private int lastFirstRow;
+		private int lastMaxRows;
 
-		private ReadCacheEntry(final IBeanKey parent, final Set<? extends IBeanDto> beans) {
-			super();
-			this.parent = parent;
-			this.beans = new LinkedHashSet<IBeanDto>(beans);
+		private ReadCacheEntry(final Collection<? extends IBeanDto> beans) {
+			this(beans, null, null, -1, -1);
+		}
 
-			this.usedFilters = new HashSet<IFilter>();
+		private ReadCacheEntry(
+			final Collection<? extends IBeanDto> beans,
+			final IFilter filter,
+			final List<? extends ISort> sort,
+			final int firstRow,
+			final int maxRows) {
 
+			this.beans = new LinkedList<IBeanDto>(beans);
+			this.lastResult = this.beans;
+			this.lastFilter = filter;
+			this.lastSort = sort;
+			this.lastFirstRow = firstRow;
+			this.lastMaxRows = maxRows;
+
+			this.usedFilters = new LinkedHashSet<IFilter>();
+			usedFilters.add(filter);
+		}
+
+		private List<IBeanDto> getResult(
+			final IFilter filter,
+			final List<? extends ISort> sort,
+			final int firstRow,
+			final int maxRows,
+			final IExecutionCallback executionCallback) {
+
+			if (lastResult != null
+				&& lastFirstRow == firstRow
+				&& lastMaxRows == maxRows
+				&& NullCompatibleEquivalence.equals(lastFilter, filter)
+				&& NullCompatibleEquivalence.equals(lastSort, sort)) {
+				return lastResult;
+			}
+			else {
+				if (filter == null && EmptyCheck.isEmpty(sort)) {
+					lastResult = beans;
+				}
+				else {
+					List<IBeanDto> result = beans;
+
+					if (!FilterUtil.isEmpty(filter)) {
+						result = filter(result, filter, executionCallback);
+					}
+
+					if (!EmptyCheck.isEmpty(sort)) {
+						if (result == beans) {
+							result = new LinkedList<IBeanDto>(result);
+						}
+						Collections.sort(result, new BeanDtoComparatorDecorator(sort, executionCallback));
+					}
+
+					if (result.size() >= firstRow) {
+						lastResult = new LinkedList<IBeanDto>(result.subList(
+								firstRow,
+								Math.min(firstRow + maxRows, result.size())));
+					}
+					else {
+						lastResult = new LinkedList<IBeanDto>();
+					}
+				}
+				lastFilter = filter;
+				lastSort = sort;
+				lastFirstRow = firstRow;
+				lastMaxRows = maxRows;
+				usedFilters.add(filter);
+				return lastResult;
+			}
+		}
+
+		private List<IBeanDto> filter(
+			final List<IBeanDto> source,
+			final IFilter filter,
+			final IExecutionCallback executionCallback) {
+			final List<IBeanDto> result = new LinkedList<IBeanDto>();
+			final IBeanDtoFilter dtoFilter = CapCommonToolkit.beanDtoFilter();
+			for (final IBeanDto sourceBean : source) {
+				if (executionCallback.isCanceled()) {
+					throw new ServiceCanceledException();
+				}
+				if (dtoFilter.accept(sourceBean, filter)) {
+					result.add(sourceBean);
+				}
+			}
+			return result;
+		}
+
+		@SuppressWarnings({"unchecked", "rawtypes"})
+		private void addBeans(final Collection<? extends IBeanDto> beans) {
+			clearLastResult();
+			beans.addAll((Collection) beans);
+		}
+
+		private Set<IFilter> getUsedFilters() {
+			return usedFilters;
+		}
+
+		private void removeBeans(final Collection<? extends IBeanDto> beans) {
+			clearLastResult();
+			beans.removeAll(beans);
+		}
+
+		private void clearLastResult() {
+			this.lastFilter = null;
+			this.lastSort = null;
+			this.lastResult = null;
+			this.lastFirstRow = -1;
+			this.lastMaxRows = -1;
+		}
+
+	}
+
+	private static final class EmptyParentBeanKey implements IBeanKey {
+
+		@Override
+		public Object getId() {
+			return this;
+		}
+
+		@Override
+		public long getVersion() {
+			return 0;
+		}
+
+	}
+
+	private static class BeanDtoComparatorDecorator implements Comparator<IBeanDto> {
+
+		private final Comparator<IBeanDto> original;
+		private final IExecutionCallback executionCallback;
+
+		public BeanDtoComparatorDecorator(final List<? extends ISort> sorting, final IExecutionCallback executionCallback) {
+			this.original = BeanDtoComparator.create(sorting);
+			this.executionCallback = executionCallback;
+		}
+
+		@Override
+		public int compare(final IBeanDto firstBeanDto, final IBeanDto secondBeanDto) {
+			if (executionCallback.isCanceled()) {
+				throw new ServiceCanceledException();
+			}
+			return original.compare(firstBeanDto, secondBeanDto);
 		}
 
 	}
