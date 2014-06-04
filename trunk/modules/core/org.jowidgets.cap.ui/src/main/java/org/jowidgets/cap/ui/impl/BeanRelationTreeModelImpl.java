@@ -219,6 +219,14 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE> implements
 	}
 
 	@Override
+	public void clearCache() {}
+
+	@Override
+	public boolean hasModificationsCached() {
+		return false;
+	}
+
+	@Override
 	public void save() {
 		if (root.hasModifications()) {
 			root.save();

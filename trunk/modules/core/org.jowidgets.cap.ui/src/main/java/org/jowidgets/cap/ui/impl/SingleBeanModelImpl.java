@@ -382,6 +382,14 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 	}
 
 	@Override
+	public void clearCache() {}
+
+	@Override
+	public boolean hasModificationsCached() {
+		return false;
+	}
+
+	@Override
 	public void load() {
 		tryCancelLoader();
 		dataLoader = new DataLoader();

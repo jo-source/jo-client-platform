@@ -113,7 +113,6 @@ final class DataModelContextImpl implements IDataModelContext {
 		if ((hasAsyncRequest)) {
 			return new ChangeResponseImpl(ResponseType.NO, changeType);
 		}
-
 		if (hasChanged(getRelevantModels(changeType))) {
 			hasAsyncRequest = true;
 			return new ChangeResponseImpl(ResponseType.ASYNC, changeType);
@@ -229,7 +228,7 @@ final class DataModelContextImpl implements IDataModelContext {
 
 	private boolean hasChanged(final Collection<IDataModel> models) {
 		for (final IDataModel model : models) {
-			if (model.hasModifications()) {
+			if (model.hasModifications() && !model.hasModificationsCached()) {
 				return true;
 			}
 		}
@@ -287,7 +286,7 @@ final class DataModelContextImpl implements IDataModelContext {
 				return;
 			}
 
-			if (!model.hasModifications()) {
+			if (!(model.hasModifications() && model.hasModificationsCached())) {
 				modifiedModels.remove(model);
 				if (modifiedModels.isEmpty()) {
 					callback.call(Boolean.TRUE);

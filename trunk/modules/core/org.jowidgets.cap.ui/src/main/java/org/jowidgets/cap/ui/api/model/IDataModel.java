@@ -34,6 +34,8 @@ public interface IDataModel extends IValidateable, IModificationStateObservable,
 
 	void load();
 
+	void clearCache();
+
 	void clear();
 
 	void save();
@@ -41,6 +43,8 @@ public interface IDataModel extends IValidateable, IModificationStateObservable,
 	void undo();
 
 	boolean hasModifications();
+
+	boolean hasModificationsCached();
 
 	boolean hasExecutions();
 

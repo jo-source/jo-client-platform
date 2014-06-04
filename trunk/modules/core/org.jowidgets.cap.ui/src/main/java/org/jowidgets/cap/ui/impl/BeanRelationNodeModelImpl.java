@@ -457,6 +457,14 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 	}
 
 	@Override
+	public void clearCache() {}
+
+	@Override
+	public boolean hasModificationsCached() {
+		return false;
+	}
+
+	@Override
 	public boolean loadIfNotYetDone() {
 		if (!hasInitialLoad) {
 			load();

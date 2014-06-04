@@ -56,6 +56,7 @@ import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.util.NullCompatibleEquivalence;
 import org.jowidgets.util.maybe.IMaybe;
 
+//CHECKSTYLE:OFF
 final class CachedBeanListReaderService<PARAM_TYPE, BEAN_TYPE> implements IReaderService<PARAM_TYPE> {
 
 	private static final IBeanKey EMPTY_PARENT_BEAN_KEY = new EmptyParentBeanKey();
@@ -100,12 +101,14 @@ final class CachedBeanListReaderService<PARAM_TYPE, BEAN_TYPE> implements IReade
 				sorting,
 				firstRow,
 				maxRows);
+			System.out.println("READ FROM SERVICE");
 			original.read(decoratedResult, parentBeanKeys, filter, sorting, firstRow, maxRows, parameter, executionCallback);
 		}
 		else {
 			final ReadCacheEntry cacheEntry = readCache.get(getParentBeanKey(parentBeanKeys));
 			if (cacheEntry != null) {
 				try {
+					System.out.println("READ FROM CACHE");
 					result.finished(cacheEntry.getResult(filter, sorting, firstRow, maxRows, executionCallback));
 				}
 				catch (final Exception e) {
@@ -150,28 +153,42 @@ final class CachedBeanListReaderService<PARAM_TYPE, BEAN_TYPE> implements IReade
 
 	}
 
-	void setTransientBeans(final List<? extends IBeanKey> parentBeanKeys, final Set<IBeanProxy<BEAN_TYPE>> transientBeans) {
+	void addBean(final List<? extends IBeanKey> parentBeanKeys, final IBeanProxy<BEAN_TYPE> bean) {
+		if (!useCache) {
+			return;
+		}
+		addBeans(parentBeanKeys, Collections.singleton(bean));
+	}
+
+	void addBeans(final List<? extends IBeanKey> parentBeanKeys, final Set<IBeanProxy<BEAN_TYPE>> beans) {
 		if (!useCache) {
 			return;
 		}
 		final IBeanKey parentBeanKey = getParentBeanKey(parentBeanKeys);
 		ReadCacheEntry readCacheEntry = readCache.get(parentBeanKey);
 		if (readCacheEntry == null) {
-			readCacheEntry = new ReadCacheEntry(transientBeans);
+			readCacheEntry = new ReadCacheEntry(beans);
 			readCache.put(parentBeanKey, readCacheEntry);
 		}
 		else {
-			readCacheEntry.addBeans(transientBeans);
+			readCacheEntry.addBeans(beans);
 		}
 	}
 
-	void beansDeleted(final List<? extends IBeanKey> parentBeanKeys, final Set<IBeanProxy<BEAN_TYPE>> deletedBeans) {
+	void removeBean(final List<? extends IBeanKey> parentBeanKeys, final IBeanProxy<BEAN_TYPE> bean) {
+		if (!useCache) {
+			return;
+		}
+		removeBeans(parentBeanKeys, Collections.singleton(bean));
+	}
+
+	void removeBeans(final List<? extends IBeanKey> parentBeanKeys, final Iterable<? extends IBeanProxy<BEAN_TYPE>> bean) {
 		if (!useCache) {
 			return;
 		}
 		final ReadCacheEntry readCacheEntry = readCache.get(getParentBeanKey(parentBeanKeys));
 		if (readCacheEntry != null) {
-			readCacheEntry.removeBeans(deletedBeans);
+			readCacheEntry.removeBeans(bean);
 		}
 	}
 
@@ -189,6 +206,20 @@ final class CachedBeanListReaderService<PARAM_TYPE, BEAN_TYPE> implements IReade
 		readCache.clear();
 	}
 
+	boolean isReadFromCachePossible(final IFilter filter, final PARAM_TYPE parameter) {
+		if (!useCache || readCache.isEmpty()) {
+			return false;
+		}
+		else {
+			for (final ReadCacheEntry chacheEntry : readCache.values()) {
+				if (!isReadFromCachePossible(filter, chacheEntry, parameter)) {
+					return false;
+				}
+			}
+			return true;
+		}
+	}
+
 	boolean isReadFromCachePossible(
 		final List<? extends IBeanKey> parentBeanKeys,
 		final IFilter filter,
@@ -200,7 +231,14 @@ final class CachedBeanListReaderService<PARAM_TYPE, BEAN_TYPE> implements IReade
 		if (firstRow > 0) {
 			return false;
 		}
-		else if (cacheEntry == null || cacheEntry.getBeansSize() > pageSize) {
+		else {
+			return isReadFromCachePossible(filter, cacheEntry, parameter);
+		}
+	}
+
+	boolean isReadFromCachePossible(final IFilter filter, final ReadCacheEntry cacheEntry, final PARAM_TYPE parameter) {
+
+		if (cacheEntry == null || cacheEntry.getBeansSize() > pageSize) {
 			return false;
 		}
 		else {
@@ -314,13 +352,16 @@ final class CachedBeanListReaderService<PARAM_TYPE, BEAN_TYPE> implements IReade
 				&& lastMaxRows == maxRows
 				&& NullCompatibleEquivalence.equals(lastFilter, filter)
 				&& NullCompatibleEquivalence.equals(lastSort, sort)) {
+				System.out.println("READ FROM LAST RESULT");
 				return lastResult;
 			}
 			else {
 				if (filter == null && EmptyCheck.isEmpty(sort)) {
+					System.out.println("READ FROM ALL");
 					lastResult = new LinkedList<IBeanDto>(beans);
 				}
 				else {
+					System.out.println("SORT AND FILTER");
 					List<IBeanDto> result = new LinkedList<IBeanDto>(beans);
 
 					if (!FilterUtil.isEmpty(filter)) {
@@ -372,13 +413,20 @@ final class CachedBeanListReaderService<PARAM_TYPE, BEAN_TYPE> implements IReade
 			this.beans.addAll(beans);
 		}
 
-		private Set<IFilter> getUsedFilters() {
-			return usedFilters;
+		private void removeBeans(final Iterable<? extends IBeanDto> beans) {
+			clearLastResult();
+			if (beans instanceof Collection<?>) {
+				this.beans.removeAll((Collection<?>) beans);
+			}
+			else {
+				for (final IBeanDto bean : beans) {
+					this.beans.remove(bean);
+				}
+			}
 		}
 
-		private void removeBeans(final Collection<? extends IBeanDto> beans) {
-			clearLastResult();
-			beans.removeAll(beans);
+		private Set<IFilter> getUsedFilters() {
+			return usedFilters;
 		}
 
 		private int getBeansSize() {

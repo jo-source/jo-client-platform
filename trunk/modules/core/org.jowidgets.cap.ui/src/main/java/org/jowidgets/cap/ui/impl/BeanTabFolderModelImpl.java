@@ -416,6 +416,14 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 	}
 
 	@Override
+	public void clearCache() {}
+
+	@Override
+	public boolean hasModificationsCached() {
+		return false;
+	}
+
+	@Override
 	public void load() {
 		if (!Toolkit.getUiThreadAccess().isUiThread()) {
 			throw new IllegalStateException("Load must be invoked in the ui thread");
