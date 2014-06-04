@@ -200,6 +200,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	private final ICreatorService creatorService;
 	private final IUpdaterService updaterService;
 	private final IReaderService<Object> readerService;
+	private final CachedBeanListReaderService<Object, BEAN_TYPE> cachedReaderService;
 	private final IRefreshService refreshService;
 	private final IProvider<Object> readerParameterProvider;
 	private final IDeleterService deleterService;
@@ -346,6 +347,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		this.propertyNames = Collections.unmodifiableList(mutablePropertyNames);
 
 		this.readerService = (IReaderService<Object>) readerService;
+		this.cachedReaderService = new CachedBeanListReaderService<Object, BEAN_TYPE>(this.readerService, pageSize);
 		this.refreshService = refreshService;
 		this.readerParameterProvider = (IProvider<Object>) paramProvider;
 		this.creatorService = creatorService;
@@ -778,6 +780,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		if (!Toolkit.getUiThreadAccess().isUiThread()) {
 			throw new IllegalStateException("Clear must be invoked in the ui thread");
 		}
+
 		tryToCanceLoader();
 		lastSelectedBeans.clear();
 		removeSelection();
@@ -2532,7 +2535,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		}
 
 		void readDataFromService() {
-			readerService.read(
+			cachedReaderService.read(
 					createResultCallback(),
 					getParentBeanKeys(),
 					filter,
@@ -2579,6 +2582,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			};
 		}
 
+		@SuppressWarnings("unchecked")
 		private void setResult(final List<IBeanDto> loadedBeans) {
 			//if the result is empty and the page is not the first page, reload the whole table
 			if (loadedBeans.size() == 0 && pageIndex > 0) {
@@ -2617,12 +2621,19 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			final int pageOffset = pageSize * pageIndex;
 			for (final IBeanDto beanDto : loadedBeans) {
 				if (index < pageSize) {
-					final IBeanProxy<BEAN_TYPE> beanProxy = createBeanProxy(beanDto);
+					final IBeanProxy<BEAN_TYPE> beanProxy;
+					if (beanDto instanceof IBeanProxy<?>) {
+						beanProxy = (IBeanProxy<BEAN_TYPE>) beanDto;
+					}
+					else {
+						beanProxy = createBeanProxy(beanDto);
+					}
 					page.add(beanProxy);
 					beansStateTracker.register(beanProxy);
 					final int rowNr = pageOffset + index;
 					beanProxy.addPropertyChangeListener(new BeanPropertyChangeListener(rowNr));
 					index++;
+
 				}
 				else {
 					break;
