@@ -25,58 +25,77 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
+
 package org.jowidgets.cap.ui.tools.bean;
 
 import java.util.Collections;
-import java.util.Set;
+import java.util.List;
 
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanSelection;
+import org.jowidgets.cap.ui.api.bean.IBeanSelectionListener;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
+import org.jowidgets.util.Assert;
 
-public class SingleBeanSelectionProvider<BEAN_TYPE> extends BeanSelectionObservable<BEAN_TYPE> implements
-		IBeanSelectionProvider<BEAN_TYPE> {
+public final class ImutableSingleBeanSelectionProvider<BEAN_TYPE> implements IBeanSelectionProvider<BEAN_TYPE> {
 
-	private final Object beanTypeId;
-	private final Class<? extends BEAN_TYPE> beanType;
-	private final Object entityId;
+	private final IBeanSelection<BEAN_TYPE> beanSelection;
 
-	private IBeanSelection<BEAN_TYPE> selection;
+	public ImutableSingleBeanSelectionProvider(
+		final IBeanProxy<BEAN_TYPE> bean,
+		final Object entityId,
+		final Object beanTypeId,
+		final Class<? extends BEAN_TYPE> beanType) {
 
-	public SingleBeanSelectionProvider(final Object beanTypeId, final Class<? extends BEAN_TYPE> beanType, final Object entityId) {
-
-		this.beanTypeId = beanTypeId;
-		this.beanType = beanType;
-		this.entityId = entityId;
-
-		setSelection(null);
-	}
-
-	/**
-	 * Sets the selected bean of this provider
-	 * 
-	 * @param bean The bean to set
-	 */
-	public void setSelection(final IBeanProxy<BEAN_TYPE> bean) {
-		if (bean == null) {
-			final Set<IBeanProxy<BEAN_TYPE>> emptySet = Collections.emptySet();
-			this.selection = new BeanSelectionImpl<BEAN_TYPE>(beanTypeId, beanType, entityId, emptySet);
+		final List<IBeanProxy<BEAN_TYPE>> selection;
+		if (bean != null) {
+			Assert.paramNotNull(entityId, "entityId");
+			Assert.paramNotNull(beanTypeId, "beanTypeId");
+			Assert.paramNotNull(beanType, "beanType");
+			selection = Collections.singletonList(bean);
 		}
 		else {
-			final Set<IBeanProxy<BEAN_TYPE>> singleton = Collections.singleton(bean);
-			this.selection = new BeanSelectionImpl<BEAN_TYPE>(beanTypeId, beanType, entityId, singleton);
+			selection = Collections.emptyList();
 		}
-		fireBeanSelectionEvent(new BeanSelectionEventImpl<BEAN_TYPE>(
-			this,
-			beanTypeId,
-			beanType,
-			entityId,
-			selection.getSelection()));
+
+		this.beanSelection = new IBeanSelection<BEAN_TYPE>() {
+
+			@Override
+			public Object getBeanTypeId() {
+				return beanTypeId;
+			}
+
+			@Override
+			public Class<? extends BEAN_TYPE> getBeanType() {
+				return beanType;
+			}
+
+			@Override
+			public Object getEntityId() {
+				return entityId;
+			}
+
+			@Override
+			public List<IBeanProxy<BEAN_TYPE>> getSelection() {
+				return selection;
+			}
+
+			@Override
+			public IBeanProxy<BEAN_TYPE> getFirstSelected() {
+				return bean;
+			}
+		};
 	}
 
 	@Override
+	public void addBeanSelectionListener(final IBeanSelectionListener<BEAN_TYPE> listener) {}
+
+	@Override
+	public void removeBeanSelectionListener(final IBeanSelectionListener<BEAN_TYPE> listener) {}
+
+	@Override
 	public IBeanSelection<BEAN_TYPE> getBeanSelection() {
-		return selection;
+		return beanSelection;
 	}
 
 }

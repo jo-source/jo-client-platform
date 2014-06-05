@@ -80,6 +80,8 @@ import org.jowidgets.cap.ui.api.model.IProcessStateListener;
 import org.jowidgets.cap.ui.api.model.ISingleBeanModel;
 import org.jowidgets.cap.ui.api.model.LinkType;
 import org.jowidgets.cap.ui.api.plugin.IAttributePlugin;
+import org.jowidgets.cap.ui.tools.bean.BeanSelectionImpl;
+import org.jowidgets.cap.ui.tools.bean.BeanSelectionObservable;
 import org.jowidgets.cap.ui.tools.execution.AbstractUiResultCallback;
 import org.jowidgets.cap.ui.tools.model.ProcessStateObservable;
 import org.jowidgets.i18n.api.IMessage;

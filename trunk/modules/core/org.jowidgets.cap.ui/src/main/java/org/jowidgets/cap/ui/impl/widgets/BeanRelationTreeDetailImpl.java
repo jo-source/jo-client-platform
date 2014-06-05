@@ -69,7 +69,7 @@ import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableLifecycleInterceptor;
 import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
-import org.jowidgets.cap.ui.tools.bean.SingleBeanSelectionProvider;
+import org.jowidgets.cap.ui.tools.bean.ImutableSingleBeanSelectionProvider;
 import org.jowidgets.cap.ui.tools.execution.ExecutionInterceptorAdapter;
 import org.jowidgets.cap.ui.tools.model.BeanListModelListenerAdapter;
 import org.jowidgets.common.types.IVetoable;
@@ -284,7 +284,7 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 		builder = BeanTableModel.builder(relation.getChildEntityId(), relation.getChildBeanType());
 		builder.setBeanProxyContext(relation.getBeanProxyContext());
 		if (relation.getParentBean() != null) {
-			builder.setParent(new SingleBeanSelectionProvider<Object>(
+			builder.setParent(new ImutableSingleBeanSelectionProvider<Object>(
 				relation.getParentBean(),
 				relation.getParentEntityId(),
 				relation.getParentBeanTypeId(),
@@ -462,7 +462,7 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 		final IBeanTable<Object> table,
 		final IEntityLinkDescriptor link) {
 
-		final SingleBeanSelectionProvider<Object> linkSource = new SingleBeanSelectionProvider<Object>(
+		final ImutableSingleBeanSelectionProvider<Object> linkSource = new ImutableSingleBeanSelectionProvider<Object>(
 			relationNode.getParentBean(),
 			relationNode.getParentEntityId(),
 			relationNode.getParentBeanTypeId(),
@@ -489,7 +489,7 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 		final IBeanTable<Object> table,
 		final IEntityLinkDescriptor link) {
 
-		final SingleBeanSelectionProvider<Object> linkSource = new SingleBeanSelectionProvider<Object>(
+		final ImutableSingleBeanSelectionProvider<Object> linkSource = new ImutableSingleBeanSelectionProvider<Object>(
 			relationNode.getParentBean(),
 			relationNode.getParentEntityId(),
 			relationNode.getParentBeanTypeId(),
@@ -517,7 +517,7 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 		final IEntityLinkDescriptor link) {
 
 		ILinkDeleterActionBuilder<Object, Object> builder;
-		final SingleBeanSelectionProvider<Object> linkSource = new SingleBeanSelectionProvider<Object>(
+		final ImutableSingleBeanSelectionProvider<Object> linkSource = new ImutableSingleBeanSelectionProvider<Object>(
 			relationNode.getParentBean(),
 			relationNode.getParentEntityId(),
 			relationNode.getParentBeanTypeId(),

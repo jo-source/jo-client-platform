@@ -25,8 +25,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
-
-package org.jowidgets.cap.ui.impl;
+package org.jowidgets.cap.ui.tools.bean;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -37,7 +36,7 @@ import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanSelection;
 import org.jowidgets.util.Assert;
 
-class BeanSelectionImpl<BEAN_TYPE> implements IBeanSelection<BEAN_TYPE> {
+public class BeanSelectionImpl<BEAN_TYPE> implements IBeanSelection<BEAN_TYPE> {
 
 	private final Object beanTypeId;
 	private final Class<? extends BEAN_TYPE> beanType;
@@ -45,12 +44,23 @@ class BeanSelectionImpl<BEAN_TYPE> implements IBeanSelection<BEAN_TYPE> {
 	private final List<IBeanProxy<BEAN_TYPE>> selection;
 	private final IBeanProxy<BEAN_TYPE> firstSelected;
 
+	/**
+	 * Constructor
+	 */
 	@SuppressWarnings("unchecked")
-	BeanSelectionImpl() {
+	public BeanSelectionImpl() {
 		this(null, null, null, Collections.EMPTY_LIST);
 	}
 
-	BeanSelectionImpl(
+	/**
+	 * Constructor
+	 * 
+	 * @param beanTypeId The beanTypeId
+	 * @param beanType The beanType
+	 * @param entityId The selection
+	 * @param selection The selection
+	 */
+	public BeanSelectionImpl(
 		final Object beanTypeId,
 		final Class<? extends BEAN_TYPE> beanType,
 		final Object entityId,
@@ -162,5 +172,4 @@ class BeanSelectionImpl<BEAN_TYPE> implements IBeanSelection<BEAN_TYPE> {
 			+ firstSelected
 			+ "]";
 	}
-
 }

@@ -25,8 +25,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
-
-package org.jowidgets.cap.ui.impl;
+package org.jowidgets.cap.ui.tools.bean;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
@@ -43,7 +42,12 @@ import org.jowidgets.plugin.api.PluginProvider;
 import org.jowidgets.plugin.api.PluginToolkit;
 import org.jowidgets.util.Assert;
 
-final class BeanSelectionObservable<BEAN_TYPE> implements IBeanSelectionObservable<BEAN_TYPE> {
+/**
+ * @author MGrossmann
+ * 
+ * @param <BEAN_TYPE> The type of the beans
+ */
+public class BeanSelectionObservable<BEAN_TYPE> implements IBeanSelectionObservable<BEAN_TYPE> {
 
 	private final Set<IBeanSelectionListener<BEAN_TYPE>> listeners;
 
@@ -52,18 +56,19 @@ final class BeanSelectionObservable<BEAN_TYPE> implements IBeanSelectionObservab
 	}
 
 	@Override
-	public void addBeanSelectionListener(final IBeanSelectionListener<BEAN_TYPE> listener) {
+	public final void addBeanSelectionListener(final IBeanSelectionListener<BEAN_TYPE> listener) {
 		Assert.paramNotNull(listener, "listener");
 		listeners.add(listener);
 	}
 
 	@Override
-	public void removeBeanSelectionListener(final IBeanSelectionListener<BEAN_TYPE> listener) {
+	public final void removeBeanSelectionListener(final IBeanSelectionListener<BEAN_TYPE> listener) {
 		Assert.paramNotNull(listener, "listener");
 		listeners.remove(listener);
 	}
 
-	void fireBeanSelectionEvent(final IBeanSelectionEvent<BEAN_TYPE> event) {
+	public final void fireBeanSelectionEvent(final IBeanSelectionEvent<BEAN_TYPE> event) {
+		Assert.paramNotNull(event, "event");
 		for (final IBeanSelectionListener<BEAN_TYPE> listener : new LinkedList<IBeanSelectionListener<BEAN_TYPE>>(listeners)) {
 			listener.selectionChanged(event);
 		}
@@ -71,7 +76,7 @@ final class BeanSelectionObservable<BEAN_TYPE> implements IBeanSelectionObservab
 	}
 
 	@SuppressWarnings({"rawtypes", "unchecked"})
-	void fireSelectionChangedOnPlugins(final IBeanSelectionEvent event) {
+	private void fireSelectionChangedOnPlugins(final IBeanSelectionEvent event) {
 		final Class<?> beanType = event.getBeanType();
 		final Class<?> eventSourceType = event.getSource().getClass();
 		final IPluginPropertiesBuilder propBuilder = PluginToolkit.pluginPropertiesBuilder();
@@ -86,7 +91,7 @@ final class BeanSelectionObservable<BEAN_TYPE> implements IBeanSelectionObservab
 	}
 
 	@SuppressWarnings({"rawtypes", "unchecked"})
-	void fireBeanSelectionEvent(
+	public void fireBeanSelectionEvent(
 		final IBeanSelectionObservable source,
 		final Object beanTypeId,
 		final Class beanType,
@@ -95,7 +100,7 @@ final class BeanSelectionObservable<BEAN_TYPE> implements IBeanSelectionObservab
 		fireBeanSelectionEvent(new BeanSelectionEventImpl<BEAN_TYPE>(source, beanTypeId, beanType, entityId, selection));
 	}
 
-	void dispose() {
+	public void dispose() {
 		listeners.clear();
 	}
 }
