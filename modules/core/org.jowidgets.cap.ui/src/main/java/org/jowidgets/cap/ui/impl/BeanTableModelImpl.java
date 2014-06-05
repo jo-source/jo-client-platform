@@ -129,6 +129,8 @@ import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelConfig;
 import org.jowidgets.cap.ui.api.table.IBeanTableModelConfigBuilder;
 import org.jowidgets.cap.ui.api.table.IExternalReader;
+import org.jowidgets.cap.ui.tools.bean.BeanSelectionImpl;
+import org.jowidgets.cap.ui.tools.bean.BeanSelectionObservable;
 import org.jowidgets.cap.ui.tools.execution.AbstractUiExecutionCallbackListener;
 import org.jowidgets.cap.ui.tools.execution.AbstractUiResultCallback;
 import org.jowidgets.common.color.IColorConstant;

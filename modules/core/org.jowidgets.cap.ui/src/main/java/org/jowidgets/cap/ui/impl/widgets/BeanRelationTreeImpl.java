@@ -91,7 +91,7 @@ import org.jowidgets.cap.ui.api.types.IEntityTypeId;
 import org.jowidgets.cap.ui.api.types.RelationRenderingPolicy;
 import org.jowidgets.cap.ui.api.widgets.IBeanRelationTree;
 import org.jowidgets.cap.ui.api.widgets.IBeanRelationTreeBluePrint;
-import org.jowidgets.cap.ui.tools.bean.SingleBeanSelectionProvider;
+import org.jowidgets.cap.ui.tools.bean.ImutableSingleBeanSelectionProvider;
 import org.jowidgets.cap.ui.tools.model.BeanListModelListenerAdapter;
 import org.jowidgets.common.image.IImageConstant;
 import org.jowidgets.common.types.Accelerator;
@@ -498,7 +498,7 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 			return null;
 		}
 		final ICapActionFactory actionFactory = CapUiToolkit.actionFactory();
-		final IBeanSelectionProvider<Object> source = new SingleBeanSelectionProvider<Object>(
+		final IBeanSelectionProvider<Object> source = new ImutableSingleBeanSelectionProvider<Object>(
 			relationNodeModel.getParentBean(),
 			relationNodeModel.getParentEntityId(),
 			relationNodeModel.getParentBeanTypeId(),
@@ -533,7 +533,7 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 			return null;
 		}
 		final ICapActionFactory actionFactory = CapUiToolkit.actionFactory();
-		final IBeanSelectionProvider<Object> source = new SingleBeanSelectionProvider<Object>(
+		final IBeanSelectionProvider<Object> source = new ImutableSingleBeanSelectionProvider<Object>(
 			relationNodeModel.getParentBean(),
 			relationNodeModel.getParentEntityId(),
 			relationNodeModel.getParentBeanTypeId(),
@@ -628,7 +628,7 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 			return null;
 		}
 		final ICapActionFactory actionFactory = CapUiToolkit.actionFactory();
-		final IBeanSelectionProvider<Object> source = new SingleBeanSelectionProvider<Object>(
+		final IBeanSelectionProvider<Object> source = new ImutableSingleBeanSelectionProvider<Object>(
 			relationNodeModel.getParentBean(),
 			relationNodeModel.getParentEntityId(),
 			relationNodeModel.getParentBeanTypeId(),

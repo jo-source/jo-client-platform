@@ -25,8 +25,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
-
-package org.jowidgets.cap.ui.impl;
+package org.jowidgets.cap.ui.tools.bean;
 
 import java.util.Collection;
 
@@ -34,11 +33,12 @@ import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionEvent;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionObservable;
 
-final class BeanSelectionEventImpl<BEAN_TYPE> extends BeanSelectionImpl<BEAN_TYPE> implements IBeanSelectionEvent<BEAN_TYPE> {
+public final class BeanSelectionEventImpl<BEAN_TYPE> extends BeanSelectionImpl<BEAN_TYPE> implements
+		IBeanSelectionEvent<BEAN_TYPE> {
 
 	private final IBeanSelectionObservable<BEAN_TYPE> source;
 
-	BeanSelectionEventImpl(
+	public BeanSelectionEventImpl(
 		final IBeanSelectionObservable<BEAN_TYPE> source,
 		final Object beanTypeId,
 		final Class<? extends BEAN_TYPE> beanType,
