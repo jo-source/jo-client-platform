@@ -33,6 +33,7 @@ import java.util.Set;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanSelection;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
+import org.jowidgets.util.NullCompatibleEquivalence;
 
 public class SingleBeanSelectionProvider<BEAN_TYPE> extends BeanSelectionObservable<BEAN_TYPE> implements
 		IBeanSelectionProvider<BEAN_TYPE> {
@@ -42,14 +43,15 @@ public class SingleBeanSelectionProvider<BEAN_TYPE> extends BeanSelectionObserva
 	private final Object entityId;
 
 	private IBeanSelection<BEAN_TYPE> selection;
+	private IBeanProxy<BEAN_TYPE> selectedBean;
 
 	public SingleBeanSelectionProvider(final Object beanTypeId, final Class<? extends BEAN_TYPE> beanType, final Object entityId) {
-
 		this.beanTypeId = beanTypeId;
 		this.beanType = beanType;
 		this.entityId = entityId;
 
-		setSelection(null);
+		final Set<IBeanProxy<BEAN_TYPE>> emptySet = Collections.emptySet();
+		this.selection = new BeanSelectionImpl<BEAN_TYPE>(beanTypeId, beanType, entityId, emptySet);
 	}
 
 	/**
@@ -58,20 +60,23 @@ public class SingleBeanSelectionProvider<BEAN_TYPE> extends BeanSelectionObserva
 	 * @param bean The bean to set
 	 */
 	public void setSelection(final IBeanProxy<BEAN_TYPE> bean) {
-		if (bean == null) {
-			final Set<IBeanProxy<BEAN_TYPE>> emptySet = Collections.emptySet();
-			this.selection = new BeanSelectionImpl<BEAN_TYPE>(beanTypeId, beanType, entityId, emptySet);
+		if (!NullCompatibleEquivalence.equals(selectedBean, bean)) {
+			selectedBean = bean;
+			if (bean == null) {
+				final Set<IBeanProxy<BEAN_TYPE>> emptySet = Collections.emptySet();
+				this.selection = new BeanSelectionImpl<BEAN_TYPE>(beanTypeId, beanType, entityId, emptySet);
+			}
+			else {
+				final Set<IBeanProxy<BEAN_TYPE>> singleton = Collections.singleton(bean);
+				this.selection = new BeanSelectionImpl<BEAN_TYPE>(beanTypeId, beanType, entityId, singleton);
+			}
+			fireBeanSelectionEvent(new BeanSelectionEventImpl<BEAN_TYPE>(
+				this,
+				beanTypeId,
+				beanType,
+				entityId,
+				selection.getSelection()));
 		}
-		else {
-			final Set<IBeanProxy<BEAN_TYPE>> singleton = Collections.singleton(bean);
-			this.selection = new BeanSelectionImpl<BEAN_TYPE>(beanTypeId, beanType, entityId, singleton);
-		}
-		fireBeanSelectionEvent(new BeanSelectionEventImpl<BEAN_TYPE>(
-			this,
-			beanTypeId,
-			beanType,
-			entityId,
-			selection.getSelection()));
 	}
 
 	@Override

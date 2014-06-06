@@ -70,7 +70,6 @@ public class BeanSelectionImpl<BEAN_TYPE> implements IBeanSelection<BEAN_TYPE> {
 		if (!selection.isEmpty()) {
 			Assert.paramNotNull(beanTypeId, "beanTypeId");
 			Assert.paramNotNull(beanType, "beanType");
-			Assert.paramNotNull(entityId, "entityId");
 		}
 
 		this.beanTypeId = beanTypeId;
