@@ -30,23 +30,18 @@ package org.jowidgets.cap.service.repository.api;
 
 import java.util.Collection;
 
-public interface IBeanRepositoryServiceToolkit {
+import org.jowidgets.service.api.IServicesDecoratorProvider;
 
-	<BEAN_TYPE> IBeanRepositoryServiceFactory<BEAN_TYPE> serviceFactory(IBeanRepository<BEAN_TYPE> repositiory);
+public interface IBeanRepositoryServiceFactoryBuilder<BEAN_TYPE> {
 
-	<BEAN_TYPE> IBeanRepositoryServiceFactory<BEAN_TYPE> serviceFactory(
-		IBeanRepository<BEAN_TYPE> repositiory,
-		boolean asyncDecorator);
+	IBeanRepositoryServiceFactoryBuilder<BEAN_TYPE> setRepository(IBeanRepository<BEAN_TYPE> repositiory);
 
-	<BEAN_TYPE> IBeanRepositoryServiceFactory<BEAN_TYPE> serviceFactory(
-		IBeanRepository<BEAN_TYPE> repositiory,
-		Collection<String> properties);
+	IBeanRepositoryServiceFactoryBuilder<BEAN_TYPE> setProperties(Collection<String> properties);
 
-	<BEAN_TYPE> IBeanRepositoryServiceFactory<BEAN_TYPE> serviceFactory(
-		IBeanRepository<BEAN_TYPE> repositiory,
-		Collection<String> properties,
-		boolean asyncDecorator);
+	IBeanRepositoryServiceFactoryBuilder<BEAN_TYPE> setDecorator(IServicesDecoratorProvider decorator);
 
-	<BEAN_TYPE> IBeanRepositoryServiceFactoryBuilder<BEAN_TYPE> serviceFactoryBuilder();
+	IBeanRepositoryServiceFactoryBuilder<BEAN_TYPE> setAsyncDecorator();
+
+	IBeanRepositoryServiceFactory<BEAN_TYPE> build();
 
 }

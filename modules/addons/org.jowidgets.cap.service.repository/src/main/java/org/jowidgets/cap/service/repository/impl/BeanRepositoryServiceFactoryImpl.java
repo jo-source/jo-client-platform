@@ -61,64 +61,74 @@ final class BeanRepositoryServiceFactoryImpl<BEAN_TYPE> implements IBeanReposito
 
 	private static final IAdapterFactory<IReaderService<Void>, ISyncReaderService<Void>> READER_ADAPTER_FACTORY = CapServiceToolkit.adapterFactoryProvider().reader();
 
-	private static final long ASYNC_CALLBACK_DELAY = 200L;
-
-	private static final IServicesDecoratorProvider ASYNC_DECORATOR_PROVIDER = CapServiceToolkit.serviceDecoratorProvider().asyncDecoratorProvider(
-			ASYNC_CALLBACK_DELAY);
-
 	private static final IServiceId<IReaderService<Void>> READER_SERVICE_ID = new ServiceId<IReaderService<Void>>(
 		"BeanRepositoryServiceFactoryImpl",
 		IReaderService.class);
-	private static final IDecorator<IReaderService<Void>> ASYNC_READER_DECORATOR = ASYNC_DECORATOR_PROVIDER.getDecorator(READER_SERVICE_ID);
 
 	private static final IServiceId<ICreatorService> CREATOR_SERVICE_ID = new ServiceId<ICreatorService>(
 		"BeanRepositoryServiceFactoryImpl",
 		ICreatorService.class);
-	private static final IDecorator<ICreatorService> ASYNC_CREATOR_DECORATOR = ASYNC_DECORATOR_PROVIDER.getDecorator(CREATOR_SERVICE_ID);
 
 	private static final IServiceId<IUpdaterService> UPDATER_SERVICE_ID = new ServiceId<IUpdaterService>(
 		"BeanRepositoryServiceFactoryImpl",
 		IUpdaterService.class);
-	private static final IDecorator<IUpdaterService> ASYNC_UPDATER_DECORATOR = ASYNC_DECORATOR_PROVIDER.getDecorator(UPDATER_SERVICE_ID);
 
 	private static final IServiceId<IRefreshService> REFRESH_SERVICE_ID = new ServiceId<IRefreshService>(
 		"BeanRepositoryServiceFactoryImpl",
 		IRefreshService.class);
-	private static final IDecorator<IRefreshService> ASYNC_REFRESH_DECORATOR = ASYNC_DECORATOR_PROVIDER.getDecorator(REFRESH_SERVICE_ID);
 
 	private static final IServiceId<IDeleterService> DELETER_SERVICE_ID = new ServiceId<IDeleterService>(
 		"BeanRepositoryServiceFactoryImpl",
 		IDeleterService.class);
-	private static final IDecorator<IDeleterService> ASYNC_DELETER_DECORATOR = ASYNC_DECORATOR_PROVIDER.getDecorator(DELETER_SERVICE_ID);
 
 	private final IBeanRepository<BEAN_TYPE> repository;
 	private final BeanRepositoryBeanAccess<BEAN_TYPE> beanAccess;
 	private final List<String> readableProperties;
 	private final List<String> allProperties;
 
-	BeanRepositoryServiceFactoryImpl(final IBeanRepository<BEAN_TYPE> repositiory) {
+	private final IDecorator<IReaderService<Void>> readerDecorator;
+	private final IDecorator<ICreatorService> creatorDecorator;
+	private final IDecorator<IUpdaterService> updaterDecorator;
+	private final IDecorator<IRefreshService> refreshDecorator;
+	private final IDecorator<IDeleterService> deleterDecorator;
+
+	BeanRepositoryServiceFactoryImpl(
+		final IBeanRepository<BEAN_TYPE> repositiory,
+		final IServicesDecoratorProvider serviceDecoratorProvider) {
 		this(
 			repositiory,
 			BeanUtils.getReadableProperties(repositiory.getBeanType()),
-			BeanUtils.getProperties(repositiory.getBeanType()));
+			BeanUtils.getProperties(repositiory.getBeanType()),
+			serviceDecoratorProvider);
 	}
 
-	BeanRepositoryServiceFactoryImpl(final IBeanRepository<BEAN_TYPE> repositiory, final Collection<String> properties) {
-		this(repositiory, properties, properties);
+	BeanRepositoryServiceFactoryImpl(
+		final IBeanRepository<BEAN_TYPE> repositiory,
+		final Collection<String> properties,
+		final IServicesDecoratorProvider serviceDecoratorProvider) {
+		this(repositiory, properties, properties, serviceDecoratorProvider);
 	}
 
 	BeanRepositoryServiceFactoryImpl(
 		final IBeanRepository<BEAN_TYPE> repositiory,
 		final Collection<String> readableProperties,
-		final Collection<String> allProperties) {
+		final Collection<String> allProperties,
+		final IServicesDecoratorProvider serviceDecoratorProvider) {
 		Assert.paramNotNull(repositiory, "repositiory");
 		Assert.paramNotNull(readableProperties, "readableProperties");
 		Assert.paramNotNull(allProperties, "allProperties");
+		Assert.paramNotNull(serviceDecoratorProvider, "serviceDecoratorProvider");
 
 		this.repository = repositiory;
 		this.beanAccess = new BeanRepositoryBeanAccess<BEAN_TYPE>(repository);
 		this.readableProperties = new LinkedList<String>(readableProperties);
 		this.allProperties = new LinkedList<String>(allProperties);
+
+		this.readerDecorator = serviceDecoratorProvider.getDecorator(READER_SERVICE_ID);
+		this.creatorDecorator = serviceDecoratorProvider.getDecorator(CREATOR_SERVICE_ID);
+		this.updaterDecorator = serviceDecoratorProvider.getDecorator(UPDATER_SERVICE_ID);
+		this.refreshDecorator = serviceDecoratorProvider.getDecorator(REFRESH_SERVICE_ID);
+		this.deleterDecorator = serviceDecoratorProvider.getDecorator(DELETER_SERVICE_ID);
 	}
 
 	@Override
@@ -131,7 +141,7 @@ final class BeanRepositoryServiceFactoryImpl<BEAN_TYPE> implements IBeanReposito
 		if (repository instanceof ICreateSupportBeanRepository) {
 			return new BeanRepositoryCreatorServiceBuilderImpl<BEAN_TYPE>(
 				(ICreateSupportBeanRepository<BEAN_TYPE>) repository,
-				ASYNC_CREATOR_DECORATOR,
+				creatorDecorator,
 				allProperties);
 		}
 		else {
@@ -152,14 +162,14 @@ final class BeanRepositoryServiceFactoryImpl<BEAN_TYPE> implements IBeanReposito
 
 	@Override
 	public IReaderService<Void> readerService() {
-		return ASYNC_READER_DECORATOR.decorate(READER_ADAPTER_FACTORY.createAdapter(new SyncBeanRepositoryReaderService<BEAN_TYPE>(
+		return readerDecorator.decorate(READER_ADAPTER_FACTORY.createAdapter(new SyncBeanRepositoryReaderService<BEAN_TYPE>(
 			repository,
 			readableProperties)));
 	}
 
 	@Override
 	public IRefreshServiceBuilder<BEAN_TYPE> refreshServiceBuilder() {
-		return new BeanRepositoryRefreshServiceBuilderImpl<BEAN_TYPE>(beanAccess, allProperties, ASYNC_REFRESH_DECORATOR);
+		return new BeanRepositoryRefreshServiceBuilderImpl<BEAN_TYPE>(beanAccess, allProperties, refreshDecorator);
 	}
 
 	@Override
@@ -173,7 +183,7 @@ final class BeanRepositoryServiceFactoryImpl<BEAN_TYPE> implements IBeanReposito
 			return new BeanRepositoryDeleterServiceBuilderImpl<BEAN_TYPE>(
 				beanAccess,
 				(IDeleteSupportBeanRepository<BEAN_TYPE>) repository,
-				ASYNC_DELETER_DECORATOR);
+				deleterDecorator);
 		}
 		else {
 			return null;
@@ -198,7 +208,7 @@ final class BeanRepositoryServiceFactoryImpl<BEAN_TYPE> implements IBeanReposito
 				(IUpdateSupportBeanRepository<BEAN_TYPE>) repository,
 				beanAccess,
 				allProperties,
-				ASYNC_UPDATER_DECORATOR);
+				updaterDecorator);
 		}
 		else {
 			return null;

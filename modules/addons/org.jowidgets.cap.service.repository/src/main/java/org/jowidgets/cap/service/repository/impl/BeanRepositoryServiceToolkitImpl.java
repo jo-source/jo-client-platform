@@ -32,20 +32,51 @@ import java.util.Collection;
 
 import org.jowidgets.cap.service.repository.api.IBeanRepository;
 import org.jowidgets.cap.service.repository.api.IBeanRepositoryServiceFactory;
+import org.jowidgets.cap.service.repository.api.IBeanRepositoryServiceFactoryBuilder;
 import org.jowidgets.cap.service.repository.api.IBeanRepositoryServiceToolkit;
 
 public final class BeanRepositoryServiceToolkitImpl implements IBeanRepositoryServiceToolkit {
 
 	@Override
 	public <BEAN_TYPE> IBeanRepositoryServiceFactory<BEAN_TYPE> serviceFactory(final IBeanRepository<BEAN_TYPE> repositiory) {
-		return new BeanRepositoryServiceFactoryImpl<BEAN_TYPE>(repositiory);
+		final IBeanRepositoryServiceFactoryBuilder<BEAN_TYPE> builder = serviceFactoryBuilder();
+		return builder.setRepository(repositiory).build();
 	}
 
 	@Override
 	public <BEAN_TYPE> IBeanRepositoryServiceFactory<BEAN_TYPE> serviceFactory(
 		final IBeanRepository<BEAN_TYPE> repositiory,
 		final Collection<String> properties) {
-		return new BeanRepositoryServiceFactoryImpl<BEAN_TYPE>(repositiory, properties);
+		final IBeanRepositoryServiceFactoryBuilder<BEAN_TYPE> builder = serviceFactoryBuilder();
+		return builder.setRepository(repositiory).setProperties(properties).build();
+	}
+
+	@Override
+	public <BEAN_TYPE> IBeanRepositoryServiceFactory<BEAN_TYPE> serviceFactory(
+		final IBeanRepository<BEAN_TYPE> repositiory,
+		final boolean asyncDecorator) {
+		final IBeanRepositoryServiceFactoryBuilder<BEAN_TYPE> builder = serviceFactoryBuilder();
+		if (asyncDecorator) {
+			builder.setAsyncDecorator();
+		}
+		return builder.setRepository(repositiory).build();
+	}
+
+	@Override
+	public <BEAN_TYPE> IBeanRepositoryServiceFactory<BEAN_TYPE> serviceFactory(
+		final IBeanRepository<BEAN_TYPE> repositiory,
+		final Collection<String> properties,
+		final boolean asyncDecorator) {
+		final IBeanRepositoryServiceFactoryBuilder<BEAN_TYPE> builder = serviceFactoryBuilder();
+		if (asyncDecorator) {
+			builder.setAsyncDecorator();
+		}
+		return builder.setRepository(repositiory).setProperties(properties).build();
+	}
+
+	@Override
+	public <BEAN_TYPE> IBeanRepositoryServiceFactoryBuilder<BEAN_TYPE> serviceFactoryBuilder() {
+		return new BeanRepositoryServiceFactoryBuilderImpl<BEAN_TYPE>();
 	}
 
 }
