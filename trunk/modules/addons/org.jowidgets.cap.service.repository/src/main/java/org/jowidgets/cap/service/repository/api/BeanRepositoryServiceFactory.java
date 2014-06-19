@@ -50,17 +50,41 @@ public final class BeanRepositoryServiceFactory {
 	};
 
 	public static <BEAN_TYPE> IBeanRepositoryServiceFactory<BEAN_TYPE> create(
+		final IBeanRepository<BEAN_TYPE> repositiory,
+		final boolean asyncDecorator) {
+		return BeanRepositoryServiceToolkit.serviceFactory(repositiory, asyncDecorator);
+	}
+
+	public static <BEAN_TYPE> IBeanRepositoryServiceFactory<BEAN_TYPE> create(
 		final IBeanRepository<BEAN_TYPE> repository,
 		final Collection<String> properties) {
 		return BeanRepositoryServiceToolkit.serviceFactory(repository, properties);
 	};
 
+	public static <BEAN_TYPE> IBeanRepositoryServiceFactory<BEAN_TYPE> create(
+		final IBeanRepository<BEAN_TYPE> repositiory,
+		final Collection<String> properties,
+		final boolean asyncDecorator) {
+		return BeanRepositoryServiceToolkit.serviceFactory(repositiory, properties, asyncDecorator);
+	}
+
 	public static IBeanServicesProvider beanServices(final IBeanRepository<?> repository) {
 		return create(repository).beanServices();
 	};
 
+	public static IBeanServicesProvider beanServices(final IBeanRepository<?> repository, final boolean asyncDecorator) {
+		return create(repository, asyncDecorator).beanServices();
+	};
+
 	public static IBeanServicesProvider beanServices(final IBeanRepository<?> repository, final Collection<String> properties) {
 		return create(repository, properties).beanServices();
+	};
+
+	public static IBeanServicesProvider beanServices(
+		final IBeanRepository<?> repository,
+		final Collection<String> properties,
+		final boolean asyncDecorator) {
+		return create(repository, properties, asyncDecorator).beanServices();
 	};
 
 	public static <BEAN_TYPE> ICreatorServiceBuilder<BEAN_TYPE> creatorServiceBuilder(final IBeanRepository<BEAN_TYPE> repository) {
@@ -95,8 +119,12 @@ public final class BeanRepositoryServiceFactory {
 		return create(repository).updaterServiceBuilder();
 	}
 
-	IUpdaterService updaterService(final IBeanRepository<?> repository) {
+	public static IUpdaterService updaterService(final IBeanRepository<?> repository) {
 		return create(repository).updaterService();
+	}
+
+	public static <BEAN_TYPE> IBeanRepositoryServiceFactoryBuilder<BEAN_TYPE> builder() {
+		return BeanRepositoryServiceToolkit.serviceFactoryBuilder();
 	}
 
 }

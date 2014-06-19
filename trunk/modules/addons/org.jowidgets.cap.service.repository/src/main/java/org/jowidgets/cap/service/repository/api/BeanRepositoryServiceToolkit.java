@@ -48,7 +48,24 @@ public final class BeanRepositoryServiceToolkit {
 
 	public static <BEAN_TYPE> IBeanRepositoryServiceFactory<BEAN_TYPE> serviceFactory(
 		final IBeanRepository<BEAN_TYPE> repositiory,
+		final boolean asyncDecorator) {
+		return getInstance().serviceFactory(repositiory, asyncDecorator);
+	}
+
+	public static <BEAN_TYPE> IBeanRepositoryServiceFactory<BEAN_TYPE> serviceFactory(
+		final IBeanRepository<BEAN_TYPE> repositiory,
 		final Collection<String> properties) {
 		return getInstance().serviceFactory(repositiory, properties);
+	}
+
+	public static <BEAN_TYPE> IBeanRepositoryServiceFactory<BEAN_TYPE> serviceFactory(
+		final IBeanRepository<BEAN_TYPE> repositiory,
+		final Collection<String> properties,
+		final boolean asyncDecorator) {
+		return getInstance().serviceFactory(repositiory, properties, asyncDecorator);
+	}
+
+	public static <BEAN_TYPE> IBeanRepositoryServiceFactoryBuilder<BEAN_TYPE> serviceFactoryBuilder() {
+		return getInstance().serviceFactoryBuilder();
 	}
 }
