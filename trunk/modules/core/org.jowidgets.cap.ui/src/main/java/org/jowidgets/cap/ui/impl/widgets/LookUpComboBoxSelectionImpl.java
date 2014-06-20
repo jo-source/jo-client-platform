@@ -37,13 +37,13 @@ import org.jowidgets.cap.ui.api.lookup.ILookUpCallback;
 import org.jowidgets.cap.ui.api.widgets.ILookUpComboBoxSelectionBluePrint;
 import org.jowidgets.common.widgets.controller.IInputListener;
 import org.jowidgets.tools.controller.InputObservable;
-import org.jowidgets.tools.validation.CompoundValidator;
 import org.jowidgets.tools.validation.ValidationCache;
 import org.jowidgets.tools.validation.ValidationCache.IValidationResultCreator;
 import org.jowidgets.tools.widgets.wrapper.ComboBoxWrapper;
 import org.jowidgets.validation.IValidationConditionListener;
 import org.jowidgets.validation.IValidationResult;
 import org.jowidgets.validation.IValidator;
+import org.jowidgets.validation.tools.CompoundValidator;
 
 final class LookUpComboBoxSelectionImpl extends ComboBoxWrapper<Object> implements ILookUpCallback {
 

@@ -34,12 +34,12 @@ import org.jowidgets.api.widgets.blueprint.IInputComponentValidationLabelBluePri
 import org.jowidgets.api.widgets.blueprint.defaults.IDefaultInitializer;
 import org.jowidgets.cap.ui.api.color.CapColors;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
-import org.jowidgets.tools.validation.MandatoryValidator;
 import org.jowidgets.tools.widgets.blueprint.BPF;
 import org.jowidgets.util.IDecorator;
 import org.jowidgets.validation.IValidationMessage;
 import org.jowidgets.validation.IValidationResult;
 import org.jowidgets.validation.MessageType;
+import org.jowidgets.validation.tools.MandatoryValidator;
 
 final class BeanFormDefaults implements IDefaultInitializer<IBeanFormBluePrint<?>> {
 
