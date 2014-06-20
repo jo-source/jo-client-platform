@@ -59,11 +59,11 @@ import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 import org.jowidgets.common.widgets.factory.ICustomWidgetFactory;
 import org.jowidgets.tools.editor.AbstractTableCellEditor;
 import org.jowidgets.tools.editor.AbstractTableCellEditorFactory;
-import org.jowidgets.tools.validation.MandatoryValidator;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.event.IChangeListener;
 import org.jowidgets.validation.IValidationConditionListener;
 import org.jowidgets.validation.IValidationResult;
+import org.jowidgets.validation.tools.MandatoryValidator;
 
 final class BeanTableCellEditorFactory extends AbstractTableCellEditorFactory<ITableCellEditor> {
 

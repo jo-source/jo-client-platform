@@ -347,6 +347,11 @@
 		</dependency>
 		<dependency>
 			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.validation.tools.bundle</artifactId>
+			<version>${jowidgets.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
 			<artifactId>org.jowidgets.common.bundle</artifactId>
 			<version>${jowidgets.version}</version>
 		</dependency>

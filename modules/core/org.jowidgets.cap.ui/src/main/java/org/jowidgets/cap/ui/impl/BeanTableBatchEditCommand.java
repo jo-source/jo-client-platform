@@ -55,13 +55,13 @@ import org.jowidgets.common.types.Markup;
 import org.jowidgets.common.widgets.controller.ITableCellPopupEvent;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
-import org.jowidgets.tools.validation.MandatoryValidator;
 import org.jowidgets.tools.widgets.blueprint.BPF;
 import org.jowidgets.util.event.IChangeListener;
 import org.jowidgets.util.maybe.IMaybe;
 import org.jowidgets.util.maybe.Nothing;
 import org.jowidgets.util.maybe.Some;
 import org.jowidgets.validation.IValidator;
+import org.jowidgets.validation.tools.MandatoryValidator;
 
 final class BeanTableBatchEditCommand<BEAN_TYPE> implements ICommand, ICommandExecutor, IEnabledChecker {
 
