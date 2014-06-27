@@ -43,6 +43,8 @@ import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.i18n.tools.StaticMessage;
 import org.jowidgets.util.Assert;
 import org.jowidgets.validation.IValidator;
+import org.jowidgets.validation.tools.MandatoryValidator;
+import org.jowidgets.validation.tools.MandatoryValidator.MandatoryMessageType;
 
 final class PropertyBuilder implements IPropertyBuilder {
 
@@ -58,6 +60,7 @@ final class PropertyBuilder implements IPropertyBuilder {
 	private IMessage descriptionDefault;
 	private boolean visibleDefault;
 	private boolean mandatoryDefault;
+	private IValidator<? extends Object> mandatoryValidator;
 	private Class<?> valueType;
 	private Class<?> elementValueType;
 	private boolean readonly;
@@ -78,6 +81,7 @@ final class PropertyBuilder implements IPropertyBuilder {
 		this.validatorBuilder = new PropertyValidatorBuilder();
 		this.addedBeanValidators = new LinkedList<Class<?>>();
 		this.beanValidatorAdded = false;
+		this.mandatoryValidator = new MandatoryValidator<Object>(MandatoryMessageType.INFO_ERROR);
 	}
 
 	@Override
@@ -176,6 +180,12 @@ final class PropertyBuilder implements IPropertyBuilder {
 	@Override
 	public IPropertyBuilder setMandatory(final boolean mandatoryDefault) {
 		this.mandatoryDefault = mandatoryDefault;
+		return this;
+	}
+
+	@Override
+	public IPropertyBuilder setMandatoryValidator(final IValidator<? extends Object> validator) {
+		this.mandatoryValidator = validator;
 		return this;
 	}
 
@@ -307,6 +317,10 @@ final class PropertyBuilder implements IPropertyBuilder {
 
 	@Override
 	public IProperty build() {
+		if (mandatoryDefault && mandatoryValidator != null) {
+			validatorBuilder.addValidator(mandatoryValidator);
+		}
+
 		for (final Class<?> beanValidatorClass : addedBeanValidators) {
 			validatorBuilder.addBeanValidator(beanValidatorClass, name);
 		}

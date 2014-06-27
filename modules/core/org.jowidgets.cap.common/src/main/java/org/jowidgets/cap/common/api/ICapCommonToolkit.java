@@ -60,9 +60,11 @@ import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.common.api.service.IEntityServiceCompositeBuilder;
 import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.common.api.sort.ISortFactory;
+import org.jowidgets.cap.common.api.validation.IBeanValidationResult;
 import org.jowidgets.cap.common.api.validation.IBeanValidationResultListBuilder;
 import org.jowidgets.cap.common.api.validation.IBeanValidator;
 import org.jowidgets.service.api.IRedundantServiceResolver;
+import org.jowidgets.validation.IValidationResult;
 
 public interface ICapCommonToolkit {
 
@@ -152,6 +154,8 @@ public interface ICapCommonToolkit {
 	Validator beanValidator();
 
 	IBeanValidationResultListBuilder beanValidationResultListBuilder();
+
+	IBeanValidationResult beanValidationResult(String propertyName, IValidationResult validationResult);
 
 	<BEAN_TYPE> IExecutableCheckerCompositeBuilder<BEAN_TYPE> executableCheckerCompositeBuilder();
 

@@ -44,7 +44,6 @@ import org.jowidgets.common.widgets.descriptor.IWidgetDescriptor;
 import org.jowidgets.common.widgets.descriptor.setup.mandatory.Mandatory;
 import org.jowidgets.util.IDecorator;
 import org.jowidgets.util.IProvider;
-import org.jowidgets.validation.IValidator;
 
 public interface IBeanFormBluePrint<BEAN_TYPE> extends
 		IComponentSetup,
@@ -98,8 +97,6 @@ public interface IBeanFormBluePrint<BEAN_TYPE> extends
 	IBeanFormBluePrint<BEAN_TYPE> setMandatoryBackgroundColor(IColorConstant color);
 
 	IBeanFormBluePrint<BEAN_TYPE> setMandatoryLabelDecorator(IDecorator<String> decorator);
-
-	IBeanFormBluePrint<BEAN_TYPE> setMandatoryValidator(IValidator<Object> validator);
 
 	IBeanFormBluePrint<BEAN_TYPE> setEditModeInputHint(String hint);
 
@@ -156,8 +153,6 @@ public interface IBeanFormBluePrint<BEAN_TYPE> extends
 	IColorConstant getMandatoryBackgroundColor();
 
 	IDecorator<String> getMandatoryLabelDecorator();
-
-	IValidator<Object> getMandatoryValidator();
 
 	String getEditModeInputHint();
 

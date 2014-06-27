@@ -109,7 +109,6 @@ import org.jowidgets.util.event.IChangeListener;
 import org.jowidgets.validation.IValidationConditionListener;
 import org.jowidgets.validation.IValidationResult;
 import org.jowidgets.validation.IValidationResultBuilder;
-import org.jowidgets.validation.IValidator;
 import org.jowidgets.validation.MessageType;
 import org.jowidgets.validation.ValidationResult;
 
@@ -123,7 +122,6 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 	private final IColorConstant mandatoryBackgroundColor;
 	private final IColorConstant foregroundColor;
 	private final IColorConstant modifiedForegroundColor;
-	private final IValidator<Object> mandatoryValidator;
 	private final String inputHint;
 	private final Map<String, IAttribute<Object>> attributes;
 
@@ -170,7 +168,6 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 		final IColorConstant mandatoryBackgroundColor,
 		final IColorConstant foregroundColor,
 		final IColorConstant modifiedForegroundColor,
-		final IValidator<Object> manadtoryValidator,
 		final String inputHint,
 		final IInputComponentValidationLabelSetup mainValidationLabelSetup,
 		final IValidationLabelSetup propertyValidationLabelSetup,
@@ -190,7 +187,6 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 		this.mandatoryBackgroundColor = mandatoryBackgroundColor;
 		this.foregroundColor = foregroundColor;
 		this.modifiedForegroundColor = modifiedForegroundColor;
-		this.mandatoryValidator = manadtoryValidator;
 		this.inputHint = inputHint;
 		this.propertyValidationLabelSetup = propertyValidationLabelSetup;
 		this.mainValidationLabelSetup = mainValidationLabelSetup;
@@ -581,6 +577,9 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 			if (validationResult.isValid() && !parentValidationResult.isValid()) {
 				validationResult = parentValidationResult;
 			}
+			else if (validationResult.isOk() && !parentValidationResult.isOk()) {
+				validationResult = parentValidationResult;
+			}
 
 			//change the validation map, if the worst first changed
 			final IValidationResult lastResult = validationResults.get(propertyName);
@@ -752,9 +751,6 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 
 							final IInputControl<Object> result = widgetCreator.create(widgetFactory);
 
-							if (mandatoryValidator != null && isMandatory(propertyName)) {
-								result.addValidator(mandatoryValidator);
-							}
 							result.setEnabled(false);
 							bindingListeners.put(propertyName, new BindingListener(propertyName, result));
 							validationListeners.put(propertyName, new ValidationConditionListener(propertyName));

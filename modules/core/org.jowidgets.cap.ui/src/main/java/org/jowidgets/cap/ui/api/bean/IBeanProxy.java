@@ -72,6 +72,8 @@ public interface IBeanProxy<BEAN_TYPE> extends
 
 	void addBeanPropertyValidator(IBeanPropertyValidator<BEAN_TYPE> validator);
 
+	void addBeanPropertyValidators(Collection<? extends IBeanPropertyValidator<BEAN_TYPE>> validators);
+
 	void registerExternalValidator(IExternalBeanValidator validator);
 
 	void unregisterExternalValidator(IExternalBeanValidator validator);

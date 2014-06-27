@@ -162,6 +162,13 @@ final class BeanPropertyBluePrintImpl implements IBeanPropertyBluePrint {
 	}
 
 	@Override
+	public IBeanPropertyBluePrint setMandatoryValidator(final IValidator<? extends Object> validator) {
+		checkExhausted();
+		builder.setMandatoryValidator(validator);
+		return this;
+	}
+
+	@Override
 	public IBeanPropertyBluePrint setEditable(final boolean editable) {
 		checkExhausted();
 		builder.setEditable(editable);

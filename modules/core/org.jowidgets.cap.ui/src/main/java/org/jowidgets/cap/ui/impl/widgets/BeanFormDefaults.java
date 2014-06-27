@@ -39,7 +39,6 @@ import org.jowidgets.util.IDecorator;
 import org.jowidgets.validation.IValidationMessage;
 import org.jowidgets.validation.IValidationResult;
 import org.jowidgets.validation.MessageType;
-import org.jowidgets.validation.tools.MandatoryValidator;
 
 final class BeanFormDefaults implements IDefaultInitializer<IBeanFormBluePrint<?>> {
 
@@ -95,7 +94,6 @@ final class BeanFormDefaults implements IDefaultInitializer<IBeanFormBluePrint<?
 				return null;
 			}
 		});
-		bluePrint.setMandatoryValidator(new MandatoryValidator<Object>());
 		bluePrint.setPropertyValidationLabel(BPF.validationResultLabel().setShowValidationMessage(false));
 	}
 }
