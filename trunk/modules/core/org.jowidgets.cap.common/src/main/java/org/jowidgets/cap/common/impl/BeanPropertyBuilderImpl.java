@@ -263,6 +263,12 @@ final class BeanPropertyBuilderImpl implements IBeanPropertyBuilder {
 	}
 
 	@Override
+	public IBeanPropertyBuilder setMandatoryValidator(final IValidator<? extends Object> validator) {
+		propertyBuilder.setMandatoryValidator(validator);
+		return this;
+	}
+
+	@Override
 	public IBeanPropertyBuilder setEditable(final boolean editable) {
 		propertyBuilder.setEditable(editable);
 		return this;

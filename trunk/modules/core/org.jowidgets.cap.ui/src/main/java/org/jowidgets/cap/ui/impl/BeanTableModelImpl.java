@@ -489,9 +489,8 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	private void addLastBean() {
 		if (lastBean == null) {
 			lastBean = beanProxyFactory.createLastRowDummyProxy(attributes);
-			for (final IBeanPropertyValidator<BEAN_TYPE> validator : beanPropertyValidators) {
-				lastBean.addBeanPropertyValidator(validator);
-			}
+			lastBean.addBeanPropertyValidators(beanPropertyValidators);
+
 			final ValueHolder<PropertyChangeListener> listenerHolder = new ValueHolder<PropertyChangeListener>();
 			final PropertyChangeListener listener = new PropertyChangeListener() {
 				@Override

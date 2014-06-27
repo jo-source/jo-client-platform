@@ -53,6 +53,8 @@ public interface IPropertyBuilder {
 
 	IPropertyBuilder setMandatory(boolean mandatoryDefault);
 
+	IPropertyBuilder setMandatoryValidator(IValidator<? extends Object> validator);
+
 	IPropertyBuilder setValueType(Class<?> valueType);
 
 	IPropertyBuilder setElementValueType(Class<?> elementValueType);

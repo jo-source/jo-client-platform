@@ -63,7 +63,6 @@ import org.jowidgets.util.Assert;
 import org.jowidgets.util.event.IChangeListener;
 import org.jowidgets.validation.IValidationConditionListener;
 import org.jowidgets.validation.IValidationResult;
-import org.jowidgets.validation.tools.MandatoryValidator;
 
 final class BeanTableCellEditorFactory extends AbstractTableCellEditorFactory<ITableCellEditor> {
 
@@ -146,7 +145,6 @@ final class BeanTableCellEditorFactory extends AbstractTableCellEditorFactory<IT
 			this.externalValidatorListeners = new LinkedHashSet<IExternalBeanValidatorListener>();
 
 			if (attribute.isMandatory()) {
-				editor.addValidator(new MandatoryValidator<Object>());
 				editor.setBackgroundColor(CapColors.MANDATORY_BACKGROUND);
 			}
 
@@ -246,10 +244,15 @@ final class BeanTableCellEditorFactory extends AbstractTableCellEditorFactory<IT
 		@Override
 		public Collection<IBeanValidationResult> validate(final Collection<IBeanValidationResult> parentResult) {
 			final IBeanValidationResultListBuilder builder = CapCommonToolkit.beanValidationResultListBuilder();
-			builder.addResult(parentResult);
-			final IValidationResult result = editor.validate();
-			if (!result.isOk()) {
-				builder.addResult(result.withContext(attribute.getCurrentLabel()), attribute.getPropertyName());
+
+			final IValidationResult editorResult = editor.validate();
+			if (!editorResult.isOk()) {
+				builder.addResult(editorResult.withContext(attribute.getCurrentLabel()), attribute.getPropertyName());
+			}
+			//prefer invalid results from the editor, because the messages may contain more informations
+			//so only add the parent result if the editors result is valid
+			if (editorResult.isValid()) {
+				builder.addResult(parentResult);
 			}
 			return builder.build();
 		}

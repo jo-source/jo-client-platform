@@ -32,7 +32,7 @@
 		
 		<dependency>
             <groupId>org.jowidgets</groupId>
-            <artifactId>org.jowidgets.validation</artifactId>
+            <artifactId>org.jowidgets.validation.tools</artifactId>
             <version>${jowidgets.version}</version>
         </dependency>
         

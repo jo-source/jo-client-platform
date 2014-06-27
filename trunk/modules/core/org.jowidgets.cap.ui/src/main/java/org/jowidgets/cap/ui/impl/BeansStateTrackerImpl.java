@@ -230,13 +230,14 @@ final class BeansStateTrackerImpl<BEAN_TYPE> implements IBeansStateTracker<BEAN_
 		for (final IBeanProxy<BEAN_TYPE> bean : new LinkedList<IBeanProxy<BEAN_TYPE>>(validationDirtyBeans)) {
 			final IValidationResult validationResult = bean.validate();
 			builder.addResult(validationResult);
-			if (validationResult.isValid()) {
+			if (validationResult.isOk()) {
 				validationDirtyBeans.remove(bean);
 			}
-			else {
+			else if (!validationResult.isValid()) {
 				break;
 			}
 		}
+
 		return builder.build();
 	}
 
@@ -322,6 +323,8 @@ final class BeansStateTrackerImpl<BEAN_TYPE> implements IBeansStateTracker<BEAN_
 	public void clearModifications() {
 		modifiedBeans.clear();
 		transientBeans.clear();
+		validationDirtyBeans.clear();
+		validationCache.setDirty();
 	}
 
 	@Override
