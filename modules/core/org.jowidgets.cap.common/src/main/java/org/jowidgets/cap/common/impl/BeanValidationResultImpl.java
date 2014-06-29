@@ -57,4 +57,9 @@ final class BeanValidationResultImpl implements IBeanValidationResult, Serializa
 		return validationResult;
 	}
 
+	@Override
+	public String toString() {
+		return "BeanValidationResultImpl [propertyName=" + propertyName + ", validationResult=" + validationResult + "]";
+	}
+
 }

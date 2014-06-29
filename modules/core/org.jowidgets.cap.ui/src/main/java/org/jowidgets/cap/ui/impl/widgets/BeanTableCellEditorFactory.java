@@ -249,11 +249,7 @@ final class BeanTableCellEditorFactory extends AbstractTableCellEditorFactory<IT
 			if (!editorResult.isOk()) {
 				builder.addResult(editorResult.withContext(attribute.getCurrentLabel()), attribute.getPropertyName());
 			}
-			//prefer invalid results from the editor, because the messages may contain more informations
-			//so only add the parent result if the editors result is valid
-			if (editorResult.isValid()) {
-				builder.addResult(parentResult);
-			}
+
 			return builder.build();
 		}
 
