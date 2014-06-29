@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+    id="org.jowidgets.cap.all.feature"
+    label="jo-client-platform all feature"
+    version="0.30.0.qualifier">
+
+	<description url="http://www.example.com/description">
+		Feature that holds all cap bundles
+	</description>
+
+	<copyright url="http://www.example.com/copyright">
+		org.jowidgets Michael Grossmann 2013
+	</copyright>
+
+	<license url="http://www.example.com/license">
+		BSD Licence
+	</license>
+
+	<includes
+         id="org.jowidgets.cap.addons.common.feature"
+         version="0.0.0"/>
+
+	<includes
+         id="org.jowidgets.cap.addons.service.feature"
+         version="0.0.0"/>
+
+	<includes
+         id="org.jowidgets.cap.addons.ui.feature"
+         version="0.0.0"/>
+		 
+	<includes
+         id="org.jowidgets.cap.core.common.feature"
+         version="0.0.0"/>
+		 
+	<includes
+         id="org.jowidgets.cap.core.service.feature"
+         version="0.0.0"/>
+	
+	<includes
+         id="org.jowidgets.cap.core.ui.feature"
+         version="0.0.0"/>
+	
+	<includes
+         id="org.jowidgets.cap.plugins.feature"
+         version="0.0.0"/>
+	
+	<includes
+         id="org.jowidgets.cap.remoting.client.feature"
+         version="0.0.0"/>
+		 
+	<includes
+         id="org.jowidgets.cap.remoting.client.starter.feature"
+         version="0.0.0"/>
+		 
+	<includes
+         id="org.jowidgets.cap.remoting.common.feature"
+         version="0.0.0"/>
+		 
+	<includes
+         id="org.jowidgets.cap.remoting.server.feature"
+         version="0.0.0"/>
+	
+	<includes
+         id="org.jowidgets.cap.security.common.feature"
+         version="0.0.0"/>
+	
+	<includes
+         id="org.jowidgets.cap.security.service.feature"
+         version="0.0.0"/>
+	
+	<includes
+         id="org.jowidgets.cap.security.ui.feature"
+         version="0.0.0"/>
+		 
+	<includes
+         id="org.jowidgets.cap.service.hibernate.feature"
+         version="0.0.0"/>
+		 
+	<includes
+         id="org.jowidgets.cap.service.hibernate.oracle.feature"
+         version="0.0.0"/>
+	
+	<includes
+         id="org.jowidgets.cap.service.jpa.feature"
+         version="0.0.0"/>
+		 
+	<includes
+         id="org.jowidgets.cap.service.neo4j.feature"
+         version="0.0.0"/>
+		 
+	<includes
+         id="org.jowidgets.cap.service.repository.feature"
+         version="0.0.0"/>
+		 
+	<includes
+         id="org.jowidgets.cap.standalone.client.feature"
+         version="0.0.0"/>
+		 
+	<includes
+         id="org.jowidgets.cap.standalone.client.starter.feature"
+         version="0.0.0"/>
+		 
+	<includes
+         id="org.jowidgets.cap.util.feature"
+         version="0.0.0"/>
+
+</feature>

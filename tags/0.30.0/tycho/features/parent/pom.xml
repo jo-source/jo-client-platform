@@ -1,0 +1,40 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>org.jowidgets.cap.tycho.features.parent</artifactId>
+	<packaging>pom</packaging>
+
+	<parent>
+		<groupId>org.jowidgets</groupId>
+		<artifactId>org.jowidgets.cap.tycho.parent</artifactId>
+		<version>0.30.0-SNAPSHOT</version>
+		<relativePath>../../parent/pom.xml</relativePath>
+	</parent>
+
+	<modules>
+	    <module>../org.jowidgets.cap.addons.common.feature</module>
+		<module>../org.jowidgets.cap.addons.service.feature</module>
+		<module>../org.jowidgets.cap.addons.ui.feature</module>
+		<module>../org.jowidgets.cap.core.common.feature</module>
+		<module>../org.jowidgets.cap.core.service.feature</module>
+		<module>../org.jowidgets.cap.core.ui.feature</module>
+		<module>../org.jowidgets.cap.plugins.feature</module>
+		<module>../org.jowidgets.cap.remoting.client.feature</module>
+		<module>../org.jowidgets.cap.remoting.client.starter.feature</module>
+		<module>../org.jowidgets.cap.remoting.common.feature</module>
+		<module>../org.jowidgets.cap.remoting.server.feature</module>
+		<module>../org.jowidgets.cap.security.common.feature</module>
+		<module>../org.jowidgets.cap.security.service.feature</module>
+		<module>../org.jowidgets.cap.security.ui.feature</module>
+		<module>../org.jowidgets.cap.service.hibernate.feature</module>
+		<module>../org.jowidgets.cap.service.hibernate.oracle.feature</module>
+		<module>../org.jowidgets.cap.service.repository.feature</module>		
+		<module>../org.jowidgets.cap.service.jpa.feature</module>
+		<module>../org.jowidgets.cap.service.neo4j.feature</module>
+		<module>../org.jowidgets.cap.standalone.client.feature</module>
+		<module>../org.jowidgets.cap.standalone.client.starter.feature</module>
+		<module>../org.jowidgets.cap.util.feature</module>
+		<module>../org.jowidgets.cap.all.feature</module>
+	</modules>
+
+</project>
