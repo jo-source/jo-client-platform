@@ -337,6 +337,11 @@
 		</dependency>
 		<dependency>
 			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.unit.bundle</artifactId>
+			<version>${jowidgets.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
 			<artifactId>org.jowidgets.i18n.bundle</artifactId>
 			<version>${jowidgets.version}</version>
 		</dependency>
