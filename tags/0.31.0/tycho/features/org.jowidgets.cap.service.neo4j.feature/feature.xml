@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+    id="org.jowidgets.cap.service.neo4j.feature"
+    label="jo-client-platform neo4j service feature"
+    version="0.31.0.qualifier">
+
+	<description url="http://www.example.com/description">
+		Feature that holds all neo4j service bundles
+	</description>
+
+	<copyright url="http://www.example.com/copyright">
+		org.jowidgets Michael Grossmann 2014
+	</copyright>
+
+	<license url="http://www.example.com/license">
+		BSD Licence
+	</license>
+
+	<includes
+         id="org.jowidgets.cap.core.service.feature"
+         version="0.0.0"/>
+	
+	<plugin
+         id="org.jowidgets.cap.service.neo4j.api.bundle"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+	
+	<plugin
+         id="org.jowidgets.cap.service.neo4j.impl.bundle"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+	
+		 
+</feature>

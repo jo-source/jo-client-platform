@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+    id="org.jowidgets.cap.remoting.common.feature"
+    label="jo-client-platform remoting common feature"
+    version="0.31.0.qualifier">
+
+	<description url="http://www.example.com/description">
+		Feature that holds all cap remoting common bundles
+	</description>
+
+	<copyright url="http://www.example.com/copyright">
+		org.jowidgets Michael Grossmann 2014
+	</copyright>
+
+	<license url="http://www.example.com/license">
+		BSD Licence
+	</license>
+
+	<includes
+         id="org.jowidgets.cap.core.common.feature"
+         version="0.0.0"/>
+	
+	<plugin
+         id="org.jowidgets.cap.remoting.common.bundle"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+	
+	<plugin
+         id="org.jowidgets.message.api.bundle"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+		 
+	<plugin
+         id="org.jowidgets.invocation.common.api.bundle"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+	
+	<plugin
+         id="org.jowidgets.invocation.common.impl.bundle"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+		 
+	<plugin
+         id="org.jowidgets.invocation.service.common.api.bundle"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+		 
+</feature>
