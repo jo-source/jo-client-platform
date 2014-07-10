@@ -37,7 +37,7 @@ public interface IBeanTableCellRenderer<BEAN_TYPE> {
 
 	/**
 	 * Renders the bean tables cell. The rendering will be done, each time the bean changes.
-	 * At the moment the following changes are be suppported:
+	 * At the moment the following changes are be supported:
 	 * - PropertyChanges
 	 * - ModificationStateChanges
 	 * - ProcessStateChanges
