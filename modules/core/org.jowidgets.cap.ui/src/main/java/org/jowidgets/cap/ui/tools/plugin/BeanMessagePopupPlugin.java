@@ -35,7 +35,9 @@ import org.jowidgets.api.widgets.IComposite;
 import org.jowidgets.api.widgets.IFrame;
 import org.jowidgets.api.widgets.IIcon;
 import org.jowidgets.api.widgets.ITextLabel;
+import org.jowidgets.api.widgets.IWindow;
 import org.jowidgets.api.widgets.blueprint.IDialogBluePrint;
+import org.jowidgets.api.widgets.blueprint.IFrameBluePrint;
 import org.jowidgets.cap.ui.api.bean.BeanMessageType;
 import org.jowidgets.cap.ui.api.bean.IBeanMessage;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
@@ -53,7 +55,7 @@ public final class BeanMessagePopupPlugin implements IBeanProxyPlugin {
 	public IBeanMessage addMessage(final IBeanProxy<?> bean, final IBeanMessage message) {
 		if (message != null
 			&& (BeanMessageType.ERROR.equals(message.getType()) || BeanMessageType.WARNING.equals(message.getType()))) {
-			if (messageDialog != null) {
+			if (messageDialog != null && !messageDialog.isDisposed()) {
 				messageDialog.setMessage(message);
 			}
 			else {
@@ -72,9 +74,17 @@ public final class BeanMessagePopupPlugin implements IBeanProxyPlugin {
 		private BeanMessageDialog(final IBeanMessage message) {
 			super();
 
-			final IDialogBluePrint dialogBp = BPF.dialog().setAutoDispose(true).setModal(false);
-			dialogBp.setTitle(message.getShortMessage());
-			this.dialog = Toolkit.getActiveWindow().createChildWindow(dialogBp);
+			final IWindow activeWindow = Toolkit.getActiveWindow();
+			if (activeWindow != null) {
+				final IDialogBluePrint dialogBp = BPF.dialog().setAutoDispose(true).setModal(false);
+				dialogBp.setTitle(message.getShortMessage());
+				this.dialog = activeWindow.createChildWindow(dialogBp);
+			}
+			else {
+				final IFrameBluePrint dialogBp = BPF.frame().setAutoDispose(true);
+				dialogBp.setTitle(message.getShortMessage());
+				this.dialog = Toolkit.createRootFrame(dialogBp);
+			}
 
 			dialog.setLayout(new MigLayoutDescriptor("[]20[grow]", "15[][]"));
 			this.icon = dialog.add(BPF.icon(getIcon(message)));
@@ -119,6 +129,10 @@ public final class BeanMessagePopupPlugin implements IBeanProxyPlugin {
 			else {
 				throw new IllegalArgumentException("Only error and warning is suppported");
 			}
+		}
+
+		private boolean isDisposed() {
+			return dialog.isDisposed();
 		}
 	}
 }
