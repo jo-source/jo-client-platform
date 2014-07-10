@@ -75,7 +75,7 @@ final class DeleterActionBuilder<BEAN_TYPE> extends AbstractCapActionBuilderImpl
 	private boolean autoSelection;
 	private boolean deletionConfirmDialog;
 
-	private final BeanModificationStatePolicy beanModificationStatePolicy;
+	private BeanModificationStatePolicy beanModificationStatePolicy;
 	private BeanMessageStatePolicy beanMessageStatePolicy;
 	private IBeanExceptionConverter exceptionConverter;
 
@@ -91,8 +91,8 @@ final class DeleterActionBuilder<BEAN_TYPE> extends AbstractCapActionBuilderImpl
 		this.multiSelection = true;
 		this.autoSelection = true;
 		this.deletionConfirmDialog = true;
-		this.beanModificationStatePolicy = BeanModificationStatePolicy.NO_MODIFICATION;
-		this.beanMessageStatePolicy = BeanMessageStatePolicy.NO_WARNING_OR_ERROR;
+		this.beanModificationStatePolicy = BeanModificationStatePolicy.ANY_MODIFICATION;
+		this.beanMessageStatePolicy = BeanMessageStatePolicy.NO_ERROR_MANDATORY;
 
 		setAccelerator(VirtualKey.DELETE);
 		setIcon(IconsSmall.DELETE);
@@ -158,6 +158,14 @@ final class DeleterActionBuilder<BEAN_TYPE> extends AbstractCapActionBuilderImpl
 		checkExhausted();
 		Assert.paramNotNull(policy, "policy");
 		this.beanMessageStatePolicy = policy;
+		return this;
+	}
+
+	@Override
+	public IDeleterActionBuilder<BEAN_TYPE> setModificationStatePolicy(final BeanModificationStatePolicy policy) {
+		checkExhausted();
+		Assert.paramNotNull(policy, "policy");
+		this.beanModificationStatePolicy = policy;
 		return this;
 	}
 

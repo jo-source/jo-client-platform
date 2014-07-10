@@ -33,6 +33,7 @@ import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.service.IDeleterService;
 import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
 import org.jowidgets.cap.ui.api.execution.BeanMessageStatePolicy;
+import org.jowidgets.cap.ui.api.execution.BeanModificationStatePolicy;
 import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
 import org.jowidgets.service.api.IServiceId;
 
@@ -69,6 +70,8 @@ public interface IDeleterActionBuilder<BEAN_TYPE> extends ICapActionBuilder<IDel
 	IDeleterActionBuilder<BEAN_TYPE> setMultiSelectionPolicy(boolean multiSelection);
 
 	IDeleterActionBuilder<BEAN_TYPE> setMessageStatePolicy(BeanMessageStatePolicy policy);
+
+	IDeleterActionBuilder<BEAN_TYPE> setModificationStatePolicy(BeanModificationStatePolicy policy);
 
 	IDeleterActionBuilder<BEAN_TYPE> addEnabledChecker(IEnabledChecker enabledChecker);
 
