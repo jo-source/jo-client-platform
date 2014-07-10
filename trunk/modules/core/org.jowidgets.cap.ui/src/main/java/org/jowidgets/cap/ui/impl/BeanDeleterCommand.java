@@ -155,6 +155,7 @@ final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 
 		if (deletionConfirmDialog) {
 			if (!showDeletionConfirmDialog(executionContext, beanSelection)) {
+				executionObservable.fireAfterExecutionCanceled(executionContext);
 				return;
 			}
 		}
@@ -208,7 +209,7 @@ final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 		}
 		model.fireBeansChanged();
 		executionObservable.fireAfterExecutionPrepared(executionContext);
-		if (!beans.isEmpty() || beanKeys.isEmpty()) {
+		if (!beanKeys.isEmpty()) {
 			deleterService.delete(new ResultCallback(executionContext, beans), beanKeys, executionTask);
 		}
 	}
