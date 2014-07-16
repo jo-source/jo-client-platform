@@ -157,7 +157,13 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 							final IBeanProxyFactory<LINK_BEAN_TYPE> proxyFactory = CapUiToolkit.beanProxyFactory(
 									linkBeanTypeId,
 									linkBeanType);
-							return proxyFactory.createTransientProxy(attributes, defaultValues);
+
+							final IBeanProxy<LINK_BEAN_TYPE> result = proxyFactory.createTransientProxy(attributes, defaultValues);
+							result.addBeanPropertyValidator(new BeanPropertyValidatorImpl<LINK_BEAN_TYPE>(attributes));
+							for (final IBeanValidator beanValidator : descriptor.getValidators()) {
+								result.addBeanPropertyValidator(new BeanPropertyValidatorAdapter<LINK_BEAN_TYPE>(beanValidator));
+							}
+							return result;
 						}
 					});
 

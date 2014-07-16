@@ -404,6 +404,7 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 			}
 			final IBeanProxyFactory<BEAN_TYPE> proxyFactory = CapUiToolkit.beanProxyFactory(beanTypeId, beanType);
 			final IBeanProxy<BEAN_TYPE> result = proxyFactory.createTransientProxy(attributes, defaultValues);
+			result.addBeanPropertyValidator(new BeanPropertyValidatorImpl<BEAN_TYPE>(attributes));
 			for (final IBeanPropertyValidator<BEAN_TYPE> validator : validators) {
 				result.addBeanPropertyValidator(validator);
 			}
