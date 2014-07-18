@@ -117,10 +117,6 @@ final class BeanTableCellEditorFactory extends AbstractTableCellEditorFactory<IT
 		if (editMode || (System.currentTimeMillis() - editModeStopped < 100)) {
 			return EditActivation.SINGLE_CLICK;
 		}
-		final IBeanProxy<?> bean = model.getBean(row);
-		if (bean != null && bean.isLastRowDummy()) {
-			return EditActivation.SINGLE_CLICK;
-		}
 		else {
 			return super.getActivation(cell, row, column, editMode, editModeStopped);
 		}
