@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.ui.impl.widgets;
 
+import org.jowidgets.api.controller.IDisposeListener;
 import org.jowidgets.api.image.IconsSmall;
 import org.jowidgets.api.model.item.ICheckedItemModel;
 import org.jowidgets.api.model.item.ICheckedItemModelBuilder;
@@ -121,6 +122,13 @@ final class BeanTableFilterToolbar<BEAN_TYPE> {
 		};
 		itemModel.addItemListener(itemListener);
 		toolBarComposite.setVisible(false);
+
+		table.addDisposeListener(new IDisposeListener() {
+			@Override
+			public void onDispose() {
+				model.removeFilterChangeListener(filterChangeListener);
+			}
+		});
 	}
 
 	private ICheckedItemModel createItemModel() {
