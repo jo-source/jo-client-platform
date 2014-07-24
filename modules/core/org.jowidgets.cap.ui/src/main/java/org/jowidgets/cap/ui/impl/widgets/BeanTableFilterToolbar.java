@@ -123,10 +123,12 @@ final class BeanTableFilterToolbar<BEAN_TYPE> {
 		itemModel.addItemListener(itemListener);
 		toolBarComposite.setVisible(false);
 
-		table.addDisposeListener(new IDisposeListener() {
+		toolBar.addDisposeListener(new IDisposeListener() {
 			@Override
 			public void onDispose() {
-				model.removeFilterChangeListener(filterChangeListener);
+				if (!model.isDisposed()) {
+					model.removeFilterChangeListener(filterChangeListener);
+				}
 			}
 		});
 	}
