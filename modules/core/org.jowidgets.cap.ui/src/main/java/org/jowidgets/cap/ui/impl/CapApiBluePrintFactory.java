@@ -29,7 +29,6 @@
 package org.jowidgets.cap.ui.impl;
 
 import java.util.Collection;
-import java.util.List;
 
 import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.api.convert.IConverter;
@@ -235,7 +234,7 @@ final class CapApiBluePrintFactory implements ICapApiBluePrintFactory {
 	}
 
 	@Override
-	public IAttributeFilterControlBluePrint attributeFilterControl(final List<? extends IAttribute<?>> attributes) {
+	public IAttributeFilterControlBluePrint attributeFilterControl(final Collection<? extends IAttribute<?>> attributes) {
 		Assert.paramNotNull(attributes, "attributes");
 		final IAttributeFilterControlBluePrint result = bluePrintFactory.bluePrint(IAttributeFilterControlBluePrint.class);
 		result.setAttributes(attributes);

@@ -41,6 +41,10 @@ final class BeanValidationResultImpl implements IBeanValidationResult, Serializa
 	private final String propertyName;
 	private final IValidationResult validationResult;
 
+	BeanValidationResultImpl(final String context, final IBeanValidationResult original) {
+		this(original.getPropertyName(), original.getValidationResult().withContext(context));
+	}
+
 	BeanValidationResultImpl(final String propertyName, final IValidationResult validationResult) {
 		Assert.paramNotNull(validationResult, "validationResult");
 		this.propertyName = propertyName;

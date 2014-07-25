@@ -28,7 +28,7 @@
 
 package org.jowidgets.cap.ui.impl;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.IComposite;
@@ -72,7 +72,7 @@ final class ArithmeticPropertyFilterPanelProviderImpl<ELEMENT_VALUE_TYPE> implem
 	}
 
 	@Override
-	public boolean isApplicableWith(final List<IAttribute<?>> attributes) {
+	public boolean isApplicableWith(final Collection<IAttribute<?>> attributes) {
 		Assert.paramNotNull(attributes, "attributes");
 		//there must be at least one attribute this attribute could be compared with
 		for (final IAttribute<?> attribute : attributes) {
@@ -91,7 +91,7 @@ final class ArithmeticPropertyFilterPanelProviderImpl<ELEMENT_VALUE_TYPE> implem
 	@Override
 	public IFilterControl<ArithmeticOperator, ?, ?> create(
 		final ICustomWidgetFactory widgetFactory,
-		final List<? extends IAttribute<?>> attributes) {
+		final Collection<? extends IAttribute<?>> attributes) {
 		final IComposite composite = widgetFactory.create(Toolkit.getBluePrintFactory().composite());
 		return new ArithmeticPropertyFilterControl<ELEMENT_VALUE_TYPE>(
 			propertyName,

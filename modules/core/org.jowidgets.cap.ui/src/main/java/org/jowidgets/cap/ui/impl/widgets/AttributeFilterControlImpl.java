@@ -28,8 +28,8 @@
 
 package org.jowidgets.cap.ui.impl.widgets;
 
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.jowidgets.api.convert.IObjectStringConverter;
@@ -66,7 +66,7 @@ final class AttributeFilterControlImpl extends AbstractInputControl<IUiConfigura
 
 	private static final IMessage NOT = Messages.getMessage("AttributeFilterControlImpl.not");
 
-	private final List<IAttribute<?>> attributes;
+	private final Collection<IAttribute<?>> attributes;
 	private final Map<String, IAttribute<?>> attributesMap;
 
 	private final IInputListener inputListener;
@@ -187,7 +187,7 @@ final class AttributeFilterControlImpl extends AbstractInputControl<IUiConfigura
 		return result;
 	}
 
-	private static Map<String, IAttribute<?>> createAttributesMap(final List<IAttribute<?>> attributes) {
+	private static Map<String, IAttribute<?>> createAttributesMap(final Collection<IAttribute<?>> attributes) {
 		final Map<String, IAttribute<?>> result = new HashMap<String, IAttribute<?>>();
 		for (final IAttribute<?> attribute : attributes) {
 			result.put(attribute.getPropertyName(), attribute);

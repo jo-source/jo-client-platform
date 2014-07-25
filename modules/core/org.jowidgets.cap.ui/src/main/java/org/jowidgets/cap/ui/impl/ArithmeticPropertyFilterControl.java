@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.ui.impl;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -89,7 +90,7 @@ public class ArithmeticPropertyFilterControl<ELEMENT_VALUE_TYPE> extends
 	ArithmeticPropertyFilterControl(
 		final String propertyName,
 		final IOperatorProvider<ArithmeticOperator> operatorProvider,
-		final List<? extends IAttribute<?>> attributes,
+		final Collection<? extends IAttribute<?>> attributes,
 		final IAttributeFilter attributeFilter,
 		final IComposite composite) {
 		super(composite);
@@ -122,7 +123,7 @@ public class ArithmeticPropertyFilterControl<ELEMENT_VALUE_TYPE> extends
 
 	private static List<IAttribute<?>> getFilteredAttributes(
 		final String propertyName,
-		final List<? extends IAttribute<?>> attributes,
+		final Collection<? extends IAttribute<?>> attributes,
 		final IAttributeFilter attributeFilter) {
 
 		final List<IAttribute<?>> result = new LinkedList<IAttribute<?>>();

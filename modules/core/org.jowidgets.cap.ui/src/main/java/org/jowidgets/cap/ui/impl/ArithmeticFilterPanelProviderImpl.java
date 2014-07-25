@@ -29,7 +29,6 @@
 package org.jowidgets.cap.ui.impl;
 
 import java.util.Collection;
-import java.util.List;
 
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.IComposite;
@@ -84,14 +83,14 @@ final class ArithmeticFilterPanelProviderImpl<ELEMENT_VALUE_TYPE> implements
 	}
 
 	@Override
-	public boolean isApplicableWith(final List<IAttribute<?>> attributes) {
+	public boolean isApplicableWith(final Collection<IAttribute<?>> attributes) {
 		return true;
 	}
 
 	@Override
 	public IFilterControl<ArithmeticOperator, ?, ?> create(
 		final ICustomWidgetFactory widgetFactory,
-		final List<? extends IAttribute<?>> attributes) {
+		final Collection<? extends IAttribute<?>> attributes) {
 		final IComposite composite = widgetFactory.create(Toolkit.getBluePrintFactory().composite());
 		return new DefaultArithmeticFilterControl<ELEMENT_VALUE_TYPE>(
 			propertyName,

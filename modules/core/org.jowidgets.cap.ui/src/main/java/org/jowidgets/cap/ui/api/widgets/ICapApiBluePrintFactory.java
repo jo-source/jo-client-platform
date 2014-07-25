@@ -29,7 +29,6 @@
 package org.jowidgets.cap.ui.api.widgets;
 
 import java.util.Collection;
-import java.util.List;
 
 import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.api.convert.IConverter;
@@ -86,7 +85,7 @@ public interface ICapApiBluePrintFactory {
 
 	<BEAN_TYPE> ISingleBeanFormBluePrint<BEAN_TYPE> singleBeanForm(ISingleBeanModel<BEAN_TYPE> model);
 
-	IAttributeFilterControlBluePrint attributeFilterControl(List<? extends IAttribute<?>> attributes);
+	IAttributeFilterControlBluePrint attributeFilterControl(Collection<? extends IAttribute<?>> attributes);
 
 	<KEY_TYPE> ILookUpComboBoxSelectionBluePrint<KEY_TYPE> lookUpComboBox(Object lookUpId, IConverter<KEY_TYPE> converter);
 

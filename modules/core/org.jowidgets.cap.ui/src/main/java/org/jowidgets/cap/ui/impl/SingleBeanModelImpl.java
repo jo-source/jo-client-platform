@@ -54,9 +54,11 @@ import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.common.api.validation.IBeanValidator;
 import org.jowidgets.cap.common.tools.bean.BeanKey;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.cap.ui.api.attribute.AttributeSet;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeCollectionModifierBuilder;
 import org.jowidgets.cap.ui.api.attribute.IAttributeFilter;
+import org.jowidgets.cap.ui.api.attribute.IAttributeSet;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
 import org.jowidgets.cap.ui.api.bean.BeanMessageType;
 import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
@@ -114,8 +116,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 
 	private final IBeanSelectionProvider<Object> parent;
 	private final LinkType linkType;
-	private final List<IAttribute<Object>> attributes;
-	private final List<String> propertyNames;
+	private final IAttributeSet attributeSet;
 	private final Map<String, Object> defaultValues;
 
 	private final ChangeObservable changeObservable;
@@ -179,12 +180,10 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 			attributes = createReadonlyAttributes(attributes);
 		}
 
-		this.attributes = Collections.unmodifiableList(new LinkedList<IAttribute<Object>>(attributes));
-		this.propertyNames = new LinkedList<String>();
+		this.attributeSet = AttributeSet.create(attributes);
 		this.defaultValues = new HashMap<String, Object>();
 		for (final IAttribute<?> attribute : attributes) {
 			final String propertyName = attribute.getPropertyName();
-			propertyNames.add(propertyName);
 			final Object defaultValue = attribute.getDefaultValue();
 			if (defaultValue != null) {
 				defaultValues.put(propertyName, defaultValue);
@@ -229,7 +228,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 			BeanExecutionPolicy.BATCH,
 			updaterService,
 			creatorService,
-			propertyNames,
+			this.attributeSet.getPropertyNames(),
 			parentBeansProvider);
 
 		this.refreshDelegate = new BeanListRefreshDelegate<BEAN_TYPE>(
@@ -293,35 +292,28 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 
 	@Override
 	public IAttribute<Object> getAttribute(final int columnIndex) {
-		return attributes.get(columnIndex);
+		return attributeSet.getAttribute(columnIndex);
 	}
 
 	@Override
 	public IAttribute<Object> getAttribute(final String propertyName) {
 		Assert.paramNotNull(propertyName, "propertyName");
-		for (final IAttribute<Object> attribute : attributes) {
-			if (propertyName.equals(attribute.getPropertyName())) {
-				return attribute;
-			}
-		}
-		return null;
+		return attributeSet.getAttribute(propertyName);
 	}
 
 	@Override
-	public List<IAttribute<Object>> getAttributes() {
-		return attributes;
+	public Collection<IAttribute<Object>> getAttributes() {
+		return attributeSet.getAttributes();
 	}
 
 	@Override
-	public List<IAttribute<Object>> getAttributes(final IAttributeFilter filter) {
-		Assert.paramNotNull(filter, "filter");
-		final List<IAttribute<Object>> result = new LinkedList<IAttribute<Object>>();
-		for (final IAttribute<Object> attribute : attributes) {
-			if (filter.accept(attribute)) {
-				result.add(attribute);
-			}
-		}
-		return Collections.unmodifiableList(result);
+	public Collection<IAttribute<Object>> getAttributes(final IAttributeFilter filter) {
+		return attributeSet.getAttributes(filter);
+	}
+
+	@Override
+	public IAttributeSet getAttributeSet() {
+		return attributeSet;
 	}
 
 	@Override
@@ -543,18 +535,18 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 	}
 
 	private IBeanProxy<BEAN_TYPE> createBeanProxy(final IBeanDto beanDto) {
-		final IBeanProxy<BEAN_TYPE> beanProxy = beanProxyFactory.createProxy(beanDto, attributes);
-		for (final IBeanPropertyValidator<BEAN_TYPE> validator : beanPropertyValidators) {
-			beanProxy.addBeanPropertyValidator(validator);
+		final IBeanProxy<BEAN_TYPE> beanProxy = beanProxyFactory.createProxy(beanDto, attributeSet);
+		if (!EmptyCheck.isEmpty(beanPropertyValidators)) {
+			beanProxy.addBeanPropertyValidators(beanPropertyValidators);
 		}
 		return beanProxy;
 	}
 
 	@Override
 	public IBeanProxy<BEAN_TYPE> addTransientBean() {
-		final IBeanProxy<BEAN_TYPE> result = beanProxyFactory.createTransientProxy(attributes, defaultValues);
-		for (final IBeanPropertyValidator<BEAN_TYPE> validator : beanPropertyValidators) {
-			result.addBeanPropertyValidator(validator);
+		final IBeanProxy<BEAN_TYPE> result = beanProxyFactory.createTransientProxy(attributeSet, defaultValues);
+		if (!EmptyCheck.isEmpty(beanPropertyValidators)) {
+			result.addBeanPropertyValidators(beanPropertyValidators);
 		}
 		addBean(result);
 		return result;
@@ -666,7 +658,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 				}
 			});
 
-			dummyBean = beanProxyFactory.createDummyProxy(attributes);
+			dummyBean = beanProxyFactory.createDummyProxy(attributeSet);
 			beansStateTracker.register(dummyBean);
 			dummyBean.setExecutionTask(executionTask);
 
@@ -727,9 +719,9 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 
 			if (beanDtos.size() > 0) {
 				final IBeanDto beanDto = beanDtos.iterator().next();
-				bean = beanProxyFactory.createProxy(beanDto, attributes);
-				for (final IBeanPropertyValidator<BEAN_TYPE> validator : beanPropertyValidators) {
-					bean.addBeanPropertyValidator(validator);
+				bean = beanProxyFactory.createProxy(beanDto, attributeSet);
+				if (!EmptyCheck.isEmpty(beanPropertyValidators)) {
+					bean.addBeanPropertyValidators(beanPropertyValidators);
 				}
 				beansStateTracker.register(bean);
 			}

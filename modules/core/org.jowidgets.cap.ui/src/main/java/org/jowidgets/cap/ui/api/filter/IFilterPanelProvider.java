@@ -28,7 +28,7 @@
 
 package org.jowidgets.cap.ui.api.filter;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.jowidgets.cap.common.api.filter.IOperator;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
@@ -39,7 +39,7 @@ public interface IFilterPanelProvider<OPERATOR_TYPE extends IOperator> {
 
 	IFilterControlCreator<OPERATOR_TYPE> getFilterControlCreator();
 
-	boolean isApplicableWith(List<IAttribute<?>> attributes);
+	boolean isApplicableWith(Collection<IAttribute<?>> attributes);
 
 	IOperatorProvider<OPERATOR_TYPE> getOperatorProvider();
 

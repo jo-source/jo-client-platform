@@ -63,7 +63,9 @@ import org.jowidgets.cap.common.api.validation.IBeanValidator;
 import org.jowidgets.cap.common.tools.bean.BeanKey;
 import org.jowidgets.cap.common.tools.execution.ResultCallbackAdapter;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.cap.ui.api.attribute.AttributeSet;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.cap.ui.api.attribute.IAttributeSet;
 import org.jowidgets.cap.ui.api.bean.BeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanMessage;
@@ -132,7 +134,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 	private final BeanListRefreshDelegate<CHILD_BEAN_TYPE> refreshDelegate;
 	private final ISortModel sortModel;
 	private final List<IBeanPropertyValidator<CHILD_BEAN_TYPE>> beanPropertyValidators;
-	private final List<IAttribute<Object>> childBeanAttributes;
+	private final IAttributeSet childBeanAttributeSet;
 	private final List<String> propertyNames;
 	private final Map<String, Object> defaultValues;
 	private final IBeanExceptionConverter exceptionConverter;
@@ -205,7 +207,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 		this.clearOnTransientParent = clearOnTransientParent;
 		this.readerParameterProvider = (IProvider<Object>) readerParameterProvider;
 		this.creatorService = creatorService;
-		this.childBeanAttributes = Collections.unmodifiableList(new LinkedList<IAttribute<Object>>(childBeanAttributes));
+		this.childBeanAttributeSet = AttributeSet.create(childBeanAttributes);
 		this.exceptionConverter = exceptionConverter;
 
 		this.beanPropertyValidators = new LinkedList<IBeanPropertyValidator<CHILD_BEAN_TYPE>>();
@@ -426,8 +428,13 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 	}
 
 	@Override
-	public List<IAttribute<Object>> getChildBeanAttributes() {
-		return childBeanAttributes;
+	public Collection<IAttribute<Object>> getChildBeanAttributes() {
+		return childBeanAttributeSet.getAttributes();
+	}
+
+	@Override
+	public IAttributeSet getChildBeanAttributeSet() {
+		return childBeanAttributeSet;
 	}
 
 	@Override
@@ -673,18 +680,18 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 
 	@Override
 	public IBeanProxy<CHILD_BEAN_TYPE> addTransientBean() {
-		final IBeanProxy<CHILD_BEAN_TYPE> result = beanProxyFactory.createTransientProxy(childBeanAttributes, defaultValues);
-		for (final IBeanPropertyValidator<CHILD_BEAN_TYPE> validator : beanPropertyValidators) {
-			result.addBeanPropertyValidator(validator);
+		final IBeanProxy<CHILD_BEAN_TYPE> result = beanProxyFactory.createTransientProxy(childBeanAttributeSet, defaultValues);
+		if (!EmptyCheck.isEmpty(beanPropertyValidators)) {
+			result.addBeanPropertyValidators(beanPropertyValidators);
 		}
 		addBean(result);
 		return result;
 	}
 
 	private IBeanProxy<CHILD_BEAN_TYPE> createBeanProxy(final IBeanDto beanDto) {
-		final IBeanProxy<CHILD_BEAN_TYPE> beanProxy = beanProxyFactory.createProxy(beanDto, childBeanAttributes);
-		for (final IBeanPropertyValidator<CHILD_BEAN_TYPE> validator : beanPropertyValidators) {
-			beanProxy.addBeanPropertyValidator(validator);
+		final IBeanProxy<CHILD_BEAN_TYPE> beanProxy = beanProxyFactory.createProxy(beanDto, childBeanAttributeSet);
+		if (!EmptyCheck.isEmpty(beanPropertyValidators)) {
+			beanProxy.addBeanPropertyValidators(beanPropertyValidators);
 		}
 		return beanProxy;
 	}
@@ -928,7 +935,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 				}
 			});
 
-			dummyBean = beanProxyFactory.createDummyProxy(childBeanAttributes);
+			dummyBean = beanProxyFactory.createDummyProxy(childBeanAttributeSet);
 			beanStateTracker.register(dummyBean);
 			dummyBean.setExecutionTask(executionTask);
 			addedData.add(dummyBean);
@@ -998,7 +1005,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 			}
 
 			if (beanDtos.size() > pageSize) {
-				endOfPageDummy = beanProxyFactory.createDummyProxy(childBeanAttributes);
+				endOfPageDummy = beanProxyFactory.createDummyProxy(childBeanAttributeSet);
 				endOfPageDummy.setCustomProperty(IS_PAGE_END_DUMMY, Boolean.TRUE);
 			}
 

@@ -41,6 +41,7 @@ import org.jowidgets.cap.ui.api.attribute.IAttributeBuilder;
 import org.jowidgets.cap.ui.api.attribute.IAttributeCollectionModifier;
 import org.jowidgets.cap.ui.api.attribute.IAttributeCollectionModifierBuilder;
 import org.jowidgets.cap.ui.api.attribute.IAttributeFilterFactory;
+import org.jowidgets.cap.ui.api.attribute.IAttributeSet;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
 import org.jowidgets.cap.ui.api.attribute.IBeanAttributeBuilder;
 import org.jowidgets.cap.ui.api.attribute.IBeanAttributesBuilder;
@@ -201,6 +202,13 @@ final class AttributeToolkitImpl implements IAttributeToolkit {
 			elementValueType,
 			valueRange,
 			cardinality);
+	}
+
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	@Override
+	public IAttributeSet attributeSet(final Collection attributes) {
+		Assert.paramNotNull(attributes, "attributes");
+		return new AttributeSetImpl(attributes);
 	}
 
 }
