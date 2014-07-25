@@ -89,4 +89,6 @@ public interface IAttributeToolkit {
 		IValueRange valueRange,
 		Cardinality cardinality);
 
+	IAttributeSet attributeSet(Collection<? extends IAttribute<?>> attributes);
+
 }

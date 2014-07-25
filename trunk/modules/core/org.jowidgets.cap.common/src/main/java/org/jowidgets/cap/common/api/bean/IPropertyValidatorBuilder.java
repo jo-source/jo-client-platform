@@ -46,5 +46,14 @@ public interface IPropertyValidatorBuilder {
 
 	IPropertyValidatorBuilder addElementTypeValidator(IValidator<? extends Object> validator);
 
+	/**
+	 * Builds the validator if any validator (except validator) was added, otherwise null will be returned
+	 * 
+	 * @param valueType The value type
+	 * @param allonullIfEmpty If set to true, null will be returned if no validators was added
+	 * @return The validator or null
+	 */
+	IValidator<Object> build(Class<?> valueType, boolean nullIfEmpty);
+
 	IValidator<Object> build(Class<?> valueType);
 }

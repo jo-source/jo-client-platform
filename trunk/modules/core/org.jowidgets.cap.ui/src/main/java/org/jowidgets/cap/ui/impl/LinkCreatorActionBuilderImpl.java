@@ -51,7 +51,9 @@ import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.common.api.service.ILinkCreatorService;
 import org.jowidgets.cap.common.api.validation.IBeanValidator;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.cap.ui.api.attribute.AttributeSet;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.cap.ui.api.attribute.IAttributeSet;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
 import org.jowidgets.cap.ui.api.bean.BeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
@@ -144,6 +146,9 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 					setLinkBeanTypeId(descriptor.getBeanTypeId());
 					final List<IAttribute<Object>> attributes = createAttributes(descriptor);
 					setLinkDefaultFactory(new IFactory<IBeanProxy<LINK_BEAN_TYPE>>() {
+
+						private final IAttributeSet attributeSet = AttributeSet.create(attributes);
+
 						@Override
 						public IBeanProxy<LINK_BEAN_TYPE> create() {
 							final HashMap<String, Object> defaultValues = new HashMap<String, Object>();
@@ -158,10 +163,12 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 									linkBeanTypeId,
 									linkBeanType);
 
-							final IBeanProxy<LINK_BEAN_TYPE> result = proxyFactory.createTransientProxy(attributes, defaultValues);
+							final IBeanProxy<LINK_BEAN_TYPE> result = proxyFactory.createTransientProxy(
+									attributeSet,
+									defaultValues);
 							result.addBeanPropertyValidator(new BeanPropertyValidatorImpl<LINK_BEAN_TYPE>(attributes));
-							for (final IBeanValidator beanValidator : descriptor.getValidators()) {
-								result.addBeanPropertyValidator(new BeanPropertyValidatorAdapter<LINK_BEAN_TYPE>(beanValidator));
+							if (!EmptyCheck.isEmpty(descriptor.getValidators())) {
+								result.addBeanPropertyValidators((Collection<? extends IBeanPropertyValidator<LINK_BEAN_TYPE>>) descriptor.getValidators());
 							}
 							return result;
 						}

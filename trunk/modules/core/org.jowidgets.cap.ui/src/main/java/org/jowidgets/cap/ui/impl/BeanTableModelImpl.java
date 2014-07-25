@@ -84,10 +84,12 @@ import org.jowidgets.cap.common.api.validation.IBeanValidator;
 import org.jowidgets.cap.common.tools.bean.BeanKey;
 import org.jowidgets.cap.common.tools.execution.ResultCallbackAdapter;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.cap.ui.api.attribute.AttributeSet;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeCollectionModifierBuilder;
 import org.jowidgets.cap.ui.api.attribute.IAttributeConfig;
 import org.jowidgets.cap.ui.api.attribute.IAttributeFilter;
+import org.jowidgets.cap.ui.api.attribute.IAttributeSet;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
 import org.jowidgets.cap.ui.api.bean.BeanMessageType;
@@ -193,9 +195,8 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	private final IBeanProxyFactory<BEAN_TYPE> beanProxyFactory;
 	private final IBeansStateTracker<BEAN_TYPE> beansStateTracker;
 	private final IBeanProxyContext beanProxyContext;
-	private final ArrayList<IAttribute<Object>> attributes;
+	private final IAttributeSet attributeSet;
 	private final Map<String, Object> defaultValues;
-	private final List<String> propertyNames;
 	private final List<IBeanPropertyValidator<BEAN_TYPE>> beanPropertyValidators;
 	private final List<IBeanPropertyValidator<BEAN_TYPE>> beanPropertyValidatorsView;
 
@@ -334,7 +335,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			attributes = createReadonlyAttributes(attributes);
 		}
 
-		this.attributes = new ArrayList<IAttribute<Object>>(attributes);
+		this.attributeSet = AttributeSet.create(attributes);
 
 		final List<String> mutablePropertyNames = new LinkedList<String>();
 		this.defaultValues = new HashMap<String, Object>();
@@ -346,7 +347,6 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 				defaultValues.put(propertyName, defaultValue);
 			}
 		}
-		this.propertyNames = Collections.unmodifiableList(mutablePropertyNames);
 
 		this.readerService = (IReaderService<Object>) readerService;
 		this.cachedReaderService = new CachedBeanListReaderService<Object, BEAN_TYPE>(this.readerService, pageSize);
@@ -421,7 +421,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			BeanExecutionPolicy.BATCH,
 			updaterService,
 			creatorService,
-			propertyNames,
+			this.attributeSet.getPropertyNames(),
 			parentBeansProvider);
 
 		this.refreshDelegate = new BeanListRefreshDelegate<BEAN_TYPE>(
@@ -488,7 +488,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 	private void addLastBean() {
 		if (lastBean == null) {
-			lastBean = beanProxyFactory.createLastRowDummyProxy(attributes);
+			lastBean = beanProxyFactory.createLastRowDummyProxy(attributeSet);
 			lastBean.addBeanPropertyValidators(beanPropertyValidators);
 
 			final ValueHolder<PropertyChangeListener> listenerHolder = new ValueHolder<PropertyChangeListener>();
@@ -1249,18 +1249,18 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 	@Override
 	public IBeanProxy<BEAN_TYPE> addTransientBean() {
-		final IBeanProxy<BEAN_TYPE> result = beanProxyFactory.createTransientProxy(attributes, defaultValues);
-		for (final IBeanPropertyValidator<BEAN_TYPE> validator : beanPropertyValidators) {
-			result.addBeanPropertyValidator(validator);
+		final IBeanProxy<BEAN_TYPE> result = beanProxyFactory.createTransientProxy(attributeSet, defaultValues);
+		if (!EmptyCheck.isEmpty(beanPropertyValidators)) {
+			result.addBeanPropertyValidators(beanPropertyValidators);
 		}
 		addBean(result);
 		return result;
 	}
 
 	private IBeanProxy<BEAN_TYPE> createBeanProxy(final IBeanDto beanDto) {
-		final IBeanProxy<BEAN_TYPE> beanProxy = beanProxyFactory.createProxy(beanDto, attributes);
-		for (final IBeanPropertyValidator<BEAN_TYPE> validator : beanPropertyValidators) {
-			beanProxy.addBeanPropertyValidator(validator);
+		final IBeanProxy<BEAN_TYPE> beanProxy = beanProxyFactory.createProxy(beanDto, attributeSet);
+		if (!EmptyCheck.isEmpty(beanPropertyValidators)) {
+			beanProxy.addBeanPropertyValidators(beanPropertyValidators);
 		}
 		return beanProxy;
 	}
@@ -1439,13 +1439,13 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 	@Override
 	public IAttribute<Object> getAttribute(final int columnIndex) {
-		return attributes.get(columnIndex);
+		return attributeSet.getAttribute(columnIndex);
 	}
 
 	@Override
 	public IAttribute<Object> getAttribute(final String propertyName) {
 		Assert.paramNotNull(propertyName, "propertyName");
-		for (final IAttribute<Object> attribute : attributes) {
+		for (final IAttribute<Object> attribute : attributeSet) {
 			if (propertyName.equals(attribute.getPropertyName())) {
 				return attribute;
 			}
@@ -1454,25 +1454,24 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	}
 
 	@Override
-	public List<IAttribute<Object>> getAttributes() {
-		return Collections.unmodifiableList(attributes);
+	public Collection<IAttribute<Object>> getAttributes() {
+		return attributeSet.getAttributes();
 	}
 
 	@Override
-	public List<String> getPropertyNames() {
-		return propertyNames;
+	public Collection<String> getPropertyNames() {
+		return attributeSet.getPropertyNames();
 	}
 
 	@Override
-	public List<IAttribute<Object>> getAttributes(final IAttributeFilter filter) {
+	public Collection<IAttribute<Object>> getAttributes(final IAttributeFilter filter) {
 		Assert.paramNotNull(filter, "filter");
-		final List<IAttribute<Object>> result = new LinkedList<IAttribute<Object>>();
-		for (final IAttribute<Object> attribute : attributes) {
-			if (filter.accept(attribute)) {
-				result.add(attribute);
-			}
-		}
-		return Collections.unmodifiableList(result);
+		return attributeSet.getAttributes(filter);
+	}
+
+	@Override
+	public IAttributeSet getAttributeSet() {
+		return attributeSet;
 	}
 
 	@Override
@@ -1499,7 +1498,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 	@Override
 	public int getColumnCount() {
-		return attributes.size();
+		return attributeSet.size();
 	}
 
 	@Override
@@ -1729,7 +1728,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		onSetConfig = true;
 		final Map<String, IAttributeConfig> attributeConfigs = config.getAttributeConfigs();
 		if (attributeConfigs != null) {
-			for (final IAttribute<Object> attribute : attributes) {
+			for (final IAttribute<Object> attribute : attributeSet) {
 				final IAttributeConfig attributeConfig = attributeConfigs.get(attribute.getPropertyName());
 				if (attributeConfig != null) {
 					attribute.setConfig(attributeConfig);
@@ -1755,7 +1754,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	@Override
 	public IBeanTableModelConfig getConfig() {
 		final IBeanTableModelConfigBuilder builder = CapUiToolkit.beanTableModelConfigBuilder();
-		for (final IAttribute<Object> attribute : attributes) {
+		for (final IAttribute<Object> attribute : attributeSet) {
 			builder.addAttributeConfig(attribute);
 		}
 		builder.setAutoSelection(autoSelection);
@@ -1908,7 +1907,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 				countLoader.loadCount();
 			}
 
-			final IAttribute<Object> attribute = attributes.get(columnIndex);
+			final IAttribute<Object> attribute = attributeSet.getAttribute(columnIndex);
 			final int pageIndex = getPage(rowIndex);
 			final ArrayList<IBeanProxy<BEAN_TYPE>> page = data.get(Integer.valueOf(pageIndex));
 
@@ -2007,7 +2006,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			final IBeanProxy<BEAN_TYPE> bean,
 			final boolean createdBean) {
 
-			final IAttribute<Object> attribute = attributes.get(columnIndex);
+			final IAttribute<Object> attribute = attributeSet.getAttribute(columnIndex);
 			final IObjectLabelConverter<Object> converter = attribute.getCurrentControlPanel().getObjectLabelConverter();
 			final Object value = bean.getValue(attribute.getPropertyName());
 
@@ -2477,7 +2476,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 		void startPageLoading() {
 
-			dummyBeanProxy = beanProxyFactory.createDummyProxy(attributes);
+			dummyBeanProxy = beanProxyFactory.createDummyProxy(attributeSet);
 			executionTask = CapUiToolkit.executionTaskFactory().create();
 			executionTask.setDescription(LOADING_DATA.get());
 			executionTask.addExecutionCallbackListener(new AbstractUiExecutionCallbackListener() {

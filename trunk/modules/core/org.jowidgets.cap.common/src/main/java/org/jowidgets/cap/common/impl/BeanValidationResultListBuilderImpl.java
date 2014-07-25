@@ -36,6 +36,7 @@ import java.util.List;
 import org.jowidgets.cap.common.api.validation.IBeanValidationResult;
 import org.jowidgets.cap.common.api.validation.IBeanValidationResultListBuilder;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.validation.IValidationResult;
 
 final class BeanValidationResultListBuilderImpl implements IBeanValidationResultListBuilder {
@@ -54,10 +55,40 @@ final class BeanValidationResultListBuilderImpl implements IBeanValidationResult
 	}
 
 	@Override
+	public IBeanValidationResultListBuilder addResult(
+		final String context,
+		final Collection<? extends IBeanValidationResult> validationResultCollection) {
+		Assert.paramNotNull(validationResultCollection, "validationResultCollection");
+		if (EmptyCheck.isEmpty(context)) {
+			return addResult(validationResultCollection);
+		}
+		else {
+			for (final IBeanValidationResult validationResult : validationResultCollection) {
+				addResult(context, validationResult);
+			}
+			return this;
+		}
+	}
+
+	@Override
 	public IBeanValidationResultListBuilder addResult(final IBeanValidationResult validationResult) {
 		Assert.paramNotNull(validationResult, "validationResult");
 		resultList.add(validationResult);
 		return this;
+	}
+
+	@Override
+	public IBeanValidationResultListBuilder addResult(final String context, final IBeanValidationResult validationResult) {
+		Assert.paramNotNull(validationResult, "validationResult");
+		if (EmptyCheck.isEmpty(context)) {
+			return addResult(validationResult);
+		}
+		else {
+			if (validationResult.getValidationResult() != null) {
+				resultList.add(new BeanValidationResultImpl(context, validationResult));
+			}
+			return this;
+		}
 	}
 
 	@Override
@@ -67,21 +98,63 @@ final class BeanValidationResultListBuilderImpl implements IBeanValidationResult
 	}
 
 	@Override
+	public IBeanValidationResultListBuilder addResult(final String context, final IValidationResult validationResult) {
+		Assert.paramNotNull(validationResult, "validationResult");
+		if (EmptyCheck.isEmpty(context)) {
+			return addResult(validationResult);
+		}
+		else {
+			return addResult(validationResult.withContext(context));
+		}
+	}
+
+	@Override
 	public IBeanValidationResultListBuilder addResult(
 		final IValidationResult validationResult,
 		final Collection<String> propertyNames) {
 		Assert.paramNotEmpty(propertyNames, "propertyNames");
+		Assert.paramNotNull(validationResult, "validationResult");
 		addResult(validationResult, propertyNames.toArray(new String[propertyNames.size()]));
-		return null;
+		return this;
+	}
+
+	@Override
+	public IBeanValidationResultListBuilder addResult(
+		final String context,
+		final IValidationResult validationResult,
+		final Collection<String> propertyNames) {
+		Assert.paramNotNull(validationResult, "validationResult");
+		Assert.paramNotEmpty(propertyNames, "propertyNames");
+		addResult(context, validationResult, propertyNames.toArray(new String[propertyNames.size()]));
+		return this;
 	}
 
 	@Override
 	public IBeanValidationResultListBuilder addResult(final IValidationResult validationResult, final String... propertyNames) {
+		Assert.paramNotNull(validationResult, "validationResult");
 		Assert.paramNotEmpty(propertyNames, "propertyNames");
 		for (final String propertyName : propertyNames) {
 			resultList.add(new BeanValidationResultImpl(propertyName, validationResult));
 		}
 		return this;
+	}
+
+	@Override
+	public IBeanValidationResultListBuilder addResult(
+		final String context,
+		final IValidationResult validationResult,
+		final String... propertyNames) {
+		Assert.paramNotNull(validationResult, "validationResult");
+		Assert.paramNotEmpty(propertyNames, "propertyNames");
+		if (EmptyCheck.isEmpty(context)) {
+			return addResult(validationResult, propertyNames);
+		}
+		else {
+			for (final String propertyName : propertyNames) {
+				resultList.add(new BeanValidationResultImpl(propertyName, validationResult.withContext(context)));
+			}
+		}
+		return null;
 	}
 
 	@Override

@@ -28,7 +28,7 @@
 
 package org.jowidgets.cap.ui.api.filter;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.jowidgets.cap.common.api.filter.IOperator;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
@@ -36,6 +36,6 @@ import org.jowidgets.common.widgets.factory.ICustomWidgetFactory;
 
 public interface IFilterControlCreator<OPERATOR_TYPE extends IOperator> {
 
-	IFilterControl<OPERATOR_TYPE, ?, ?> create(ICustomWidgetFactory widgetFactory, List<? extends IAttribute<?>> attributes);
+	IFilterControl<OPERATOR_TYPE, ?, ?> create(ICustomWidgetFactory widgetFactory, Collection<? extends IAttribute<?>> attributes);
 
 }

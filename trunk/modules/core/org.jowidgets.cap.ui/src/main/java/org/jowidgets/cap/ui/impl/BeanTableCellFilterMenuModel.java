@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.ui.impl;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.jowidgets.api.command.IAction;
@@ -67,7 +68,7 @@ final class BeanTableCellFilterMenuModel<BEAN_TYPE> extends MenuModel {
 			if (filterTypes.size() > 0) {
 				boolean separatorAdded = false;
 				for (final IFilterType filterType : filterTypes) {
-					if (attribute.getFilterPanelProvider(filterType).isApplicableWith((List) model.getAttributes())) {
+					if (attribute.getFilterPanelProvider(filterType).isApplicableWith((Collection) model.getAttributes())) {
 						if (!separatorAdded) {
 							addSeparator();
 							separatorAdded = true;

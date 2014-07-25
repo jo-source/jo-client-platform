@@ -44,6 +44,7 @@ import org.jowidgets.cap.common.api.service.IUpdaterService;
 import org.jowidgets.cap.common.api.validation.IBeanValidator;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeFilter;
+import org.jowidgets.cap.ui.api.attribute.IAttributeSet;
 import org.jowidgets.cap.ui.api.bean.IBeanPropertyValidator;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyContext;
@@ -157,11 +158,13 @@ public interface IBeanTableModel<BEAN_TYPE> extends
 
 	IAttribute<Object> getAttribute(String propertyName);
 
-	List<IAttribute<Object>> getAttributes();
+	Collection<IAttribute<Object>> getAttributes();
 
-	List<IAttribute<Object>> getAttributes(IAttributeFilter filter);
+	Collection<IAttribute<Object>> getAttributes(IAttributeFilter filter);
 
-	List<String> getPropertyNames();
+	Collection<String> getPropertyNames();
+
+	IAttributeSet getAttributeSet();
 
 	List<IBeanPropertyValidator<BEAN_TYPE>> getBeanPropertyValidators();
 

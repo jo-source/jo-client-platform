@@ -93,4 +93,15 @@ final class PropertyValidatorImpl implements IValidator<Object>, Serializable {
 		return builder.build();
 	}
 
+	@Override
+	public String toString() {
+		return "PropertyValidatorImpl [valueType="
+			+ valueType
+			+ ", elementTypeValidators="
+			+ elementTypeValidators
+			+ ", validators="
+			+ validators
+			+ "]";
+	}
+
 }

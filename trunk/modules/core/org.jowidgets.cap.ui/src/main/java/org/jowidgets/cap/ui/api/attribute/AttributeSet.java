@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2014, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,40 +26,18 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api.validation;
+package org.jowidgets.cap.ui.api.attribute;
 
 import java.util.Collection;
-import java.util.List;
 
-import org.jowidgets.validation.IValidationResult;
+import org.jowidgets.cap.ui.api.CapUiToolkit;
 
-public interface IBeanValidationResultListBuilder {
+public final class AttributeSet {
 
-	IBeanValidationResultListBuilder addResult(Collection<? extends IBeanValidationResult> validationResultCollection);
+	private AttributeSet() {}
 
-	IBeanValidationResultListBuilder addResult(
-		String context,
-		final Collection<? extends IBeanValidationResult> validationResultCollection);
-
-	IBeanValidationResultListBuilder addResult(IBeanValidationResult validationResult);
-
-	IBeanValidationResultListBuilder addResult(String context, IBeanValidationResult validationResult);
-
-	IBeanValidationResultListBuilder addResult(IValidationResult validationResult);
-
-	IBeanValidationResultListBuilder addResult(String context, IValidationResult validationResult);
-
-	IBeanValidationResultListBuilder addResult(IValidationResult validationResult, Collection<String> propertyNames);
-
-	IBeanValidationResultListBuilder addResult(
-		String context,
-		IValidationResult validationResult,
-		Collection<String> propertyNames);
-
-	IBeanValidationResultListBuilder addResult(IValidationResult validationResult, String... propertyNames);
-
-	IBeanValidationResultListBuilder addResult(String context, IValidationResult validationResult, String... propertyNames);
-
-	List<IBeanValidationResult> build();
+	public static IAttributeSet create(final Collection<? extends IAttribute<?>> attributes) {
+		return CapUiToolkit.attributeToolkit().attributeSet(attributes);
+	}
 
 }

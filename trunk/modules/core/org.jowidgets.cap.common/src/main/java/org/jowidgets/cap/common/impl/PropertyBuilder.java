@@ -337,7 +337,7 @@ final class PropertyBuilder implements IPropertyBuilder {
 			mandatoryDefault,
 			valueType,
 			getElementValueType(),
-			validatorBuilder.build(valueType),
+			validatorBuilder.build(valueType, true),
 			getCardinality(),
 			readonly,
 			editable != null ? editable.booleanValue() : !readonly,

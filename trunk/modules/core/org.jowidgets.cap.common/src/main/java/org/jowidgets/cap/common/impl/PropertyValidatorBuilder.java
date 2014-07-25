@@ -34,26 +34,38 @@ import java.util.List;
 import org.jowidgets.cap.common.api.bean.IPropertyValidatorBuilder;
 import org.jowidgets.util.Assert;
 import org.jowidgets.validation.IValidator;
+import org.jowidgets.validation.Validator;
 
 final class PropertyValidatorBuilder implements IPropertyValidatorBuilder {
 
 	private final List<IValidator<? extends Object>> elementTypeValidators;
 	private final List<IValidator<? extends Object>> validators;
 
+	private boolean hasValidators;
+
 	PropertyValidatorBuilder() {
 		this.elementTypeValidators = new LinkedList<IValidator<? extends Object>>();
 		this.validators = new LinkedList<IValidator<? extends Object>>();
+		hasValidators = false;
 	}
 
 	@Override
 	public IPropertyValidatorBuilder addValidator(final IValidator<? extends Object> validator) {
-		validators.add(validator);
+		Assert.paramNotNull(validator, "validator");
+		if (!Validator.okValidator().equals(validator)) {
+			validators.add(validator);
+			hasValidators = true;
+		}
 		return this;
 	}
 
 	@Override
 	public IPropertyValidatorBuilder addElementTypeValidator(final IValidator<? extends Object> validator) {
-		elementTypeValidators.add(validator);
+		Assert.paramNotNull(validator, "validator");
+		if (!Validator.okValidator().equals(validator)) {
+			elementTypeValidators.add(validator);
+			hasValidators = true;
+		}
 		return this;
 	}
 
@@ -70,6 +82,16 @@ final class PropertyValidatorBuilder implements IPropertyValidatorBuilder {
 	@Override
 	public IValidator<Object> build(final Class<?> propertyValueType) {
 		return new PropertyValidatorImpl(propertyValueType, elementTypeValidators, validators);
+	}
+
+	@Override
+	public IValidator<Object> build(final Class<?> propertyValueType, final boolean nullIfEmpty) {
+		if (hasValidators) {
+			return build(propertyValueType);
+		}
+		else {
+			return null;
+		}
 	}
 
 }

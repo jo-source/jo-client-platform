@@ -28,7 +28,7 @@
 
 package org.jowidgets.cap.ui.api.widgets;
 
-import java.util.List;
+import java.util.Collection;
 
 import org.jowidgets.api.widgets.blueprint.builder.IInputComponentSetupBuilder;
 import org.jowidgets.api.widgets.descriptor.setup.IInputComponentSetup;
@@ -42,9 +42,9 @@ public interface IAttributeFilterControlBluePrint extends
 		IInputComponentSetup<IUiConfigurableFilter<Object>>,
 		IWidgetDescriptor<IAttributeFilterControl> {
 
-	IAttributeFilterControlBluePrint setAttributes(List<? extends IAttribute<?>> attributes);
+	IAttributeFilterControlBluePrint setAttributes(Collection<? extends IAttribute<?>> attributes);
 
 	@Mandatory
-	List<IAttribute<?>> getAttributes();
+	Collection<IAttribute<?>> getAttributes();
 
 }

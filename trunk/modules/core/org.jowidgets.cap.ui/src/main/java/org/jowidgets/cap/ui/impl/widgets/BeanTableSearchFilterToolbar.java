@@ -29,7 +29,6 @@
 package org.jowidgets.cap.ui.impl.widgets;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.Executors;
@@ -60,6 +59,7 @@ import org.jowidgets.cap.common.api.lookup.ILookUpProperty;
 import org.jowidgets.cap.common.api.lookup.ILookUpValueRange;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.cap.ui.api.attribute.IAttributeSet;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
 import org.jowidgets.cap.ui.api.filter.IUiArithmeticFilter;
 import org.jowidgets.cap.ui.api.filter.IUiBooleanFilter;
@@ -95,7 +95,7 @@ final class BeanTableSearchFilterToolbar<BEAN_TYPE> {
 
 	private final IComposite composite;
 	private final IBeanTableModel<BEAN_TYPE> model;
-	private final List<IAttribute<Object>> attributes;
+	private final IAttributeSet attributes;
 	private final IComposite toolbar;
 	private final ITextControl textField;
 	private final IToolBarButton closeButton;
@@ -112,7 +112,7 @@ final class BeanTableSearchFilterToolbar<BEAN_TYPE> {
 	BeanTableSearchFilterToolbar(final IComposite composite, final BeanTableImpl<BEAN_TYPE> table) {
 		this.composite = composite;
 		this.model = table.getModel();
-		this.attributes = model.getAttributes();
+		this.attributes = model.getAttributeSet();
 
 		this.toolbar = composite.add(0, BPF.composite(), "growx, w 0::");
 		toolbar.setLayout(new MigLayoutDescriptor("0[][][grow]0", "0[grow]0[]0"));

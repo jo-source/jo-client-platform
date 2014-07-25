@@ -102,9 +102,9 @@ public interface IBeanProxy<BEAN_TYPE> extends
 
 	IBeanDto getBeanDto();
 
-	List<String> getProperties();
+	Collection<String> getProperties();
 
-	List<IAttribute<Object>> getAttributes();
+	Collection<IAttribute<Object>> getAttributes();
 
 	IAttribute<Object> getAttribute(String propertyName);
 

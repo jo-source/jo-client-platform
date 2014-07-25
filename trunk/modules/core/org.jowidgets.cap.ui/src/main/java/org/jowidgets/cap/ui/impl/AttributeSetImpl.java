@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, grossmann
+ * Copyright (c) 2014, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,47 +26,67 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.model;
+package org.jowidgets.cap.ui.impl;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
-import org.jowidgets.cap.common.api.service.IReaderService;
-import org.jowidgets.cap.common.api.validation.IBeanValidator;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeFilter;
 import org.jowidgets.cap.ui.api.attribute.IAttributeSet;
-import org.jowidgets.cap.ui.api.bean.IBeanProxy;
-import org.jowidgets.util.event.IChangeObservable;
+import org.jowidgets.util.collection.UnmodifiableArray;
+import org.jowidgets.util.collection.UnmodifieableArrayWrapper;
 
-public interface ISingleBeanModel<BEAN_TYPE> extends
-		IDataModel,
-		IDataModelContextProvider,
-		IBeanListModel<BEAN_TYPE>,
-		IChangeObservable {
+final class AttributeSetImpl extends UnmodifieableArrayWrapper<IAttribute<Object>> implements IAttributeSet {
 
-	Object getBeanTypeId();
+	private final Map<String, IAttribute<Object>> attributesMap;
 
-	Class<BEAN_TYPE> getBeanType();
+	AttributeSetImpl(final Collection<IAttribute<Object>> attributes) {
+		super(UnmodifiableArray.create(attributes));
+		this.attributesMap = new LinkedHashMap<String, IAttribute<Object>>();
+		for (final IAttribute<Object> attribute : attributes) {
+			attributesMap.put(attribute.getPropertyName(), attribute);
+		}
+	}
 
-	Object getEntityId();
+	@Override
+	public IAttribute<Object> getAttribute(final int index) {
+		return get(index);
+	}
 
-	void refresh();
+	@Override
+	public IAttribute<Object> getAttribute(final String propertyName) {
+		return attributesMap.get(propertyName);
+	}
 
-	IBeanProxy<BEAN_TYPE> getBean();
+	@Override
+	public Collection<IAttribute<Object>> getAttributes() {
+		return attributesMap.values();
+	}
 
-	void setBean(IBeanProxy<BEAN_TYPE> bean);
+	@Override
+	public Collection<IAttribute<Object>> getAttributes(final IAttributeFilter filter) {
+		if (filter == null) {
+			return getAttributes();
+		}
+		else {
+			final List<IAttribute<Object>> result = new LinkedList<IAttribute<Object>>();
+			for (final IAttribute<Object> attribute : this) {
+				if (filter.accept(attribute)) {
+					result.add(attribute);
+				}
+			}
+			return Collections.unmodifiableList(result);
+		}
+	}
 
-	IAttribute<Object> getAttribute(int columnIndex);
+	@Override
+	public Collection<String> getPropertyNames() {
+		return attributesMap.keySet();
+	}
 
-	IAttribute<Object> getAttribute(String propertyName);
-
-	Collection<IAttribute<Object>> getAttributes();
-
-	Collection<IAttribute<Object>> getAttributes(IAttributeFilter filter);
-
-	IAttributeSet getAttributeSet();
-
-	void addBeanValidator(IBeanValidator<BEAN_TYPE> beanValidator);
-
-	IReaderService<Object> getReaderService();
 }

@@ -29,9 +29,7 @@
 package org.jowidgets.cap.ui.impl;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -45,18 +43,20 @@ import org.jowidgets.validation.IValidationResult;
 import org.jowidgets.validation.IValidationResultBuilder;
 import org.jowidgets.validation.IValidator;
 import org.jowidgets.validation.ValidationResult;
+import org.jowidgets.validation.Validator;
 
 final class BeanPropertyValidatorImpl<BEAN_TYPE> implements IBeanPropertyValidator<BEAN_TYPE> {
 
-	private final Map<String, IAttribute<?>> attributes;
-	private final Set<String> propertyDependencies;
+	private final Map<String, IValidator<Object>> validators;
 
 	BeanPropertyValidatorImpl(final Collection<? extends IAttribute<?>> attributes) {
-		this.attributes = new HashMap<String, IAttribute<?>>();
+		this.validators = new HashMap<String, IValidator<Object>>();
 		for (final IAttribute<?> attribute : attributes) {
-			this.attributes.put(attribute.getPropertyName(), attribute);
+			final IValidator<Object> validator = attribute.getValidator();
+			if (validator != null && !Validator.okValidator().equals(validator)) {
+				validators.put(attribute.getPropertyName(), validator);
+			}
 		}
-		this.propertyDependencies = Collections.unmodifiableSet(new HashSet<String>(this.attributes.keySet()));
 	}
 
 	@Override
@@ -68,17 +68,14 @@ final class BeanPropertyValidatorImpl<BEAN_TYPE> implements IBeanPropertyValidat
 
 	private IValidationResult validatePropertyImpl(final IBeanProxy<BEAN_TYPE> bean, final String propertyName) {
 		final IValidationResultBuilder builder = ValidationResult.builder();
-		final IAttribute<?> attribute = attributes.get(propertyName);
-		if (attribute != null) {
-			final IValidator<Object> validator = attribute.getValidator();
-			if (validator != null) {
-				final IValidationResult validationResult = validator.validate(bean.getValue(propertyName));
-				if (!validationResult.isValid()) {
-					return validationResult.withContext(attribute.getCurrentLabel());
-				}
-				else {
-					builder.addResult(validationResult.withContext(attribute.getCurrentLabel()));
-				}
+		final IValidator<Object> validator = validators.get(propertyName);
+		if (validator != null) {
+			final IValidationResult validationResult = validator.validate(bean.getValue(propertyName));
+			if (!validationResult.isValid()) {
+				return validationResult;
+			}
+			else if (!validationResult.isOk()) {
+				builder.addResult(validationResult);
 			}
 		}
 
@@ -87,7 +84,7 @@ final class BeanPropertyValidatorImpl<BEAN_TYPE> implements IBeanPropertyValidat
 
 	@Override
 	public Set<String> getPropertyDependencies() {
-		return propertyDependencies;
+		return validators.keySet();
 	}
 
 	@Override

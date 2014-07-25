@@ -50,7 +50,9 @@ import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallbackListener;
 import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.cap.ui.api.attribute.AttributeSet;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.cap.ui.api.attribute.IAttributeSet;
 import org.jowidgets.cap.ui.api.bean.BeanMessageType;
 import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanMessageBuilder;
@@ -86,7 +88,7 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 	private final IBeanProxyFactory<BEAN_TYPE> beanFactory;
 	private final ExecutionObservable<List<IBeanDto>> executionObservable;
 	private final IProvider<Map<String, Object>> defaultValuesProvider;
-	private final Collection<IAttribute<?>> attributes;
+	private final IAttributeSet attributes;
 	private final List<ICreatorInterceptor<BEAN_TYPE>> creatorInterceptors;
 
 	private Rectangle dialogBounds;
@@ -139,7 +141,7 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 		this.creatorService = creatorService;
 		this.parentBeanKeysProvider = parentBeanKeysProvider;
 		this.exceptionConverter = exceptionConverter;
-		this.attributes = attributes;
+		this.attributes = AttributeSet.create(attributes);
 		this.defaultValuesProvider = defaultValuesProvider;
 		this.beanPropertyValidators = new LinkedList<IBeanPropertyValidator<BEAN_TYPE>>(beanPropertyValidators);
 	}
@@ -172,8 +174,9 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 		if (bean.hasModifications()) {
 			bean = bean.createUnmodifiedCopy();
 		}
-		for (final IBeanPropertyValidator<BEAN_TYPE> validator : beanPropertyValidators) {
-			bean.addBeanPropertyValidator(validator);
+
+		if (!EmptyCheck.isEmpty(beanPropertyValidators)) {
+			bean.addBeanPropertyValidators(beanPropertyValidators);
 		}
 
 		final IBeanDialogBluePrint<BEAN_TYPE> beanDialogBp = CapUiToolkit.bluePrintFactory().beanDialog(beanFormBp);

@@ -584,7 +584,7 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 			getSearchable(),
 			valueType,
 			elementValueType,
-			propertyValidatorBuilder.build(valueType),
+			propertyValidatorBuilder.build(valueType, true),
 			currentCardinality,
 			panels,
 			getDisplayFormat(panels));

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2014, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,40 +26,22 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api.validation;
+package org.jowidgets.cap.ui.api.attribute;
 
 import java.util.Collection;
-import java.util.List;
 
-import org.jowidgets.validation.IValidationResult;
+public interface IAttributeSet extends Iterable<IAttribute<Object>> {
 
-public interface IBeanValidationResultListBuilder {
+	int size();
 
-	IBeanValidationResultListBuilder addResult(Collection<? extends IBeanValidationResult> validationResultCollection);
+	IAttribute<Object> getAttribute(int index);
 
-	IBeanValidationResultListBuilder addResult(
-		String context,
-		final Collection<? extends IBeanValidationResult> validationResultCollection);
+	IAttribute<Object> getAttribute(String propertyName);
 
-	IBeanValidationResultListBuilder addResult(IBeanValidationResult validationResult);
+	Collection<IAttribute<Object>> getAttributes();
 
-	IBeanValidationResultListBuilder addResult(String context, IBeanValidationResult validationResult);
+	Collection<IAttribute<Object>> getAttributes(IAttributeFilter filter);
 
-	IBeanValidationResultListBuilder addResult(IValidationResult validationResult);
-
-	IBeanValidationResultListBuilder addResult(String context, IValidationResult validationResult);
-
-	IBeanValidationResultListBuilder addResult(IValidationResult validationResult, Collection<String> propertyNames);
-
-	IBeanValidationResultListBuilder addResult(
-		String context,
-		IValidationResult validationResult,
-		Collection<String> propertyNames);
-
-	IBeanValidationResultListBuilder addResult(IValidationResult validationResult, String... propertyNames);
-
-	IBeanValidationResultListBuilder addResult(String context, IValidationResult validationResult, String... propertyNames);
-
-	List<IBeanValidationResult> build();
+	Collection<String> getPropertyNames();
 
 }

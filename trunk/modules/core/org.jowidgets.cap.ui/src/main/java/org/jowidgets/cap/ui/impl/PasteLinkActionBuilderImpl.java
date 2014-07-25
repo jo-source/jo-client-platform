@@ -46,7 +46,9 @@ import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.common.api.service.ILinkCreatorService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.cap.ui.api.attribute.AttributeSet;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.cap.ui.api.attribute.IAttributeSet;
 import org.jowidgets.cap.ui.api.bean.BeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
@@ -130,12 +132,15 @@ final class PasteLinkActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABL
 					}
 					if (!defaultValues.isEmpty()) {
 						setLinkDefaultFactory(new IFactory<IBeanProxy<LINK_BEAN_TYPE>>() {
+
+							private final IAttributeSet attributeSet = AttributeSet.create(attributes);
+
 							@Override
 							public IBeanProxy<LINK_BEAN_TYPE> create() {
 								final IBeanProxyFactory<LINK_BEAN_TYPE> proxyFactory = CapUiToolkit.beanProxyFactory(
 										linkBeanTypeId,
 										linkBeanType);
-								return proxyFactory.createTransientProxy(attributes, defaultValues);
+								return proxyFactory.createTransientProxy(attributeSet, defaultValues);
 							}
 						});
 					}

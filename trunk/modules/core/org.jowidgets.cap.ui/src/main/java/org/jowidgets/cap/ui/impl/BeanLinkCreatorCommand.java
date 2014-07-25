@@ -52,7 +52,9 @@ import org.jowidgets.cap.common.api.link.ILinkCreationBuilder;
 import org.jowidgets.cap.common.api.link.LinkCreation;
 import org.jowidgets.cap.common.api.service.ILinkCreatorService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
+import org.jowidgets.cap.ui.api.attribute.AttributeSet;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.cap.ui.api.attribute.IAttributeSet;
 import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanPropertyValidator;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
@@ -394,6 +396,7 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 			final HashMap<String, Object> defaultValues = new HashMap<String, Object>();
 			final LinkedList<String> properties = new LinkedList<String>();
 			final Collection<IAttribute<?>> attributes = formBp.getCreateModeAttributes();
+			final IAttributeSet attributeSet = AttributeSet.create(attributes);
 			for (final IAttribute<?> attribute : attributes) {
 				final String propertyName = attribute.getPropertyName();
 				properties.add(propertyName);
@@ -403,10 +406,10 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 				}
 			}
 			final IBeanProxyFactory<BEAN_TYPE> proxyFactory = CapUiToolkit.beanProxyFactory(beanTypeId, beanType);
-			final IBeanProxy<BEAN_TYPE> result = proxyFactory.createTransientProxy(attributes, defaultValues);
+			final IBeanProxy<BEAN_TYPE> result = proxyFactory.createTransientProxy(attributeSet, defaultValues);
 			result.addBeanPropertyValidator(new BeanPropertyValidatorImpl<BEAN_TYPE>(attributes));
-			for (final IBeanPropertyValidator<BEAN_TYPE> validator : validators) {
-				result.addBeanPropertyValidator(validator);
+			if (!EmptyCheck.isEmpty(validators)) {
+				result.addBeanPropertyValidators(validators);
 			}
 			return result;
 		}
