@@ -242,11 +242,23 @@ final class BeanTableCellEditorFactory extends AbstractTableCellEditorFactory<IT
 			final IBeanValidationResultListBuilder builder = CapCommonToolkit.beanValidationResultListBuilder();
 
 			final IValidationResult editorResult = editor.validate();
-			if (!editorResult.isOk()) {
+			if (!editorResult.isValid() || (!editorResult.isOk() && !hasErrors(parentResult))) {
 				builder.addResult(editorResult.withContext(attribute.getCurrentLabel()), attribute.getPropertyName());
+			}
+			else {
+				builder.addResult(parentResult);
 			}
 
 			return builder.build();
+		}
+
+		private boolean hasErrors(final Collection<IBeanValidationResult> parentResults) {
+			for (final IBeanValidationResult parentResult : parentResults) {
+				if (!parentResult.getValidationResult().isValid()) {
+					return true;
+				}
+			}
+			return false;
 		}
 
 		@Override

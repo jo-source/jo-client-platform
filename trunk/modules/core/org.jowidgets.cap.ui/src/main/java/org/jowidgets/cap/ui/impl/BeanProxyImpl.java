@@ -250,7 +250,6 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 			bean.addBeanPropertyValidators(beanPropertyValidators);
 		}
 		bean.calculateInternalObservedProperties();
-		bean.validateAllInternalProperties();
 	}
 
 	@Override
@@ -636,7 +635,10 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 				}
 			}
 			if (!externalResults.isEmpty()) {
-				consolidatedResult = consolidateBeanValidationResult(firstWorstIndependendResultHolder, externalResults);
+				consolidatedResult = consolidateBeanValidationResult(
+						consolidatedResult,
+						firstWorstIndependendResultHolder,
+						externalResults);
 			}
 		}
 
@@ -712,14 +714,25 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 	private Map<String, IBeanValidationResult> consolidateBeanValidationResult(
 		final ValueHolder<IBeanValidationResult> firstWorstIndependendResultHolder,
 		final Collection<IBeanValidationResult> resultList) {
-		final Map<String, IBeanValidationResult> resultMap = new LinkedHashMap<String, IBeanValidationResult>();
-		for (final IBeanValidationResult result : resultList) {
+
+		return consolidateBeanValidationResult(
+				new LinkedHashMap<String, IBeanValidationResult>(),
+				firstWorstIndependendResultHolder,
+				resultList);
+	}
+
+	private Map<String, IBeanValidationResult> consolidateBeanValidationResult(
+		final Map<String, IBeanValidationResult> currentResultMap,
+		final ValueHolder<IBeanValidationResult> firstWorstIndependendResultHolder,
+		final Collection<IBeanValidationResult> validationResults) {
+
+		for (final IBeanValidationResult result : validationResults) {
 			final String propertyName = result.getPropertyName();
 			if (propertyName != null) {
-				final IBeanValidationResult currentResult = resultMap.get(propertyName);
+				final IBeanValidationResult currentResult = currentResultMap.get(propertyName);
 				final IBeanValidationResult worseResult = getWorseResult(currentResult, result);
 				if (worseResult == result) {
-					resultMap.put(propertyName, result);
+					currentResultMap.put(propertyName, result);
 				}
 			}
 			else {
@@ -730,7 +743,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 				}
 			}
 		}
-		return resultMap;
+		return currentResultMap;
 	}
 
 	private IBeanValidationResult getWorseResult(final IBeanValidationResult first, final IBeanValidationResult second) {
