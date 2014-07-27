@@ -216,6 +216,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	private final boolean clearOnEmptyFilter;
 	private final boolean clearOnEmptyParentBeans;
 	private final boolean autoRefreshSelection;
+	private final boolean autoDisposeInvisiblePages;
 
 	private final BeanListModelObservable<BEAN_TYPE> beanListModelObservable;
 	private final BeanSelectionObservable<BEAN_TYPE> beanSelectionObservable;
@@ -280,6 +281,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		final boolean autoRowCount,
 		final boolean autoSelect,
 		final boolean autoRefreshSelection,
+		final boolean autoDisposeInvisiblePages,
 		final boolean clearOnEmptyFilter,
 		final boolean clearOnEmptyParentBeans,
 		final boolean lastBeanEnabled,
@@ -306,6 +308,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		this.autoRowCount = autoRowCount;
 		this.clearOnEmptyFilter = clearOnEmptyFilter;
 		this.clearOnEmptyParentBeans = clearOnEmptyParentBeans;
+		this.autoDisposeInvisiblePages = autoDisposeInvisiblePages;
 		this.beanType = (Class<BEAN_TYPE>) beanType;
 		this.beanTypeId = beanTypeId;
 		this.labelSingular = labelSingular;
@@ -969,6 +972,32 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			oddPageLoader = new PageLoader(pageIndex, null);
 			oddPageLoader.loadPage();
 		}
+		autoDisposeInvisiblePages(pageIndex);
+	}
+
+	private void autoDisposeInvisiblePages(final int visiblePageIndex) {
+		if (autoDisposeInvisiblePages) {
+			int newMaxPage = 0;
+			final Set<Integer> selectedPages = getSelectedPages();
+			for (final Integer pageIndexW : new ArrayList<Integer>(data.keySet())) {
+				final int pageIndex = pageIndexW.intValue();
+				if (!selectedPages.contains(pageIndexW) && (pageIndex < visiblePageIndex - 1 || pageIndex > visiblePageIndex + 1)) {
+					removePage(pageIndex);
+				}
+				else {
+					newMaxPage = Math.max(newMaxPage, pageIndex);
+				}
+			}
+			maxPageIndex = newMaxPage;
+		}
+	}
+
+	private Set<Integer> getSelectedPages() {
+		final Set<Integer> result = new HashSet<Integer>();
+		for (final Integer selectedIndex : getSelection()) {
+			result.add(getPage(selectedIndex));
+		}
+		return result;
 	}
 
 	private void completeEvenOddPage(final int pageIndex) {
@@ -1608,7 +1637,10 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	public List<IBeanProxy<BEAN_TYPE>> getSelectedBeans() {
 		final List<IBeanProxy<BEAN_TYPE>> result = new LinkedList<IBeanProxy<BEAN_TYPE>>();
 		for (final Integer selectionIndex : getSelection()) {
-			result.add(getBean(selectionIndex.intValue()));
+			final IBeanProxy<BEAN_TYPE> selectedBean = getBean(selectionIndex.intValue());
+			if (selectedBean != null) {
+				result.add(selectedBean);
+			}
 		}
 		return Collections.unmodifiableList(result);
 	}
