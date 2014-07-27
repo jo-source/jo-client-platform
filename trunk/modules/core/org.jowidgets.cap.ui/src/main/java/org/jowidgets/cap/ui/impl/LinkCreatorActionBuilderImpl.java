@@ -169,7 +169,7 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 									defaultValues);
 							result.addBeanPropertyValidator(new BeanPropertyValidatorImpl<LINK_BEAN_TYPE>(attributes));
 							if (!EmptyCheck.isEmpty(descriptor.getValidators())) {
-								result.addBeanPropertyValidators((Collection<? extends IBeanPropertyValidator<LINK_BEAN_TYPE>>) descriptor.getValidators());
+								result.addBeanPropertyValidators((Collection) descriptor.getValidators());
 							}
 							return result;
 						}
