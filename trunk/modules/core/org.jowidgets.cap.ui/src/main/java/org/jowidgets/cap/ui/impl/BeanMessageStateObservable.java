@@ -28,19 +28,19 @@
 
 package org.jowidgets.cap.ui.impl;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.jowidgets.cap.ui.api.bean.IBeanMessageStateListener;
 import org.jowidgets.cap.ui.api.bean.IBeanMessageStateObservable;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.util.collection.IObserverSet;
+import org.jowidgets.util.collection.IObserverSetFactory.Strategy;
+import org.jowidgets.util.collection.ObserverSetFactory;
 
 class BeanMessageStateObservable<BEAN_TYPE> implements IBeanMessageStateObservable<BEAN_TYPE> {
 
-	private final Set<IBeanMessageStateListener<BEAN_TYPE>> listeners;
+	private final IObserverSet<IBeanMessageStateListener<BEAN_TYPE>> listeners;
 
 	BeanMessageStateObservable() {
-		this.listeners = new HashSet<IBeanMessageStateListener<BEAN_TYPE>>();
+		this.listeners = ObserverSetFactory.create(Strategy.LOW_MEMORY);
 	}
 
 	@Override

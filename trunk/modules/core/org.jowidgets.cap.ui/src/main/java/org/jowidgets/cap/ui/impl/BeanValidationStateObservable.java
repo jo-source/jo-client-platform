@@ -28,19 +28,19 @@
 
 package org.jowidgets.cap.ui.impl;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
-
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanValidationStateListener;
 import org.jowidgets.cap.ui.api.bean.IBeanValidationStateObservable;
+import org.jowidgets.util.collection.IObserverSet;
+import org.jowidgets.util.collection.IObserverSetFactory.Strategy;
+import org.jowidgets.util.collection.ObserverSetFactory;
 
 class BeanValidationStateObservable<BEAN_TYPE> implements IBeanValidationStateObservable<BEAN_TYPE> {
 
-	private final Set<IBeanValidationStateListener<BEAN_TYPE>> listeners;
+	private final IObserverSet<IBeanValidationStateListener<BEAN_TYPE>> listeners;
 
 	BeanValidationStateObservable() {
-		this.listeners = new LinkedHashSet<IBeanValidationStateListener<BEAN_TYPE>>();
+		this.listeners = ObserverSetFactory.create(Strategy.LOW_MEMORY);
 	}
 
 	@Override
