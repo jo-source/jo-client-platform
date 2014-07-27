@@ -89,6 +89,10 @@ import org.jowidgets.util.EmptyCompatibleEquivalence;
 import org.jowidgets.util.ITypedKey;
 import org.jowidgets.util.NullCompatibleEquivalence;
 import org.jowidgets.util.ValueHolder;
+import org.jowidgets.util.collection.IObserverSet;
+import org.jowidgets.util.collection.IObserverSetFactory;
+import org.jowidgets.util.collection.IObserverSetFactory.Strategy;
+import org.jowidgets.util.collection.ObserverSetFactory;
 import org.jowidgets.validation.IValidationResult;
 import org.jowidgets.validation.IValidationResultBuilder;
 import org.jowidgets.validation.ValidationResult;
@@ -101,27 +105,29 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 	private final Map<String, IBeanModification> modifications;
 	private final Map<String, IBeanModification> undoneModifications;
 	private final Map<ITypedKey<? extends Object>, Object> customProperties;
-	private final Map<ITypedKey<? extends Object>, Set<ICustomBeanPropertyListener<BEAN_TYPE, Object>>> customPropertiesListeners;
+	private final Map<ITypedKey<? extends Object>, IObserverSet<ICustomBeanPropertyListener<BEAN_TYPE, Object>>> customPropertiesListeners;
 	private final PropertyChangeObservable propertyChangeObservable;
 	private final BeanModificationStateObservable<BEAN_TYPE> modificationStateObservable;
 	private final BeanTransientStateObservable<BEAN_TYPE> transientStateObservable;
 	private final BeanMessageStateObservable<BEAN_TYPE> messageStateObservable;
 	private final BeanProcessStateObservable<BEAN_TYPE> processStateObservable;
 	private final BeanValidationStateObservable<BEAN_TYPE> validationStateObservable;
-	private final Set<IBeanProxyListener<BEAN_TYPE>> beanProxyListeners;
-	private final Set<IBeanPropertyValidator<BEAN_TYPE>> beanPropertyValidators;
-	private final Map<String, Set<IExternalBeanValidator>> externalValidators;
-	private final List<String> internalObservedProperties;
+	private final IObserverSet<IBeanProxyListener<BEAN_TYPE>> beanProxyListeners;
+	private final ArrayList<IBeanPropertyValidator<BEAN_TYPE>> beanPropertyValidators;
+	private final Map<String, IObserverSet<IExternalBeanValidator>> externalValidators;
 	private final IExecutionTaskListener executionTaskListener;
 	private final Map<String, IValidationResult> validationResults;
 	private final ValueHolder<IValidationResult> independentWorstResult;
-	private final List<IBeanMessage> infoMessagesList;
-	private final List<IBeanMessage> warningMessagesList;
-	private final List<IBeanMessage> errorMessagesList;
-	private final List<IBeanMessage> messagesList;
 	private final IUiThreadAccess uiThreadAccess;
 	private final ValidationCache validationCache;
 	private final boolean isDummy;
+
+	private ArrayList<IBeanMessage> infoMessagesList;
+	private ArrayList<IBeanMessage> warningMessagesList;
+	private ArrayList<IBeanMessage> errorMessagesList;
+	private ArrayList<IBeanMessage> messagesList;
+
+	private ArrayList<String> internalObservedProperties;
 
 	private IExecutionTask executionTask;
 	private boolean isTransient;
@@ -156,7 +162,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 		this.isTransient = isTransient;
 		this.modifications = new HashMap<String, IBeanModification>();
 		this.customProperties = new HashMap<ITypedKey<? extends Object>, Object>();
-		this.customPropertiesListeners = new HashMap<ITypedKey<? extends Object>, Set<ICustomBeanPropertyListener<BEAN_TYPE, Object>>>();
+		this.customPropertiesListeners = new HashMap<ITypedKey<? extends Object>, IObserverSet<ICustomBeanPropertyListener<BEAN_TYPE, Object>>>();
 		this.undoneModifications = new HashMap<String, IBeanModification>();
 		this.propertyChangeObservable = new PropertyChangeObservable();
 		this.modificationStateObservable = new BeanModificationStateObservable<BEAN_TYPE>();
@@ -164,20 +170,21 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 		this.processStateObservable = new BeanProcessStateObservable<BEAN_TYPE>();
 		this.messageStateObservable = new BeanMessageStateObservable<BEAN_TYPE>();
 		this.validationStateObservable = new BeanValidationStateObservable<BEAN_TYPE>();
-		this.beanProxyListeners = new LinkedHashSet<IBeanProxyListener<BEAN_TYPE>>();
-		this.beanPropertyValidators = new LinkedHashSet<IBeanPropertyValidator<BEAN_TYPE>>();
-		this.externalValidators = new LinkedHashMap<String, Set<IExternalBeanValidator>>();
+		this.beanProxyListeners = ObserverSetFactory.create(IObserverSetFactory.Strategy.LOW_MEMORY);
+		this.beanPropertyValidators = new ArrayList<IBeanPropertyValidator<BEAN_TYPE>>(0);
+		this.externalValidators = new LinkedHashMap<String, IObserverSet<IExternalBeanValidator>>();
 		this.validationResults = new LinkedHashMap<String, IValidationResult>();
 		this.independentWorstResult = new ValueHolder<IValidationResult>();
 		this.internalObservedProperties = new ArrayList<String>(attributes.getPropertyNames());
 		this.validationCache = new ValidationCache(this);
 
-		this.infoMessagesList = new ArrayList<IBeanMessage>(1);
-		this.warningMessagesList = new ArrayList<IBeanMessage>(1);
-		this.errorMessagesList = new ArrayList<IBeanMessage>(1);
-		this.messagesList = new ArrayList<IBeanMessage>(2);
+		this.infoMessagesList = new ArrayList<IBeanMessage>(0);
+		this.warningMessagesList = new ArrayList<IBeanMessage>(0);
+		this.errorMessagesList = new ArrayList<IBeanMessage>(0);
+		this.messagesList = new ArrayList<IBeanMessage>(0);
 
 		this.uiThreadAccess = Toolkit.getUiThreadAccess();
+
 		this.executionTaskListener = new ExecutionTaskAdapter() {
 
 			@Override
@@ -564,25 +571,26 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 		final ITypedKey<PROPERTY_TYPE> key,
 		final ICustomBeanPropertyListener<BEAN_TYPE, PROPERTY_TYPE> listener) {
 		Assert.paramNotNull(listener, "listener");
-		final Set<ICustomBeanPropertyListener<BEAN_TYPE, Object>> listeners = getPropertiesListeners(key);
+		final IObserverSet<ICustomBeanPropertyListener<BEAN_TYPE, Object>> listeners = getPropertiesListeners(key);
 		listeners.add((ICustomBeanPropertyListener<BEAN_TYPE, Object>) listener);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public <PROPERTY_TYPE> void removeCustomPropertyListener(
 		final ITypedKey<PROPERTY_TYPE> key,
 		final ICustomBeanPropertyListener<BEAN_TYPE, PROPERTY_TYPE> listener) {
 		Assert.paramNotNull(listener, "listener");
-		final Set<ICustomBeanPropertyListener<BEAN_TYPE, Object>> listeners = getPropertiesListeners(key);
-		listeners.remove(listener);
+		getPropertiesListeners(key).remove((ICustomBeanPropertyListener<BEAN_TYPE, Object>) listener);
 	}
 
-	private <PROPERTY_TYPE> Set<ICustomBeanPropertyListener<BEAN_TYPE, Object>> getPropertiesListeners(
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	private <PROPERTY_TYPE> IObserverSet<ICustomBeanPropertyListener<BEAN_TYPE, Object>> getPropertiesListeners(
 		final ITypedKey<PROPERTY_TYPE> key) {
 		Assert.paramNotNull(key, "key");
-		Set<ICustomBeanPropertyListener<BEAN_TYPE, Object>> result = customPropertiesListeners.get(key);
+		IObserverSet result = customPropertiesListeners.get(key);
 		if (result == null) {
-			result = new LinkedHashSet<ICustomBeanPropertyListener<BEAN_TYPE, Object>>();
+			result = ObserverSetFactory.create(IObserverSetFactory.Strategy.LOW_MEMORY);
 			customPropertiesListeners.put(key, result);
 		}
 		return result;
@@ -592,8 +600,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 		final ITypedKey<? extends Object> key,
 		final Object oldValue,
 		final Object newValue) {
-		for (final ICustomBeanPropertyListener<BEAN_TYPE, Object> listener : new LinkedList<ICustomBeanPropertyListener<BEAN_TYPE, Object>>(
-			getPropertiesListeners(key))) {
+		for (final ICustomBeanPropertyListener<BEAN_TYPE, Object> listener : getPropertiesListeners(key)) {
 			listener.propertyChanged(this, oldValue, newValue);
 		}
 	}
@@ -646,13 +653,14 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 
 	}
 
-	private Set<IExternalBeanValidator> getRegisteredExternalValidators(final String propertyName) {
-		final Set<IExternalBeanValidator> result = new LinkedHashSet<IExternalBeanValidator>();
-		final Set<IExternalBeanValidator> validators = externalValidators.get(propertyName);
+	private IObserverSet<IExternalBeanValidator> getRegisteredExternalValidators(final String propertyName) {
+		final IObserverSet<IExternalBeanValidator> validators = externalValidators.get(propertyName);
 		if (validators != null) {
-			result.addAll(validators);
+			return validators;
 		}
-		return result;
+		else {
+			return ObserverSetFactory.emptySet();
+		}
 	}
 
 	private void setValidationResults(
@@ -795,24 +803,20 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 
 	@Override
 	public void addBeanPropertyValidators(final Collection<? extends IBeanPropertyValidator<BEAN_TYPE>> validators) {
+		checkDisposed();
 		Assert.paramNotNull(validators, "validators");
-		for (final IBeanPropertyValidator<BEAN_TYPE> validator : validators) {
-			addBeanPropertyValidatorImpl(validator);
-		}
-
+		beanPropertyValidators.addAll(validators);
+		beanPropertyValidators.trimToSize();
 		validateAllInternalProperties();
 	}
 
 	@Override
 	public void addBeanPropertyValidator(final IBeanPropertyValidator<BEAN_TYPE> validator) {
-		addBeanPropertyValidatorImpl(validator);
-		validateAllInternalProperties();
-	}
-
-	private void addBeanPropertyValidatorImpl(final IBeanPropertyValidator<BEAN_TYPE> validator) {
 		checkDisposed();
 		Assert.paramNotNull(validator, "validator");
 		beanPropertyValidators.add(validator);
+		beanPropertyValidators.trimToSize();
+		validateAllInternalProperties();
 	}
 
 	@Override
@@ -856,7 +860,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 		checkDisposed();
 		Assert.paramNotNull(validator, "validator");
 		boolean removed = false;
-		for (final Set<IExternalBeanValidator> validators : externalValidators.values()) {
+		for (final IObserverSet<IExternalBeanValidator> validators : externalValidators.values()) {
 			removed = validators.remove(validator) || removed;
 		}
 		validator.removeExternalValidatorListener(this);
@@ -888,10 +892,10 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 		}
 	}
 
-	private Set<IExternalBeanValidator> getExternalValidators(final String propertyName) {
-		Set<IExternalBeanValidator> result = externalValidators.get(propertyName);
+	private IObserverSet<IExternalBeanValidator> getExternalValidators(final String propertyName) {
+		IObserverSet<IExternalBeanValidator> result = externalValidators.get(propertyName);
 		if (result == null) {
-			result = new LinkedHashSet<IExternalBeanValidator>();
+			result = ObserverSetFactory.create(Strategy.LOW_MEMORY);
 			externalValidators.put(propertyName, result);
 		}
 		return result;
@@ -899,13 +903,12 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 
 	private void calculateInternalObservedProperties() {
 		final Set<String> result = new LinkedHashSet<String>(attributes.getPropertyNames());
-		for (final Set<IExternalBeanValidator> externalBeanValidatorsSet : externalValidators.values()) {
+		for (final IObserverSet<IExternalBeanValidator> externalBeanValidatorsSet : externalValidators.values()) {
 			for (final IExternalBeanValidator externalBeanValidator : externalBeanValidatorsSet) {
 				result.removeAll(externalBeanValidator.getObservedProperties());
 			}
 		}
-		internalObservedProperties.clear();
-		internalObservedProperties.addAll(result);
+		internalObservedProperties = new ArrayList<String>(result);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -961,15 +964,19 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 			Assert.paramNotNull(message, "message");
 			Assert.paramNotNull(message.getType(), "message.getType()");
 			messagesList.add(0, message);
+			messagesList.trimToSize();
 
 			if (BeanMessageType.ERROR.equals(message.getType())) {
 				errorMessagesList.add(message);
+				errorMessagesList.trimToSize();
 			}
 			else if (BeanMessageType.INFO.equals(message.getType())) {
 				infoMessagesList.add(message);
+				infoMessagesList.trimToSize();
 			}
 			else if (BeanMessageType.WARNING.equals(message.getType())) {
 				warningMessagesList.add(message);
+				warningMessagesList.trimToSize();
 			}
 
 			propertyChange(BeanProxyImpl.this, IBeanProxy.META_PROPERTY_MESSAGES, lastMessages, getMessages());
@@ -1059,10 +1066,10 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 	@Override
 	public void clearMessages() {
 		checkDisposed();
-		messagesList.clear();
-		infoMessagesList.clear();
-		warningMessagesList.clear();
-		errorMessagesList.clear();
+		messagesList = new ArrayList<IBeanMessage>(0);
+		infoMessagesList = new ArrayList<IBeanMessage>(0);
+		warningMessagesList = new ArrayList<IBeanMessage>(0);
+		errorMessagesList = new ArrayList<IBeanMessage>(0);
 		messageStateObservable.fireMessageStateChanged(this);
 	}
 
@@ -1154,49 +1161,47 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 	@Override
 	public void addBeanProxyListener(final IBeanProxyListener<BEAN_TYPE> listener) {
 		checkDisposed();
-		Assert.paramNotNull(listener, "listener");
 		beanProxyListeners.add(listener);
 	}
 
 	@Override
 	public void removeBeanProxyListener(final IBeanProxyListener<BEAN_TYPE> listener) {
 		checkDisposed();
-		Assert.paramNotNull(listener, "listener");
 		beanProxyListeners.remove(listener);
 	}
 
 	private void fireBeforeBeanUpdate() {
-		for (final IBeanProxyListener<BEAN_TYPE> listener : new LinkedList<IBeanProxyListener<BEAN_TYPE>>(beanProxyListeners)) {
+		for (final IBeanProxyListener<BEAN_TYPE> listener : beanProxyListeners) {
 			listener.beforeBeanUpdate(this);
 		}
 	}
 
 	private void fireAfterBeanUpdated() {
-		for (final IBeanProxyListener<BEAN_TYPE> listener : new LinkedList<IBeanProxyListener<BEAN_TYPE>>(beanProxyListeners)) {
+		for (final IBeanProxyListener<BEAN_TYPE> listener : beanProxyListeners) {
 			listener.afterBeanUpdated(this);
 		}
 	}
 
 	private void fireBeforeUndoModifications() {
-		for (final IBeanProxyListener<BEAN_TYPE> listener : new LinkedList<IBeanProxyListener<BEAN_TYPE>>(beanProxyListeners)) {
+		for (final IBeanProxyListener<BEAN_TYPE> listener : beanProxyListeners) {
 			listener.beforeUndoModifications(this);
 		}
 	}
 
 	private void fireAfterUndoModifications() {
-		for (final IBeanProxyListener<BEAN_TYPE> listener : new LinkedList<IBeanProxyListener<BEAN_TYPE>>(beanProxyListeners)) {
+		for (final IBeanProxyListener<BEAN_TYPE> listener : beanProxyListeners) {
 			listener.afterUndoModifications(this);
 		}
 	}
 
 	private void fireBeforeRedoModifications() {
-		for (final IBeanProxyListener<BEAN_TYPE> listener : new LinkedList<IBeanProxyListener<BEAN_TYPE>>(beanProxyListeners)) {
+		for (final IBeanProxyListener<BEAN_TYPE> listener : beanProxyListeners) {
 			listener.beforeRedoModifications(this);
 		}
 	}
 
 	void fireAfterRedoModifications() {
-		for (final IBeanProxyListener<BEAN_TYPE> listener : new LinkedList<IBeanProxyListener<BEAN_TYPE>>(beanProxyListeners)) {
+		for (final IBeanProxyListener<BEAN_TYPE> listener : beanProxyListeners) {
 			listener.afterRedoModifications(this);
 		}
 	}

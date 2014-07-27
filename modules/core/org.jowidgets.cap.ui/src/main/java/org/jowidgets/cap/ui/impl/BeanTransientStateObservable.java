@@ -28,20 +28,19 @@
 
 package org.jowidgets.cap.ui.impl;
 
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Set;
-
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanTransientStateListener;
 import org.jowidgets.cap.ui.api.bean.IBeanTransientStateObservable;
+import org.jowidgets.util.collection.IObserverSet;
+import org.jowidgets.util.collection.IObserverSetFactory.Strategy;
+import org.jowidgets.util.collection.ObserverSetFactory;
 
 class BeanTransientStateObservable<BEAN_TYPE> implements IBeanTransientStateObservable<BEAN_TYPE> {
 
-	private final Set<IBeanTransientStateListener<BEAN_TYPE>> listeners;
+	private final IObserverSet<IBeanTransientStateListener<BEAN_TYPE>> listeners;
 
 	BeanTransientStateObservable() {
-		this.listeners = new HashSet<IBeanTransientStateListener<BEAN_TYPE>>();
+		this.listeners = ObserverSetFactory.create(Strategy.LOW_MEMORY);
 	}
 
 	@Override
@@ -55,8 +54,7 @@ class BeanTransientStateObservable<BEAN_TYPE> implements IBeanTransientStateObse
 	}
 
 	public final void fireTransientStateChanged(final Object oldId, final IBeanProxy<BEAN_TYPE> newBean) {
-		for (final IBeanTransientStateListener<BEAN_TYPE> listener : new LinkedList<IBeanTransientStateListener<BEAN_TYPE>>(
-			listeners)) {
+		for (final IBeanTransientStateListener<BEAN_TYPE> listener : listeners) {
 			listener.transientStateChanged(oldId, newBean);
 		}
 	}

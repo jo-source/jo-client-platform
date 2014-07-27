@@ -28,20 +28,19 @@
 
 package org.jowidgets.cap.ui.impl;
 
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Set;
-
 import org.jowidgets.cap.ui.api.bean.IBeanProcessStateListener;
 import org.jowidgets.cap.ui.api.bean.IBeanProcessStateObservable;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.util.collection.IObserverSet;
+import org.jowidgets.util.collection.IObserverSetFactory.Strategy;
+import org.jowidgets.util.collection.ObserverSetFactory;
 
 class BeanProcessStateObservable<BEAN_TYPE> implements IBeanProcessStateObservable<BEAN_TYPE> {
 
-	private final Set<IBeanProcessStateListener<BEAN_TYPE>> listeners;
+	private final IObserverSet<IBeanProcessStateListener<BEAN_TYPE>> listeners;
 
 	BeanProcessStateObservable() {
-		this.listeners = new HashSet<IBeanProcessStateListener<BEAN_TYPE>>();
+		this.listeners = ObserverSetFactory.create(Strategy.LOW_MEMORY);
 	}
 
 	@Override
@@ -55,7 +54,7 @@ class BeanProcessStateObservable<BEAN_TYPE> implements IBeanProcessStateObservab
 	}
 
 	public final void fireProcessStateChanged(final IBeanProxy<BEAN_TYPE> bean) {
-		for (final IBeanProcessStateListener<BEAN_TYPE> listener : new LinkedList<IBeanProcessStateListener<BEAN_TYPE>>(listeners)) {
+		for (final IBeanProcessStateListener<BEAN_TYPE> listener : listeners) {
 			listener.processStateChanged(bean);
 		}
 	}
