@@ -64,6 +64,7 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> extends
 	private String entityLabelPlural;
 
 	private boolean autoRefreshSelection;
+	private boolean autoDisposeInvisiblePages;
 	private boolean autoRowCount;
 	private boolean autoSelection;
 	private boolean clearOnEmptyFilter;
@@ -80,6 +81,7 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> extends
 		this.cellRenderers = new LinkedList<IBeanTableCellRenderer<BEAN_TYPE>>();
 
 		this.autoRefreshSelection = false;
+		this.autoDisposeInvisiblePages = false;
 		this.autoRowCount = true;
 		this.autoSelection = true;
 		this.clearOnEmptyFilter = false;
@@ -156,6 +158,12 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> extends
 	@Override
 	public IBeanTableModelBuilder<BEAN_TYPE> setAutoRefreshSelection(final boolean autoRefresh) {
 		this.autoRefreshSelection = autoRefresh;
+		return this;
+	}
+
+	@Override
+	public IBeanTableModelBuilder<BEAN_TYPE> setAutoDisposeInvisibelPages(final boolean autoDispose) {
+		this.autoDisposeInvisiblePages = autoDispose;
 		return this;
 	}
 
@@ -270,6 +278,7 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> extends
 			autoRowCount,
 			autoSelection,
 			autoRefreshSelection,
+			autoDisposeInvisiblePages,
 			clearOnEmptyFilter,
 			getClearOnEmptyParentBeans(),
 			lastBeanEnabled,
