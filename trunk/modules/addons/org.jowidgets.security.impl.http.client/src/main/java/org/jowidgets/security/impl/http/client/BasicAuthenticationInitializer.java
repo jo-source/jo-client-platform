@@ -32,42 +32,61 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.StringUtils;
 import org.apache.http.HttpRequest;
 import org.jowidgets.message.impl.http.client.IHttpRequestInitializer;
+import org.jowidgets.util.maybe.IMaybe;
+import org.jowidgets.util.maybe.Nothing;
+import org.jowidgets.util.maybe.Some;
 
 public final class BasicAuthenticationInitializer implements IHttpRequestInitializer {
 
 	private static final BasicAuthenticationInitializer INSTANCE = new BasicAuthenticationInitializer();
 
-	private String username;
-	private String password;
+	private IMaybe<String> username;
+	private IMaybe<String> password;
 
-	private BasicAuthenticationInitializer() {}
+	private BasicAuthenticationInitializer() {
+		clearCredentials();
+	}
 
 	public static BasicAuthenticationInitializer getInstance() {
 		return INSTANCE;
 	}
 
 	public synchronized void setCredentials(final String username, final String password) {
-		this.username = username;
-		this.password = password;
+		this.username = new Some<String>(username);
+		this.password = new Some<String>(password);
 	}
 
 	public synchronized void clearCredentials() {
-		username = null;
-		password = null;
+		username = Nothing.getInstance();
+		password = Nothing.getInstance();
 	}
 
 	@Override
 	public void initialize(final HttpRequest httpRequest) {
-		final String user;
-		final String pwd;
-		synchronized (this) {
-			user = this.username != null ? this.username : "";
-			pwd = this.password != null ? this.password : "";
+		if (username.isSomething() || password.isSomething()) {
+			final String user;
+			final String pwd;
+			synchronized (this) {
+				user = getString(this.username);
+				pwd = getString(this.password);
+			}
+
+			final String credentials = user + ":" + pwd;
+			final String encodedCredentials = Base64.encodeBase64String(StringUtils.getBytesUtf8(credentials));
+			httpRequest.setHeader("Authorization", "Basic " + encodedCredentials);
 		}
+	}
 
-		final String credentials = user + ":" + pwd;
-		final String encodedCredentials = Base64.encodeBase64String(StringUtils.getBytesUtf8(credentials));
-		httpRequest.setHeader("Authorization", "Basic " + encodedCredentials);
-
+	private static String getString(final IMaybe<String> maybe) {
+		if (maybe.isSomething()) {
+			final String result = maybe.getValue();
+			if (result == null) {
+				return "";
+			}
+			else {
+				return result;
+			}
+		}
+		return null;
 	}
 }
