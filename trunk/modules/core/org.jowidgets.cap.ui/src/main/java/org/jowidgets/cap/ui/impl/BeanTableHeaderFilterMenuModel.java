@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.ui.impl;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.jowidgets.api.command.IAction;
@@ -56,7 +57,7 @@ final class BeanTableHeaderFilterMenuModel<BEAN_TYPE> extends MenuModel {
 			final List<IFilterType> filterTypes = attribute.getSupportedFilterTypes();
 			if (filterTypes.size() > 0) {
 				for (final IFilterType filterType : filterTypes) {
-					if (attribute.getFilterPanelProvider(filterType).isApplicableWith((List) model.getAttributes())) {
+					if (attribute.getFilterPanelProvider(filterType).isApplicableWith((Collection) model.getAttributes())) {
 						tryAddAction(menuFactory.addFilterAction(model, filterType, columnIndex));
 					}
 				}
