@@ -590,7 +590,12 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 		}
 		catch (final Exception e) {
 			try {
-				action.getExceptionHandler().handleException(executionContext, e);
+				if (action.getExceptionHandler() != null) {
+					action.getExceptionHandler().handleException(executionContext, e);
+				}
+				else {
+					throw e;
+				}
 			}
 			catch (final Exception e1) {
 				final UncaughtExceptionHandler uncaughtExceptionHandler = Thread.currentThread().getUncaughtExceptionHandler();
