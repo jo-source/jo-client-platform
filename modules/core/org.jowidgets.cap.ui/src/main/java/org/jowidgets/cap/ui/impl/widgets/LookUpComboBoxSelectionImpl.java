@@ -36,6 +36,7 @@ import org.jowidgets.cap.ui.api.lookup.ILookUpAccess;
 import org.jowidgets.cap.ui.api.lookup.ILookUpCallback;
 import org.jowidgets.cap.ui.api.widgets.ILookUpComboBoxSelectionBluePrint;
 import org.jowidgets.common.widgets.controller.IInputListener;
+import org.jowidgets.tools.controller.FocusAdapter;
 import org.jowidgets.tools.controller.InputObservable;
 import org.jowidgets.tools.validation.ValidationCache;
 import org.jowidgets.tools.validation.ValidationCache.IValidationResultCreator;
@@ -52,12 +53,14 @@ final class LookUpComboBoxSelectionImpl extends ComboBoxWrapper<Object> implemen
 	private final ValidationCache validationCache;
 	private final CompoundValidator<Object> compoundValidator;
 	private final InputObservable inputObservable;
+	private final Object lookUpId;
 
 	private Object lastValue;
 
 	LookUpComboBoxSelectionImpl(final IComboBox<Object> comboBox, final ILookUpComboBoxSelectionBluePrint<Object> setup) {
 		super(comboBox);
 
+		this.lookUpId = setup.getLookUpId();
 		this.initializationDelegate = new LookUpControlInitializationDelegate(comboBox);
 		this.inputObservable = new InputObservable();
 		this.compoundValidator = new CompoundValidator<Object>();
@@ -77,7 +80,7 @@ final class LookUpComboBoxSelectionImpl extends ComboBoxWrapper<Object> implemen
 		this.lastValue = comboBox.getValue();
 		super.setValue(null);
 
-		final ILookUpAccess lookUpAccess = CapUiToolkit.lookUpCache().getAccess(setup.getLookUpId());
+		final ILookUpAccess lookUpAccess = CapUiToolkit.lookUpCache().getAccess(lookUpId);
 		if (!lookUpAccess.isInitialized()) {
 			setElements(DUMMY_OBJECT);
 		}
@@ -103,6 +106,15 @@ final class LookUpComboBoxSelectionImpl extends ComboBoxWrapper<Object> implemen
 				validationCache.setDirty();
 			}
 		});
+
+		if (setup.isAutoRefreshOnFocus()) {
+			comboBox.addFocusListener(new FocusAdapter() {
+				@Override
+				public void focusGained() {
+					CapUiToolkit.lookUpCache().clearCache(lookUpId);
+				}
+			});
+		}
 	}
 
 	@Override

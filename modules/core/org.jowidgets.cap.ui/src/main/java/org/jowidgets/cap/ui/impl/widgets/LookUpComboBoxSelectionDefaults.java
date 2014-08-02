@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,27 +26,14 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.widgets;
+package org.jowidgets.cap.ui.impl.widgets;
 
-import org.jowidgets.api.widgets.IComboBox;
-import org.jowidgets.api.widgets.blueprint.builder.IComboBoxSelectionSetupBuilder;
-import org.jowidgets.api.widgets.descriptor.setup.IComboBoxSelectionSetup;
-import org.jowidgets.common.widgets.descriptor.IWidgetDescriptor;
-import org.jowidgets.common.widgets.descriptor.setup.mandatory.Mandatory;
+import org.jowidgets.api.widgets.blueprint.defaults.IDefaultInitializer;
+import org.jowidgets.cap.ui.api.widgets.ILookUpComboBoxSelectionBluePrint;
 
-public interface ILookUpComboBoxSelectionBluePrint<KEY_TYPE> extends
-		IComboBoxSelectionSetupBuilder<ILookUpComboBoxSelectionBluePrint<KEY_TYPE>, KEY_TYPE>,
-		IComboBoxSelectionSetup<KEY_TYPE>,
-		IWidgetDescriptor<IComboBox<KEY_TYPE>> {
-
-	ILookUpComboBoxSelectionBluePrint<KEY_TYPE> setLookUpId(Object lookUpId);
-
-	ILookUpComboBoxSelectionBluePrint<KEY_TYPE> setAutoRefreshOnFocus(boolean autoRefresh);
-
-	@Mandatory
-	Object getLookUpId();
-
-	@Mandatory
-	boolean isAutoRefreshOnFocus();
-
+final class LookUpComboBoxSelectionDefaults implements IDefaultInitializer<ILookUpComboBoxSelectionBluePrint<?>> {
+	@Override
+	public void initialize(final ILookUpComboBoxSelectionBluePrint<?> bluePrint) {
+		bluePrint.setAutoRefreshOnFocus(false);
+	}
 }
