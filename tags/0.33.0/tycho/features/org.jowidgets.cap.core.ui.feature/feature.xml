@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+    id="org.jowidgets.cap.core.ui.feature"
+    label="jo-client-platform core ui feature"
+    version="0.33.0.qualifier">
+
+	<description url="http://www.example.com/description">
+		Feature that holds all cap core ui bundles
+	</description>
+
+	<copyright url="http://www.example.com/copyright">
+		org.jowidgets Michael Grossmann 2014
+	</copyright>
+
+	<license url="http://www.example.com/license">
+		BSD Licence
+	</license>
+
+	<includes
+         id="org.jowidgets.cap.core.common.feature"
+         version="0.0.0"/>
+	
+	<plugin
+         id="org.jowidgets.cap.ui.bundle"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>	 
+	
+		 
+</feature>
