@@ -145,6 +145,7 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 	private final RelationRenderingPolicy relationRenderingPolicy;
 	private final IAction rootCreatorAction;
 	private final ITreeSelectionListener treeSelectionListener;
+	private final RootModelListener rootModelListener;
 
 	private final AddAction addAction;
 
@@ -174,7 +175,8 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 
 		this.treeSelectionListener = new TreeSelectionListener();
 		tree.addTreeSelectionListener(treeSelectionListener);
-		treeModel.getRoot().addBeanListModelListener(new RootModelListener());
+		this.rootModelListener = new RootModelListener();
+		treeModel.getRoot().addBeanListModelListener(rootModelListener);
 
 		this.addAction = new AddAction();
 		addAction.setCurrentAction(rootCreatorAction);
@@ -209,6 +211,7 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 
 	@Override
 	public void dispose() {
+		treeModel.getRoot().removeBeanListModelListener(rootModelListener);
 		nodesMap.clear();
 		nodeActionMap.clear();
 		expandedNodesCache.clear();
