@@ -30,9 +30,11 @@ package org.jowidgets.cap.ui.impl.widgets;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.jowidgets.api.widgets.IComposite;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
@@ -57,6 +59,7 @@ final class BeanSelectionFormImpl extends ControlWrapper implements IBeanSelecti
 	private final boolean hideMetaAttributes;
 	private final Map<Object, IBeanForm<Object>> beanForms;
 	private final Map<Object, IBeanFormBluePrint<Object>> beanFormBluePrints;
+	private final Set<IBeanSelectionObservable<Object>> beanSelectionObservables;
 	private final IBeanSelectionListener<Object> beanSelectionListener;
 
 	BeanSelectionFormImpl(final IComposite composite, final IBeanSelectionFormBluePrint bluePrint) {
@@ -68,6 +71,7 @@ final class BeanSelectionFormImpl extends ControlWrapper implements IBeanSelecti
 		this.beanFormBluePrints = new HashMap<Object, IBeanFormBluePrint<Object>>();
 
 		this.beanSelectionListener = new BeanSelectionListener();
+		this.beanSelectionObservables = new HashSet<IBeanSelectionObservable<Object>>();
 
 		composite.setLayout(new MigLayoutDescriptor("hidemode 3", "0[grow, 0::]0", "0[grow, 0::]0"));
 
@@ -91,10 +95,20 @@ final class BeanSelectionFormImpl extends ControlWrapper implements IBeanSelecti
 		return (IComposite) super.getWidget();
 	}
 
+	@Override
+	public void dispose() {
+		for (final IBeanSelectionObservable<Object> beanSelectionObservable : beanSelectionObservables) {
+			beanSelectionObservable.removeBeanSelectionListener(beanSelectionListener);
+		}
+		beanSelectionObservables.clear();
+		super.dispose();
+	}
+
 	@SuppressWarnings({"rawtypes", "unchecked"})
 	@Override
 	public void registerSelectionObservable(final IBeanSelectionObservable selectionObservable) {
 		Assert.paramNotNull(selectionObservable, "selectionObservable");
+		beanSelectionObservables.add(selectionObservable);
 		selectionObservable.addBeanSelectionListener(beanSelectionListener);
 	}
 
@@ -102,6 +116,7 @@ final class BeanSelectionFormImpl extends ControlWrapper implements IBeanSelecti
 	@Override
 	public void unregisterSelectionObservable(final IBeanSelectionObservable selectionObservable) {
 		Assert.paramNotNull(selectionObservable, "selectionObservable");
+		beanSelectionObservables.remove(selectionObservable);
 		selectionObservable.removeBeanSelectionListener(beanSelectionListener);
 	}
 
@@ -141,9 +156,9 @@ final class BeanSelectionFormImpl extends ControlWrapper implements IBeanSelecti
 		if (selectionEvent.getEntityId() != null) {
 			final IBeanForm<Object> form = getBeanForm(selectionEvent.getEntityId());
 			form.setValue(selectionEvent.getFirstSelected());
-			if (!form.isVisible()) {
+			if (!form.isDisposed() && !form.isVisible()) {
 				for (final IBeanForm<?> childForm : beanForms.values()) {
-					if (childForm != form) {
+					if (childForm != form && !childForm.isDisposed()) {
 						childForm.setVisible(false);
 					}
 				}
@@ -153,8 +168,10 @@ final class BeanSelectionFormImpl extends ControlWrapper implements IBeanSelecti
 		}
 		else {
 			for (final IBeanForm<?> childForm : beanForms.values()) {
-				childForm.setVisible(false);
-				childForm.setValue(null);
+				if (!childForm.isDisposed()) {
+					childForm.setVisible(false);
+					childForm.setValue(null);
+				}
 			}
 		}
 	}
