@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+    id="org.jowidgets.cap.service.hibernate.oracle.feature"
+    label="jo-client-platform hibernate oracle service feature"
+    version="0.34.0.qualifier">
+
+	<description url="http://www.example.com/description">
+		Feature that holds all hibernate oracle service bundles
+	</description>
+
+	<copyright url="http://www.example.com/copyright">
+		org.jowidgets Michael Grossmann 2014
+	</copyright>
+
+	<license url="http://www.example.com/license">
+		BSD Licence
+	</license>
+
+	<includes
+         id="org.jowidgets.cap.service.hibernate.feature"
+         version="0.0.0"/>
+
+	<plugin
+         id="org.jowidgets.cap.service.hibernate.oracle.bundle"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+		 
+</feature>
