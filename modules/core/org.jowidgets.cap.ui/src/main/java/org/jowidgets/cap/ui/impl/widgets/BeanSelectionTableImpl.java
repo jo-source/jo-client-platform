@@ -50,7 +50,6 @@ import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.cap.ui.api.widgets.IPopupMenuListener;
 import org.jowidgets.cap.ui.tools.model.BeanListModelListenerAdapter;
 import org.jowidgets.common.types.Dimension;
-import org.jowidgets.common.types.Interval;
 import org.jowidgets.common.types.Position;
 import org.jowidgets.common.types.TablePackPolicy;
 import org.jowidgets.common.types.TableSelectionPolicy;
@@ -64,6 +63,7 @@ import org.jowidgets.common.widgets.controller.ITableSelectionListener;
 import org.jowidgets.tools.widgets.wrapper.AbstractInputControl;
 import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.util.EmptyCompatibleEquivalence;
+import org.jowidgets.util.Interval;
 import org.jowidgets.validation.IValidationResult;
 import org.jowidgets.validation.ValidationResult;
 

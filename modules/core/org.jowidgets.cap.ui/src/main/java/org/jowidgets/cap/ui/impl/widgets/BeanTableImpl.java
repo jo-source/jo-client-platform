@@ -94,7 +94,6 @@ import org.jowidgets.cap.ui.tools.model.DataModelContextExecutor;
 import org.jowidgets.cap.ui.tools.table.BeanTableMenuInterceptorAdapter;
 import org.jowidgets.common.types.Dimension;
 import org.jowidgets.common.types.IVetoable;
-import org.jowidgets.common.types.Interval;
 import org.jowidgets.common.types.Modifier;
 import org.jowidgets.common.types.Position;
 import org.jowidgets.common.types.TablePackPolicy;
@@ -134,6 +133,7 @@ import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.util.ICallback;
 import org.jowidgets.util.IDecorator;
 import org.jowidgets.util.ITypedKey;
+import org.jowidgets.util.Interval;
 import org.jowidgets.util.concurrent.DaemonThreadFactory;
 
 final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTable<BEAN_TYPE> {
