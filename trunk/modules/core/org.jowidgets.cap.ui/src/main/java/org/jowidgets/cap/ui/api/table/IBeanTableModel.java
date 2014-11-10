@@ -54,7 +54,7 @@ import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.model.IDataModel;
 import org.jowidgets.cap.ui.api.model.IDataModelContextProvider;
 import org.jowidgets.cap.ui.api.sort.ISortModel;
-import org.jowidgets.common.types.Interval;
+import org.jowidgets.util.Interval;
 import org.jowidgets.util.event.IChangeListener;
 
 public interface IBeanTableModel<BEAN_TYPE> extends
