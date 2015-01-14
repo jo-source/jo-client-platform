@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, grossmann
+ * Copyright (c) 2014, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -31,18 +31,17 @@ package org.jowidgets.cap.common.api.sort;
 import java.util.Collection;
 import java.util.Comparator;
 
-import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.util.IConverter;
 
-public final class BeanDtoComparator {
+public interface IBeanDtoComparatorBuilder {
 
-	private BeanDtoComparator() {}
+	IBeanDtoComparatorBuilder setSorting(final Collection<? extends ISort> sorting);
 
-	public static Comparator<IBeanDto> create(final Collection<? extends ISort> sorting) {
-		return CapCommonToolkit.beanDtoComparator(sorting);
-	}
+	IBeanDtoComparatorBuilder addPropertyComparator(String propertyName, Comparator<?> comparator);
 
-	public static IBeanDtoComparatorBuilder builder() {
-		return CapCommonToolkit.beanDtoComparatorBuilder();
-	}
+	IBeanDtoComparatorBuilder addPropertyComparator(String propertyName, IConverter<?, ?> converter);
+
+	Comparator<IBeanDto> build();
+
 }

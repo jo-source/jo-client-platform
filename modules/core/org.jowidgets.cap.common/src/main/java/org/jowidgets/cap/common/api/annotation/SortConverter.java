@@ -26,23 +26,22 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.api.sort;
+package org.jowidgets.cap.common.api.annotation;
 
-import java.util.Collection;
-import java.util.Comparator;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-import org.jowidgets.cap.common.api.CapCommonToolkit;
-import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.util.IConverter;
 
-public final class BeanDtoComparator {
+/**
+ * Defines how to convert bean properties for sorting.
+ */
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.METHOD, ElementType.FIELD})
+public @interface SortConverter {
 
-	private BeanDtoComparator() {}
+	Class<? extends IConverter<?, ?>>[] value();
 
-	public static Comparator<IBeanDto> create(final Collection<? extends ISort> sorting) {
-		return CapCommonToolkit.beanDtoComparator(sorting);
-	}
-
-	public static IBeanDtoComparatorBuilder builder() {
-		return CapCommonToolkit.beanDtoComparatorBuilder();
-	}
 }

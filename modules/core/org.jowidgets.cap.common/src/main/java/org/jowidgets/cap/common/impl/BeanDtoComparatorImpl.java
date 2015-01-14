@@ -30,21 +30,28 @@ package org.jowidgets.cap.common.impl;
 
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.common.api.sort.SortOrder;
 import org.jowidgets.util.Assert;
 
+@SuppressWarnings("rawtypes")
 final class BeanDtoComparatorImpl implements Comparator<IBeanDto> {
 
 	private final List<? extends ISort> sorting;
 
-	BeanDtoComparatorImpl(final Collection<? extends ISort> sorting) {
+	private final Map<String, Comparator> comparators;
+
+	BeanDtoComparatorImpl(final Collection<? extends ISort> sorting, final Map<String, Comparator<?>> comparators) {
 		Assert.paramNotNull(sorting, "sorting");
+		Assert.paramNotNull(comparators, "comparators");
 		this.sorting = new LinkedList<ISort>(sorting);
+		this.comparators = new HashMap<String, Comparator>(comparators);
 	}
 
 	@Override
@@ -69,12 +76,16 @@ final class BeanDtoComparatorImpl implements Comparator<IBeanDto> {
 		return result;
 	}
 
-	@SuppressWarnings({"unchecked", "rawtypes"})
+	@SuppressWarnings({"unchecked"})
 	private int compareWithCast(final IBeanDto firstBeanDto, final IBeanDto secondBeanDto, int result, final String propertyName) {
 		final Object firstValue = getComparableValue(firstBeanDto.getValue(propertyName));
 		final Object secondValue = getComparableValue(secondBeanDto.getValue(propertyName));
 		if (firstValue != null && secondValue != null) {
-			if (firstValue instanceof Comparable<?> && secondValue instanceof Comparable<?>) {
+			final Comparator<Object> comparator = comparators.get(propertyName);
+			if (comparator != null) {
+				result = comparator.compare(firstValue, secondValue);
+			}
+			else if (firstValue instanceof Comparable<?> && secondValue instanceof Comparable<?>) {
 				result = ((Comparable) firstValue).compareTo(secondValue);
 			}
 			else {
