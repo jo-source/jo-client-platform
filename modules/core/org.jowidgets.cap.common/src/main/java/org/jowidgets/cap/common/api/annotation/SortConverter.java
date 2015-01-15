@@ -42,6 +42,6 @@ import org.jowidgets.util.IConverter;
 @Target({ElementType.METHOD, ElementType.FIELD})
 public @interface SortConverter {
 
-	Class<? extends IConverter<?, ?>>[] value();
+	Class<? extends IConverter<?, ?>> value();
 
 }

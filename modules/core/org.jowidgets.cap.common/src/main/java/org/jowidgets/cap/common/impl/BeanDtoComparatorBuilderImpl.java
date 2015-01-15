@@ -36,6 +36,8 @@ import java.util.Map;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.sort.IBeanDtoComparatorBuilder;
 import org.jowidgets.cap.common.api.sort.ISort;
+import org.jowidgets.cap.common.api.sort.ISortConverterMap;
+import org.jowidgets.cap.common.api.sort.SortConverterMap;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.IConverter;
 
@@ -57,7 +59,7 @@ final class BeanDtoComparatorBuilderImpl implements IBeanDtoComparatorBuilder {
 	}
 
 	@Override
-	public IBeanDtoComparatorBuilder addPropertyComparator(final String propertyName, final Comparator<?> comparator) {
+	public IBeanDtoComparatorBuilder setPropertyComparator(final String propertyName, final Comparator<?> comparator) {
 		Assert.paramNotNull(propertyName, "propertyName");
 		Assert.paramNotNull(comparator, "comparator");
 		comparators.put(propertyName, comparator);
@@ -65,10 +67,26 @@ final class BeanDtoComparatorBuilderImpl implements IBeanDtoComparatorBuilder {
 	}
 
 	@Override
-	public IBeanDtoComparatorBuilder addPropertyComparator(final String propertyName, final IConverter<?, ?> converter) {
+	public IBeanDtoComparatorBuilder setPropertyComparator(final String propertyName, final IConverter<?, ?> converter) {
 		Assert.paramNotNull(propertyName, "propertyName");
 		Assert.paramNotNull(converter, "converter");
-		return addPropertyComparator(propertyName, new ConverterBasedComparator(converter, propertyName));
+		return setPropertyComparator(propertyName, new ConverterBasedComparator(converter, propertyName));
+	}
+
+	@Override
+	public IBeanDtoComparatorBuilder setPropertyComparators(final ISortConverterMap sortConverterMap) {
+		Assert.paramNotNull(sortConverterMap, "sortConverterMap");
+		for (final String propertyName : sortConverterMap.getProperties()) {
+			setPropertyComparator(propertyName, sortConverterMap.getConverter(propertyName));
+		}
+		return this;
+	}
+
+	@Override
+	public IBeanDtoComparatorBuilder setPropertyComparators(final Class<?> beanType) {
+		Assert.paramNotNull(beanType, "beanType");
+		setPropertyComparators(SortConverterMap.create(beanType));
+		return this;
 	}
 
 	@Override

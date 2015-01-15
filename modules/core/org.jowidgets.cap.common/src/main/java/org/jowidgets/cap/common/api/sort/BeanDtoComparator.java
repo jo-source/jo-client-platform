@@ -42,6 +42,14 @@ public final class BeanDtoComparator {
 		return CapCommonToolkit.beanDtoComparator(sorting);
 	}
 
+	public static Comparator<IBeanDto> create(final Class<?> beanType, final Collection<? extends ISort> sorting) {
+		return builder().setSorting(sorting).setPropertyComparators(beanType).build();
+	}
+
+	public static Comparator<IBeanDto> create(final ISortConverterMap sortConverters, final Collection<? extends ISort> sorting) {
+		return builder().setSorting(sorting).setPropertyComparators(sortConverters).build();
+	}
+
 	public static IBeanDtoComparatorBuilder builder() {
 		return CapCommonToolkit.beanDtoComparatorBuilder();
 	}

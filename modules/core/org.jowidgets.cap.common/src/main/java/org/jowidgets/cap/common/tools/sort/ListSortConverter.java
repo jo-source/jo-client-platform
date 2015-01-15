@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2015, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,42 +26,52 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.impl.dummy.service;
+package org.jowidgets.cap.common.tools.sort;
 
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import org.jowidgets.cap.common.api.bean.IBean;
-import org.jowidgets.cap.common.api.bean.IBeanKey;
-import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
-import org.jowidgets.cap.service.impl.dummy.datastore.IEntityData;
-import org.jowidgets.cap.service.tools.reader.AbstractSimpleReaderService;
+import org.jowidgets.util.Assert;
+import org.jowidgets.util.IConverter;
 
-final class SyncReaderService<BEAN_TYPE extends IBean> extends AbstractSimpleReaderService<IBean, Void> {
+public class ListSortConverter<VALUE_TYPE> implements IConverter<VALUE_TYPE, Integer> {
 
-	private final IEntityData<? extends BEAN_TYPE> data;
+	private final Map<VALUE_TYPE, Integer> sortMapping;
 
-	SyncReaderService(final IEntityData<? extends BEAN_TYPE> data, final IBeanDtoFactory<BEAN_TYPE> beanFactory) {
-		super(data.getBeanType(), beanFactory);
-		this.data = data;
+	public ListSortConverter(final VALUE_TYPE[] values) {
+		this(Arrays.asList(Assert.getParamNotNull(values, "values")));
+	}
+
+	public ListSortConverter(final List<VALUE_TYPE> values) {
+		Assert.paramNotNull(values, "values");
+		this.sortMapping = createSortMapping(values);
+	}
+
+	private Map<VALUE_TYPE, Integer> createSortMapping(final List<VALUE_TYPE> values) {
+		final Map<VALUE_TYPE, Integer> result = new HashMap<VALUE_TYPE, Integer>();
+		int order = 0;
+		for (final VALUE_TYPE value : values) {
+			result.put(value, Integer.valueOf(order));
+			order++;
+		}
+		return result;
 	}
 
 	@Override
-	protected List<? extends IBean> getAllBeans(
-		final List<? extends IBeanKey> parentBeans,
-		final Void parameter,
-		final IExecutionCallback executionCallback) {
-		return data.getAllData();
+	public final Integer convert(final VALUE_TYPE source) {
+		if (source != null) {
+			final Integer result = sortMapping.get(source);
+			if (result != null) {
+				return result;
+			}
+			else {
+				return Integer.MIN_VALUE;
+			}
+		}
+		else {
+			return null;
+		}
 	}
-
-	@Override
-	protected List<? extends IBean> getBeans(
-		final List<? extends IBeanKey> parentBeans,
-		final Void parameter,
-		final int firstRow,
-		final int maxRows,
-		final IExecutionCallback executionCallback) {
-		return data.getAllData(firstRow, maxRows);
-	}
-
 }

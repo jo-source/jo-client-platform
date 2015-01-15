@@ -130,7 +130,7 @@ public class BeanDtoComparatorTest {
 		final Collection<ISort> sorting,
 		final String propertyName,
 		final IConverter<?, ?> converter) {
-		return BeanDtoComparator.builder().setSorting(sorting).addPropertyComparator(propertyName, converter).build();
+		return BeanDtoComparator.builder().setSorting(sorting).setPropertyComparator(propertyName, converter).build();
 	}
 
 	private static final class StringSortConverter implements IConverter<String, Long> {

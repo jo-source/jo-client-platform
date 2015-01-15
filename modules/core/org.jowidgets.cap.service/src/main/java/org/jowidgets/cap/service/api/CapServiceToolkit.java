@@ -34,6 +34,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.service.IEntityService;
+import org.jowidgets.cap.common.api.sort.ISortConverterMap;
 import org.jowidgets.cap.service.api.adapter.IAdapterFactoryProvider;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.bean.IBeanDtoCollectionFilter;
@@ -124,6 +125,14 @@ public final class CapServiceToolkit {
 
 	public static IBeanDtoCollectionSorter beanDtoCollectionSorter() {
 		return getInstance().beanDtoCollectionSorter();
+	}
+
+	public static IBeanDtoCollectionSorter beanDtoCollectionSorter(final Class<?> beanType) {
+		return getInstance().beanDtoCollectionSorter(beanType);
+	}
+
+	public static IBeanDtoCollectionSorter beanDtoCollectionSorter(final ISortConverterMap sortConveters) {
+		return getInstance().beanDtoCollectionSorter(sortConveters);
 	}
 
 	public static IBeanDtoCollectionFilter beanDtoCollectionFilter() {

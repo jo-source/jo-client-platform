@@ -61,6 +61,7 @@ import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.common.api.service.IEntityServiceCompositeBuilder;
 import org.jowidgets.cap.common.api.sort.IBeanDtoComparatorBuilder;
 import org.jowidgets.cap.common.api.sort.ISort;
+import org.jowidgets.cap.common.api.sort.ISortConverterMap;
 import org.jowidgets.cap.common.api.sort.ISortFactory;
 import org.jowidgets.cap.common.api.validation.IBeanValidationResult;
 import org.jowidgets.cap.common.api.validation.IBeanValidationResultListBuilder;
@@ -228,6 +229,10 @@ public final class CapCommonToolkit {
 
 	public static IBeanDtoComparatorBuilder beanDtoComparatorBuilder() {
 		return getInstance().beanDtoComparatorBuilder();
+	}
+
+	public static ISortConverterMap sortConveterMap(final Class<?> beanType) {
+		return getInstance().sortConveterMap(beanType);
 	}
 
 	public static ILookUpToolkit lookUpToolkit() {

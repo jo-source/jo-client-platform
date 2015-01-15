@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2015, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,42 +26,16 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.impl.dummy.service;
+package org.jowidgets.cap.common.api.sort;
 
-import java.util.List;
+import java.util.Collection;
 
-import org.jowidgets.cap.common.api.bean.IBean;
-import org.jowidgets.cap.common.api.bean.IBeanKey;
-import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
-import org.jowidgets.cap.service.impl.dummy.datastore.IEntityData;
-import org.jowidgets.cap.service.tools.reader.AbstractSimpleReaderService;
+import org.jowidgets.util.IConverter;
 
-final class SyncReaderService<BEAN_TYPE extends IBean> extends AbstractSimpleReaderService<IBean, Void> {
+public interface ISortConverterMap {
 
-	private final IEntityData<? extends BEAN_TYPE> data;
+	IConverter<?, ?> getConverter(String propertyName);
 
-	SyncReaderService(final IEntityData<? extends BEAN_TYPE> data, final IBeanDtoFactory<BEAN_TYPE> beanFactory) {
-		super(data.getBeanType(), beanFactory);
-		this.data = data;
-	}
-
-	@Override
-	protected List<? extends IBean> getAllBeans(
-		final List<? extends IBeanKey> parentBeans,
-		final Void parameter,
-		final IExecutionCallback executionCallback) {
-		return data.getAllData();
-	}
-
-	@Override
-	protected List<? extends IBean> getBeans(
-		final List<? extends IBeanKey> parentBeans,
-		final Void parameter,
-		final int firstRow,
-		final int maxRows,
-		final IExecutionCallback executionCallback) {
-		return data.getAllData(firstRow, maxRows);
-	}
+	Collection<String> getProperties();
 
 }

@@ -73,7 +73,7 @@ final class SyncNeo4JSimpleTraversalReaderServiceImpl<BEAN_TYPE extends IBean, P
 		final Collection<IFilter> additionalFilters,
 		final boolean related) {
 
-		super(beanFactory, additionalFilters);
+		super(beanType, beanFactory, additionalFilters);
 
 		Assert.paramNotNull(parentBeanTypeId, "parentBeanTypeId");
 		Assert.paramNotNull(beanType, "beanType");
