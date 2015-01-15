@@ -163,6 +163,7 @@ final class BeanRepositoryServiceFactoryImpl<BEAN_TYPE> implements IBeanReposito
 	@Override
 	public IReaderService<Void> readerService() {
 		return readerDecorator.decorate(READER_ADAPTER_FACTORY.createAdapter(new SyncBeanRepositoryReaderService<BEAN_TYPE>(
+			beanAccess.getBeanType(),
 			repository,
 			readableProperties)));
 	}

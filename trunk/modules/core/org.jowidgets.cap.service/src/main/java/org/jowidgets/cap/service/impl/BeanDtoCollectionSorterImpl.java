@@ -38,10 +38,26 @@ import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.sort.BeanDtoComparator;
 import org.jowidgets.cap.common.api.sort.ISort;
+import org.jowidgets.cap.common.api.sort.ISortConverterMap;
+import org.jowidgets.cap.common.api.sort.SortConverterMap;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.bean.IBeanDtoCollectionSorter;
 
 final class BeanDtoCollectionSorterImpl implements IBeanDtoCollectionSorter {
+
+	private final ISortConverterMap sortConverters;
+
+	BeanDtoCollectionSorterImpl() {
+		this((ISortConverterMap) null);
+	}
+
+	BeanDtoCollectionSorterImpl(final Class<?> beanType) {
+		this(beanType != null ? SortConverterMap.create(beanType) : null);
+	}
+
+	BeanDtoCollectionSorterImpl(final ISortConverterMap sortConverters) {
+		this.sortConverters = sortConverters;
+	}
 
 	@Override
 	public List<IBeanDto> sort(
@@ -59,7 +75,12 @@ final class BeanDtoCollectionSorterImpl implements IBeanDtoCollectionSorter {
 		private final IExecutionCallback executionCallback;
 
 		public BeanDtoComparatorDecorator(final List<? extends ISort> sorting, final IExecutionCallback executionCallback) {
-			this.original = BeanDtoComparator.create(sorting);
+			if (sortConverters != null) {
+				this.original = BeanDtoComparator.create(sortConverters, sorting);
+			}
+			else {
+				this.original = BeanDtoComparator.create(sorting);
+			}
 			this.executionCallback = executionCallback;
 		}
 

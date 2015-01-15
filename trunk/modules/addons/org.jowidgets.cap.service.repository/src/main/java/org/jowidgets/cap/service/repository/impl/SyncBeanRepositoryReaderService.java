@@ -41,8 +41,11 @@ final class SyncBeanRepositoryReaderService<BEAN_TYPE> extends AbstractSimpleRea
 
 	private final IBeanRepository<BEAN_TYPE> repository;
 
-	SyncBeanRepositoryReaderService(final IBeanRepository<BEAN_TYPE> repository, final List<String> propertyNames) {
-		super(CapServiceToolkit.dtoFactory(repository, propertyNames));
+	SyncBeanRepositoryReaderService(
+		final Class<?> beanType,
+		final IBeanRepository<BEAN_TYPE> repository,
+		final List<String> propertyNames) {
+		super(beanType, CapServiceToolkit.dtoFactory(repository, propertyNames));
 		Assert.paramNotNull(repository, "repository");
 		this.repository = repository;
 	}

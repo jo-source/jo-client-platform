@@ -40,8 +40,12 @@ import org.jowidgets.cap.common.api.filter.BooleanOperator;
 import org.jowidgets.cap.common.api.filter.IBooleanFilterBuilder;
 import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.common.api.sort.ISort;
+import org.jowidgets.cap.common.api.sort.ISortConverterMap;
+import org.jowidgets.cap.common.api.sort.SortConverterMap;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.adapter.ISyncReaderService;
+import org.jowidgets.cap.service.api.bean.BeanDtoCollectionSorter;
+import org.jowidgets.cap.service.api.bean.IBeanDtoCollectionSorter;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.tools.bean.BeanDtoFactoryHelper;
 import org.jowidgets.util.Assert;
@@ -55,23 +59,53 @@ import org.jowidgets.util.EmptyCheck;
  */
 public abstract class AbstractSimpleReaderService<BEAN_TYPE, PARAM_TYPE> implements ISyncReaderService<PARAM_TYPE> {
 
+	private final IBeanDtoCollectionSorter collectionSorter;
 	private final IBeanDtoFactory<? extends BEAN_TYPE> beanFactory;
 	private final Collection<IFilter> additionalFilters;
+
+	protected AbstractSimpleReaderService(final Class<?> beanType, final IBeanDtoFactory<? extends BEAN_TYPE> beanFactory) {
+		this(beanType != null ? SortConverterMap.create(beanType) : null, beanFactory, null);
+	}
 
 	protected AbstractSimpleReaderService(final IBeanDtoFactory<? extends BEAN_TYPE> beanFactory) {
 		this(beanFactory, null);
 	}
 
 	protected AbstractSimpleReaderService(
+		final Class<?> beanType,
+		final IBeanDtoFactory<? extends BEAN_TYPE> beanFactory,
+		final Collection<IFilter> additionalFilters) {
+		this(beanType != null ? SortConverterMap.create(beanType) : null, beanFactory, additionalFilters);
+	}
+
+	protected AbstractSimpleReaderService(
+		final IBeanDtoFactory<? extends BEAN_TYPE> beanFactory,
+		final Collection<IFilter> additionalFilters) {
+		this((ISortConverterMap) null, beanFactory, additionalFilters);
+	}
+
+	protected AbstractSimpleReaderService(
+		final ISortConverterMap sortConverters,
 		final IBeanDtoFactory<? extends BEAN_TYPE> beanFactory,
 		final Collection<IFilter> additionalFilters) {
 		Assert.paramNotNull(beanFactory, "beanFactory");
+
+		this.collectionSorter = getCollectionSorter(sortConverters);
 		this.beanFactory = beanFactory;
 		if (!EmptyCheck.isEmpty(additionalFilters)) {
 			this.additionalFilters = new LinkedList<IFilter>(additionalFilters);
 		}
 		else {
 			this.additionalFilters = null;
+		}
+	}
+
+	private static IBeanDtoCollectionSorter getCollectionSorter(final ISortConverterMap sortConverters) {
+		if (sortConverters != null) {
+			return BeanDtoCollectionSorter.create(sortConverters);
+		}
+		else {
+			return BeanDtoCollectionSorter.create();
 		}
 	}
 
@@ -106,7 +140,7 @@ public abstract class AbstractSimpleReaderService<BEAN_TYPE, PARAM_TYPE> impleme
 				result = CapServiceToolkit.beanDtoCollectionFilter().filter(result, decoratedFilter, executionCallback);
 			}
 			if (sortedProperties != null && sortedProperties.size() > 0) {
-				result = CapServiceToolkit.beanDtoCollectionSorter().sort(result, sortedProperties, executionCallback);
+				result = collectionSorter.sort(result, sortedProperties, executionCallback);
 			}
 
 			if (result.size() >= firstRow) {

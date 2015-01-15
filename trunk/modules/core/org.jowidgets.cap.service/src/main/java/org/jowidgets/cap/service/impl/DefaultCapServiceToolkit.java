@@ -37,6 +37,7 @@ import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.exception.ServiceCanceledException;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.service.IEntityService;
+import org.jowidgets.cap.common.api.sort.ISortConverterMap;
 import org.jowidgets.cap.service.api.ICapServiceToolkit;
 import org.jowidgets.cap.service.api.adapter.IAdapterFactoryProvider;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
@@ -247,6 +248,18 @@ public final class DefaultCapServiceToolkit implements ICapServiceToolkit {
 	@Override
 	public IBeanDtoCollectionSorter beanDtoCollectionSorter() {
 		return beanDtoSorter;
+	}
+
+	@Override
+	public IBeanDtoCollectionSorter beanDtoCollectionSorter(final Class<?> beanType) {
+		Assert.paramNotNull(beanType, "beanType");
+		return new BeanDtoCollectionSorterImpl(beanType);
+	}
+
+	@Override
+	public IBeanDtoCollectionSorter beanDtoCollectionSorter(final ISortConverterMap sortConveters) {
+		Assert.paramNotNull(sortConveters, "sortConveters");
+		return new BeanDtoCollectionSorterImpl(sortConveters);
 	}
 
 	@Override

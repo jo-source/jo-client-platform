@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.service.api.bean;
 
+import org.jowidgets.cap.common.api.sort.ISortConverterMap;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 
 public final class BeanDtoCollectionSorter {
@@ -36,6 +37,14 @@ public final class BeanDtoCollectionSorter {
 
 	public static IBeanDtoCollectionSorter create() {
 		return CapServiceToolkit.beanDtoCollectionSorter();
+	}
+
+	public static IBeanDtoCollectionSorter create(final ISortConverterMap sortConverters) {
+		return CapServiceToolkit.beanDtoCollectionSorter(sortConverters);
+	}
+
+	public static IBeanDtoCollectionSorter create(final Class<?> beanType) {
+		return CapServiceToolkit.beanDtoCollectionSorter(beanType);
 	}
 
 }

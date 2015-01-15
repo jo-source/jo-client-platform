@@ -38,9 +38,13 @@ public interface IBeanDtoComparatorBuilder {
 
 	IBeanDtoComparatorBuilder setSorting(final Collection<? extends ISort> sorting);
 
-	IBeanDtoComparatorBuilder addPropertyComparator(String propertyName, Comparator<?> comparator);
+	IBeanDtoComparatorBuilder setPropertyComparator(String propertyName, Comparator<?> comparator);
 
-	IBeanDtoComparatorBuilder addPropertyComparator(String propertyName, IConverter<?, ?> converter);
+	IBeanDtoComparatorBuilder setPropertyComparator(String propertyName, IConverter<?, ?> converter);
+
+	IBeanDtoComparatorBuilder setPropertyComparators(ISortConverterMap sortConverterMap);
+
+	IBeanDtoComparatorBuilder setPropertyComparators(Class<?> beanType);
 
 	Comparator<IBeanDto> build();
 

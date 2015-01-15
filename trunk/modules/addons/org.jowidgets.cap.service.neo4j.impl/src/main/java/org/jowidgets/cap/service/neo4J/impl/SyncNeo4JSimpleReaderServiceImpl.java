@@ -70,7 +70,7 @@ final class SyncNeo4JSimpleReaderServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE
 		final Object beanTypeId,
 		final IBeanDtoFactory<BEAN_TYPE> beanFactory,
 		final Collection<IFilter> additionalFilters) {
-		super(beanFactory, additionalFilters);
+		super(beanType, beanFactory, additionalFilters);
 		Assert.paramNotNull(beanType, "beanType");
 		Assert.paramNotNull(beanTypeId, "beanTypeId");
 		Assert.paramNotNull(beanFactory, "beanFactory");
