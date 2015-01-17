@@ -38,6 +38,7 @@ import java.util.Set;
 
 import org.jowidgets.api.controller.IDisposeListener;
 import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.api.widgets.IComboBox;
 import org.jowidgets.api.widgets.IInputControl;
 import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.validation.IBeanValidationResult;
@@ -51,12 +52,16 @@ import org.jowidgets.cap.ui.api.color.CapColors;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.common.model.ITableCell;
+import org.jowidgets.common.types.VirtualKey;
 import org.jowidgets.common.widgets.ISelectable;
 import org.jowidgets.common.widgets.controller.IInputListener;
+import org.jowidgets.common.widgets.controller.IKeyEvent;
+import org.jowidgets.common.widgets.controller.IKeyListener;
 import org.jowidgets.common.widgets.editor.EditActivation;
 import org.jowidgets.common.widgets.editor.ITableCellEditor;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 import org.jowidgets.common.widgets.factory.ICustomWidgetFactory;
+import org.jowidgets.tools.controller.KeyObservable;
 import org.jowidgets.tools.editor.AbstractTableCellEditor;
 import org.jowidgets.tools.editor.AbstractTableCellEditorFactory;
 import org.jowidgets.util.Assert;
@@ -127,6 +132,7 @@ final class BeanTableCellEditorFactory extends AbstractTableCellEditorFactory<IT
 		private final IInputControl<Object> editor;
 		private final IAttribute<Object> attribute;
 		private final Set<IExternalBeanValidatorListener> externalValidatorListeners;
+		private final KeyObservable keyObservable;
 
 		private Object lastValue;
 		private IBeanProxy<?> lastBean;
@@ -139,6 +145,7 @@ final class BeanTableCellEditorFactory extends AbstractTableCellEditorFactory<IT
 			this.attribute = attribute;
 			this.editor = editor;
 			this.externalValidatorListeners = new LinkedHashSet<IExternalBeanValidatorListener>();
+			this.keyObservable = new KeyObservable();
 
 			if (attribute.isMandatory()) {
 				editor.setBackgroundColor(CapColors.MANDATORY_BACKGROUND);
@@ -150,6 +157,38 @@ final class BeanTableCellEditorFactory extends AbstractTableCellEditorFactory<IT
 					fireValidationConditionsChanged();
 				}
 			});
+
+			editor.addKeyListener(new IKeyListener() {
+
+				@Override
+				public void keyReleased(final IKeyEvent event) {
+					keyObservable.fireKeyReleased(event);
+				}
+
+				@Override
+				public void keyPressed(final IKeyEvent event) {
+					//avoid stop editing when combobox should be closed
+					if (editor instanceof IComboBox<?>) {
+						if (((IComboBox<?>) editor).isPopupVisible()) {
+							if (VirtualKey.ESC == event.getVirtualKey() || VirtualKey.ENTER == event.getVirtualKey()) {
+								return;
+							}
+						}
+					}
+					keyObservable.fireKeyPressed(event);
+				}
+			});
+
+		}
+
+		@Override
+		public void addKeyListener(final IKeyListener listener) {
+			keyObservable.addKeyListener(listener);
+		}
+
+		@Override
+		public void removeKeyListener(final IKeyListener listener) {
+			keyObservable.removeKeyListener(listener);
 		}
 
 		@Override
