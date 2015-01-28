@@ -34,6 +34,7 @@ import org.jowidgets.api.login.ILoginResultCallback;
 import org.jowidgets.cap.common.api.service.IAuthorizationProviderService;
 import org.jowidgets.cap.remoting.client.RemotingServiceInitializer;
 import org.jowidgets.cap.remoting.common.RemotingBrokerId;
+import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.security.impl.http.client.BasicAuthenticationLoginInterceptor;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.util.Assert;
@@ -41,7 +42,8 @@ import org.jowidgets.util.CancelCallback;
 
 public final class RemotingBasicAuthenticationLoginInterceptor implements ILoginInterceptor {
 
-	private static final long REMOTING_INITIALIZATION_DEFAULT_TIMEOUT = 60000;
+	private static final long REMOTING_INITIALIZATION_DEFAULT_TIMEOUT = 600;
+	private static final IMessage SERVER_NOT_AVAILABLE = Messages.getMessage("RemotingBasicAuthenticationLoginInterceptor.ServerNotAvailable");
 
 	private final RemotingServiceInitializer remotingServiceInitializer;
 	private final BasicAuthenticationLoginInterceptor basicAuthenticationLoginInterceptor;
@@ -93,7 +95,7 @@ public final class RemotingBasicAuthenticationLoginInterceptor implements ILogin
 			basicAuthenticationLoginInterceptor.login(resultCallback, username, password);
 		}
 		else {
-			resultCallback.denied("Server is not available");
+			resultCallback.denied(SERVER_NOT_AVAILABLE.get());
 		}
 
 	}
