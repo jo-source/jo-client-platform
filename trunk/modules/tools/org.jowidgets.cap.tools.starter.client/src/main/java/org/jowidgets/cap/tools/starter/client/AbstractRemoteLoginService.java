@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2011, grossmann
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  * * Redistributions of source code must retain the above copyright
@@ -12,7 +12,7 @@
  * * Neither the name of the jo-widgets.org nor the
  *   names of its contributors may be used to endorse or promote products
  *   derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -28,7 +28,9 @@
 
 package org.jowidgets.cap.tools.starter.client;
 
+import org.jowidgets.api.login.ILoginInterceptor;
 import org.jowidgets.cap.tools.starter.client.login.AbstractBasicAuthenticationRemoteLoginService;
+import org.jowidgets.cap.tools.starter.client.remoting.RemotingBasicAuthenticationLoginInterceptor;
 import org.jowidgets.common.image.IImageConstant;
 
 public abstract class AbstractRemoteLoginService extends AbstractBasicAuthenticationRemoteLoginService {
@@ -47,6 +49,11 @@ public abstract class AbstractRemoteLoginService extends AbstractBasicAuthentica
 
 	public AbstractRemoteLoginService(final String loginLabel, final boolean decoratedLoginDialog) {
 		super(loginLabel, decoratedLoginDialog);
+	}
+
+	@Override
+	public ILoginInterceptor createLoginInterceptor() {
+		return new RemotingBasicAuthenticationLoginInterceptor(getAuthorizationProviderServiceId());
 	}
 
 }

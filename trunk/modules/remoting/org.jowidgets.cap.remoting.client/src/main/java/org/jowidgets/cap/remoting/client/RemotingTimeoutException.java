@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2015, MGrossmann
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -26,37 +26,18 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.tools.starter.client.login;
+package org.jowidgets.cap.remoting.client;
 
-import org.jowidgets.api.login.ILoginInterceptor;
-import org.jowidgets.cap.common.api.service.IAuthorizationProviderService;
-import org.jowidgets.cap.ui.tools.AbstractLoginService;
-import org.jowidgets.common.image.IImageConstant;
-import org.jowidgets.security.impl.http.client.BasicAuthenticationLoginInterceptor;
-import org.jowidgets.service.api.IServiceId;
+public class RemotingTimeoutException extends RuntimeException {
 
-public abstract class AbstractBasicAuthenticationRemoteLoginService extends AbstractLoginService {
+	private static final long serialVersionUID = 9106280917005308426L;
 
-	public AbstractBasicAuthenticationRemoteLoginService(final String loginLabel) {
-		super(loginLabel);
+	public RemotingTimeoutException() {
+		super();
 	}
 
-	public AbstractBasicAuthenticationRemoteLoginService(final IImageConstant logo) {
-		super(logo);
+	public RemotingTimeoutException(final String message) {
+		super(message);
 	}
 
-	public AbstractBasicAuthenticationRemoteLoginService(final IImageConstant logo, final boolean decoratedLoginDialog) {
-		super(logo, decoratedLoginDialog);
-	}
-
-	public AbstractBasicAuthenticationRemoteLoginService(final String loginLabel, final boolean decoratedLoginDialog) {
-		super(loginLabel, decoratedLoginDialog);
-	}
-
-	protected abstract IServiceId<? extends IAuthorizationProviderService<?>> getAuthorizationProviderServiceId();
-
-	@Override
-	public ILoginInterceptor createLoginInterceptor() {
-		return new BasicAuthenticationLoginInterceptor(getAuthorizationProviderServiceId());
-	}
 }
