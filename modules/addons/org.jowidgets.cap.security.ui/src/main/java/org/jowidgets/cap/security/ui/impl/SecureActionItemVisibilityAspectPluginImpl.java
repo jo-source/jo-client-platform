@@ -40,6 +40,10 @@ import org.jowidgets.util.wrapper.WrapperUtil;
 
 final class SecureActionItemVisibilityAspectPluginImpl<AUTHORIZATION_TYPE> implements IActionItemVisibilityAspectPlugin {
 
+	private static final IPriorityValue<Boolean, LowHighPriority> NOT_VISIBLE_HIGH = new PriorityValue<Boolean, LowHighPriority>(
+		Boolean.FALSE,
+		LowHighPriority.HIGH);
+
 	private final int order;
 	private final IAuthorizationChecker<AUTHORIZATION_TYPE> authorizationChecker;
 	private final IActionItemVisibilityAspect actionItemVisibilityAspect;
@@ -70,7 +74,7 @@ final class SecureActionItemVisibilityAspectPluginImpl<AUTHORIZATION_TYPE> imple
 			final ISecureObject<AUTHORIZATION_TYPE> secureObject = WrapperUtil.tryToCast(action, ISecureObject.class);
 			if (secureObject != null) {
 				if (!authorizationChecker.hasAuthorization(secureObject.getAuthorization())) {
-					return new PriorityValue<Boolean, LowHighPriority>(Boolean.FALSE, LowHighPriority.HIGH);
+					return NOT_VISIBLE_HIGH;
 				}
 			}
 			return null;
