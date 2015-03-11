@@ -76,11 +76,6 @@ final class SecureActionItemVisibilityAspectPluginImpl<AUTHORIZATION_TYPE> imple
 			return null;
 		}
 
-		@Override
-		public RequestContext getRequestContext() {
-			return RequestContext.ACTION;
-		}
-
 	}
 
 }
