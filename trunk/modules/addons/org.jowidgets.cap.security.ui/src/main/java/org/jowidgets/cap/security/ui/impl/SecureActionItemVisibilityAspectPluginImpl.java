@@ -49,7 +49,7 @@ final class SecureActionItemVisibilityAspectPluginImpl<AUTHORIZATION_TYPE> imple
 		final IAuthorizationChecker<AUTHORIZATION_TYPE> authorizationChecker) {
 		this.order = order;
 		this.authorizationChecker = authorizationChecker;
-		this.actionItemVisibilityAspect = new ActionItemVisibilityAspect();
+		this.actionItemVisibilityAspect = new SecureActionItemVisibilityAspect();
 	}
 
 	@Override
@@ -62,7 +62,7 @@ final class SecureActionItemVisibilityAspectPluginImpl<AUTHORIZATION_TYPE> imple
 		return order;
 	}
 
-	private final class ActionItemVisibilityAspect implements IActionItemVisibilityAspect {
+	private final class SecureActionItemVisibilityAspect implements IActionItemVisibilityAspect {
 
 		@SuppressWarnings("unchecked")
 		@Override
