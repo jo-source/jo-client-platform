@@ -31,7 +31,6 @@ package org.jowidgets.cap.security.ui.tools;
 import org.jowidgets.api.toolkit.IToolkit;
 import org.jowidgets.api.toolkit.IToolkitInterceptor;
 import org.jowidgets.cap.security.ui.api.SecureControlFactoryDecorator;
-import org.jowidgets.cap.security.ui.api.SecurityIcons;
 import org.jowidgets.cap.ui.api.widgets.IBeanRelationTreeBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTabFolderBluePrint;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableBluePrint;
@@ -44,7 +43,6 @@ final class CapSecurityUiToolkitInterceptor implements IToolkitInterceptor {
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	@Override
 	public void onToolkitCreate(final IToolkit toolkit) {
-		toolkit.getImageRegistry().registerImageEnum(SecurityIcons.class);
 		final IGenericWidgetFactory widgetFactory = toolkit.getWidgetFactory();
 
 		widgetFactory.addWidgetFactoryDecorator(IBeanTableBluePrint.class, (IDecorator) SecureControlFactoryDecorator.beanTable());
