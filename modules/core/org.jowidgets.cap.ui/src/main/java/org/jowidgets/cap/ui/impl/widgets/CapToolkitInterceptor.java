@@ -79,7 +79,7 @@ final class CapToolkitInterceptor implements IToolkitInterceptor {
 		factory.register(IBeanTableBluePrint.class, new BeanTableFactory());
 		factory.register(IBeanSelectionTableBluePrint.class, new BeanSelectionTableFactory());
 		factory.register(IBeanSelectionDialogBluePrint.class, new BeanSelectionDialogFactory());
-		factory.register(IBeanFormBluePrint.class, new BeanFormFactory());
+		factory.register(IBeanFormBluePrint.class, new BeanFormFactory<Object>());
 		factory.register(IBeanDialogBluePrint.class, new BeanDialogFactory());
 		factory.register(IBeanTableSettingsDialogBluePrint.class, new BeanTableSettingsDialogFactory());
 		factory.register(ISingleBeanFormBluePrint.class, new SingleBeanFormFactory());

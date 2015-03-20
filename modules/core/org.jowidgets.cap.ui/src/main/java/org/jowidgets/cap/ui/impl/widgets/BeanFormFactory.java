@@ -30,17 +30,16 @@ package org.jowidgets.cap.ui.impl.widgets;
 
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.IComposite;
-import org.jowidgets.api.widgets.blueprint.factory.IBluePrintFactory;
 import org.jowidgets.cap.ui.api.widgets.IBeanForm;
 import org.jowidgets.cap.ui.api.widgets.IBeanFormBluePrint;
 import org.jowidgets.common.widgets.factory.IWidgetFactory;
+import org.jowidgets.tools.widgets.blueprint.BPF;
 
-final class BeanFormFactory implements IWidgetFactory<IBeanForm<Object>, IBeanFormBluePrint<Object>> {
+final class BeanFormFactory<BEAN_TYPE> implements IWidgetFactory<IBeanForm<BEAN_TYPE>, IBeanFormBluePrint<BEAN_TYPE>> {
 
 	@Override
-	public IBeanForm<Object> create(final Object parentUiReference, final IBeanFormBluePrint<Object> bluePrint) {
-		final IBluePrintFactory bpf = Toolkit.getBluePrintFactory();
-		final IComposite composite = Toolkit.getWidgetFactory().create(parentUiReference, bpf.composite());
-		return new BeanFormImpl<Object>(composite, bluePrint);
+	public IBeanForm<BEAN_TYPE> create(final Object parentUiReference, final IBeanFormBluePrint<BEAN_TYPE> bluePrint) {
+		final IComposite composite = Toolkit.getWidgetFactory().create(parentUiReference, BPF.composite());
+		return new BeanFormImpl<BEAN_TYPE>(composite, bluePrint);
 	}
 }
