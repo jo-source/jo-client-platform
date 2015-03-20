@@ -38,12 +38,12 @@ import org.jowidgets.api.widgets.ITabItem;
 import org.jowidgets.cap.addons.widgets.graph.impl.swing.common.BeanGraphAttributeListImpl.FilterType;
 import org.jowidgets.common.types.Position;
 import org.jowidgets.tools.layout.MigLayoutFactory;
-import org.jowidgets.tools.powo.JoFrame;
 import org.jowidgets.tools.widgets.blueprint.BPF;
+import org.jowidgets.tools.widgets.wrapper.FrameWrapper;
 
 import prefuse.Visualization;
 
-final class BeanGraphSettingsDialog extends JoFrame {
+final class BeanGraphSettingsDialog extends FrameWrapper {
 
 	//	private final BeanGraphAttributeListImpl beanGraphAttributeListImplRelations;
 	private final BeanGraphAttributeListImpl beanGraphAttributeListImplGroups;
