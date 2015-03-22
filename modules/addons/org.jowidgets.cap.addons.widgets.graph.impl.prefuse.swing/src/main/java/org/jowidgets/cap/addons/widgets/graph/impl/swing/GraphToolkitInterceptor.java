@@ -42,7 +42,7 @@ final class GraphToolkitInterceptor implements IToolkitInterceptor {
 	public void onToolkitCreate(final IToolkit toolkit) {
 		final IGenericWidgetFactory widgetFactory = toolkit.getWidgetFactory();
 		widgetFactory.register(IBeanRelationGraphBluePrint.class, new BeanRelationGraphFactory());
-		toolkit.getBluePrintFactory().addDefaultsInitializer(
+		toolkit.getBluePrintProxyFactory().addDefaultsInitializer(
 				IBeanRelationGraphSetupBuilder.class,
 				new BeanRelationGraphDefaults());
 	}

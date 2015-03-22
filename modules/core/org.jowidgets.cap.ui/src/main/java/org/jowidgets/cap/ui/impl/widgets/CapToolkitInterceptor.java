@@ -34,7 +34,7 @@ import org.jowidgets.api.convert.IConverterProvider;
 import org.jowidgets.api.image.IconsSmall;
 import org.jowidgets.api.toolkit.IToolkit;
 import org.jowidgets.api.toolkit.IToolkitInterceptor;
-import org.jowidgets.api.widgets.blueprint.factory.IBluePrintFactory;
+import org.jowidgets.api.widgets.blueprint.factory.IBluePrintProxyFactory;
 import org.jowidgets.cap.common.api.dto.IDocument;
 import org.jowidgets.cap.ui.api.icons.CapIcons;
 import org.jowidgets.cap.ui.api.widgets.IAttributeFilterControlBluePrint;
@@ -121,27 +121,27 @@ final class CapToolkitInterceptor implements IToolkitInterceptor {
 	}
 
 	private void addDefaultsInitializer(final IToolkit toolkit) {
-		final IBluePrintFactory bpf = toolkit.getBluePrintFactory();
-		bpf.addDefaultsInitializer(IBeanTableSetupBuilder.class, new BeanTableDefaults());
-		bpf.addDefaultsInitializer(IBeanSelectionTableBluePrint.class, new BeanSelectionTableDefaults());
-		bpf.addDefaultsInitializer(IBeanSelectionDialogBluePrint.class, new BeanSelectionDialogDefaults());
-		bpf.addDefaultsInitializer(IBeanDialogBluePrint.class, new BeanDialogDefaults());
-		bpf.addDefaultsInitializer(IBeanFormBluePrint.class, new BeanFormDefaults());
-		bpf.addDefaultsInitializer(IBeanRelationTreeBluePrint.class, new BeanRelationTreeDefaults());
-		bpf.addDefaultsInitializer(IBeanRelationTreeDetailBluePrint.class, new BeanRelationTreeDetailDefaults());
-		bpf.addDefaultsInitializer(IBeanSelectionFormSetupBuilder.class, new BeanSelectionFormDefaults());
-		bpf.addDefaultsInitializer(IExecutionTaskDialogBluePrint.class, new ExecutionTaskDialogDefaults());
-		bpf.addDefaultsInitializer(ILookUpComboBoxSelectionBluePrint.class, new LookUpComboBoxSelectionDefaults());
+		final IBluePrintProxyFactory bppf = toolkit.getBluePrintProxyFactory();
+		bppf.addDefaultsInitializer(IBeanTableSetupBuilder.class, new BeanTableDefaults());
+		bppf.addDefaultsInitializer(IBeanSelectionTableBluePrint.class, new BeanSelectionTableDefaults());
+		bppf.addDefaultsInitializer(IBeanSelectionDialogBluePrint.class, new BeanSelectionDialogDefaults());
+		bppf.addDefaultsInitializer(IBeanDialogBluePrint.class, new BeanDialogDefaults());
+		bppf.addDefaultsInitializer(IBeanFormBluePrint.class, new BeanFormDefaults());
+		bppf.addDefaultsInitializer(IBeanRelationTreeBluePrint.class, new BeanRelationTreeDefaults());
+		bppf.addDefaultsInitializer(IBeanRelationTreeDetailBluePrint.class, new BeanRelationTreeDetailDefaults());
+		bppf.addDefaultsInitializer(IBeanSelectionFormSetupBuilder.class, new BeanSelectionFormDefaults());
+		bppf.addDefaultsInitializer(IExecutionTaskDialogBluePrint.class, new ExecutionTaskDialogDefaults());
+		bppf.addDefaultsInitializer(ILookUpComboBoxSelectionBluePrint.class, new LookUpComboBoxSelectionDefaults());
 	}
 
 	private void setBuilderConvenience(final IToolkit toolkit) {
-		final IBluePrintFactory bpf = toolkit.getBluePrintFactory();
-		bpf.setSetupBuilderConvenience(IBeanTableSetupBuilder.class, new BeanTableSetupConvenience());
-		bpf.setSetupBuilderConvenience(IBeanTabFolderBluePrint.class, new BeanTabFolderSetupConvenience());
-		bpf.setSetupBuilderConvenience(IBeanFormBluePrint.class, new BeanFormSetupConvenience());
-		bpf.setSetupBuilderConvenience(IBeanSelectionFormSetupBuilder.class, new BeanSelectionFormSetupConvenience());
-		bpf.setSetupBuilderConvenience(IBeanRelationTreeSetupBuilder.class, new BeanRelationTreeSetupConvenience());
-		bpf.setSetupBuilderConvenience(IBeanRelationTreeDetailSetupBuilder.class, new BeanRelationTreeDetailSetupConvenience());
+		final IBluePrintProxyFactory bppf = toolkit.getBluePrintProxyFactory();
+		bppf.setSetupBuilderConvenience(IBeanTableSetupBuilder.class, new BeanTableSetupConvenience());
+		bppf.setSetupBuilderConvenience(IBeanTabFolderBluePrint.class, new BeanTabFolderSetupConvenience());
+		bppf.setSetupBuilderConvenience(IBeanFormBluePrint.class, new BeanFormSetupConvenience());
+		bppf.setSetupBuilderConvenience(IBeanSelectionFormSetupBuilder.class, new BeanSelectionFormSetupConvenience());
+		bppf.setSetupBuilderConvenience(IBeanRelationTreeSetupBuilder.class, new BeanRelationTreeSetupConvenience());
+		bppf.setSetupBuilderConvenience(IBeanRelationTreeDetailSetupBuilder.class, new BeanRelationTreeDetailSetupConvenience());
 	}
 
 }

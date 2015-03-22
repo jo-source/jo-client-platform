@@ -38,7 +38,7 @@ public final class GraphBPF {
 
 	@SuppressWarnings("unchecked")
 	public static <CHILD_BEAN_TYPE> IBeanRelationGraphBluePrint<CHILD_BEAN_TYPE> beanRelationGraph() {
-		return Toolkit.getBluePrintFactory().bluePrint(IBeanRelationGraphBluePrint.class);
+		return Toolkit.getBluePrintProxyFactory().bluePrint(IBeanRelationGraphBluePrint.class);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -46,7 +46,7 @@ public final class GraphBPF {
 		final IBeanRelationTreeModel<CHILD_BEAN_TYPE> model) {
 		Assert.paramNotNull(model, "model");
 		final IBeanRelationGraphBluePrint<CHILD_BEAN_TYPE> result;
-		result = Toolkit.getBluePrintFactory().bluePrint(IBeanRelationGraphBluePrint.class);
+		result = Toolkit.getBluePrintProxyFactory().bluePrint(IBeanRelationGraphBluePrint.class);
 		result.setModel(model);
 		return result;
 	}
