@@ -33,7 +33,7 @@ import java.util.Collection;
 import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.api.convert.IConverter;
 import org.jowidgets.api.toolkit.Toolkit;
-import org.jowidgets.api.widgets.blueprint.factory.IBluePrintFactory;
+import org.jowidgets.api.widgets.blueprint.factory.IBluePrintProxyFactory;
 import org.jowidgets.cap.common.api.lookup.ILookUpProperty;
 import org.jowidgets.cap.common.api.lookup.LookUpProperty;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
@@ -68,10 +68,10 @@ import org.jowidgets.util.Assert;
 
 final class CapApiBluePrintFactory implements ICapApiBluePrintFactory {
 
-	private final IBluePrintFactory bluePrintFactory;
+	private final IBluePrintProxyFactory bluePrintFactory;
 
 	CapApiBluePrintFactory() {
-		this.bluePrintFactory = Toolkit.getBluePrintFactory();
+		this.bluePrintFactory = Toolkit.getBluePrintProxyFactory();
 	}
 
 	@SuppressWarnings("unchecked")
