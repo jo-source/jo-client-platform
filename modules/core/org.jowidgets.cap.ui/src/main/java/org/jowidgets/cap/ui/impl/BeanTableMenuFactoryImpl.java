@@ -503,7 +503,13 @@ final class BeanTableMenuFactoryImpl<BEAN_TYPE> implements IBeanTableMenuFactory
 
 	@Override
 	public IAction addFilterAction(final IBeanTableModel<BEAN_TYPE> model, final IFilterType filterType, final int columnIndex) {
-		return addFilterActionBuilder(model, filterType, columnIndex).build();
+		final IActionBuilder builder = addFilterActionBuilder(model, filterType, columnIndex);
+		if (builder != null) {
+			return builder.build();
+		}
+		else {
+			return null;
+		}
 	}
 
 	@Override
