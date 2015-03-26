@@ -98,7 +98,7 @@ public class ArithmeticPropertyFilterControl<ELEMENT_VALUE_TYPE> extends
 		this.editable = true;
 
 		this.propertyName = propertyName;
-		this.attributesMap = getAttributesMap((List<IAttribute<?>>) attributes);
+		this.attributesMap = getAttributesMap((Collection<IAttribute<?>>) attributes);
 		this.attributes = getFilteredAttributes(propertyName, attributes, attributeFilter);
 		this.attribute = attributesMap.get(propertyName);
 
@@ -138,7 +138,7 @@ public class ArithmeticPropertyFilterControl<ELEMENT_VALUE_TYPE> extends
 		return result;
 	}
 
-	private static Map<String, IAttribute<?>> getAttributesMap(final List<IAttribute<?>> attributes) {
+	private static Map<String, IAttribute<?>> getAttributesMap(final Collection<IAttribute<?>> attributes) {
 
 		final Map<String, IAttribute<?>> result = new HashMap<String, IAttribute<?>>();
 
