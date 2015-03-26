@@ -73,7 +73,7 @@ final class BeanTableCellFilterMenuModel<BEAN_TYPE> extends MenuModel {
 							addSeparator();
 							separatorAdded = true;
 						}
-						addAction(menuFactory.addFilterAction(model, filterType, columnIndex));
+						tryAddAction(menuFactory.addFilterAction(model, filterType, columnIndex));
 					}
 				}
 			}
