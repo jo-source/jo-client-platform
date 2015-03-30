@@ -46,15 +46,15 @@ import org.jowidgets.common.widgets.controller.IActionListener;
 import org.jowidgets.common.widgets.controller.IInputListener;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
 import org.jowidgets.tools.layout.MigLayoutFactory;
+import org.jowidgets.tools.widgets.base.Frame;
 import org.jowidgets.tools.widgets.blueprint.BPF;
-import org.jowidgets.tools.widgets.wrapper.FrameWrapper;
 
 import prefuse.util.force.DragForce;
 import prefuse.util.force.Force;
 import prefuse.util.force.NBodyForce;
 import prefuse.util.force.SpringForce;
 
-final class GraphSettingsDialog extends FrameWrapper {
+final class GraphSettingsDialog extends Frame {
 
 	private static final int NODE_LINK_DISTANCE_MAX = 300;
 	private static final int NODE_LINK_DISTANCE_MIN = 0;
