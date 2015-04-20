@@ -32,7 +32,6 @@ import org.jowidgets.api.login.ILoginCancelListener;
 import org.jowidgets.api.login.ILoginInterceptor;
 import org.jowidgets.api.login.ILoginResultCallback;
 import org.jowidgets.api.threads.IUiThreadAccess;
-import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.service.IAuthorizationProviderService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
@@ -50,18 +49,20 @@ public final class BasicAuthenticationLoginInterceptor implements ILoginIntercep
 	private static final IMessage ERROR_ON_LOGIN = Messages.getMessage("BasicAuthenticationLoginInterceptor.error_on_login");
 
 	private final IServiceId<? extends IAuthorizationProviderService<?>> authorizationProviderServiceId;
-	private final IUiThreadAccess uiThreadAccess;
 
 	public BasicAuthenticationLoginInterceptor(
 		final IServiceId<? extends IAuthorizationProviderService<?>> authorizationProviderServiceId) {
 		Assert.paramNotNull(authorizationProviderServiceId, "authorizationProviderServiceId");
 		this.authorizationProviderServiceId = authorizationProviderServiceId;
-		this.uiThreadAccess = Toolkit.getUiThreadAccess();
 	}
 
 	@SuppressWarnings({"rawtypes", "unchecked"})
 	@Override
-	public void login(final ILoginResultCallback resultCallback, final String username, final String password) {
+	public void login(
+		final ILoginResultCallback resultCallback,
+		final String username,
+		final String password,
+		final IUiThreadAccess uiThreadAccess) {
 		final IAuthorizationProviderService<?> authorizationService = ServiceProvider.getService(authorizationProviderServiceId);
 		if (authorizationService == null) {
 			resultCallback.denied(AUTHORIZATION_SERVICE_NOT_AVAILABLE.get());
