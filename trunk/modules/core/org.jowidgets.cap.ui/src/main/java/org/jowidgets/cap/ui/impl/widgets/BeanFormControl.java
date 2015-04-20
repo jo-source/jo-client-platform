@@ -249,6 +249,12 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 		return result;
 	}
 
+	private void ensureProcessStateLabelLayoutet() {
+		if (processStateLabel != null && processStateLabel.getSize().getHeight() == 0) {
+			validationLabelContainer.layoutLater();
+		}
+	}
+
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	private List<IAttribute<?>> createModifiedByPluginsAttributes(
 		final Object entityId,
@@ -419,6 +425,7 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 				final IExecutionTask executionTask = bean.getExecutionTask();
 				if (executionTask != null) {
 					processStateLabel.setText(computeLabelText(executionTask));
+					ensureProcessStateLabelLayoutet();
 				}
 				else {
 					processStateLabel.setText("");
@@ -693,6 +700,7 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 						processStateLabelBp.setColor(Colors.STRONG);
 						processStateLabelBp.setIcon(IconsSmall.WAIT_1);
 						processStateLabel = validationLabelContainer.add(processStateLabelBp, "growx, w 30::");
+
 						//processStateLabel.setMinSize(new Dimension(20, 20));
 						processStateLabel.setVisible(false);
 
@@ -995,6 +1003,7 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 			final IWaitAnimationProcessor animationProcessor = Toolkit.getWaitAnimationProcessor();
 			if (!isDisposed() && !processStateLabel.isDisposed()) {
 				processStateLabel.setIcon(animationProcessor.getWaitIcon());
+				ensureProcessStateLabelLayoutet();
 			}
 			else {
 				Toolkit.getWaitAnimationProcessor().removeChangeListener(labelWaitChangeListener);
