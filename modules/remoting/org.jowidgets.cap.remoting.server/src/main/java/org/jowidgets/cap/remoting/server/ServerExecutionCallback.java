@@ -215,7 +215,9 @@ final class ServerExecutionCallback implements IExecutionCallback {
 						description,
 						finished,
 						subProgressList);
-					interimResponseCallback.response(progress);
+					if (!finished && !canceled) {
+						interimResponseCallback.response(progress);
+					}
 				}
 			}, progressDelay, TimeUnit.MILLISECONDS);
 		}
