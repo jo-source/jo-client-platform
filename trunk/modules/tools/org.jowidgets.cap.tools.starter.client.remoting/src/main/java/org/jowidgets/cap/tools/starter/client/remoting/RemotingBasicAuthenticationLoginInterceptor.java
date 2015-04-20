@@ -31,6 +31,7 @@ package org.jowidgets.cap.tools.starter.client.remoting;
 import org.jowidgets.api.login.ILoginCancelListener;
 import org.jowidgets.api.login.ILoginInterceptor;
 import org.jowidgets.api.login.ILoginResultCallback;
+import org.jowidgets.api.threads.IUiThreadAccess;
 import org.jowidgets.cap.common.api.service.IAuthorizationProviderService;
 import org.jowidgets.cap.remoting.client.RemotingServiceInitializer;
 import org.jowidgets.cap.remoting.common.RemotingBrokerId;
@@ -73,7 +74,11 @@ public final class RemotingBasicAuthenticationLoginInterceptor implements ILogin
 	}
 
 	@Override
-	public void login(final ILoginResultCallback resultCallback, final String username, final String password) {
+	public void login(
+		final ILoginResultCallback resultCallback,
+		final String username,
+		final String password,
+		final IUiThreadAccess uiThreadAccess) {
 
 		final CancelCallback cancelCallback = new CancelCallback();
 		resultCallback.addCancelListener(new ILoginCancelListener() {
@@ -92,7 +97,7 @@ public final class RemotingBasicAuthenticationLoginInterceptor implements ILogin
 		}
 
 		if (servicesInitialized) {
-			basicAuthenticationLoginInterceptor.login(resultCallback, username, password);
+			basicAuthenticationLoginInterceptor.login(resultCallback, username, password, uiThreadAccess);
 		}
 		else {
 			resultCallback.denied(SERVER_NOT_AVAILABLE.get());
