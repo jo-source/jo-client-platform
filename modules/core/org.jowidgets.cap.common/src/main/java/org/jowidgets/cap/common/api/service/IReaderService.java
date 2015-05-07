@@ -39,6 +39,24 @@ import org.jowidgets.cap.common.api.sort.ISort;
 
 public interface IReaderService<PARAM_TYPE> {
 
+	/**
+	 * Reads the beans asynchronous.
+	 * 
+	 * This method returns directly and provides the result with help of the given
+	 * result callback. In case of success, a list of IBeanDto objects will be
+	 * returned to the callback with the {@link IResultCallback#finished(Object)} method,
+	 * in case of an exception, the {@link IResultCallback#exception(Throwable)} will be
+	 * invoked with the given exception.
+	 * 
+	 * @param result The result callback that will be invoked on success or error
+	 * @param parentBeanKeys The parent keys for master - detail readers
+	 * @param filter The filter, may be null
+	 * @param sorting The sorting, may be empty but never null
+	 * @param firstRow The first row index for paging
+	 * @param maxRows The maximal number of row to load
+	 * @param parameter A generic parameter object for further use
+	 * @param executionCallback Callback to send progress or get informed when user canceled
+	 */
 	void read(
 		IResultCallback<List<IBeanDto>> result,
 		List<? extends IBeanKey> parentBeanKeys,
@@ -49,6 +67,23 @@ public interface IReaderService<PARAM_TYPE> {
 		PARAM_TYPE parameter,
 		IExecutionCallback executionCallback);
 
+	/**
+	 * Counts the total number of currently available beans by this service asynchronous.
+	 * 
+	 * This method returns directly and provides the result with help of the given
+	 * result callback. In case of success, a Integer will be returned to the callback
+	 * with the {@link IResultCallback#finished(Object)} method. The value represents the
+	 * total number of currently available beans by this service, or is null, if count is
+	 * not supported.
+	 * In case of an exception, the {@link IResultCallback#exception(Throwable)} will be
+	 * invoked with the given exception.
+	 * 
+	 * @param result The result callback that will be invoked on success or error
+	 * @param parentBeanKeys The parent keys for master - detail readers
+	 * @param filter The filter, may be null
+	 * @param parameter A generic parameter object for further use
+	 * @param executionCallback Callback to send progress or get informed when user canceled
+	 */
 	void count(
 		IResultCallback<Integer> result,
 		List<? extends IBeanKey> parentBeanKeys,
