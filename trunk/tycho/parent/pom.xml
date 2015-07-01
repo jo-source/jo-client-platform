@@ -362,17 +362,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.jowidgets</groupId>
-			<artifactId>org.jowidgets.test.common.bundle</artifactId>
-			<version>${jowidgets.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.jowidgets</groupId>
 			<artifactId>org.jowidgets.api.bundle</artifactId>
-			<version>${jowidgets.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.jowidgets</groupId>
-			<artifactId>org.jowidgets.test.api.bundle</artifactId>
 			<version>${jowidgets.version}</version>
 		</dependency>
 		<dependency>
@@ -408,11 +398,6 @@
 		<dependency>
 			<groupId>org.jowidgets</groupId>
 			<artifactId>org.jowidgets.spi.bundle</artifactId>
-			<version>${jowidgets.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.jowidgets</groupId>
-			<artifactId>org.jowidgets.test.spi.bundle</artifactId>
 			<version>${jowidgets.version}</version>
 		</dependency>
 		<dependency>
