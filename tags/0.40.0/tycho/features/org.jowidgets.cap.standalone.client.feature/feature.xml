@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+    id="org.jowidgets.cap.standalone.client.feature"
+    label="jo-client-platform standalone client feature"
+    version="0.40.0.qualifier">
+
+	<description url="http://www.example.com/description">
+		Feature that holds all cap core bundles for standalone client bundles
+	</description>
+
+	<copyright url="http://www.example.com/copyright">
+		org.jowidgets Michael Grossmann 2014
+	</copyright>
+
+	<license url="http://www.example.com/license">
+		BSD Licence
+	</license>
+
+	<includes
+         id="org.jowidgets.cap.core.service.feature"
+         version="0.0.0"/>
+	
+	<includes
+         id="org.jowidgets.cap.core.ui.feature"
+         version="0.0.0"/>
+		 
+</feature>
