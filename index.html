@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="Jo-client-platform : The jo-client-platform is a CRUD application framework for java">
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Jo-client-platform</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/jo-source/jo-client-platform">View on GitHub</a>
+
+          <h1 id="project_title">Jo-client-platform</h1>
+          <h2 id="project_tagline">The jo-client-platform is a CRUD application framework for java</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/jo-source/jo-client-platform/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/jo-source/jo-client-platform/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h2>
+<a id="jo-client-platform-jocap" class="anchor" href="#jo-client-platform-jocap" aria-hidden="true"><span class="octicon octicon-link"></span></a>jo-client-platform (JOCAP)</h2>
+
+<p>The jo-client-platform is a 3 layer CRUD application framework for java with a ui layer based on <a href="http://www.jowidgets.org">jo-widgets</a>. </p>
+
+<h3>
+<a id="main-goals" class="anchor" href="#main-goals" aria-hidden="true"><span class="octicon octicon-link"></span></a>Main goals</h3>
+
+<ul>
+<li>
+<p>CRUD Application API</p>
+
+<ul>
+<li>Make it more easy to develop 3 tier enterprise CRUD applications</li>
+</ul>
+</li>
+<li>
+<p>Single Sourcing</p>
+
+<ul>
+<li>Write applications only once for different deployments (WEB-APP, REMOTE-CLIENT, FAT-CLIENT)</li>
+</ul>
+</li>
+<li>
+<p>Exchangeable data layer</p>
+
+<ul>
+<li>JPA and NEO4J support exists so far</li>
+</ul>
+</li>
+</ul>
+
+<h3>
+<a id="depending-projects" class="anchor" href="#depending-projects" aria-hidden="true"><span class="octicon octicon-link"></span></a>Depending projects</h3>
+
+<ul>
+<li><a href="https://github.com/jo-source/jo-client-platform-samples/">jo-client-platform-samples</a></li>
+<li><a href="https://github.com/jo-source/jo-useradmin">jo-useradmin</a></li>
+<li><a href="https://github.com/jo-source/jo-modeler">jo-modeler</a></li>
+</ul>
+
+<h3>
+<a id="architecture" class="anchor" href="#architecture" aria-hidden="true"><span class="octicon octicon-link"></span></a>Architecture</h3>
+
+<p><img src="http://jowidgets.org/pics/jocap_architecture.gif" alt="Architecture"></p>
+
+<p>The modules of the platform are devided into UI, Service and Common. This makes it possible to deploy 3 Tier Java Desktop Applications or AJAX Webapplications based on the same businesscode. </p>
+
+<h3>
+<a id="deployment-1---web-applications" class="anchor" href="#deployment-1---web-applications" aria-hidden="true"><span class="octicon octicon-link"></span></a>Deployment 1 - Web Applications</h3>
+
+<p>By using the RWT SPI impl of <a href="http://www.jowidgets.org">jo-widgets</a>, JOCAP applications can be deployed as AJAX WEB Applications. The UI and the Service layer will be deployed on the server tier for that.</p>
+
+<h3>
+<a id="deployment-2---remote-clients" class="anchor" href="#deployment-2---remote-clients" aria-hidden="true"><span class="octicon octicon-link"></span></a>Deployment 2 - Remote Clients</h3>
+
+<p>The UI layer will be deployed on the client tier, e.g. with help of webstart. The client may use one of the supported <a href="http://www.jowidgets.org">jo-widgets</a> SPI's like Swing, SWT or JavaFX. The service layer will be deployed on the server tier, and the remoting will be done (transparent) with help of the JOCAP remoting module.</p>
+
+<h3>
+<a id="deployment-3---fat-clients" class="anchor" href="#deployment-3---fat-clients" aria-hidden="true"><span class="octicon octicon-link"></span></a>Deployment 3 - Fat Clients</h3>
+
+<p>For standalone applications or just for easy testing and debuging during application development, it is possible to deploy the ui layer and the service layer on the client tier.</p>
+
+<h2>
+<a id="features" class="anchor" href="#features" aria-hidden="true"><span class="octicon octicon-link"></span></a>Features</h2>
+
+<h3>
+<a id="bean-tables" class="anchor" href="#bean-tables" aria-hidden="true"><span class="octicon octicon-link"></span></a>Bean Tables</h3>
+
+<ul>
+<li>Virtual Bean Tables with millions of (virtual) rows</li>
+<li>Sorting and Filtering in the data layer (not in the client table)</li>
+</ul>
+
+<h3>
+<a id="control-panel-provider" class="anchor" href="#control-panel-provider" aria-hidden="true"><span class="octicon octicon-link"></span></a>Control Panel Provider</h3>
+
+<ul>
+<li>Default controls for the common value types (String, Boolean, Integer, Long, Double, Short, Date, Lookups, ...)</li>
+<li>Different display formats (e.g. long, short, date, date_time, ...)<br>
+</li>
+<li>Custom control panels for all attributes possible</li>
+</ul>
+
+<h3>
+<a id="bean-forms" class="anchor" href="#bean-forms" aria-hidden="true"><span class="octicon octicon-link"></span></a>Bean Forms</h3>
+
+<ul>
+<li>Generic bean forms (just attributes must be defined)</li>
+<li>High and low level layouting</li>
+<li>Binding</li>
+<li>Validation</li>
+</ul>
+
+<h3>
+<a id="bean-relations" class="anchor" href="#bean-relations" aria-hidden="true"><span class="octicon octicon-link"></span></a>Bean Relations</h3>
+
+<ul>
+<li>Visualisation of bean releations</li>
+<li>Modification of bean releations (link, unlink, create and link, ...)</li>
+<li>BeanRelationTree</li>
+<li>BeanReleationGraph (Graph visualization of a bean relation network)</li>
+</ul>
+
+<h3>
+<a id="validation" class="anchor" href="#validation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Validation</h3>
+
+<ul>
+<li>Bean Validation support (JSR 303)</li>
+<li>Custom validation support</li>
+<li>UI layer validation for convenience purpose</li>
+<li>Service layer validation for security / consistency purpose</li>
+</ul>
+
+<h3>
+<a id="executions" class="anchor" href="#executions" aria-hidden="true"><span class="octicon octicon-link"></span></a>Executions</h3>
+
+<ul>
+<li>Executable checks (e.g. why is that button / action grey)
+
+<ul>
+<li>BeanExecutions</li>
+<li>BeanDeletion</li>
+<li>BeanModifications</li>
+<li>...</li>
+</ul>
+</li>
+</ul>
+
+<h3>
+<a id="entity-service" class="anchor" href="#entity-service" aria-hidden="true"><span class="octicon octicon-link"></span></a>Entity Service</h3>
+
+<ul>
+<li>Provides all informations and services for an entity id
+
+<ul>
+<li>CRUD Services</li>
+<li>BeanDtoDescriptor</li>
+<li>EntityLinkDescriptor</li>
+</ul>
+</li>
+</ul>
+
+<h3>
+<a id="workbench" class="anchor" href="#workbench" aria-hidden="true"><span class="octicon octicon-link"></span></a>Workbench</h3>
+
+<ul>
+<li>EntityComponent (uses EntityService to create a complete master / relation / detail component)</li>
+<li>EntityApplicationFactory (uses EntityApplicationService to create a complete workbench application)</li>
+</ul>
+
+<h3>
+<a id="services" class="anchor" href="#services" aria-hidden="true"><span class="octicon octicon-link"></span></a>Services</h3>
+
+<ul>
+<li>Asynchronous result callback</li>
+<li>Cancelable services</li>
+<li>UserQuestions to the UI layer</li>
+<li>Progress propagation to the UI layer</li>
+</ul>
+
+<h3>
+<a id="lookups" class="anchor" href="#lookups" aria-hidden="true"><span class="octicon octicon-link"></span></a>LookUps</h3>
+
+<ul>
+<li>API to provide value sets in the UI layer</li>
+<li>Different display formats</li>
+<li>LookUpComboBox</li>
+</ul>
+
+<h3>
+<a id="plugins" class="anchor" href="#plugins" aria-hidden="true"><span class="octicon octicon-link"></span></a>Plugins</h3>
+
+<ul>
+<li>Extension of the default functionality with plugins</li>
+</ul>
+
+<h3>
+<a id="security" class="anchor" href="#security" aria-hidden="true"><span class="octicon octicon-link"></span></a>Security</h3>
+
+<ul>
+<li>Authorizations for all CRUD services by annotations</li>
+<li>Service decoration in the service layer prohibits execution</li>
+<li>Service decoration in the UI layer for better usability</li>
+<li>Expandable by custom security aspects</li>
+</ul>
+
+<h3>
+<a id="exchangeable-data-layer" class="anchor" href="#exchangeable-data-layer" aria-hidden="true"><span class="octicon octicon-link"></span></a>Exchangeable data layer</h3>
+
+<p><img src="http://jowidgets.org/pics/cap_service_api.gif" alt="cap service api"></p>
+
+<p>The data layer for JOCAP applications can be exchanged. </p>
+
+<ul>
+<li>JPA support
+
+<ul>
+<li>Special Hibernate service decorations</li>
+<li>Special Oracle service decorations</li>
+</ul>
+</li>
+<li>NEO4J support</li>
+<li>Other data layer supports possible</li>
+</ul>
+
+<h3>
+<a id="third-party" class="anchor" href="#third-party" aria-hidden="true"><span class="octicon octicon-link"></span></a>Third party</h3>
+
+<ul>
+<li>No third party dependencies for the core</li>
+<li>Addons that uses third party code are isolated in separate modules</li>
+</ul>
+
+<hr>
+
+<h2>
+<a id="common-apis" class="anchor" href="#common-apis" aria-hidden="true"><span class="octicon octicon-link"></span></a>Common API's</h2>
+
+<h3>
+<a id="service-api" class="anchor" href="#service-api" aria-hidden="true"><span class="octicon octicon-link"></span></a>Service API</h3>
+
+<p>The service API will be used to register and consume any kind of services. While JOCAP provides predefined CRUD services, this API can also be used independently from JOCAP. Features:</p>
+
+<ul>
+<li>Light weight ServiceRegistry and ServiceProvider</li>
+<li>Service injection with help of JavaServices, Spring, OSGi or other DI Frameworks is possible</li>
+<li>Generic Service ID's for easy service access (no casts needed)</li>
+<li>For each ServiceID there is at most one instance</li>
+<li>Redundant Service Resolvers can be registered</li>
+<li>Multiple service instances for any service interface (not Service ID)</li>
+<li>Injectable service decorators allow powerfull aspect weaving (e.g. remoting aspects, security aspects,  ...)</li>
+</ul>
+
+<p>Example:</p>
+
+<pre><code>      IReaderService&lt;Person&gt; readerService = ServiceProvider.getService(ReaderServiceIds.PERSON);
+</code></pre>
+
+<h3>
+<a id="plugin-api" class="anchor" href="#plugin-api" aria-hidden="true"><span class="octicon octicon-link"></span></a>Plugin API</h3>
+
+<p>The plugin API will be used to register and consume any kind of plugin. While JOCAP defines a lot of plugins, this API can also be used independently from JOCAP. Features:</p>
+
+<ul>
+<li>Light weight PluginRegistry and PluginProvider</li>
+<li>Plugin injection with help of JavaServices, Spring, OSGi or other DI Frameworks is possible</li>
+<li>Generic Plugin ID's for easy plugin access (no casts needed)</li>
+<li>Plugin filter with help of typed plugin properties</li>
+<li>Multiple plugin instances for any Plugin ID.</li>
+</ul>
+
+<h3>
+<a id="security-api" class="anchor" href="#security-api" aria-hidden="true"><span class="octicon octicon-link"></span></a>Security API</h3>
+
+<p>The security API provides a light weight API to provide:</p>
+
+<ul>
+<li>AuthenticationService</li>
+<li>AuthorizationService</li>
+<li>SecurityContext</li>
+</ul>
+
+<p>The security API can be used independently from JOCAP.</p>
+
+<h2>
+<a id="core-apis" class="anchor" href="#core-apis" aria-hidden="true"><span class="octicon octicon-link"></span></a>Core API's</h2>
+
+<h3>
+<a id="jocap-common-api" class="anchor" href="#jocap-common-api" aria-hidden="true"><span class="octicon octicon-link"></span></a>JOCAP Common API</h3>
+
+<p>Provides all interfaces that are used by UI and by service layer together.</p>
+
+<p>Services:</p>
+
+<ul>
+<li>CreatorService</li>
+<li>LinkCreatorService</li>
+<li>ReaderService</li>
+<li>RefreshService</li>
+<li>LookUpService</li>
+<li>UpdaterService</li>
+<li>ExecutorService</li>
+<li>DeleterService</li>
+<li>LinkDeleterService</li>
+<li>EntityService</li>
+<li>EntityApplicationService</li>
+<li>AuthorizationProviderService</li>
+<li>PasswordChangeService</li>
+</ul>
+
+<h3>
+<a id="jo-client-platform-service-api" class="anchor" href="#jo-client-platform-service-api" aria-hidden="true"><span class="octicon octicon-link"></span></a>jo-client-platform service API</h3>
+
+<p>Provides all interfaces that are used by the service layer. </p>
+
+<h3>
+<a id="jo-client-platform-ui-api" class="anchor" href="#jo-client-platform-ui-api" aria-hidden="true"><span class="octicon octicon-link"></span></a>jo-client-platform ui API</h3>
+
+<p>Provides all interfaces that are used by the UI layer. </p>
+
+<p>Widgets:</p>
+
+<ul>
+<li>BeanTable</li>
+<li>BeanTableSettingsDialog</li>
+<li>BeanForm</li>
+<li>BeanSelectionForm</li>
+<li>BeanRelationTree</li>
+<li>BeanRelationGraph</li>
+<li>BeanLinkPanel</li>
+<li>BeanLinkDialog</li>
+<li>BeanSelectionTable</li>
+<li>BeanSelectionDialog</li>
+<li>BeanDialog</li>
+<li>SingleBeanForm</li>
+<li>AttributeFilterControl</li>
+<li>LookUpComboBox</li>
+<li>LookUpCollectionInputField</li>
+<li>BeanTabFolder</li>
+<li>ExecutionTaskDialog</li>
+</ul>
+
+<p>Workbench:</p>
+
+<ul>
+<li>EntityComponent</li>
+<li>EntityApplicationFactory</li>
+</ul>
+
+<h2>
+<a id="jo-client-platform-remoting" class="anchor" href="#jo-client-platform-remoting" aria-hidden="true"><span class="octicon octicon-link"></span></a>jo-client-platform remoting</h2>
+
+<p>The JOCAP remoting decorates the services of the Service API described above. Even callback parameters of services work fine, if the UI and service layer is deployed on different tiers. The JOCAP remoting can easily be injected. If the developed application only uses default services or default callback interfaces of JOCAP, it is non-essential to know all details about remoting works. Actually the application code normally has no dependencies to the remoting, but the launcher code. Nevertheless, the remoting layer stack and the involved API's will be shortly decribed here:</p>
+
+<h3>
+<a id="remoting-layers" class="anchor" href="#remoting-layers" aria-hidden="true"><span class="octicon octicon-link"></span></a>Remoting layers</h3>
+
+<p><img src="http://jowidgets.org/pics/cap_remoting.gif" alt="remoting layers"></p>
+
+<h3>
+<a id="message-api" class="anchor" href="#message-api" aria-hidden="true"><span class="octicon octicon-link"></span></a>Message API</h3>
+
+<p>The message API is a low level API to send and receive messages with an reply channnel. </p>
+
+<pre><code>    public interface IMessageReceiver {
+
+       /**
+        * Callback to handle a message.
+        * 
+        * @param message
+        * @param reply channel
+        */
+        void onMessage(Object message, IMessageChannel replyChannel);
+
+    }
+</code></pre>
+
+<p>It builds the base layer for the JOCAP remoting. The following implementations are available so far:</p>
+
+<ul>
+<li>HTTP (based on the javax.servlet API and org.apache.httpcomponents)</li>
+<li>AKKA (uses AKKA for the implementation)</li>
+<li>Socket (uses plain java sockets, not for productive use)</li>
+</ul>
+
+<p>The messaging API can be used independently from JOCAP.</p>
+
+<h3>
+<a id="method-invocation-api" class="anchor" href="#method-invocation-api" aria-hidden="true"><span class="octicon octicon-link"></span></a>(Method) invocation API</h3>
+
+<p>The method invocation API allows to invoke low level methods with callback parameters. The default implementation of the invocation API uses the messaging API.The invocation API can used independently from JOCAP.</p>
+
+<h3>
+<a id="invocation-service-api" class="anchor" href="#invocation-service-api" aria-hidden="true"><span class="octicon octicon-link"></span></a>Invocation service API</h3>
+
+<p>The invocation service API provides an method invocation service that has an result callback parameter and interim request and response parameters. The default implementation of the invocation service API uses the invocation API.The invocation service API can used independently from JOCAP.</p>
+
+<h3>
+<a id="jo-client-platform-remoting-modules" class="anchor" href="#jo-client-platform-remoting-modules" aria-hidden="true"><span class="octicon octicon-link"></span></a>jo-client-platform remoting modules</h3>
+
+<p>The JOCAP remoting uses the invocation service API to remote the default JOCAP CRUD services and all custom services that uses the default callback parameters of JOCAP:</p>
+
+<ul>
+<li>IResultCallback</li>
+<li>IExecutionCallback</li>
+<li>InputStream</li>
+</ul>
+
+<p>The remoting can even be extended for custom callback interfaces.</p>
+
+<h2>
+<a id="screenshots" class="anchor" href="#screenshots" aria-hidden="true"><span class="octicon octicon-link"></span></a>Screenshots</h2>
+
+<h3>
+<a id="user-administration-based-on-jo-client-platform-with-swing-remoting-client" class="anchor" href="#user-administration-based-on-jo-client-platform-with-swing-remoting-client" aria-hidden="true"><span class="octicon octicon-link"></span></a>User administration based on JO CLIENT PLATFORM with Swing remoting client</h3>
+
+<p><img src="http://jowidgets.org/screenshots/screenshot_swing.jpg" alt="swing"></p>
+
+<h3>
+<a id="user-administration-based-on-jo-client-platform-with-swt-remoting-client" class="anchor" href="#user-administration-based-on-jo-client-platform-with-swt-remoting-client" aria-hidden="true"><span class="octicon octicon-link"></span></a>User administration based on JO CLIENT PLATFORM with SWT remoting client</h3>
+
+<p><img src="http://jowidgets.org/screenshots/screenshot_swt.jpg" alt="swt"></p>
+
+<h3>
+<a id="user-administration-based-on-jo-client-platform-with-rwt-web-client" class="anchor" href="#user-administration-based-on-jo-client-platform-with-rwt-web-client" aria-hidden="true"><span class="octicon octicon-link"></span></a>User administration based on JO CLIENT PLATFORM with RWT web client</h3>
+
+<p><img src="http://jowidgets.org/screenshots/screenshot_rwt.jpg" alt="rwt"></p>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Jo-client-platform maintained by <a href="https://github.com/jo-source">jo-source</a></p>
+        <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
