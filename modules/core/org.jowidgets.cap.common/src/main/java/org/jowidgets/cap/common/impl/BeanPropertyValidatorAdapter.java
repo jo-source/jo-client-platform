@@ -77,11 +77,13 @@ final class BeanPropertyValidatorAdapter implements IValidator<Object>, Serializ
 
 	public static boolean isBeanPropertyConstrained(final Class<?> beanType, final String propertyName) {
 		final Validator beanValidator = CapCommonToolkit.beanValidator();
-		final BeanDescriptor constraintsForClass = beanValidator.getConstraintsForClass(beanType);
-		if (constraintsForClass != null) {
-			final PropertyDescriptor constraintsForProperty = constraintsForClass.getConstraintsForProperty(propertyName);
-			if (constraintsForProperty != null) {
-				return constraintsForProperty.hasConstraints();
+		if (beanValidator != null) {
+			final BeanDescriptor constraintsForClass = beanValidator.getConstraintsForClass(beanType);
+			if (constraintsForClass != null) {
+				final PropertyDescriptor constraintsForProperty = constraintsForClass.getConstraintsForProperty(propertyName);
+				if (constraintsForProperty != null) {
+					return constraintsForProperty.hasConstraints();
+				}
 			}
 		}
 		return false;
