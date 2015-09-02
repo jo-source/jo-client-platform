@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2015, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,49 +26,43 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.model;
+package org.jowidgets.cap.ui.impl;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
-import org.jowidgets.api.command.IEnabledChecker;
-import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
-import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
+import org.jowidgets.cap.ui.api.model.IBeanListModelBeansListener;
+import org.jowidgets.cap.ui.api.model.IBeanListModelBeansObservable;
+import org.jowidgets.util.collection.IObserverSet;
+import org.jowidgets.util.collection.IObserverSetFactory.Strategy;
+import org.jowidgets.util.collection.ObserverSetFactory;
 
-public interface IBeanListModel<BEAN_TYPE> extends
-		IBeanListModelObservable<BEAN_TYPE>,
-		IBeanListModelBeansObservable<BEAN_TYPE>,
-		IBeanSelectionProvider<BEAN_TYPE> {
+class BeanListModelBeansObservable<BEAN_TYPE> implements IBeanListModelBeansObservable<BEAN_TYPE> {
 
-	int getSize();
+	private final IObserverSet<IBeanListModelBeansListener<BEAN_TYPE>> listeners;
 
-	IBeanProxy<BEAN_TYPE> getBean(int index);
+	BeanListModelBeansObservable() {
+		this.listeners = ObserverSetFactory.create(Strategy.HIGH_PERFORMANCE);
+	}
 
-	void removeBeans(Iterable<? extends IBeanProxy<BEAN_TYPE>> beans);
+	@Override
+	public void addBeanListModelBeansListener(final IBeanListModelBeansListener<BEAN_TYPE> listener) {
+		listeners.add(listener);
+	}
 
-	void removeAllBeans();
+	@Override
+	public void removeBeanListModelBeansListener(final IBeanListModelBeansListener<BEAN_TYPE> listener) {
+		listeners.remove(listener);
+	}
 
-	void addBean(IBeanProxy<BEAN_TYPE> bean);
+	void fireAfterBeanAdded(final IBeanProxy<BEAN_TYPE> bean) {
+		for (final IBeanListModelBeansListener<BEAN_TYPE> listener : listeners) {
+			listener.afterBeanAdded(bean);
+		}
+	}
 
-	IBeanProxy<BEAN_TYPE> addBeanDto(IBeanDto beanDto);
-
-	IBeanProxy<BEAN_TYPE> addTransientBean();
-
-	ArrayList<Integer> getSelection();
-
-	void setSelection(Collection<Integer> selection);
-
-	void fireBeansChanged();
-
-	/**
-	 * Provides a checker that checks if data can be added to the model. E.g. if the model is a child and
-	 * the parent selection is empty. so data should be added.
-	 * 
-	 * Implementors may return null if this feature should not be supported
-	 * 
-	 * @return The enabled checker or null
-	 */
-	IEnabledChecker getDataAddableChecker();
+	void fireBeforeBeanRemoved(final IBeanProxy<BEAN_TYPE> bean) {
+		for (final IBeanListModelBeansListener<BEAN_TYPE> listener : listeners) {
+			listener.beforeBeanRemoved(bean);
+		}
+	}
 
 }

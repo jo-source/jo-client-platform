@@ -116,6 +116,7 @@ import org.jowidgets.cap.ui.api.filter.IUiFilterTools;
 import org.jowidgets.cap.ui.api.lookup.ILookUpAccess;
 import org.jowidgets.cap.ui.api.lookup.ILookUpListener;
 import org.jowidgets.cap.ui.api.model.DataModelContext;
+import org.jowidgets.cap.ui.api.model.IBeanListModelBeansListener;
 import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
 import org.jowidgets.cap.ui.api.model.IDataModelContext;
 import org.jowidgets.cap.ui.api.model.IModificationStateListener;
@@ -507,8 +508,8 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 							}
 						}
 						final IBeanProxy<BEAN_TYPE> beanToAdd = lastBean;
-						addBeanImpl(beanToAdd, false);
 						beanToAdd.clearLastRowDummyState();
+						addBeanImpl(beanToAdd, false);
 						lastBean = null;
 						addLastBean();
 					}
@@ -1538,6 +1539,16 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	@Override
 	public void removeBeanListModelListener(final IBeanListModelListener<BEAN_TYPE> listener) {
 		beanListModelObservable.removeBeanListModelListener(listener);
+	}
+
+	@Override
+	public void addBeanListModelBeansListener(final IBeanListModelBeansListener<BEAN_TYPE> listener) {
+		beansStateTracker.addBeanListModelBeansListener(listener);
+	}
+
+	@Override
+	public void removeBeanListModelBeansListener(final IBeanListModelBeansListener<BEAN_TYPE> listener) {
+		beansStateTracker.removeBeanListModelBeansListener(listener);
 	}
 
 	@Override

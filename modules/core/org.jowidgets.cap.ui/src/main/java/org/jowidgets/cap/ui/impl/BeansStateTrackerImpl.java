@@ -44,6 +44,8 @@ import org.jowidgets.cap.ui.api.bean.IBeanTransientStateListener;
 import org.jowidgets.cap.ui.api.bean.IBeanValidationStateListener;
 import org.jowidgets.cap.ui.api.bean.IBeansStateTracker;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
+import org.jowidgets.cap.ui.api.model.IBeanListModelBeansListener;
+import org.jowidgets.cap.ui.api.model.IBeanListModelBeansObservable;
 import org.jowidgets.cap.ui.api.model.IModificationStateListener;
 import org.jowidgets.cap.ui.api.model.IProcessStateListener;
 import org.jowidgets.cap.ui.tools.model.ModificationStateObservable;
@@ -56,7 +58,10 @@ import org.jowidgets.validation.IValidationResult;
 import org.jowidgets.validation.IValidationResultBuilder;
 import org.jowidgets.validation.ValidationResult;
 
-final class BeansStateTrackerImpl<BEAN_TYPE> implements IBeansStateTracker<BEAN_TYPE>, IValidationResultCreator {
+final class BeansStateTrackerImpl<BEAN_TYPE> implements
+		IBeansStateTracker<BEAN_TYPE>,
+		IBeanListModelBeansObservable<BEAN_TYPE>,
+		IValidationResultCreator {
 
 	private final Set<IBeanProxy<BEAN_TYPE>> registeredBeans;
 	private final Set<IBeanProxy<BEAN_TYPE>> modifiedBeans;
@@ -75,6 +80,7 @@ final class BeansStateTrackerImpl<BEAN_TYPE> implements IBeansStateTracker<BEAN_
 
 	private final ValidationCache validationCache;
 	private final IBeanProxyContext beanProxyContext;
+	private final BeanListModelBeansObservable<BEAN_TYPE> beanListModelBeansObservable;
 
 	BeansStateTrackerImpl(final IBeanProxyContext beanProxyContext) {
 		Assert.paramNotNull(beanProxyContext, "beanProxyContext");
@@ -134,6 +140,8 @@ final class BeansStateTrackerImpl<BEAN_TYPE> implements IBeansStateTracker<BEAN_
 
 		this.beanTransientStateListener = new BeanTransientStateListener();
 		this.validationCache = new ValidationCache(this);
+
+		this.beanListModelBeansObservable = new BeanListModelBeansObservable<BEAN_TYPE>();
 	}
 
 	@Override
@@ -179,6 +187,10 @@ final class BeansStateTrackerImpl<BEAN_TYPE> implements IBeansStateTracker<BEAN_
 		}
 
 		bean.addValidationStateListener(validationStateListener);
+
+		if (!bean.isDummy() && !bean.isLastRowDummy()) {
+			beanListModelBeansObservable.fireAfterBeanAdded(bean);
+		}
 	}
 
 	@Override
@@ -188,6 +200,10 @@ final class BeansStateTrackerImpl<BEAN_TYPE> implements IBeansStateTracker<BEAN_
 
 	private void unregisterImpl(final IBeanProxy<BEAN_TYPE> bean, final boolean setValidationCacheDirty) {
 		Assert.paramNotNull(bean, "bean");
+
+		if (!bean.isDummy() && !bean.isLastRowDummy()) {
+			beanListModelBeansObservable.fireBeforeBeanRemoved(bean);
+		}
 
 		if (bean.isTransient()) {
 			bean.removeTransientStateListener(beanTransientStateListener);
@@ -333,6 +349,16 @@ final class BeansStateTrackerImpl<BEAN_TYPE> implements IBeansStateTracker<BEAN_
 			unregisterImpl(bean, false);
 		}
 		validationCache.setDirty();
+	}
+
+	@Override
+	public void addBeanListModelBeansListener(final IBeanListModelBeansListener<BEAN_TYPE> listener) {
+		beanListModelBeansObservable.addBeanListModelBeansListener(listener);
+	}
+
+	@Override
+	public void removeBeanListModelBeansListener(final IBeanListModelBeansListener<BEAN_TYPE> listener) {
+		beanListModelBeansObservable.removeBeanListModelBeansListener(listener);
 	}
 
 	@Override

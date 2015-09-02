@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2015, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -28,47 +28,24 @@
 
 package org.jowidgets.cap.ui.api.model;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
-import org.jowidgets.api.command.IEnabledChecker;
-import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
-import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
 
-public interface IBeanListModel<BEAN_TYPE> extends
-		IBeanListModelObservable<BEAN_TYPE>,
-		IBeanListModelBeansObservable<BEAN_TYPE>,
-		IBeanSelectionProvider<BEAN_TYPE> {
-
-	int getSize();
-
-	IBeanProxy<BEAN_TYPE> getBean(int index);
-
-	void removeBeans(Iterable<? extends IBeanProxy<BEAN_TYPE>> beans);
-
-	void removeAllBeans();
-
-	void addBean(IBeanProxy<BEAN_TYPE> bean);
-
-	IBeanProxy<BEAN_TYPE> addBeanDto(IBeanDto beanDto);
-
-	IBeanProxy<BEAN_TYPE> addTransientBean();
-
-	ArrayList<Integer> getSelection();
-
-	void setSelection(Collection<Integer> selection);
-
-	void fireBeansChanged();
+public interface IBeanListModelBeansListener<BEAN_TYPE> {
 
 	/**
-	 * Provides a checker that checks if data can be added to the model. E.g. if the model is a child and
-	 * the parent selection is empty. so data should be added.
+	 * This method will be invoked for every bean that will be added to this model, e.g. after loading or after added with the add
+	 * method
 	 * 
-	 * Implementors may return null if this feature should not be supported
-	 * 
-	 * @return The enabled checker or null
+	 * @param bean The bean that was added
 	 */
-	IEnabledChecker getDataAddableChecker();
+	void afterBeanAdded(IBeanProxy<BEAN_TYPE> bean);
+
+	/**
+	 * This method will be invoked for every bean before it will be removed from the model, e.g. before clearing the model or
+	 * before removing a bean with the remove method
+	 * 
+	 * @param bean The bean that was removed
+	 */
+	void beforeBeanRemoved(IBeanProxy<BEAN_TYPE> bean);
 
 }

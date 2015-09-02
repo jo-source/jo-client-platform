@@ -83,6 +83,7 @@ import org.jowidgets.cap.ui.api.filter.IUiFilter;
 import org.jowidgets.cap.ui.api.filter.IUiFilterFactory;
 import org.jowidgets.cap.ui.api.filter.IUiFilterTools;
 import org.jowidgets.cap.ui.api.model.DataModelContext;
+import org.jowidgets.cap.ui.api.model.IBeanListModelBeansListener;
 import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
 import org.jowidgets.cap.ui.api.model.IDataModelContext;
 import org.jowidgets.cap.ui.api.model.IModificationStateListener;
@@ -687,6 +688,16 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 	@Override
 	public void removeBeanListModelListener(final IBeanListModelListener<BEAN_TYPE> listener) {
 		beanListModelObservable.removeBeanListModelListener(listener);
+	}
+
+	@Override
+	public void addBeanListModelBeansListener(final IBeanListModelBeansListener<BEAN_TYPE> listener) {
+		beansStateTracker.addBeanListModelBeansListener(listener);
+	}
+
+	@Override
+	public void removeBeanListModelBeansListener(final IBeanListModelBeansListener<BEAN_TYPE> listener) {
+		beansStateTracker.removeBeanListModelBeansListener(listener);
 	}
 
 	@Override

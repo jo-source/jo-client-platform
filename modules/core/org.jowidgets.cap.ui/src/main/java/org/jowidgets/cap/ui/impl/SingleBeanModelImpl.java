@@ -75,6 +75,7 @@ import org.jowidgets.cap.ui.api.bean.IBeansStateTracker;
 import org.jowidgets.cap.ui.api.execution.BeanExecutionPolicy;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
 import org.jowidgets.cap.ui.api.model.DataModelContext;
+import org.jowidgets.cap.ui.api.model.IBeanListModelBeansListener;
 import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
 import org.jowidgets.cap.ui.api.model.IDataModelContext;
 import org.jowidgets.cap.ui.api.model.IModificationStateListener;
@@ -589,6 +590,16 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 	@Override
 	public void removeBeanListModelListener(final IBeanListModelListener<BEAN_TYPE> listener) {
 		beanListModelObservable.removeBeanListModelListener(listener);
+	}
+
+	@Override
+	public void addBeanListModelBeansListener(final IBeanListModelBeansListener<BEAN_TYPE> listener) {
+		beansStateTracker.addBeanListModelBeansListener(listener);
+	}
+
+	@Override
+	public void removeBeanListModelBeansListener(final IBeanListModelBeansListener<BEAN_TYPE> listener) {
+		beansStateTracker.removeBeanListModelBeansListener(listener);
 	}
 
 	@Override

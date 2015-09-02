@@ -30,11 +30,16 @@ package org.jowidgets.cap.ui.api.bean;
 
 import java.util.Set;
 
+import org.jowidgets.cap.ui.api.model.IBeanListModelBeansObservable;
 import org.jowidgets.cap.ui.api.model.IModificationStateObservable;
 import org.jowidgets.cap.ui.api.model.IProcessStateObservable;
 import org.jowidgets.validation.IValidateable;
 
-public interface IBeansStateTracker<BEAN_TYPE> extends IValidateable, IModificationStateObservable, IProcessStateObservable {
+public interface IBeansStateTracker<BEAN_TYPE> extends
+		IValidateable,
+		IModificationStateObservable,
+		IProcessStateObservable,
+		IBeanListModelBeansObservable<BEAN_TYPE> {
 
 	void register(IBeanProxy<BEAN_TYPE> bean);
 

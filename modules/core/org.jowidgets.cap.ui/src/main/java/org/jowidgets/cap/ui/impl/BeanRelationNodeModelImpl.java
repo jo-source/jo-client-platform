@@ -82,6 +82,7 @@ import org.jowidgets.cap.ui.api.execution.IExecutionTask;
 import org.jowidgets.cap.ui.api.filter.IUiFilter;
 import org.jowidgets.cap.ui.api.filter.IUiFilterFactory;
 import org.jowidgets.cap.ui.api.filter.IUiFilterTools;
+import org.jowidgets.cap.ui.api.model.IBeanListModelBeansListener;
 import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
 import org.jowidgets.cap.ui.api.model.ILabelModel;
 import org.jowidgets.cap.ui.api.model.IModificationStateListener;
@@ -849,6 +850,16 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 	@Override
 	public void removeBeanListModelListener(final IBeanListModelListener<CHILD_BEAN_TYPE> listener) {
 		beanListModelObservable.removeBeanListModelListener(listener);
+	}
+
+	@Override
+	public void addBeanListModelBeansListener(final IBeanListModelBeansListener<CHILD_BEAN_TYPE> listener) {
+		beanStateTracker.addBeanListModelBeansListener(listener);
+	}
+
+	@Override
+	public void removeBeanListModelBeansListener(final IBeanListModelBeansListener<CHILD_BEAN_TYPE> listener) {
+		beanStateTracker.removeBeanListModelBeansListener(listener);
 	}
 
 	@Override
