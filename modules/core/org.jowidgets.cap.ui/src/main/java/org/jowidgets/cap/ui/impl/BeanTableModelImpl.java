@@ -287,6 +287,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		final boolean clearOnEmptyParentBeans,
 		final boolean lastBeanEnabled,
 		final boolean useLastModificationAsDefault,
+		final BeanExecutionPolicy saveExecutionPolicy,
 		final int pageSize,
 		final IBeanProxyContext beanProxyContext,
 		final IDataModelContext dataModelContext,
@@ -301,6 +302,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		Assert.paramNotNull(attributes, "attributes");
 		Assert.paramNotNull(readerService, "readerService");
 		Assert.paramNotNull(paramProvider, "paramProvider");
+		Assert.paramNotNull(saveExecutionPolicy, "saveExecutionPolicy");
 		Assert.paramNotNull(exceptionConverter, "exceptionConverter");
 		Assert.paramNotNull(beanProxyContext, "beanProxyContext");
 
@@ -422,7 +424,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			this,
 			beansStateTracker,
 			exceptionConverter,
-			BeanExecutionPolicy.BATCH,
+			saveExecutionPolicy,
 			updaterService,
 			creatorService,
 			this.attributeSet.getPropertyNames(),

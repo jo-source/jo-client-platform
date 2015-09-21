@@ -36,6 +36,7 @@ import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.sort.ISort;
+import org.jowidgets.cap.ui.api.execution.BeanExecutionPolicy;
 import org.jowidgets.cap.ui.api.plugin.IBeanTableModelBuilderPlugin;
 import org.jowidgets.cap.ui.api.sort.ISortModelConfig;
 import org.jowidgets.cap.ui.api.table.IBeanTableCellRenderer;
@@ -72,6 +73,7 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> extends
 	private boolean useLastModificationAsDefault;
 	private Boolean clearOnEmptyParentBeans;
 	private int pageSize;
+	private BeanExecutionPolicy saveExecutionPolicy;
 
 	private ISortModelConfig sortModelConfig;
 
@@ -87,6 +89,7 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> extends
 		this.clearOnEmptyFilter = false;
 		this.lastBeanEnabled = false;
 		this.useLastModificationAsDefault = false;
+		this.saveExecutionPolicy = BeanExecutionPolicy.BATCH;
 		this.sortModelConfig = new SortModelConfigImpl();
 		this.pageSize = DEFAULT_PAGE_SIZE;
 
@@ -219,6 +222,13 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> extends
 		return this;
 	}
 
+	@Override
+	public IBeanTableModelBuilder<BEAN_TYPE> setSaveExecutionPolicy(final BeanExecutionPolicy policy) {
+		Assert.paramNotNull(policy, "policy");
+		this.saveExecutionPolicy = policy;
+		return this;
+	}
+
 	private String getEntityLabelSingular() {
 		if (EmptyCheck.isEmpty(entityLabelSingular)) {
 			entityLabelSingular = Messages.getString("BeanTableModelBuilderImpl.dataset");
@@ -283,6 +293,7 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> extends
 			getClearOnEmptyParentBeans(),
 			lastBeanEnabled,
 			useLastModificationAsDefault,
+			saveExecutionPolicy,
 			pageSize,
 			getBeanProxyContext(),
 			getDataModelContext(),

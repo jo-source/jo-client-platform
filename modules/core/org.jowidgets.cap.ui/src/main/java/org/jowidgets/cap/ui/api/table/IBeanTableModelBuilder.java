@@ -29,6 +29,7 @@
 package org.jowidgets.cap.ui.api.table;
 
 import org.jowidgets.cap.common.api.service.IReaderService;
+import org.jowidgets.cap.ui.api.execution.BeanExecutionPolicy;
 import org.jowidgets.cap.ui.api.model.IBeanModelBuilder;
 import org.jowidgets.cap.ui.api.sort.ISortModelConfig;
 import org.jowidgets.service.api.IServiceId;
@@ -106,6 +107,17 @@ public interface IBeanTableModelBuilder<BEAN_TYPE> extends IBeanModelBuilder<BEA
 	IBeanTableModelBuilder<BEAN_TYPE> setUseLastModificationForDefault(boolean useLastModificationForDefault);
 
 	IBeanTableModelBuilder<BEAN_TYPE> addCellRenderer(IBeanTableCellRenderer<BEAN_TYPE> renderer);
+
+	/**
+	 * Sets the bean execution policy.
+	 * 
+	 * The default value is batch
+	 * 
+	 * @param policy The policy to set, must not be null
+	 * 
+	 * @return This builder
+	 */
+	IBeanTableModelBuilder<BEAN_TYPE> setSaveExecutionPolicy(BeanExecutionPolicy policy);
 
 	IBeanTableModel<BEAN_TYPE> build();
 
