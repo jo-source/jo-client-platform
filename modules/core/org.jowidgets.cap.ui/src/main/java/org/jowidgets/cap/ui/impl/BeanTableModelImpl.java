@@ -2943,7 +2943,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 					final IBeanProxy<BEAN_TYPE> oldBeanProxy = i < oldPage.size() ? oldPage.get(i) : null;
 					if (newDataIterator.hasNext()) {
 						final IBeanDto newBean = newDataIterator.next();
-						if (oldBeanProxy == null || !oldBeanProxy.getId().equals(newBean.getId())) {
+						if (oldBeanProxy == null || hasBeanChanged(oldBeanProxy, newBean)) {
 							final int rowNr = pageOffset + i;
 							final IBeanProxy<BEAN_TYPE> newBeanProxy = createBeanProxy(newBean);
 							createdBeans.add(newBeanProxy);
@@ -3031,6 +3031,23 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			backgroundPageLoader = null;
 			finished = true;
 
+		}
+
+		private boolean hasBeanChanged(final IBeanProxy<BEAN_TYPE> oldBean, final IBeanDto newBean) {
+			if (!(oldBean.getId().equals(newBean.getId()))) {
+				return true;
+			}
+			if (!(oldBean.getVersion() != newBean.getVersion())) {
+				return true;
+			}
+			for (final String propertyName : oldBean.getProperties()) {
+				final Object oldValue = oldBean.getValue(propertyName);
+				final Object newValue = newBean.getValue(propertyName);
+				if (!NullCompatibleEquivalence.equals(oldValue, newValue)) {
+					return true;
+				}
+			}
+			return false;
 		}
 
 		private void setException(final Throwable exception) {
