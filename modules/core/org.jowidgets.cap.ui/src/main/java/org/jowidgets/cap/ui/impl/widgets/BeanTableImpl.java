@@ -829,6 +829,12 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 			stopEditing();
 		}
 		super.setEnabled(enabled);
+		table.setEnabled(enabled);
+	}
+
+	@Override
+	public boolean requestFocus() {
+		return table.requestFocus();
 	}
 
 	private void startAutoUpdateModeImpl() {
