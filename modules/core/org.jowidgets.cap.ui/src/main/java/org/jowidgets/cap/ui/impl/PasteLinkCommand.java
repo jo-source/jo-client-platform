@@ -48,6 +48,7 @@ import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.Cardinality;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
+import org.jowidgets.cap.common.api.exception.ServiceCanceledException;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.execution.IExecutionCallbackListener;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
@@ -270,7 +271,9 @@ final class PasteLinkCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYP
 			protected void exceptionUi(final Throwable exception) {
 				for (final IBeanProxy<SOURCE_BEAN_TYPE> bean : selection) {
 					bean.setExecutionTask(null);
-					bean.addMessage(exceptionConverter.convert(getShortErrorMessage(), selection, bean, exception));
+					if (!(exception instanceof ServiceCanceledException)) {
+						bean.addMessage(exceptionConverter.convert(getShortErrorMessage(), selection, bean, exception));
+					}
 				}
 				executionObservable.fireAfterExecutionError(executionContext, exception);
 			}

@@ -43,6 +43,7 @@ import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.types.QuestionResult;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
+import org.jowidgets.cap.common.api.exception.ServiceCanceledException;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.execution.IExecutionCallbackListener;
 import org.jowidgets.cap.common.api.service.IDeleterService;
@@ -321,13 +322,12 @@ final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 
 		@Override
 		protected void exceptionUi(final Throwable exception) {
-			//CHECKSTYLE:OFF
-			exception.printStackTrace();
-			//CHECKSTYLE:ON
 
 			for (final IBeanProxy<BEAN_TYPE> bean : beans) {
 				bean.setExecutionTask(null);
-				bean.addMessage(exceptionConverter.convert(DELETION_FAILED.get(), beans, bean, exception));
+				if (!(exception instanceof ServiceCanceledException)) {
+					bean.addMessage(exceptionConverter.convert(DELETION_FAILED.get(), beans, bean, exception));
+				}
 			}
 
 			model.fireBeansChanged();

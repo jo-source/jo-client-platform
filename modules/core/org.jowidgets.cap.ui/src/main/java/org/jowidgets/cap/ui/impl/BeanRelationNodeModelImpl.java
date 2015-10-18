@@ -46,6 +46,7 @@ import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
+import org.jowidgets.cap.common.api.exception.ServiceCanceledException;
 import org.jowidgets.cap.common.api.execution.IExecutionCallbackListener;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.filter.ArithmeticOperator;
@@ -1031,7 +1032,9 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 
 			if (dummyBean != null) {
 				dummyBean.setExecutionTask(null);
-				dummyBean.addMessage(message);
+				if (!(exception instanceof ServiceCanceledException)) {
+					dummyBean.addMessage(message);
+				}
 			}
 
 			finished = true;

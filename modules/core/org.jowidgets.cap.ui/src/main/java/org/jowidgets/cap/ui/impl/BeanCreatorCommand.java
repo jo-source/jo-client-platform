@@ -47,6 +47,7 @@ import org.jowidgets.cap.common.api.bean.IBeanData;
 import org.jowidgets.cap.common.api.bean.IBeanDataBuilder;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
+import org.jowidgets.cap.common.api.exception.ServiceCanceledException;
 import org.jowidgets.cap.common.api.execution.IExecutionCallbackListener;
 import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
@@ -268,10 +269,12 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 		@Override
 		protected void exceptionUi(final Throwable exception) {
 			if (exception != null) {
-				final List<IBeanProxy<BEAN_TYPE>> beans = new LinkedList<IBeanProxy<BEAN_TYPE>>();
-				beans.add(bean);
-				final String shortMessage = Messages.getString("BeanCreatorCommand.creation_failed");
-				bean.addMessage(exceptionConverter.convert(shortMessage, beans, bean, exception));
+				if (!(exception instanceof ServiceCanceledException)) {
+					final List<IBeanProxy<BEAN_TYPE>> beans = new LinkedList<IBeanProxy<BEAN_TYPE>>();
+					beans.add(bean);
+					final String shortMessage = Messages.getString("BeanCreatorCommand.creation_failed");
+					bean.addMessage(exceptionConverter.convert(shortMessage, beans, bean, exception));
+				}
 			}
 			else {
 				final IBeanMessageBuilder messageBuilder = CapUiToolkit.beanMessageBuilder(BeanMessageType.ERROR);

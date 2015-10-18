@@ -40,6 +40,7 @@ import org.jowidgets.api.command.IExceptionHandler;
 import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.types.QuestionResult;
+import org.jowidgets.cap.common.api.exception.ServiceCanceledException;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.link.ILinkDeletion;
@@ -302,7 +303,9 @@ final class BeanLinkDeleterCommand<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> implement
 
 		private void onError(final Throwable exception) {
 			for (final IBeanProxy<?> bean : linkedSelection) {
-				bean.addMessage(exceptionConverter.convert(getShortErrorMessage(), linkedSelection, bean, exception));
+				if (!(exception instanceof ServiceCanceledException)) {
+					bean.addMessage(exceptionConverter.convert(getShortErrorMessage(), linkedSelection, bean, exception));
+				}
 				bean.setExecutionTask(null);
 			}
 		}

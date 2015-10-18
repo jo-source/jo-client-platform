@@ -65,6 +65,7 @@ import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.bean.IBeanModification;
+import org.jowidgets.cap.common.api.exception.ServiceCanceledException;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.filter.ArithmeticOperator;
@@ -2747,7 +2748,9 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			//CHECKSTYLE:ON
 			dummyBeanProxy.setExecutionTask(null);
 			final List<IBeanProxy<BEAN_TYPE>> dummyBeanList = Collections.singletonList(dummyBeanProxy);
-			dummyBeanProxy.addMessage(exceptionConverter.convert(LOAD_ERROR.get(), dummyBeanList, dummyBeanProxy, exception));
+			if (!(exception instanceof ServiceCanceledException)) {
+				dummyBeanProxy.addMessage(exceptionConverter.convert(LOAD_ERROR.get(), dummyBeanList, dummyBeanProxy, exception));
+			}
 			programmaticPageLoader.remove(pageIndex);
 			finished = true;
 			dataModel.fireDataChanged();
