@@ -2,7 +2,7 @@
 <feature
     id="org.jowidgets.cap.standalone.client.feature"
     label="jo-client-platform standalone client feature"
-    version="0.45.0.qualifier">
+    version="0.45.0">
 
 	<description url="http://www.example.com/description">
 		Feature that holds all cap core bundles for standalone client bundles
