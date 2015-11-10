@@ -61,6 +61,7 @@ import javax.persistence.metamodel.Type;
 
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
+import org.jowidgets.cap.common.api.bean.IPropertyMap;
 import org.jowidgets.cap.common.api.filter.ArithmeticOperator;
 import org.jowidgets.cap.common.api.filter.BooleanOperator;
 import org.jowidgets.cap.common.api.filter.IArithmeticFilter;
@@ -77,6 +78,7 @@ import org.jowidgets.cap.service.jpa.api.query.ICustomFilterPredicateCreator;
 import org.jowidgets.cap.service.jpa.api.query.IPredicateCreator;
 import org.jowidgets.cap.service.jpa.api.query.IPropertyFilterPredicateCreator;
 import org.jowidgets.cap.service.jpa.api.query.IQueryCreator;
+import org.jowidgets.cap.service.jpa.api.query.PropertyMapQueryPath;
 import org.jowidgets.cap.service.jpa.api.query.QueryPath;
 import org.jowidgets.plugin.api.IPluginPropertiesBuilder;
 import org.jowidgets.plugin.api.PluginProperties;
@@ -85,6 +87,8 @@ import org.jowidgets.util.Assert;
 import org.jowidgets.util.IConverter;
 
 final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE> {
+
+	private static final String PROPERTY_MAP_JOIN_ALIAS = "propertyMap";
 
 	private final Class<? extends IBean> beanType;
 	private final boolean caseInsensitive;
@@ -172,6 +176,7 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 		final PARAM_TYPE parameter) {
 
 		final Root<?> bean = query.from(persistenceClass);
+
 		final List<Predicate> predicates = new LinkedList<Predicate>();
 
 		final List<Object> parentIds = new LinkedList<Object>();
@@ -216,7 +221,8 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 		if (filter instanceof IPropertyFilter) {
 			final IPropertyFilter propertyFilter = (IPropertyFilter) filter;
 			final String propertyName = propertyFilter.getPropertyName();
-			final IPropertyFilterPredicateCreator<PARAM_TYPE> predicateCreator = propertyFilterPredicateCreators.get(propertyName);
+			final IPropertyFilterPredicateCreator<PARAM_TYPE> predicateCreator = propertyFilterPredicateCreators.get(
+					propertyName);
 			if (predicateCreator != null) {
 				return predicateCreator.createPredicate(criteriaBuilder, bean, query, propertyFilter, parameter);
 			}
@@ -236,7 +242,8 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 		}
 		else if (filter instanceof ICustomFilter) {
 			final ICustomFilter customFilter = (ICustomFilter) filter;
-			final ICustomFilterPredicateCreator<PARAM_TYPE> customFilterPredicateCreator = getCustomFilterPredicateCreator(customFilter);
+			final ICustomFilterPredicateCreator<PARAM_TYPE> customFilterPredicateCreator = getCustomFilterPredicateCreator(
+					customFilter);
 			if (customFilterPredicateCreator != null) {
 				final Predicate predicate;
 				predicate = customFilterPredicateCreator.createPredicate(
@@ -335,15 +342,30 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 
 		final boolean existanceFilter = ArithmeticOperator.EMPTY == filter.getOperator();
 
+		final Path<?> joinQueryPath = getJoinQueryPath(subqueryRoot, filter.getPropertyName());
+
 		final Predicate predicate = createArithmeticFilterPredicate(
 				criteriaBuilder,
 				subqueryRoot,
 				subquery,
 				filter,
-				getJoinQueryPath(subqueryRoot, filter.getPropertyName()),
+				joinQueryPath,
 				existanceFilter);
 
-		subquery.where(predicate);
+		final PropertyMapQueryPath propertyMapQueryPath = bean.getJavaType().getAnnotation(PropertyMapQueryPath.class);
+		if (IPropertyMap.class.isAssignableFrom(bean.getJavaType())
+			&& joinQueryPath.getParentPath() != null
+			&& joinQueryPath.getParentPath().getAlias() != null
+			&& propertyMapQueryPath != null
+			&& joinQueryPath.getParentPath().getAlias().equals(PROPERTY_MAP_JOIN_ALIAS)) {
+			final Predicate predicateGenericProperties = criteriaBuilder.equal(
+					joinQueryPath.getParentPath().get(propertyMapQueryPath.propertyNamePath()),
+					filter.getPropertyName());
+			subquery.where(predicate, predicateGenericProperties);
+		}
+		else {
+			subquery.where(predicate);
+		}
 
 		if (filter.isInverted() && !existanceFilter) {
 			return criteriaBuilder.not(bean.get(IBean.ID_PROPERTY).in(subquery));
@@ -768,9 +790,34 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 			}
 			return parentPath;
 		}
-		else {
-			return null;
+		else if (IPropertyMap.class.isAssignableFrom(bean.getJavaType())) {
+			final PropertyMapQueryPath propertyMapQueryPath = bean.getJavaType().getAnnotation(PropertyMapQueryPath.class);
+			if (propertyMapQueryPath != null) {
+				Path<?> parentPath = bean;
+				Type<?> type = bean.getModel();
+				for (final String pathSegment : propertyMapQueryPath.path()) {
+					final Attribute<?, ?> attribute;
+					if (type != null && type instanceof ManagedType) {
+						attribute = ((ManagedType<?>) type).getAttribute(pathSegment);
+						type = getType(attribute);
+					}
+					else {
+						attribute = null;
+					}
+					if (isJoinableType(attribute) && parentPath instanceof From) {
+						final From<?, ?> from = (From<?, ?>) parentPath;
+						parentPath = from.join(pathSegment, JoinType.LEFT);
+					}
+					else {
+						parentPath = parentPath.get(pathSegment);
+					}
+				}
+
+				parentPath.alias(PROPERTY_MAP_JOIN_ALIAS);
+				return parentPath.get(propertyMapQueryPath.valuePath());
+			}
 		}
+		return null;
 	}
 
 	private boolean isJoinQueryPath(final Root<?> bean, final String propertyName) {
@@ -792,6 +839,21 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 				}
 				else {
 					path = path.get(pathSegment);
+				}
+			}
+		}
+		else {
+			try {
+				bean.get(propertyName);
+				return false;
+			}
+			catch (final IllegalArgumentException illegalArgumentException) {
+				if (IPropertyMap.class.isAssignableFrom(bean.getJavaType())) {
+					final PropertyMapQueryPath propertyMapQueryPath = bean.getJavaType().getAnnotation(
+							PropertyMapQueryPath.class);
+					if (propertyMapQueryPath != null) {
+						return true;
+					}
 				}
 			}
 		}
@@ -849,9 +911,11 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 		final Class<ANNOTATION_TYPE> annotation) {
 		final Class<?> beanClass = root.getJavaType();
 		try {
-			final PropertyDescriptor descriptor = new PropertyDescriptor(propertyName, beanClass, "is"
-				+ propertyName.substring(0, 1).toUpperCase(Locale.ENGLISH)
-				+ propertyName.substring(1), null);
+			final PropertyDescriptor descriptor = new PropertyDescriptor(
+				propertyName,
+				beanClass,
+				"is" + propertyName.substring(0, 1).toUpperCase(Locale.ENGLISH) + propertyName.substring(1),
+				null);
 			final Method readMethod = descriptor.getReadMethod();
 			return readMethod.getAnnotation(annotation);
 		}
