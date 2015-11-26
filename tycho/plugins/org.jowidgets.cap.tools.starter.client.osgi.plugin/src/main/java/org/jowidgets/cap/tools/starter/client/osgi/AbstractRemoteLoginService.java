@@ -28,7 +28,9 @@
 
 package org.jowidgets.cap.tools.starter.client.osgi;
 
+import org.jowidgets.api.login.ILoginInterceptor;
 import org.jowidgets.cap.tools.starter.client.login.AbstractBasicAuthenticationRemoteLoginService;
+import org.jowidgets.cap.tools.starter.client.remoting.RemotingBasicAuthenticationLoginInterceptor;
 import org.jowidgets.common.image.IImageConstant;
 
 public abstract class AbstractRemoteLoginService extends AbstractBasicAuthenticationRemoteLoginService {
@@ -47,6 +49,11 @@ public abstract class AbstractRemoteLoginService extends AbstractBasicAuthentica
 
 	public AbstractRemoteLoginService(final String loginLabel, final boolean decoratedLoginDialog) {
 		super(loginLabel, decoratedLoginDialog);
+	}
+
+	@Override
+	public ILoginInterceptor createLoginInterceptor() {
+		return new RemotingBasicAuthenticationLoginInterceptor(getAuthorizationProviderServiceId());
 	}
 
 }

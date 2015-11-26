@@ -10,6 +10,8 @@ Require-Bundle:
  org.jowidgets.util.bundle,
  org.jowidgets.api.bundle,
  org.jowidgets.common.bundle,
+ org.jowidgets.service.bundle,
+ org.jowidgets.cap.common.bundle,
  org.jowidgets.cap.ui.bundle,
  org.jowidgets.cap.tools.starter.client.login.bundle,
  org.jowidgets.cap.tools.starter.client.remoting.bundle,
