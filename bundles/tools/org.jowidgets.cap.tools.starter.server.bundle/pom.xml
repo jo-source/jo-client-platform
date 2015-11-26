@@ -39,6 +39,7 @@
 						<Embed-Dependency>org.jowidgets.cap.tools.starter.server;inline=true</Embed-Dependency>
 						<Require-Bundle>org.jowidgets.security.impl.http.server.bundle</Require-Bundle>
 						<SPI-Provider>*</SPI-Provider>
+						<Shared-Classloader-Contribution>true</Shared-Classloader-Contribution>
 					</instructions>
 				</configuration>
 			</plugin>

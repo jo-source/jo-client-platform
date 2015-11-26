@@ -39,6 +39,7 @@
 						<Embed-Dependency>org.jowidgets.cap.addons.widgets.graph.impl.prefuse.swing;inline=true</Embed-Dependency>
 						<Require-Bundle>org.jowidgets.cap.addons.widgets.graph.impl.prefuse.swing.common.bundle,org.jowidgets.tools.bundle</Require-Bundle>
 						<SPI-Provider>*</SPI-Provider>
+						<Shared-Classloader-Contribution>true</Shared-Classloader-Contribution>
 					</instructions>
 				</configuration>
 			</plugin>

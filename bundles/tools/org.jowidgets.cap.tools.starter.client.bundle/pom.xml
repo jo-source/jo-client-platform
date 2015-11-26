@@ -38,7 +38,6 @@
 					<instructions>
 						<Embed-Dependency>org.jowidgets.cap.tools.starter.client;inline=true</Embed-Dependency>
 						<Require-Bundle>org.jowidgets.cap.tools.starter.client.remoting.bundle,org.jowidgets.cap.tools.starter.client.login.bundle,org.jowidgets.impl.bundle,org.jowidgets.workbench.impl.bundle</Require-Bundle>
-						<SPI-Provider>*</SPI-Provider>
 					</instructions>
 				</configuration>
 			</plugin>

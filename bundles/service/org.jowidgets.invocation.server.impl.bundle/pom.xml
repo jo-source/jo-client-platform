@@ -39,6 +39,7 @@
 						<Embed-Dependency>org.jowidgets.invocation.server.impl;inline=true</Embed-Dependency>
 						<Require-Bundle>org.jowidgets.invocation.server.api.bundle,org.jowidgets.message.api.bundle,org.jowidgets.invocation.common.impl.bundle</Require-Bundle>
 						<SPI-Provider>*</SPI-Provider>
+						<Shared-Classloader-Contribution>true</Shared-Classloader-Contribution>
 					</instructions>
 				</configuration>
 			</plugin>

@@ -39,6 +39,7 @@
 						<Embed-Dependency>org.jowidgets.cap.tools.starter.client.remoting;inline=true</Embed-Dependency>
 						<Require-Bundle>org.jowidgets.cap.remoting.client.bundle,org.jowidgets.invocation.service.client.impl.bundle,org.jowidgets.invocation.client.impl.bundle,org.jowidgets.security.impl.http.client.bundle</Require-Bundle>
 						<SPI-Provider>*</SPI-Provider>
+						<Shared-Classloader-Contribution>true</Shared-Classloader-Contribution>
 					</instructions>
 				</configuration>
 			</plugin>

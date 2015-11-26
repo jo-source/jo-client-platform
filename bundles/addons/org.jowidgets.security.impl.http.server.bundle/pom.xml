@@ -39,6 +39,7 @@
 						<Embed-Dependency>org.jowidgets.security.impl.http.server;inline=true</Embed-Dependency>
 						<Require-Bundle>org.jowidgets.security.bundle,org.jowidgets.message.impl.http.server.bundle,org.jowidgets.cap.remoting.server.bundle,org.jowidgets.invocation.server.impl.bundle,org.jowidgets.invocation.service.server.impl.bundle</Require-Bundle>
 						<SPI-Provider>*</SPI-Provider>
+						<Shared-Classloader-Contribution>true</Shared-Classloader-Contribution>
 					</instructions>
 				</configuration>
 			</plugin>

@@ -38,6 +38,8 @@
 					<instructions>
 						<Embed-Dependency>org.jowidgets.cap.security.service.plugin;inline=true</Embed-Dependency>
 						<Require-Bundle>org.jowidgets.cap.security.service.bundle</Require-Bundle>
+						<SPI-Provider>*</SPI-Provider>
+						<Shared-Classloader-Contribution>true</Shared-Classloader-Contribution>
 					</instructions>
 				</configuration>
 			</plugin>

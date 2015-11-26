@@ -40,6 +40,7 @@
 						<Require-Bundle>org.jowidgets.service.bundle,org.jowidgets.cap.common.bundle,org.jowidgets.tools.bundle,org.jowidgets.workbench.tools.bundle,org.jowidgets.classloading.api.bundle</Require-Bundle>
 						<SPI-Consumer>*</SPI-Consumer>
 						<SPI-Provider>*</SPI-Provider>
+						<Shared-Classloader-Contribution>true</Shared-Classloader-Contribution>
 					</instructions>
 				</configuration>
 			</plugin>
