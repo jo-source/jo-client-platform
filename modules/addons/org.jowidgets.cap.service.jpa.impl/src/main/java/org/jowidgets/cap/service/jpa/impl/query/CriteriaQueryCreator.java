@@ -358,10 +358,10 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 			&& joinQueryPath.getParentPath().getAlias() != null
 			&& propertyMapQueryPath != null
 			&& joinQueryPath.getParentPath().getAlias().equals(PROPERTY_MAP_JOIN_ALIAS)) {
-			final Predicate predicateGenericProperties = criteriaBuilder.equal(
+			final Predicate propertyMapPredicate = criteriaBuilder.equal(
 					joinQueryPath.getParentPath().get(propertyMapQueryPath.propertyNamePath()),
 					filter.getPropertyName());
-			subquery.where(predicate, predicateGenericProperties);
+			subquery.where(predicate, propertyMapPredicate);
 		}
 		else {
 			subquery.where(predicate);
