@@ -57,6 +57,8 @@ public interface IBeanPropertyBuilder {
 
 	IBeanPropertyBuilder setValueRange(Object... values);
 
+	IBeanPropertyBuilder setValueType(Class<?> valueType);
+
 	IBeanPropertyBuilder setLookUpValueRange(Object lookUpId);
 
 	IBeanPropertyBuilder setDefaultValue(Object value);
