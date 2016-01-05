@@ -57,6 +57,8 @@ public interface IBeanPropertyBluePrint {
 
 	IBeanPropertyBluePrint setValueRange(Object... values);
 
+	IBeanPropertyBluePrint setValueType(Class<?> valueType);
+
 	IBeanPropertyBluePrint setLookUpValueRange(Object lookUpId);
 
 	IBeanPropertyBluePrint setDefaultValue(Object value);

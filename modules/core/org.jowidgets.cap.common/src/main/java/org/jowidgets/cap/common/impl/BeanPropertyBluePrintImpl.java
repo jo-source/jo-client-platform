@@ -127,6 +127,13 @@ final class BeanPropertyBluePrintImpl implements IBeanPropertyBluePrint {
 	}
 
 	@Override
+	public IBeanPropertyBluePrint setValueType(final Class<?> valueType) {
+		checkExhausted();
+		builder.setValueType(valueType);
+		return this;
+	}
+
+	@Override
 	public IBeanPropertyBluePrint setLookUpValueRange(final Object lookUpId) {
 		checkExhausted();
 		builder.setLookUpValueRange(lookUpId);
