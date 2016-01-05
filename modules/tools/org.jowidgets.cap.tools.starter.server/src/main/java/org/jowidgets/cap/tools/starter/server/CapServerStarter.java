@@ -50,6 +50,10 @@ public final class CapServerStarter {
 		startServer(RemotingBrokerId.DEFAULT_BROKER_ID, DEFAULT_PORT);
 	}
 
+	public static void startServer(final int port) throws Exception {
+		startServer(RemotingBrokerId.DEFAULT_BROKER_ID, port);
+	}
+
 	public static void startServer(final String brokerId) throws Exception {
 		startServer(brokerId, DEFAULT_PORT);
 	}

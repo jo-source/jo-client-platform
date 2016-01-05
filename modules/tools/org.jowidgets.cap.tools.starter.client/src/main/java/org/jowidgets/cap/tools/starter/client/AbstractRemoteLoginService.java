@@ -28,7 +28,10 @@
 
 package org.jowidgets.cap.tools.starter.client;
 
+import org.jowidgets.api.login.ILoginCancelListener;
 import org.jowidgets.api.login.ILoginInterceptor;
+import org.jowidgets.api.login.ILoginResultCallback;
+import org.jowidgets.api.threads.IUiThreadAccess;
 import org.jowidgets.cap.tools.starter.client.login.AbstractBasicAuthenticationRemoteLoginService;
 import org.jowidgets.cap.tools.starter.client.remoting.RemotingBasicAuthenticationLoginInterceptor;
 import org.jowidgets.common.image.IImageConstant;
@@ -53,7 +56,54 @@ public abstract class AbstractRemoteLoginService extends AbstractBasicAuthentica
 
 	@Override
 	public ILoginInterceptor createLoginInterceptor() {
-		return new RemotingBasicAuthenticationLoginInterceptor(getAuthorizationProviderServiceId());
+		final ILoginInterceptor original = new RemotingBasicAuthenticationLoginInterceptor(getAuthorizationProviderServiceId());
+		return new ILoginInterceptor() {
+
+			@Override
+			public void login(
+				final ILoginResultCallback resultCallback,
+				final String username,
+				final String password,
+				final IUiThreadAccess uiThreadAccess) {
+
+				final ILoginResultCallback decoratedCallback = new ILoginResultCallback() {
+
+					@Override
+					public void addCancelListener(final ILoginCancelListener cancelListener) {
+						resultCallback.addCancelListener(cancelListener);
+					}
+
+					@Override
+					public void granted() {
+						afterLoginSuccess();
+						resultCallback.granted();
+					}
+
+					@Override
+					public void denied(final String reason) {
+						afterLoginFailed(reason);
+						resultCallback.denied(reason);
+					}
+				};
+				original.login(decoratedCallback, username, password, uiThreadAccess);
+
+			}
+		};
+
 	}
+
+	/**
+	 * Will be invoked after a successful login
+	 * 
+	 * Feel free to override this method.
+	 */
+	public void afterLoginSuccess() {}
+
+	/**
+	 * Will be invoked after login failed.
+	 * 
+	 * Feel free to override this method.
+	 */
+	public void afterLoginFailed(final String reason) {}
 
 }

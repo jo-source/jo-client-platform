@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.common.api.service;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
@@ -35,14 +36,69 @@ import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.tools.ServiceId;
 
+/**
+ * An entity service provides info's for a bunch of entities.
+ * 
+ * Entities can be different depending on the relation with other entities,
+ * so for each relation of an entity to another entity, a own entity id may exist.
+ * 
+ * E.g. an person entity may have different properties than a subordinate person
+ * 
+ * @author grossmann
+ */
 public interface IEntityService {
 
+	/**
+	 * The default service id
+	 */
 	IServiceId<IEntityService> ID = new ServiceId<IEntityService>(IEntityService.class.getName(), IEntityService.class);
 
+	/**
+	 * Gets all available entity info's.
+	 * 
+	 * @return All available entity info's, never null but may be empty
+	 */
+	Collection<IEntityInfo> getEntityInfos();
+
+	/**
+	 * Gets a entity info for a given entity id
+	 * 
+	 * @param entityId The id to get the info for
+	 * 
+	 * @return The entity info or null if no info is available
+	 */
+	IEntityInfo getEntityInfo(Object entityId);
+
+	/**
+	 * Gets the bean dto descriptor for a given entity id
+	 * 
+	 * @param entityId The id to get the descriptor for
+	 * 
+	 * @return The descriptor or null if no info is available
+	 */
 	IBeanDtoDescriptor getDescriptor(Object entityId);
 
+	/**
+	 * Gets the bean services for a given entity id
+	 * 
+	 * @param entityId The id to get the bean services for
+	 * 
+	 * @return The bean services or null if no info is available
+	 */
 	IBeanServicesProvider getBeanServices(Object entityId);
 
+	/**
+	 * Gets the entity links for a given entity id
+	 * 
+	 * @param entityId The id to get the entity links for
+	 * 
+	 * @return The entity links or null if no info is available
+	 */
 	List<IEntityLinkDescriptor> getEntityLinks(Object entityId);
+
+	/**
+	 * Clears all cached data if caching is used
+	 */
+	void clearCache();
 
 }

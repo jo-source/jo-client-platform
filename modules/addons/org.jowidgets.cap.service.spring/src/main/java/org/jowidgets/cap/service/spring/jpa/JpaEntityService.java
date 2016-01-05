@@ -29,6 +29,7 @@
 package org.jowidgets.cap.service.spring.jpa;
 
 import java.beans.PropertyDescriptor;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -40,14 +41,15 @@ import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptorBuilder;
 import org.jowidgets.cap.common.api.bean.IProperty;
-import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
 import org.jowidgets.cap.common.api.service.IBeanServicesProvider;
 import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.common.api.service.IDeleterService;
+import org.jowidgets.cap.common.api.service.IEntityInfo;
 import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.service.IUpdaterService;
 import org.jowidgets.cap.common.tools.bean.BeanDtoDescriptorBuilder;
+import org.jowidgets.cap.common.tools.service.AbstractEntityService;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.annotation.CapService;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
@@ -67,7 +69,7 @@ import org.springframework.beans.factory.annotation.Required;
 import org.springframework.transaction.PlatformTransactionManager;
 
 @CapService
-public final class JpaEntityService implements IEntityService, InitializingBean {
+public final class JpaEntityService extends AbstractEntityService implements IEntityService, InitializingBean {
 
 	@PersistenceUnit
 	private EntityManagerFactory entityManagerFactory;
@@ -169,18 +171,13 @@ public final class JpaEntityService implements IEntityService, InitializingBean 
 	}
 
 	@Override
-	public IBeanDtoDescriptor getDescriptor(final Object entityTypeId) {
-		return entityService.getDescriptor(entityTypeId);
+	public Collection<IEntityInfo> getEntityInfos() {
+		return entityService.getEntityInfos();
 	}
 
 	@Override
-	public IBeanServicesProvider getBeanServices(final Object entityTypeId) {
-		return entityService.getBeanServices(entityTypeId);
-	}
-
-	@Override
-	public List<IEntityLinkDescriptor> getEntityLinks(final Object entityTypeId) {
-		return entityService.getEntityLinks(entityTypeId);
+	public IEntityInfo getEntityInfo(final Object entityId) {
+		return entityService.getEntityInfo(entityId);
 	}
 
 }

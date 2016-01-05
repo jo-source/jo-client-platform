@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2016, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,72 +26,89 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.impl;
+package org.jowidgets.cap.common.impl;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.Collections;
+import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
-import org.jowidgets.cap.common.api.service.EntityInfo;
 import org.jowidgets.cap.common.api.service.IBeanServicesProvider;
 import org.jowidgets.cap.common.api.service.IEntityInfo;
 import org.jowidgets.cap.common.api.service.IEntityInfoBuilder;
-import org.jowidgets.cap.common.api.service.IEntityService;
-import org.jowidgets.cap.service.api.entity.IEntityServiceBuilder;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.EmptyCheck;
 
-class EntityServiceBuilderImpl implements IEntityServiceBuilder {
+final class EntityInfoBuilderImpl implements IEntityInfoBuilder {
 
-	private final Map<Object, IEntityInfo> entityInfos;
+	private Object entityId;
+	private IBeanDtoDescriptor descriptor;
+	private IBeanServicesProvider beanServicesProvider;
+	private List<IEntityLinkDescriptor> entityLinks;
 
-	EntityServiceBuilderImpl() {
-		this.entityInfos = new LinkedHashMap<Object, IEntityInfo>();
+	EntityInfoBuilderImpl() {
+		this.entityLinks = Collections.emptyList();
 	}
 
 	@Override
-	public IEntityService build() {
-		return new EntityServiceImpl(entityInfos);
-	}
-
-	@Override
-	public final <BEAN_TYPE> IEntityServiceBuilder add(
-		final Object entityId,
-		final IBeanDtoDescriptor descriptor,
-		final IBeanServicesProvider beanServicesProvider) {
+	public IEntityInfoBuilder setEntityId(final Object entityId) {
 		Assert.paramNotNull(entityId, "entityId");
-		Assert.paramNotNull(descriptor, "descriptor");
-		Assert.paramNotNull(beanServicesProvider, "beanServicesProvider");
-
-		final IEntityInfoBuilder builder = EntityInfo.builder();
-		builder.setEntityId(entityId);
-		builder.setDescriptor(descriptor);
-		builder.setBeanServices(beanServicesProvider);
-		entityInfos.put(entityId, builder.build());
-
+		this.entityId = entityId;
 		return this;
 	}
 
 	@Override
-	public final <BEAN_TYPE> IEntityServiceBuilder add(
-		final Object entityId,
-		final IBeanDtoDescriptor descriptor,
-		final IBeanServicesProvider beanServicesProvider,
-		final Collection<? extends IEntityLinkDescriptor> entityLinks) {
-
-		Assert.paramNotNull(entityId, "entityId");
-		Assert.paramNotNull(descriptor, "descriptor");
-		Assert.paramNotNull(beanServicesProvider, "beanServicesProvider");
-		Assert.paramNotNull(entityLinks, "entityLinks");
-
-		final IEntityInfoBuilder builder = EntityInfo.builder();
-		builder.setEntityId(entityId);
-		builder.setDescriptor(descriptor);
-		builder.setBeanServices(beanServicesProvider);
-		builder.setEntityLinks(entityLinks);
-		entityInfos.put(entityId, builder.build());
-
+	public IEntityInfoBuilder setDescriptor(final IBeanDtoDescriptor descriptor) {
+		this.descriptor = descriptor;
 		return this;
 	}
+
+	@Override
+	public IEntityInfoBuilder setBeanServices(final IBeanServicesProvider beanServicesProvider) {
+		this.beanServicesProvider = beanServicesProvider;
+		return this;
+	}
+
+	@Override
+	public IEntityInfoBuilder setEntityLinks(final Collection<? extends IEntityLinkDescriptor> links) {
+		if (EmptyCheck.isEmpty(links)) {
+			this.entityLinks = Collections.emptyList();
+		}
+		else {
+			this.entityLinks = Collections.unmodifiableList(new ArrayList<IEntityLinkDescriptor>(links));
+		}
+		return this;
+	}
+
+	protected IBeanServicesProvider getBeanServicesProvider() {
+		return beanServicesProvider;
+	}
+
+	protected void setBeanServicesProvider(final IBeanServicesProvider beanServicesProvider) {
+		this.beanServicesProvider = beanServicesProvider;
+	}
+
+	protected Object getEntityId() {
+		return entityId;
+	}
+
+	protected IBeanDtoDescriptor getDescriptor() {
+		return descriptor;
+	}
+
+	protected List<IEntityLinkDescriptor> getEntityLinks() {
+		return entityLinks;
+	}
+
+	protected void setLinks(final List<IEntityLinkDescriptor> links) {
+		this.entityLinks = links;
+	}
+
+	@Override
+	public IEntityInfo build() {
+		return new EntityInfoImpl(this);
+	}
+
 }

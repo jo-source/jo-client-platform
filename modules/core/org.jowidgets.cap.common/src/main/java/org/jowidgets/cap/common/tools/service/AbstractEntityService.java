@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2016, Michael
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,36 +26,59 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.impl;
+package org.jowidgets.cap.common.tools.service;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.Collections;
+import java.util.List;
 
+import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
+import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
+import org.jowidgets.cap.common.api.service.IBeanServicesProvider;
 import org.jowidgets.cap.common.api.service.IEntityInfo;
 import org.jowidgets.cap.common.api.service.IEntityService;
-import org.jowidgets.cap.common.tools.service.AbstractEntityService;
 import org.jowidgets.util.Assert;
 
-public final class EntityServiceImpl extends AbstractEntityService implements IEntityService {
-
-	private final Map<Object, IEntityInfo> entityInfos;
-
-	EntityServiceImpl(final Map<Object, IEntityInfo> entityInfos) {
-		Assert.paramNotNull(entityInfos, "entityInfos");
-		this.entityInfos = new LinkedHashMap<Object, IEntityInfo>(entityInfos);
-	}
+public abstract class AbstractEntityService implements IEntityService {
 
 	@Override
-	public Collection<IEntityInfo> getEntityInfos() {
-		return new ArrayList<IEntityInfo>(entityInfos.values());
-	}
-
-	@Override
-	public IEntityInfo getEntityInfo(final Object entityId) {
+	public final IBeanDtoDescriptor getDescriptor(final Object entityId) {
 		Assert.paramNotNull(entityId, "entityId");
-		return entityInfos.get(entityId);
+		final IEntityInfo entityInfo = getEntityInfo(entityId);
+		if (entityInfo != null) {
+			return entityInfo.getDescriptor();
+		}
+		else {
+			return null;
+		}
+	}
+
+	@Override
+	public final IBeanServicesProvider getBeanServices(final Object entityId) {
+		Assert.paramNotNull(entityId, "entityId");
+		final IEntityInfo entityInfo = getEntityInfo(entityId);
+		if (entityInfo != null) {
+			return entityInfo.getBeanServices();
+		}
+		else {
+			return null;
+		}
+	}
+
+	@Override
+	public final List<IEntityLinkDescriptor> getEntityLinks(final Object entityId) {
+		Assert.paramNotNull(entityId, "entityId");
+		final IEntityInfo entityInfo = getEntityInfo(entityId);
+		if (entityInfo != null) {
+			return entityInfo.getEntityLinks();
+		}
+		else {
+			return Collections.emptyList();
+		}
+	}
+
+	@Override
+	public void clearCache() {
+		//feel free to override if caching is used
 	}
 
 }

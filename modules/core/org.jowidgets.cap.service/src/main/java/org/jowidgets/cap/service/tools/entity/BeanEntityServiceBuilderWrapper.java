@@ -81,4 +81,5 @@ public class BeanEntityServiceBuilderWrapper implements IBeanEntityServiceBuilde
 	public final IEntityService build() {
 		return original.build();
 	}
+
 }

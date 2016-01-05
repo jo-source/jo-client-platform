@@ -57,6 +57,7 @@ import org.jowidgets.cap.common.api.link.ILinkCreationBuilder;
 import org.jowidgets.cap.common.api.link.ILinkDeletionBuilder;
 import org.jowidgets.cap.common.api.lookup.ILookUpToolkit;
 import org.jowidgets.cap.common.api.service.IBeanServicesProviderFactory;
+import org.jowidgets.cap.common.api.service.IEntityInfoBuilder;
 import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.common.api.service.IEntityServiceCompositeBuilder;
 import org.jowidgets.cap.common.api.sort.IBeanDtoComparatorBuilder;
@@ -265,5 +266,9 @@ public final class CapCommonToolkit {
 
 	public static IRedundantServiceResolver<IEntityService> entityServiceResolver() {
 		return getInstance().entityServiceResolver();
+	}
+
+	public static IEntityInfoBuilder entityInfoBuilder() {
+		return getInstance().entityInfoBuilder();
 	}
 }

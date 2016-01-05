@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2016, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,36 +26,21 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.impl;
+package org.jowidgets.cap.common.api.service;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.List;
 
-import org.jowidgets.cap.common.api.service.IEntityInfo;
-import org.jowidgets.cap.common.api.service.IEntityService;
-import org.jowidgets.cap.common.tools.service.AbstractEntityService;
-import org.jowidgets.util.Assert;
+import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
+import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
 
-public final class EntityServiceImpl extends AbstractEntityService implements IEntityService {
+public interface IEntityInfo {
 
-	private final Map<Object, IEntityInfo> entityInfos;
+	Object getEntityId();
 
-	EntityServiceImpl(final Map<Object, IEntityInfo> entityInfos) {
-		Assert.paramNotNull(entityInfos, "entityInfos");
-		this.entityInfos = new LinkedHashMap<Object, IEntityInfo>(entityInfos);
-	}
+	IBeanDtoDescriptor getDescriptor();
 
-	@Override
-	public Collection<IEntityInfo> getEntityInfos() {
-		return new ArrayList<IEntityInfo>(entityInfos.values());
-	}
+	IBeanServicesProvider getBeanServices();
 
-	@Override
-	public IEntityInfo getEntityInfo(final Object entityId) {
-		Assert.paramNotNull(entityId, "entityId");
-		return entityInfos.get(entityId);
-	}
+	List<IEntityLinkDescriptor> getEntityLinks();
 
 }

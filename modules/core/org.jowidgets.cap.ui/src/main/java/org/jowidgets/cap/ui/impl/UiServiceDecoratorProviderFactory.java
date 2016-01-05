@@ -42,7 +42,7 @@ final class UiServiceDecoratorProviderFactory implements IUiServiceDecoratorProv
 
 	@Override
 	public IServicesDecoratorProvider cachedEntityService(final int order) {
-		return new EntityServiceDecoratorProviderImpl(order);
+		return new CachedEntityServiceDecoratorProviderImpl(order);
 	}
 
 }

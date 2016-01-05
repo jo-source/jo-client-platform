@@ -31,6 +31,8 @@ package org.jowidgets.cap.security.ui.impl;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -42,9 +44,11 @@ import org.jowidgets.cap.common.api.exception.AuthorizationFailedException;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.service.IBeanServicesProvider;
+import org.jowidgets.cap.common.api.service.IEntityInfo;
 import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.tools.proxy.AbstractCapServiceInvocationHandler;
+import org.jowidgets.cap.common.tools.service.AbstractEntityService;
 import org.jowidgets.cap.security.common.api.IAuthorizationChecker;
 import org.jowidgets.cap.security.common.api.ISecureObject;
 import org.jowidgets.cap.security.common.api.ISecureServiceId;
@@ -212,7 +216,7 @@ final class SecureServiceProviderDecoratorImpl<AUTHORIZATION_TYPE> implements ID
 
 	}
 
-	private final class DecoratedEntityService implements IEntityService {
+	private final class DecoratedEntityService extends AbstractEntityService implements IEntityService {
 
 		private final IEntityService original;
 
@@ -221,43 +225,97 @@ final class SecureServiceProviderDecoratorImpl<AUTHORIZATION_TYPE> implements ID
 		}
 
 		@Override
-		public IBeanDtoDescriptor getDescriptor(final Object entityId) {
-			return original.getDescriptor(entityId);
+		public Collection<IEntityInfo> getEntityInfos() {
+			final Collection<IEntityInfo> entityInfos = original.getEntityInfos();
+			final List<IEntityInfo> result = new ArrayList<IEntityInfo>(entityInfos.size());
+			for (final IEntityInfo entityInfo : entityInfos) {
+				result.add(new DecoratedEntityInfo(entityInfo));
+			}
+			return result;
 		}
 
 		@Override
-		public IBeanServicesProvider getBeanServices(final Object entityId) {
-			return original.getBeanServices(entityId);
+		public IEntityInfo getEntityInfo(final Object entityId) {
+			return new DecoratedEntityInfo(original.getEntityInfo(entityId));
 		}
 
-		@Override
-		public List<IEntityLinkDescriptor> getEntityLinks(final Object entityId) {
-			final List<IEntityLinkDescriptor> links = original.getEntityLinks(entityId);
-			if (links != null) {
-				final List<IEntityLinkDescriptor> result = new LinkedList<IEntityLinkDescriptor>();
-				for (final IEntityLinkDescriptor link : links) {
-					if (!filter(link)) {
-						result.add(link);
+		private final class DecoratedEntityInfo implements IEntityInfo {
+
+			private final IEntityInfo original;
+
+			DecoratedEntityInfo(final IEntityInfo original) {
+				this.original = original;
+			}
+
+			@Override
+			public Object getEntityId() {
+				if (original != null) {
+					return original.getEntityId();
+				}
+				else {
+					return null;
+				}
+			}
+
+			@Override
+			public IBeanDtoDescriptor getDescriptor() {
+				if (original != null) {
+					return original.getDescriptor();
+				}
+				else {
+					return null;
+				}
+			}
+
+			@Override
+			public IBeanServicesProvider getBeanServices() {
+				if (original != null) {
+					return original.getBeanServices();
+				}
+				else {
+					return null;
+				}
+			}
+
+			@Override
+			public List<IEntityLinkDescriptor> getEntityLinks() {
+				if (original != null) {
+					return getEntityLinks(original.getEntityLinks());
+				}
+				else {
+					return null;
+				}
+			}
+
+			private List<IEntityLinkDescriptor> getEntityLinks(final List<IEntityLinkDescriptor> links) {
+				if (links != null) {
+					final List<IEntityLinkDescriptor> result = new LinkedList<IEntityLinkDescriptor>();
+					for (final IEntityLinkDescriptor link : links) {
+						if (!filter(link)) {
+							result.add(link);
+						}
+					}
+					return result;
+				}
+				return links;
+			}
+
+			@SuppressWarnings("unchecked")
+			private boolean filter(final IEntityLinkDescriptor link) {
+				final Object linkedEntityId = link.getLinkedEntityId();
+				final IBeanServicesProvider beanServices = DecoratedEntityService.this.getBeanServices(linkedEntityId);
+				if (beanServices != null) {
+					final IReaderService<Void> readerService = beanServices.readerService();
+					if (readerService != null) {
+						if (readerService instanceof ISecureObject) {
+							return !authorizationChecker.hasAuthorization((AUTHORIZATION_TYPE) ((ISecureObject<?>) readerService).getAuthorization());
+						}
 					}
 				}
-				return result;
+				return false;
 			}
-			return links;
 		}
 
-		@SuppressWarnings("unchecked")
-		private boolean filter(final IEntityLinkDescriptor link) {
-			final Object linkedEntityId = link.getLinkedEntityId();
-			final IBeanServicesProvider beanServices = getBeanServices(linkedEntityId);
-			if (beanServices != null) {
-				final IReaderService<Void> readerService = beanServices.readerService();
-				if (readerService != null) {
-					if (readerService instanceof ISecureObject) {
-						return !authorizationChecker.hasAuthorization((AUTHORIZATION_TYPE) ((ISecureObject<?>) readerService).getAuthorization());
-					}
-				}
-			}
-			return false;
-		}
 	}
+
 }

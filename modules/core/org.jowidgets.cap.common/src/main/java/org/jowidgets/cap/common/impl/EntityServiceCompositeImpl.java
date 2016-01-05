@@ -28,17 +28,14 @@
 
 package org.jowidgets.cap.common.impl;
 
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
-import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
-import org.jowidgets.cap.common.api.service.IBeanServicesProvider;
+import org.jowidgets.cap.common.api.service.IEntityInfo;
 import org.jowidgets.cap.common.api.service.IEntityService;
-import org.jowidgets.util.EmptyCheck;
+import org.jowidgets.cap.common.tools.service.AbstractEntityService;
 
-public final class EntityServiceCompositeImpl implements IEntityService {
+public final class EntityServiceCompositeImpl extends AbstractEntityService implements IEntityService {
 
 	private final List<IEntityService> services;
 
@@ -47,36 +44,23 @@ public final class EntityServiceCompositeImpl implements IEntityService {
 	}
 
 	@Override
-	public IBeanDtoDescriptor getDescriptor(final Object entityId) {
+	public List<IEntityInfo> getEntityInfos() {
+		final List<IEntityInfo> result = new LinkedList<IEntityInfo>();
 		for (final IEntityService service : services) {
-			final IBeanDtoDescriptor result = service.getDescriptor(entityId);
+			result.addAll(service.getEntityInfos());
+		}
+		return result;
+	}
+
+	@Override
+	public IEntityInfo getEntityInfo(final Object entityId) {
+		for (final IEntityService service : services) {
+			final IEntityInfo result = service.getEntityInfo(entityId);
 			if (result != null) {
 				return result;
 			}
 		}
 		return null;
-	}
-
-	@Override
-	public IBeanServicesProvider getBeanServices(final Object entityId) {
-		for (final IEntityService service : services) {
-			final IBeanServicesProvider result = service.getBeanServices(entityId);
-			if (result != null) {
-				return result;
-			}
-		}
-		return null;
-	}
-
-	@Override
-	public List<IEntityLinkDescriptor> getEntityLinks(final Object entityId) {
-		for (final IEntityService service : services) {
-			final List<IEntityLinkDescriptor> result = service.getEntityLinks(entityId);
-			if (!EmptyCheck.isEmpty(result)) {
-				return result;
-			}
-		}
-		return Collections.emptyList();
 	}
 
 }

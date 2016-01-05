@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2016, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,36 +26,15 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.impl;
+package org.jowidgets.cap.common.api.service;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import org.jowidgets.cap.common.api.CapCommonToolkit;
 
-import org.jowidgets.cap.common.api.service.IEntityInfo;
-import org.jowidgets.cap.common.api.service.IEntityService;
-import org.jowidgets.cap.common.tools.service.AbstractEntityService;
-import org.jowidgets.util.Assert;
+public final class EntityInfo {
 
-public final class EntityServiceImpl extends AbstractEntityService implements IEntityService {
+	private EntityInfo() {}
 
-	private final Map<Object, IEntityInfo> entityInfos;
-
-	EntityServiceImpl(final Map<Object, IEntityInfo> entityInfos) {
-		Assert.paramNotNull(entityInfos, "entityInfos");
-		this.entityInfos = new LinkedHashMap<Object, IEntityInfo>(entityInfos);
+	public static IEntityInfoBuilder builder() {
+		return CapCommonToolkit.entityInfoBuilder();
 	}
-
-	@Override
-	public Collection<IEntityInfo> getEntityInfos() {
-		return new ArrayList<IEntityInfo>(entityInfos.values());
-	}
-
-	@Override
-	public IEntityInfo getEntityInfo(final Object entityId) {
-		Assert.paramNotNull(entityId, "entityId");
-		return entityInfos.get(entityId);
-	}
-
 }
