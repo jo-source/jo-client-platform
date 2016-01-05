@@ -72,12 +72,11 @@ final class BeanPropertyBuilderImpl implements IBeanPropertyBuilder {
 		}
 
 		if (!isDefaultSet && !IPropertyMap.class.isAssignableFrom(beanType)) {
-			throw new RuntimeException(
-				"Can not set the property defaults for the property '"
-					+ propertyName
-					+ "' and the type '"
-					+ beanType.getName()
-					+ "'. Shure the is no typo?");
+			throw new RuntimeException("Can not set the property defaults for the property '"
+				+ propertyName
+				+ "' and the type '"
+				+ beanType.getName()
+				+ "'. Shure the is no typo?");
 		}
 
 		for (final IValidator<Object> validator : ValidatorAnnotationCache.getPropertyValidators(beanType, propertyName)) {
