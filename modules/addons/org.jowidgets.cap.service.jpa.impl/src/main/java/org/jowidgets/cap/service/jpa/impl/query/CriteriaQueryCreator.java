@@ -221,8 +221,7 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 		if (filter instanceof IPropertyFilter) {
 			final IPropertyFilter propertyFilter = (IPropertyFilter) filter;
 			final String propertyName = propertyFilter.getPropertyName();
-			final IPropertyFilterPredicateCreator<PARAM_TYPE> predicateCreator = propertyFilterPredicateCreators.get(
-					propertyName);
+			final IPropertyFilterPredicateCreator<PARAM_TYPE> predicateCreator = propertyFilterPredicateCreators.get(propertyName);
 			if (predicateCreator != null) {
 				return predicateCreator.createPredicate(criteriaBuilder, bean, query, propertyFilter, parameter);
 			}
@@ -242,8 +241,7 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 		}
 		else if (filter instanceof ICustomFilter) {
 			final ICustomFilter customFilter = (ICustomFilter) filter;
-			final ICustomFilterPredicateCreator<PARAM_TYPE> customFilterPredicateCreator = getCustomFilterPredicateCreator(
-					customFilter);
+			final ICustomFilterPredicateCreator<PARAM_TYPE> customFilterPredicateCreator = getCustomFilterPredicateCreator(customFilter);
 			if (customFilterPredicateCreator != null) {
 				final Predicate predicate;
 				predicate = customFilterPredicateCreator.createPredicate(
@@ -849,8 +847,7 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 			}
 			catch (final IllegalArgumentException illegalArgumentException) {
 				if (IPropertyMap.class.isAssignableFrom(bean.getJavaType())) {
-					final PropertyMapQueryPath propertyMapQueryPath = bean.getJavaType().getAnnotation(
-							PropertyMapQueryPath.class);
+					final PropertyMapQueryPath propertyMapQueryPath = bean.getJavaType().getAnnotation(PropertyMapQueryPath.class);
 					if (propertyMapQueryPath != null) {
 						return true;
 					}
@@ -911,11 +908,9 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 		final Class<ANNOTATION_TYPE> annotation) {
 		final Class<?> beanClass = root.getJavaType();
 		try {
-			final PropertyDescriptor descriptor = new PropertyDescriptor(
-				propertyName,
-				beanClass,
-				"is" + propertyName.substring(0, 1).toUpperCase(Locale.ENGLISH) + propertyName.substring(1),
-				null);
+			final PropertyDescriptor descriptor = new PropertyDescriptor(propertyName, beanClass, "is"
+				+ propertyName.substring(0, 1).toUpperCase(Locale.ENGLISH)
+				+ propertyName.substring(1), null);
 			final Method readMethod = descriptor.getReadMethod();
 			return readMethod.getAnnotation(annotation);
 		}
