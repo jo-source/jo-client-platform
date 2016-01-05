@@ -22,6 +22,14 @@
 			<id>org.jowidgets.thirdparty</id>
 			<name>Jowidgets Third Party Repository</name>
 			<url>http://www.jowidgets.org/p2/thirdparty/releases/0.0.1/</url>
+			<layout>p2</layout>
+		</repository>
+		
+		<repository>
+			<id>org.jowidgets.p2</id>
+			<name>Jowidgets p2 Repository</name>	
+			<url>http://www.jowidgets.org/p2/jowidgets/releases/</url>
+			<layout>p2</layout>
 		</repository>
 	
 		<repository>
