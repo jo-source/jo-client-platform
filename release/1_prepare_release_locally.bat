@@ -2,9 +2,9 @@ REM local build only, no push or deployment
 
 SET SOURCE_URL=https://github.com/jo-source/jo-client-platform.git
 
-SET RELEASE_VERSION=0.46.0
-SET TAG_NAME=0.46.0
-SET MAINTENANCE_BRANCH_NAME=MAINTENANCE_0.46
+SET RELEASE_VERSION=0.47.0
+SET TAG_NAME=0.47.0
+SET MAINTENANCE_BRANCH_NAME=MAINTENANCE_0.47
 
 SET "WORK_PATH=workspace"
 SET "MVN_SETTINGS_PATH=../../maven/settings.xml"
