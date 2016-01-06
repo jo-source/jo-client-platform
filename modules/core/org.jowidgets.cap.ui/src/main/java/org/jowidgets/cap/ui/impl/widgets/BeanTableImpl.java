@@ -343,7 +343,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 				}
 				tablePopupMenuModel.addAction(copyAction);
 			}
-			if (hasDefaultPasteAction) {
+			if (hasDefaultPasteAction && model.getCreatorService() != null) {
 				this.pasteAction = menuFactory.pasteBeansAction(this);
 				if (hasDefaultMenus && !defaultMenuSeparatorAdded) {
 					tablePopupMenuModel.addSeparator();
