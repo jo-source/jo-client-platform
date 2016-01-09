@@ -903,8 +903,8 @@ final class BeanEntityServiceBuilderImpl extends EntityServiceBuilderImpl implem
 				final Class<? extends IBean> linkableBeanType = linkablePrebuild.getBeanType();
 				final Object linkableBeanTypeId = linkablePrebuild.getBeanTypeId();
 				final Collection<String> linkableProperties = linkablePrebuild.getPropertyNames();
-				builder.setLinkableCreatorService(createCreatorService(linkableBeanType, linkableBeanTypeId, linkableProperties));
-				builder.setLinkableDeleterService(createDeleterService(linkableBeanType, linkableBeanTypeId));
+				builder.setLinkableCreatorService(linkablePrebuild.getCreatorService());
+				builder.setLinkableDeleterService(linkablePrebuild.getDeleterService());
 				if (linkablePrebuild.getReaderService() != null) {
 					builder.setLinkableReaderService(linkablePrebuild.getReaderService());
 				}
