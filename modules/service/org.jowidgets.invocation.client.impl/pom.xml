@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.jowidgets</groupId>
 		<artifactId>org.jowidgets.cap.modules.service.parent</artifactId>
-		<version>0.48.0</version>
+		<version>0.48.1-SNAPSHOT</version>
 		<relativePath>../parent/pom.xml</relativePath>
 	</parent>
 
@@ -15,19 +15,19 @@
         <dependency>
             <groupId>org.jowidgets</groupId>
             <artifactId>org.jowidgets.invocation.client.api</artifactId>
-            <version>0.48.0</version>
+            <version>0.48.1-SNAPSHOT</version>
         </dependency>
 		
         <dependency>
             <groupId>org.jowidgets</groupId>
             <artifactId>org.jowidgets.message.api</artifactId>
-            <version>0.48.0</version>
+            <version>0.48.1-SNAPSHOT</version>
         </dependency>
 		
 		<dependency>
             <groupId>org.jowidgets</groupId>
             <artifactId>org.jowidgets.invocation.common.impl</artifactId>
-            <version>0.48.0</version>
+            <version>0.48.1-SNAPSHOT</version>
         </dependency>
 		
     </dependencies>

@@ -2,7 +2,7 @@
 <feature
     id="org.jowidgets.cap.core.common.feature"
     label="jo-client-platform core common feature"
-    version="0.48.0">
+    version="0.48.1.qualifier">
 
 	<description url="http://www.example.com/description">
 		Feature that holds all cap core common bundles
