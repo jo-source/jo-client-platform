@@ -1,4 +1,4 @@
-SET TAG_NAME=0.47.0
+SET TAG_NAME=0.48.0
 SET "WORK_PATH=workspace\"
 SET "MVN_SETTINGS_PATH=../../maven/settings.xml"
 SET "MVN_REPO_PATH=../../.m2"
