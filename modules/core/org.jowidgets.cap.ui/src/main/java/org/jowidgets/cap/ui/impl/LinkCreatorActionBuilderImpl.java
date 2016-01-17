@@ -190,7 +190,7 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 
 						filteredAttributes = getFilteredAttributes(attributes, attributesToFilter);
 
-						final IBeanFormBluePrint beanFormBp = cbpf.beanForm(linkEntityId, filteredAttributes);
+						final IBeanFormBluePrint beanFormBp = cbpf.beanForm(linkEntityId, attributes);
 						final IBeanFormToolkit beanFormToolkit = CapUiToolkit.beanFormToolkit();
 						final IBeanFormLayoutBuilder layoutBuilder = beanFormToolkit.layoutBuilder();
 						final IBeanFormLayout layout = layoutBuilder.addGroups(filteredAttributes).build();
