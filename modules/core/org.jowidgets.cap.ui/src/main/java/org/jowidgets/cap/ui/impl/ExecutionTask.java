@@ -44,7 +44,7 @@ import org.jowidgets.cap.ui.api.execution.IExecutionTaskListener;
 import org.jowidgets.cap.ui.api.execution.IUserAnswerCallback;
 import org.jowidgets.util.Assert;
 
-public final class ExecutionTask implements IExecutionTask, IUserAnswerCallback, Serializable {
+final class ExecutionTask implements IExecutionTask, IUserAnswerCallback, Serializable {
 
 	private static final long serialVersionUID = 5949541700454226560L;
 
@@ -85,13 +85,13 @@ public final class ExecutionTask implements IExecutionTask, IUserAnswerCallback,
 	}
 
 	@Override
-	public void setTotalStepCount(final int stepCount) {
+	public synchronized void setTotalStepCount(final int stepCount) {
 		this.totalStepCount = Integer.valueOf(stepCount);
 		fireTotalStepCountChanged();
 	}
 
 	@Override
-	public void worked(final int stepCount) {
+	public synchronized void worked(final int stepCount) {
 		this.worked = worked + stepCount;
 		fireWorked();
 	}
@@ -102,19 +102,19 @@ public final class ExecutionTask implements IExecutionTask, IUserAnswerCallback,
 	}
 
 	@Override
-	public void setDescription(final String descritpion) {
+	public synchronized void setDescription(final String descritpion) {
 		this.description = descritpion;
 		fireDescriptionChanged();
 	}
 
 	@Override
-	public void finshed() {
+	public synchronized void finshed() {
 		this.finished = true;
 		fireFinished();
 	}
 
 	@Override
-	public UserQuestionResult userQuestion(final String question) {
+	public synchronized UserQuestionResult userQuestion(final String question) {
 		Assert.paramNotNull(question, "question");
 		this.userQuestion = question;
 		userQuestionWaitThread = new Thread(new Runnable() {
@@ -148,7 +148,7 @@ public final class ExecutionTask implements IExecutionTask, IUserAnswerCallback,
 	}
 
 	@Override
-	public void userQuestion(final String userQuestion, final IUserQuestionCallback userQuestionCallback) {
+	public synchronized void userQuestion(final String userQuestion, final IUserQuestionCallback userQuestionCallback) {
 		Assert.paramNotNull(userQuestion, "userQuestion");
 		Assert.paramNotNull(userQuestionCallback, "userQuestionCallback");
 
@@ -236,22 +236,22 @@ public final class ExecutionTask implements IExecutionTask, IUserAnswerCallback,
 	}
 
 	@Override
-	public void addExecutionCallbackListener(final IExecutionCallbackListener listener) {
+	public synchronized void addExecutionCallbackListener(final IExecutionCallbackListener listener) {
 		executionCallbackListeners.add(listener);
 	}
 
 	@Override
-	public void removeExecutionCallbackListener(final IExecutionCallbackListener listener) {
+	public synchronized void removeExecutionCallbackListener(final IExecutionCallbackListener listener) {
 		executionCallbackListeners.remove(listener);
 	}
 
 	@Override
-	public void addExecutionTaskListener(final IExecutionTaskListener listener) {
+	public synchronized void addExecutionTaskListener(final IExecutionTaskListener listener) {
 		executionTaskListeners.add(listener);
 	}
 
 	@Override
-	public void removeExecutionTaskListener(final IExecutionTaskListener listener) {
+	public synchronized void removeExecutionTaskListener(final IExecutionTaskListener listener) {
 		executionTaskListeners.remove(listener);
 	}
 
