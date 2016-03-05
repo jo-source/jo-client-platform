@@ -157,7 +157,21 @@ final class BeansStateTrackerImpl<BEAN_TYPE> implements
 	}
 
 	@Override
+	public void register(final Iterable<? extends IBeanProxy<BEAN_TYPE>> beans) {
+		Assert.paramNotNull(beans, "beans");
+		for (final IBeanProxy<BEAN_TYPE> bean : beans) {
+			registerImpl(bean, false);
+		}
+		validationCache.setDirty();
+	}
+
+	@Override
 	public void register(final IBeanProxy<BEAN_TYPE> bean) {
+		Assert.paramNotNull(bean, "bean");
+		registerImpl(bean, true);
+	}
+
+	private void registerImpl(final IBeanProxy<BEAN_TYPE> bean, final boolean setValidationCacheDirty) {
 		Assert.paramNotNull(bean, "bean");
 
 		if (bean.isTransient()) {
@@ -179,7 +193,9 @@ final class BeansStateTrackerImpl<BEAN_TYPE> implements
 		}
 
 		validationDirtyBeans.add(bean);
-		validationCache.setDirty();
+		if (setValidationCacheDirty) {
+			validationCache.setDirty();
+		}
 
 		bean.addProcessStateListener(processStateListener);
 		if (bean.hasExecution()) {
@@ -191,6 +207,14 @@ final class BeansStateTrackerImpl<BEAN_TYPE> implements
 		if (!bean.isDummy() && !bean.isLastRowDummy()) {
 			beanListModelBeansObservable.fireAfterBeanAdded(bean);
 		}
+	}
+
+	@Override
+	public void unregister(final Iterable<? extends IBeanProxy<BEAN_TYPE>> beans) {
+		for (final IBeanProxy<BEAN_TYPE> bean : beans) {
+			unregisterImpl(bean, false);
+		}
+		validationCache.setDirty();
 	}
 
 	@Override

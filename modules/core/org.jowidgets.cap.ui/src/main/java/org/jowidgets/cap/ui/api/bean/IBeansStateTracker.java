@@ -43,7 +43,11 @@ public interface IBeansStateTracker<BEAN_TYPE> extends
 
 	void register(IBeanProxy<BEAN_TYPE> bean);
 
+	void register(Iterable<? extends IBeanProxy<BEAN_TYPE>> beans);
+
 	void unregister(IBeanProxy<BEAN_TYPE> bean);
+
+	void unregister(Iterable<? extends IBeanProxy<BEAN_TYPE>> beans);
 
 	Set<IBeanProxy<BEAN_TYPE>> getBeansToUpdate();
 

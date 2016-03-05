@@ -1024,9 +1024,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		tryToCancelPageLoader(pageIndex);
 		final ArrayList<IBeanProxy<BEAN_TYPE>> pageToDelete = data.get(pageIndex);
 		if (pageToDelete != null) {
-			for (final IBeanProxy<BEAN_TYPE> bean : pageToDelete) {
-				beansStateTracker.unregister(bean);
-			}
+			beansStateTracker.unregister(pageToDelete);
 			pageToDelete.clear();
 			data.remove(pageIndex);
 		}
@@ -1372,6 +1370,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 		final int pageCount = getPage(dataModel.getDataRowCount()) + 1;
 		int addedNullCount = 0;
+		final List<IBeanProxy<BEAN_TYPE>> beansToUnregister = new LinkedList<IBeanProxy<BEAN_TYPE>>();
 		for (int pageIndex = 0; pageIndex < pageCount; pageIndex++) {
 			final ArrayList<IBeanProxy<BEAN_TYPE>> page = data.get(pageIndex);
 			//add a regular page
@@ -1379,7 +1378,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 				for (final IBeanProxy<BEAN_TYPE> bean : page) {
 					final boolean deletedBeanRemoved = beansToDelete.remove(bean);
 					if (deletedBeanRemoved) {
-						beansStateTracker.unregister(bean);
+						beansToUnregister.add(bean);
 						removedBeanProxies.add(bean);
 						rowCount--;
 						if (countedRowCount != null) {
@@ -1437,6 +1436,8 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			}
 
 		}
+		beansStateTracker.unregister(beansToUnregister);
+
 		//add the last new page if it has data
 		if (newPage.size() > 0) {
 			newData.put(newPageIndex, newPage);
@@ -1455,7 +1456,6 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		for (final IBeanProxy<BEAN_TYPE> addedBean : addedData) {
 			final boolean removed = beansToDelete.remove(addedBean);
 			if (removed) {
-				beansStateTracker.unregister(addedBean);
 				result.add(addedBean);
 			}
 			else {
@@ -1465,6 +1465,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 				}
 			}
 		}
+		beansStateTracker.unregister(result);
 		addedData.clear();
 		addedData.addAll(newAddedData);
 		return result;
@@ -2678,6 +2679,8 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			//add the loaded beans to the page
 			int index = offset;
 			final int pageOffset = pageSize * pageIndex;
+
+			final List<IBeanProxy<BEAN_TYPE>> beansToRegister = new LinkedList<IBeanProxy<BEAN_TYPE>>();
 			for (final IBeanDto beanDto : loadedBeans) {
 				if (index < pageSize) {
 					final IBeanProxy<BEAN_TYPE> beanProxy;
@@ -2688,7 +2691,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 						beanProxy = createBeanProxy(beanDto);
 					}
 					page.add(beanProxy);
-					beansStateTracker.register(beanProxy);
+					beansToRegister.add(beanProxy);
 					final int rowNr = pageOffset + index;
 					beanProxy.addPropertyChangeListener(new BeanPropertyChangeListener(rowNr));
 					index++;
@@ -2698,6 +2701,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 					break;
 				}
 			}
+			beansStateTracker.register(beansToRegister);
 
 			//unregister the dummy bean
 			dummyBeanProxy.setExecutionTask(null);
@@ -2933,6 +2937,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 			boolean dataChanged = false;
 			final Iterator<IBeanDto> newDataIterator = resultBeanDtos.iterator();
+			final LinkedList<IBeanProxy<BEAN_TYPE>> beansToUnregister = new LinkedList<IBeanProxy<BEAN_TYPE>>();
 			for (int pageIndex = startPageIndex; pageIndex <= endPageIndex; pageIndex++) {
 				final int pageOffset = pageSize * pageIndex;
 
@@ -2942,6 +2947,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 				}
 				final ArrayList<IBeanProxy<BEAN_TYPE>> newPage = new ArrayList<IBeanProxy<BEAN_TYPE>>();
 				boolean pageChanged = false;
+
 				for (int i = 0; i < pageSize; i++) {
 					final IBeanProxy<BEAN_TYPE> oldBeanProxy = i < oldPage.size() ? oldPage.get(i) : null;
 					if (newDataIterator.hasNext()) {
@@ -2952,7 +2958,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 							createdBeans.add(newBeanProxy);
 							newBeanProxy.addPropertyChangeListener(new BeanPropertyChangeListener(rowNr));
 							if (oldBeanProxy != null) {
-								beansStateTracker.unregister(oldBeanProxy);
+								beansToUnregister.add(oldBeanProxy);
 							}
 							newPage.add(newBeanProxy);
 							dataChanged = true;
@@ -2967,7 +2973,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 						dataChanged = dataChanged || changed;
 						pageChanged = pageChanged || changed;
 						if (oldBeanProxy != null) {
-							beansStateTracker.unregister(oldBeanProxy);
+							beansToUnregister.add(oldBeanProxy);
 						}
 						else {
 							break;
@@ -2979,6 +2985,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 					data.put(Integer.valueOf(pageIndex), newPage);
 				}
 			}
+			beansStateTracker.unregister(beansToUnregister);
 
 			if (dataChanged) {
 				//change the row count to the new row count
@@ -3016,9 +3023,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 				}
 				maxPageIndex = endPageIndex;
 
-				for (final IBeanProxy<BEAN_TYPE> createdBean : createdBeans) {
-					beansStateTracker.register(createdBean);
-				}
+				beansStateTracker.register(createdBeans);
 
 				dataModel.fireDataChanged();
 				beanListModelObservable.fireBeansChanged();

@@ -417,9 +417,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 		}
 		selectedTab = null;
 		tryToCanceLoader();
-		for (final IBeanProxy<BEAN_TYPE> bean : data) {
-			beansStateTracker.unregister(bean);
-		}
+		beansStateTracker.unregister(data);
 		data.clear();
 		beansStateTracker.clearAll();
 		beanListModelObservable.fireBeansChanged();
@@ -652,9 +650,9 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 			if (bean.equals(selectedBean)) {
 				wasSelected = true;
 			}
-			beansStateTracker.unregister(bean);
 			data.remove(bean);
 		}
+		beansStateTracker.unregister(beans);
 
 		if (wasSelected && data.size() > 0) {
 			selectedTab = Integer.valueOf(0);
@@ -947,9 +945,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 		}
 
 		void loadData() {
-			for (final IBeanProxy<BEAN_TYPE> bean : data) {
-				beansStateTracker.unregister(bean);
-			}
+			beansStateTracker.unregister(data);
 			data.clear();
 
 			executionTask = CapUiToolkit.executionTaskFactory().create();
@@ -1049,9 +1045,9 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 				if (!EmptyCheck.isEmpty(beanPropertyValidators)) {
 					bean.addBeanPropertyValidators(beanPropertyValidators);
 				}
-				beansStateTracker.register(bean);
 				data.add(bean);
 			}
+			beansStateTracker.register(newData);
 
 			if (data.size() > 0) {
 				selectedTab = Integer.valueOf(0);

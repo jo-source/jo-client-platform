@@ -455,13 +455,9 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 			throw new IllegalStateException("Clear must be invoked in the ui thread");
 		}
 		tryToCanceLoader();
-		for (final IBeanProxy<CHILD_BEAN_TYPE> bean : data) {
-			beanStateTracker.unregister(bean);
-		}
+		beanStateTracker.unregister(data);
 		data.clear();
-		for (final IBeanProxy<CHILD_BEAN_TYPE> bean : addedData) {
-			beanStateTracker.unregister(bean);
-		}
+		beanStateTracker.unregister(addedData);
 		addedData.clear();
 		beanStateTracker.clearAll();
 		beanListModelObservable.fireBeansChanged();
@@ -652,10 +648,10 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 		tryToCanceLoader();
 
 		for (final IBeanProxy<CHILD_BEAN_TYPE> bean : beans) {
-			beanStateTracker.unregister(bean);
 			data.remove(bean);
 			addedData.remove(bean);
 		}
+		beanStateTracker.unregister(beans);
 
 		if (fireBeansChanged) {
 			fireBeansChanged();
@@ -925,13 +921,9 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 
 		void loadData() {
 			if (clearData) {
-				for (final IBeanProxy<CHILD_BEAN_TYPE> bean : data) {
-					beanStateTracker.unregister(bean);
-				}
+				beanStateTracker.unregister(data);
 				data.clear();
-				for (final IBeanProxy<CHILD_BEAN_TYPE> bean : addedData) {
-					beanStateTracker.unregister(bean);
-				}
+				beanStateTracker.unregister(addedData);
 				addedData.clear();
 			}
 			endOfPageDummy = null;
@@ -1004,6 +996,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 				addedData.remove(addedData.size() - 1);
 			}
 
+			final List<IBeanProxy<CHILD_BEAN_TYPE>> beansToRegister = new LinkedList<IBeanProxy<CHILD_BEAN_TYPE>>();
 			for (final IBeanDto beanDto : beanDtos) {
 				final IBeanProxy<CHILD_BEAN_TYPE> beanProxy;
 				if (beanDto instanceof IBeanProxy) {
@@ -1011,10 +1004,11 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 				}
 				else {
 					beanProxy = createBeanProxy(beanDto);
-					beanStateTracker.register(beanProxy);
+					beansToRegister.add(beanProxy);
 				}
 				data.add(beanProxy);
 			}
+			beanStateTracker.register(beansToRegister);
 
 			if (beanDtos.size() > pageSize) {
 				endOfPageDummy = beanProxyFactory.createDummyProxy(childBeanAttributeSet);
