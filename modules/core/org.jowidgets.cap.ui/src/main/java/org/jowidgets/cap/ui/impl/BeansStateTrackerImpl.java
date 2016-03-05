@@ -339,7 +339,6 @@ final class BeansStateTrackerImpl<BEAN_TYPE> implements
 	public void clearModifications() {
 		modifiedBeans.clear();
 		transientBeans.clear();
-		validationDirtyBeans.clear();
 		validationCache.setDirty();
 	}
 
