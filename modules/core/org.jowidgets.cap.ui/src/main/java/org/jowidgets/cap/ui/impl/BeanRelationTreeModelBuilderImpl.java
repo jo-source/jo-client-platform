@@ -161,6 +161,7 @@ final class BeanRelationTreeModelBuilderImpl<CHILD_BEAN_TYPE> extends
 			getDeleterService(),
 			getDefaultSort(),
 			getBeanValidators(),
+			isValidateUnmodifiedBeans(),
 			getAttributes(),
 			getExceptionConverter(),
 			getBeanProxyContext());

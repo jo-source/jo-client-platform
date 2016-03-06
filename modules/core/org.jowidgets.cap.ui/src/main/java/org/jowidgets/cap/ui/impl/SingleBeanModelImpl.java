@@ -148,6 +148,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 		final IDeleterService deleterService,
 		final IBeanExceptionConverter exceptionConverter,
 		final Set<IBeanValidator<BEAN_TYPE>> beanValidators,
+		final boolean validateUnmodfiedBeans,
 		final IBeanSelectionProvider<Object> parent,
 		final LinkType linkType,
 		final Long listenerDelay,
@@ -207,7 +208,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 		this.parent = parent;
 		this.linkType = linkType;
 
-		this.beansStateTracker = CapUiToolkit.beansStateTracker(beanProxyContext);
+		this.beansStateTracker = CapUiToolkit.beansStateTracker(beanProxyContext, validateUnmodfiedBeans);
 		this.beanProxyFactory = CapUiToolkit.beanProxyFactory(beanTypeId, beanType);
 
 		this.changeObservable = new ChangeObservable();

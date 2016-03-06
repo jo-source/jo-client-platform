@@ -109,6 +109,7 @@ final class BeanTabFolderModelBuilderImpl<BEAN_TYPE> extends
 			getAttributes(),
 			renderer,
 			getBeanValidators(),
+			isValidateUnmodifiedBeans(),
 			interceptors,
 			sortModelConfig,
 			getReaderService(),

@@ -80,11 +80,13 @@ final class BeansStateTrackerImpl<BEAN_TYPE> implements
 
 	private final ValidationCache validationCache;
 	private final IBeanProxyContext beanProxyContext;
+	private final boolean validateUnmodifiedBeans;
 	private final BeanListModelBeansObservable<BEAN_TYPE> beanListModelBeansObservable;
 
-	BeansStateTrackerImpl(final IBeanProxyContext beanProxyContext) {
+	BeansStateTrackerImpl(final IBeanProxyContext beanProxyContext, final boolean validateUnmodifiedBeans) {
 		Assert.paramNotNull(beanProxyContext, "beanProxyContext");
 		this.beanProxyContext = beanProxyContext;
+		this.validateUnmodifiedBeans = validateUnmodifiedBeans;
 		this.registeredBeans = new HashSet<IBeanProxy<BEAN_TYPE>>();
 		this.modifiedBeans = new HashSet<IBeanProxy<BEAN_TYPE>>();
 		this.transientBeans = new LinkedHashMap<Object, IBeanProxy<BEAN_TYPE>>();
@@ -192,7 +194,9 @@ final class BeansStateTrackerImpl<BEAN_TYPE> implements
 			addTransientBean(bean);
 		}
 
-		validationDirtyBeans.add(bean);
+		if (validateUnmodifiedBeans || bean.hasModifications()) {
+			validationDirtyBeans.add(bean);
+		}
 		if (setValidationCacheDirty) {
 			validationCache.setDirty();
 		}

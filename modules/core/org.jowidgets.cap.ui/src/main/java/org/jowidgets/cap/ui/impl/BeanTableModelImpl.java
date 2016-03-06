@@ -266,6 +266,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		final Object beanTypeId,
 		final Class<? extends BEAN_TYPE> beanType,
 		final Set<IBeanValidator<BEAN_TYPE>> beanValidators,
+		final boolean validateUnmodifiedBeans,
 		final String labelSingular,
 		final String labelPlural,
 		List<IAttribute<Object>> attributes,
@@ -382,7 +383,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		this.rowCount = 0;
 		this.maxPageIndex = 0;
 		this.beanProxyContext = beanProxyContext;
-		this.beansStateTracker = CapUiToolkit.beansStateTracker(beanProxyContext);
+		this.beansStateTracker = CapUiToolkit.beansStateTracker(beanProxyContext, validateUnmodifiedBeans);
 		this.beanProxyFactory = CapUiToolkit.beanProxyFactory(beanTypeId, beanType);
 		this.beanListModelObservable = new BeanListModelObservable<BEAN_TYPE>();
 		this.beanSelectionObservable = new BeanSelectionObservable<BEAN_TYPE>();

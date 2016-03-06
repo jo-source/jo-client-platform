@@ -161,6 +161,12 @@ public final class CapUiToolkit {
 		return getInstance().beansStateTracker(context);
 	}
 
+	public static <BEAN_TYPE> IBeansStateTracker<BEAN_TYPE> beansStateTracker(
+		final IBeanProxyContext context,
+		final boolean validateUnmodifiedBeans) {
+		return getInstance().beansStateTracker(context, validateUnmodifiedBeans);
+	}
+
 	public static <BEAN_TYPE> IBeanProxyFactory<BEAN_TYPE> beanProxyFactory(
 		final Object beanTypeId,
 		final Class<? extends BEAN_TYPE> proxyType) {

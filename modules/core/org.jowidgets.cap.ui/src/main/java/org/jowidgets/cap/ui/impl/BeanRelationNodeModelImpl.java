@@ -176,6 +176,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 		final IDeleterService deleterService,
 		final Collection<? extends ISort> defaultSort,
 		final Set<IBeanValidator<CHILD_BEAN_TYPE>> beanValidators,
+		final boolean validateUnmodifiedBeans,
 		final List<IAttribute<Object>> childBeanAttributes,
 		final IBeanExceptionConverter exceptionConverter,
 		final IBeanProxyContext beanProxyContext) {
@@ -224,7 +225,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 		this.beanListModelObservable = new BeanListModelObservable<CHILD_BEAN_TYPE>();
 		this.beanSelectionObservable = new BeanSelectionObservable<CHILD_BEAN_TYPE>();
 		this.beanProxyContext = beanProxyContext;
-		this.beanStateTracker = CapUiToolkit.beansStateTracker(beanProxyContext);
+		this.beanStateTracker = CapUiToolkit.beansStateTracker(beanProxyContext, validateUnmodifiedBeans);
 		this.beanProxyFactory = CapUiToolkit.beanProxyFactory(childBeanTypeId, childBeanType);
 		this.filters = new HashMap<String, IUiFilter>();
 

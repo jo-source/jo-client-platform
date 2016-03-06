@@ -69,6 +69,7 @@ class BeanRelationNodeModelBuilder<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE, INSTANCE_T
 			getDeleterService(),
 			getDefaultSort(),
 			getBeanValidators(),
+			isValidateUnmodifiedBeans(),
 			getAttributes(),
 			getExceptionConverter(),
 			getBeanProxyContext());

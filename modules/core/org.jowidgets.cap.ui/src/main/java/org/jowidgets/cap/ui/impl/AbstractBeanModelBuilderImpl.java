@@ -76,6 +76,8 @@ abstract class AbstractBeanModelBuilderImpl<BEAN_TYPE, INSTANCE_TYPE> implements
 	private List<IAttribute<Object>> attributes;
 	private String[] metaPropertyNames;
 
+	private boolean validateUnmodifiedBeans;
+
 	private ICreatorService creatorService;
 	private IRefreshService refreshService;
 	private IUpdaterService updaterService;
@@ -96,6 +98,7 @@ abstract class AbstractBeanModelBuilderImpl<BEAN_TYPE, INSTANCE_TYPE> implements
 		this.entityId = entityTypeId.getEntityId();
 
 		this.beanValidators = new LinkedHashSet<IBeanValidator<BEAN_TYPE>>();
+		this.validateUnmodifiedBeans = true;
 
 		this.beanProxyContext = BeanProxyContext.create();
 		this.exceptionConverter = BeanExceptionConverter.get();
@@ -290,6 +293,13 @@ abstract class AbstractBeanModelBuilderImpl<BEAN_TYPE, INSTANCE_TYPE> implements
 
 	@SuppressWarnings("unchecked")
 	@Override
+	public INSTANCE_TYPE validateUnmodifiedBeans(final boolean validate) {
+		this.validateUnmodifiedBeans = validate;
+		return (INSTANCE_TYPE) this;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
 	public INSTANCE_TYPE setBeanProxyContext(final IBeanProxyContext context) {
 		Assert.paramNotNull(context, "context");
 		this.beanProxyContext = context;
@@ -329,6 +339,10 @@ abstract class AbstractBeanModelBuilderImpl<BEAN_TYPE, INSTANCE_TYPE> implements
 
 	protected Set<IBeanValidator<BEAN_TYPE>> getBeanValidators() {
 		return beanValidators;
+	}
+
+	protected boolean isValidateUnmodifiedBeans() {
+		return validateUnmodifiedBeans;
 	}
 
 	protected IReaderService<? extends Object> getReaderService() {

@@ -88,6 +88,8 @@ public interface IBeanModelBuilder<BEAN_TYPE, INSTANCE_TYPE> {
 
 	INSTANCE_TYPE addBeanValidator(IBeanValidator<BEAN_TYPE> beanValidator);
 
+	INSTANCE_TYPE validateUnmodifiedBeans(boolean validate);
+
 	INSTANCE_TYPE setExceptionConverter(IBeanExceptionConverter exceptionConverter);
 
 	INSTANCE_TYPE setBeanProxyContext(IBeanProxyContext context);

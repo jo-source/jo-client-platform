@@ -53,6 +53,7 @@ public class SingleBeanModelBuilder<BEAN_TYPE> extends
 			getDeleterService(),
 			getExceptionConverter(),
 			getBeanValidators(),
+			isValidateUnmodifiedBeans(),
 			getParent(),
 			getLinkType(),
 			getListenerDelay(),

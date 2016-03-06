@@ -195,7 +195,14 @@ public final class DefaultCapUiToolkit implements ICapUiToolkit {
 
 	@Override
 	public <BEAN_TYPE> IBeansStateTracker<BEAN_TYPE> beansStateTracker(final IBeanProxyContext context) {
-		return new BeansStateTrackerImpl<BEAN_TYPE>(context);
+		return beansStateTracker(context, true);
+	}
+
+	@Override
+	public <BEAN_TYPE> IBeansStateTracker<BEAN_TYPE> beansStateTracker(
+		final IBeanProxyContext context,
+		final boolean validateUnmodifiedBeans) {
+		return new BeansStateTrackerImpl<BEAN_TYPE>(context, validateUnmodifiedBeans);
 	}
 
 	@Override

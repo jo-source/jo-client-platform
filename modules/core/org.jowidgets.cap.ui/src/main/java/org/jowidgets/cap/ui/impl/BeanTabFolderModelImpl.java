@@ -173,6 +173,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 		final List<IAttribute<Object>> attributes,
 		final IBeanProxyLabelRenderer<BEAN_TYPE> renderer,
 		final Set<IBeanValidator<BEAN_TYPE>> beanValidators,
+		final boolean validateUnmodifiedBeans,
 		final List<IBeanTabFolderModelInterceptor<BEAN_TYPE>> interceptors,
 		final ISortModelConfig sortModelConfig,
 		final IReaderService<? extends Object> readerService,
@@ -250,7 +251,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 		this.sortModel = new SortModelImpl();
 		this.sortModelChangeListener = new SortModelChangeListener();
 		this.disposed = false;
-		this.beansStateTracker = CapUiToolkit.beansStateTracker(beanProxyContext);
+		this.beansStateTracker = CapUiToolkit.beansStateTracker(beanProxyContext, validateUnmodifiedBeans);
 		this.beanProxyFactory = CapUiToolkit.beanProxyFactory(beanTypeId, beanType);
 		this.beanListModelObservable = new BeanListModelObservable<BEAN_TYPE>();
 		this.beanSelectionObservable = new BeanSelectionObservable<BEAN_TYPE>();

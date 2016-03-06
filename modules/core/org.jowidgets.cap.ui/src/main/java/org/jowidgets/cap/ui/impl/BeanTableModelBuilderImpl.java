@@ -271,6 +271,7 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> extends
 			getBeanTypeId(),
 			getBeanType(),
 			getBeanValidators(),
+			isValidateUnmodifiedBeans(),
 			getEntityLabelSingular(),
 			getEntityLabelPlural(),
 			getAttributes(),
