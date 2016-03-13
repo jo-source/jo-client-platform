@@ -781,9 +781,12 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 		final String context) {
 		if (validators != null) {
 			for (final IBeanPropertyValidator<BEAN_TYPE> validator : validators) {
-				final Collection<IBeanValidationResult> validationResult = validator.validateProperty(this, propertyName);
-				if (!EmptyCheck.isEmpty(validationResult)) {
-					builder.addResult(context, validationResult);
+				if (EmptyCheck.isEmpty(validator.getPropertyDependencies())
+					|| validator.getPropertyDependencies().contains(propertyName)) {
+					final Collection<IBeanValidationResult> validationResult = validator.validateProperty(this, propertyName);
+					if (!EmptyCheck.isEmpty(validationResult)) {
+						builder.addResult(context, validationResult);
+					}
 				}
 			}
 		}
