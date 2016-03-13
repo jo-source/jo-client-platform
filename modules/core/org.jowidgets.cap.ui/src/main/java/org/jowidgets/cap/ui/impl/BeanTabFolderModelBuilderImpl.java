@@ -32,10 +32,15 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.jowidgets.cap.ui.api.bean.IBeanProxyLabelRenderer;
+import org.jowidgets.cap.ui.api.plugin.IBeanModelBuilderPlugin;
 import org.jowidgets.cap.ui.api.sort.ISortModelConfig;
 import org.jowidgets.cap.ui.api.tabfolder.IBeanTabFolderModel;
 import org.jowidgets.cap.ui.api.tabfolder.IBeanTabFolderModelBuilder;
 import org.jowidgets.cap.ui.api.tabfolder.IBeanTabFolderModelInterceptor;
+import org.jowidgets.plugin.api.IPluginProperties;
+import org.jowidgets.plugin.api.IPluginPropertiesBuilder;
+import org.jowidgets.plugin.api.PluginProvider;
+import org.jowidgets.plugin.api.PluginToolkit;
 import org.jowidgets.util.Assert;
 
 final class BeanTabFolderModelBuilderImpl<BEAN_TYPE> extends
@@ -100,8 +105,20 @@ final class BeanTabFolderModelBuilderImpl<BEAN_TYPE> extends
 		}
 	}
 
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	private void modifyFromBeanModelPlugins() {
+		final IPluginPropertiesBuilder propBuilder = PluginToolkit.pluginPropertiesBuilder();
+		propBuilder.add(IBeanModelBuilderPlugin.ENTITIY_ID_PROPERTY_KEY, getEntityId());
+		propBuilder.add(IBeanModelBuilderPlugin.BEAN_TYPE_PROPERTY_KEY, getBeanType());
+		final IPluginProperties properties = propBuilder.build();
+		for (final IBeanModelBuilderPlugin plugin : PluginProvider.getPlugins(IBeanModelBuilderPlugin.ID, properties)) {
+			plugin.modify(this);
+		}
+	}
+
 	@Override
 	public IBeanTabFolderModel<BEAN_TYPE> build() {
+		modifyFromBeanModelPlugins();
 		return new BeanTabFolderModelImpl<BEAN_TYPE>(
 			getEntityId(),
 			getBeanTypeId(),

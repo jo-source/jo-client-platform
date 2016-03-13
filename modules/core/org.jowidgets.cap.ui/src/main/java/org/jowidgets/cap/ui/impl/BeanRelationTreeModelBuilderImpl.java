@@ -46,6 +46,7 @@ import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.model.LinkType;
+import org.jowidgets.cap.ui.api.plugin.IBeanModelBuilderPlugin;
 import org.jowidgets.cap.ui.api.plugin.IBeanRelationTreeModelPlugin;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationNodeModelBluePrint;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationNodeModelConfigurator;
@@ -53,8 +54,10 @@ import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModel;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationTreeModelBuilder;
 import org.jowidgets.cap.ui.api.types.IEntityTypeId;
 import org.jowidgets.plugin.api.IPluginProperties;
+import org.jowidgets.plugin.api.IPluginPropertiesBuilder;
 import org.jowidgets.plugin.api.PluginProperties;
 import org.jowidgets.plugin.api.PluginProvider;
+import org.jowidgets.plugin.api.PluginToolkit;
 import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.ITypedKey;
@@ -178,8 +181,24 @@ final class BeanRelationTreeModelBuilderImpl<CHILD_BEAN_TYPE> extends
 			getListenerDelay());
 	}
 
-	@SuppressWarnings({"rawtypes", "unchecked"})
 	private void modifyByPlugins() {
+		modifyFromBeanModelPlugins();
+		modifyFromRelationTreeModelPlugins();
+	}
+
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	private void modifyFromBeanModelPlugins() {
+		final IPluginPropertiesBuilder propBuilder = PluginToolkit.pluginPropertiesBuilder();
+		propBuilder.add(IBeanModelBuilderPlugin.ENTITIY_ID_PROPERTY_KEY, getEntityId());
+		propBuilder.add(IBeanModelBuilderPlugin.BEAN_TYPE_PROPERTY_KEY, getBeanType());
+		final IPluginProperties properties = propBuilder.build();
+		for (final IBeanModelBuilderPlugin plugin : PluginProvider.getPlugins(IBeanModelBuilderPlugin.ID, properties)) {
+			plugin.modify(this);
+		}
+	}
+
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	private void modifyFromRelationTreeModelPlugins() {
 
 		final ITypedKey<Object> entitiyIdKey = IBeanRelationTreeModelPlugin.ENTITIY_ID_PROPERTY_KEY;
 		final IPluginProperties properties = PluginProperties.create(entitiyIdKey, getEntityId());

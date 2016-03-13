@@ -127,6 +127,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 
 	private final ParentSelectionListener<Object> parentModelListener;
 	private final ParentSelectionAddabledChecker parentSelectionAddabledChecker;
+	private final boolean validateUnmodifiedBeans;
 	private final List<IBeanPropertyValidator<BEAN_TYPE>> beanPropertyValidators;
 	private final IBeansStateTracker<BEAN_TYPE> beansStateTracker;
 	private final IBeanProxyFactory<BEAN_TYPE> beanProxyFactory;
@@ -192,6 +193,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 			}
 		}
 
+		this.validateUnmodifiedBeans = validateUnmodfiedBeans;
 		this.beanPropertyValidators = new LinkedList<IBeanPropertyValidator<BEAN_TYPE>>();
 		beanPropertyValidators.add(new BeanPropertyValidatorImpl<BEAN_TYPE>(attributes));
 		for (final IBeanValidator<BEAN_TYPE> beanValidator : beanValidators) {
@@ -732,6 +734,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 			if (beanDtos.size() > 0) {
 				final IBeanDto beanDto = beanDtos.iterator().next();
 				bean = beanProxyFactory.createProxy(beanDto, attributeSet);
+				bean.setValidateUnmodified(validateUnmodifiedBeans);
 				if (!EmptyCheck.isEmpty(beanPropertyValidators)) {
 					bean.addBeanPropertyValidators(beanPropertyValidators);
 				}

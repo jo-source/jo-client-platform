@@ -30,6 +30,11 @@ package org.jowidgets.cap.ui.impl;
 
 import org.jowidgets.cap.ui.api.model.ISingleBeanModel;
 import org.jowidgets.cap.ui.api.model.ISingleBeanModelBuilder;
+import org.jowidgets.cap.ui.api.plugin.IBeanModelBuilderPlugin;
+import org.jowidgets.plugin.api.IPluginProperties;
+import org.jowidgets.plugin.api.IPluginPropertiesBuilder;
+import org.jowidgets.plugin.api.PluginProvider;
+import org.jowidgets.plugin.api.PluginToolkit;
 
 public class SingleBeanModelBuilder<BEAN_TYPE> extends
 		AbstractBeanModelBuilderImpl<BEAN_TYPE, ISingleBeanModelBuilder<BEAN_TYPE>> implements ISingleBeanModelBuilder<BEAN_TYPE> {
@@ -39,8 +44,20 @@ public class SingleBeanModelBuilder<BEAN_TYPE> extends
 		setMetaAttributes(new String[0]);
 	}
 
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	private void modifyFromBeanModelPlugins() {
+		final IPluginPropertiesBuilder propBuilder = PluginToolkit.pluginPropertiesBuilder();
+		propBuilder.add(IBeanModelBuilderPlugin.ENTITIY_ID_PROPERTY_KEY, getEntityId());
+		propBuilder.add(IBeanModelBuilderPlugin.BEAN_TYPE_PROPERTY_KEY, getBeanType());
+		final IPluginProperties properties = propBuilder.build();
+		for (final IBeanModelBuilderPlugin plugin : PluginProvider.getPlugins(IBeanModelBuilderPlugin.ID, properties)) {
+			plugin.modify(this);
+		}
+	}
+
 	@Override
 	public ISingleBeanModel<BEAN_TYPE> build() {
+		modifyFromBeanModelPlugins();
 		return new SingleBeanModelImpl<BEAN_TYPE>(
 			getBeanTypeId(),
 			getBeanType(),

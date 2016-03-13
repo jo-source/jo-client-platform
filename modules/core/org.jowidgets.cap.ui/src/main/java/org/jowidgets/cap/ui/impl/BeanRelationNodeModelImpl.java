@@ -135,6 +135,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 	private final ICreatorService creatorService;
 	private final BeanListRefreshDelegate<CHILD_BEAN_TYPE> refreshDelegate;
 	private final ISortModel sortModel;
+	private final boolean validateUnmodifiedBeans;
 	private final List<IBeanPropertyValidator<CHILD_BEAN_TYPE>> beanPropertyValidators;
 	private final IAttributeSet childBeanAttributeSet;
 	private final List<String> propertyNames;
@@ -213,6 +214,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 		this.childBeanAttributeSet = AttributeSet.create(childBeanAttributes);
 		this.exceptionConverter = exceptionConverter;
 
+		this.validateUnmodifiedBeans = validateUnmodifiedBeans;
 		this.beanPropertyValidators = new LinkedList<IBeanPropertyValidator<CHILD_BEAN_TYPE>>();
 		beanPropertyValidators.add(new BeanPropertyValidatorImpl<CHILD_BEAN_TYPE>(childBeanAttributes));
 		for (final IBeanValidator<CHILD_BEAN_TYPE> beanValidator : beanValidators) {
@@ -689,6 +691,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 
 	private IBeanProxy<CHILD_BEAN_TYPE> createBeanProxy(final IBeanDto beanDto) {
 		final IBeanProxy<CHILD_BEAN_TYPE> beanProxy = beanProxyFactory.createProxy(beanDto, childBeanAttributeSet);
+		beanProxy.setValidateUnmodified(validateUnmodifiedBeans);
 		if (!EmptyCheck.isEmpty(beanPropertyValidators)) {
 			beanProxy.addBeanPropertyValidators(beanPropertyValidators);
 		}

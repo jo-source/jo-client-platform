@@ -31,8 +31,13 @@ package org.jowidgets.cap.ui.impl;
 import java.util.LinkedList;
 
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.cap.ui.api.plugin.IBeanModelBuilderPlugin;
 import org.jowidgets.cap.ui.api.tree.IBeanRelationNodeModel;
 import org.jowidgets.cap.ui.api.types.IEntityTypeId;
+import org.jowidgets.plugin.api.IPluginProperties;
+import org.jowidgets.plugin.api.IPluginPropertiesBuilder;
+import org.jowidgets.plugin.api.PluginProvider;
+import org.jowidgets.plugin.api.PluginToolkit;
 
 class BeanRelationNodeModelBuilder<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE, INSTANCE_TYPE> extends
 		BeanRelationNodeModelBluePrint<CHILD_BEAN_TYPE, INSTANCE_TYPE> {
@@ -51,7 +56,19 @@ class BeanRelationNodeModelBuilder<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE, INSTANCE_T
 		this.childEntityType = new EntityTypeIdImpl<CHILD_BEAN_TYPE>(getEntityId(), getBeanTypeId(), getBeanType());
 	}
 
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	private void modifyFromBeanModelPlugins() {
+		final IPluginPropertiesBuilder propBuilder = PluginToolkit.pluginPropertiesBuilder();
+		propBuilder.add(IBeanModelBuilderPlugin.ENTITIY_ID_PROPERTY_KEY, getEntityId());
+		propBuilder.add(IBeanModelBuilderPlugin.BEAN_TYPE_PROPERTY_KEY, getBeanType());
+		final IPluginProperties properties = propBuilder.build();
+		for (final IBeanModelBuilderPlugin plugin : PluginProvider.getPlugins(IBeanModelBuilderPlugin.ID, properties)) {
+			plugin.modify(this);
+		}
+	}
+
 	IBeanRelationNodeModel<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> build() {
+		modifyFromBeanModelPlugins();
 		return new BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE>(
 			getLabel(),
 			parentBean,

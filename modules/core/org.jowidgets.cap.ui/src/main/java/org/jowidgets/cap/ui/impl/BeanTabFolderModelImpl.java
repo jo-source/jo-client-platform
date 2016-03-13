@@ -132,6 +132,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 	private final IBeanProxyFactory<BEAN_TYPE> beanProxyFactory;
 	private final IBeansStateTracker<BEAN_TYPE> beansStateTracker;
 
+	private final boolean validateUnmodifiedBeans;
 	private final List<IBeanPropertyValidator<BEAN_TYPE>> beanPropertyValidators;
 	private final List<IBeanPropertyValidator<BEAN_TYPE>> beanPropertyValidatorsView;
 
@@ -257,6 +258,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 		this.beanSelectionObservable = new BeanSelectionObservable<BEAN_TYPE>();
 		this.disposeObservable = new DisposeObservable();
 		this.filterChangeObservable = new ChangeObservable();
+		this.validateUnmodifiedBeans = validateUnmodifiedBeans;
 		this.beanPropertyValidators = new LinkedList<IBeanPropertyValidator<BEAN_TYPE>>();
 		this.beanPropertyValidatorsView = Collections.unmodifiableList(this.beanPropertyValidators);
 		beanPropertyValidators.add(new BeanPropertyValidatorImpl<BEAN_TYPE>(attributes));
@@ -1035,6 +1037,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 			List<IBeanProxy<BEAN_TYPE>> newData = new LinkedList<IBeanProxy<BEAN_TYPE>>();
 			for (final IBeanDto beanDto : beanDtos) {
 				final IBeanProxy<BEAN_TYPE> beanProxy = beanProxyFactory.createProxy(beanDto, attributeSet);
+				beanProxy.setValidateUnmodified(validateUnmodifiedBeans);
 				newData.add(beanProxy);
 			}
 

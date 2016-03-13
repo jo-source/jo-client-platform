@@ -70,6 +70,10 @@ public interface IBeanProxy<BEAN_TYPE> extends
 
 	IValidationResult validate();
 
+	void setValidateUnmodified(boolean validateUnmodified);
+
+	boolean isValidateUnmodified();
+
 	void addBeanPropertyValidator(IBeanPropertyValidator<BEAN_TYPE> validator);
 
 	void addBeanPropertyValidators(Collection<? extends IBeanPropertyValidator<BEAN_TYPE>> validators);

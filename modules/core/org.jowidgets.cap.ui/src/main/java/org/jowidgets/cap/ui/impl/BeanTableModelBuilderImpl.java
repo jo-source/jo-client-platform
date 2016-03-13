@@ -37,6 +37,7 @@ import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.ui.api.execution.BeanExecutionPolicy;
+import org.jowidgets.cap.ui.api.plugin.IBeanModelBuilderPlugin;
 import org.jowidgets.cap.ui.api.plugin.IBeanTableModelBuilderPlugin;
 import org.jowidgets.cap.ui.api.sort.ISortModelConfig;
 import org.jowidgets.cap.ui.api.table.IBeanTableCellRenderer;
@@ -252,8 +253,24 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> extends
 		}
 	}
 
-	@SuppressWarnings({"rawtypes", "unchecked"})
 	private void modifyFromPlugins() {
+		modifyFromBeanModelPlugins();
+		modifyFromBeanTableModelPlugins();
+	}
+
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	private void modifyFromBeanModelPlugins() {
+		final IPluginPropertiesBuilder propBuilder = PluginToolkit.pluginPropertiesBuilder();
+		propBuilder.add(IBeanModelBuilderPlugin.ENTITIY_ID_PROPERTY_KEY, getEntityId());
+		propBuilder.add(IBeanModelBuilderPlugin.BEAN_TYPE_PROPERTY_KEY, getBeanType());
+		final IPluginProperties properties = propBuilder.build();
+		for (final IBeanModelBuilderPlugin plugin : PluginProvider.getPlugins(IBeanModelBuilderPlugin.ID, properties)) {
+			plugin.modify(this);
+		}
+	}
+
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	private void modifyFromBeanTableModelPlugins() {
 		final IPluginPropertiesBuilder propBuilder = PluginToolkit.pluginPropertiesBuilder();
 		propBuilder.add(IBeanTableModelBuilderPlugin.ENTITIY_ID_PROPERTY_KEY, getEntityId());
 		propBuilder.add(IBeanTableModelBuilderPlugin.BEAN_TYPE_PROPERTY_KEY, getBeanType());

@@ -215,6 +215,8 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	private final IBeanSelectionProvider<Object> parent;
 	private final LinkType linkType;
 
+	private final boolean validateUnmodifiedBeans;
+
 	private final boolean clearOnEmptyFilter;
 	private final boolean clearOnEmptyParentBeans;
 	private final boolean autoRefreshSelection;
@@ -310,6 +312,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 		this.parent = parent;
 		this.entityId = entityId;
+		this.validateUnmodifiedBeans = validateUnmodifiedBeans;
 		this.autoRowCount = autoRowCount;
 		this.clearOnEmptyFilter = clearOnEmptyFilter;
 		this.clearOnEmptyParentBeans = clearOnEmptyParentBeans;
@@ -1291,6 +1294,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 	private IBeanProxy<BEAN_TYPE> createBeanProxy(final IBeanDto beanDto) {
 		final IBeanProxy<BEAN_TYPE> beanProxy = beanProxyFactory.createProxy(beanDto, attributeSet);
+		beanProxy.setValidateUnmodified(validateUnmodifiedBeans);
 		if (!EmptyCheck.isEmpty(beanPropertyValidators)) {
 			beanProxy.addBeanPropertyValidators(beanPropertyValidators);
 		}

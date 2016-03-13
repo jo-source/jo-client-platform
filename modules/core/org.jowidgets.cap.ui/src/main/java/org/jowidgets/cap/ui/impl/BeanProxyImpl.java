@@ -121,6 +121,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 	private final IUiThreadAccess uiThreadAccess;
 	private final ValidationCache validationCache;
 	private final boolean isDummy;
+	private boolean validateUnmodified;
 
 	private ArrayList<IBeanMessage> infoMessagesList;
 	private ArrayList<IBeanMessage> warningMessagesList;
@@ -153,6 +154,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 
 		this.attributes = attributes;
 
+		this.validateUnmodified = true;
 		this.disposed = false;
 		this.beanDto = beanDto;
 		this.beanTypeId = beanTypeId;
@@ -218,6 +220,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 			isDummy,
 			isTransient,
 			isLastRowDummy);
+		result.setValidateUnmodified(isValidateUnmodified());
 		for (final IBeanModification modification : modifications.values()) {
 			result.setValue(modification.getPropertyName(), modification.getNewValue());
 		}
@@ -247,6 +250,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 			isDummy,
 			isTransient,
 			isLastRowDummy);
+		result.setValidateUnmodified(isValidateUnmodified());
 		setValidators(result);
 
 		return result;
@@ -510,6 +514,19 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 	}
 
 	@Override
+	public void setValidateUnmodified(final boolean validateUnmodified) {
+		if (this.validateUnmodified != validateUnmodified) {
+			this.validateUnmodified = validateUnmodified;
+			validateAllInternalProperties();
+		}
+	}
+
+	@Override
+	public boolean isValidateUnmodified() {
+		return validateUnmodified;
+	}
+
+	@Override
 	public IValidationResult validate() {
 		checkDisposed();
 		return validationCache.validate();
@@ -737,9 +754,10 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 		final IBeanValidationResultListBuilder builder = CapCommonToolkit.beanValidationResultListBuilder();
 		builder.addResult(ValidationResult.ok(), propertyName);
 
-		final String currentLabel = getAttribute(propertyName).getCurrentLabel();
-
-		addValidationResults(beanPropertyValidators, builder, propertyName, currentLabel);
+		if (validateUnmodified || hasModifications()) {
+			final String currentLabel = getAttribute(propertyName).getCurrentLabel();
+			addValidationResults(beanPropertyValidators, builder, propertyName, currentLabel);
+		}
 
 		return builder.build();
 	}
