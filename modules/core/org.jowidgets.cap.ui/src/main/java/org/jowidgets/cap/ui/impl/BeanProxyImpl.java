@@ -537,10 +537,11 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 	}
 
 	@Override
-	public void validationConditionsChanged(final IExternalBeanValidator externalValidator, final Collection<String> properties) {
+	public void validationConditionsChanged(final IExternalBeanValidator externalValidator, Collection<String> properties) {
 		checkDisposed();
 		final List<IBeanValidationResult> beanValidationResults = new LinkedList<IBeanValidationResult>();
 		final ValueHolder<IBeanValidationResult> firstWorstIndependendResultHolder = new ValueHolder<IBeanValidationResult>();
+		properties = getDependendProperties(properties);
 		for (final String propertyName : properties) {
 			beanValidationResults.addAll(validateProperty(propertyName));
 		}
@@ -613,7 +614,8 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 		validateInternalProperties(Collections.singletonList(propertyName));
 	}
 
-	private void validateInternalProperties(final Collection<String> propertyNames) {
+	private void validateInternalProperties(Collection<String> propertyNames) {
+		propertyNames = getDependendProperties(propertyNames);
 		final IBeanValidationResultListBuilder builder = CapCommonToolkit.beanValidationResultListBuilder();
 		final ValueHolder<IBeanValidationResult> firstWorstIndependendResultHolder = new ValueHolder<IBeanValidationResult>();
 		for (final String propertyName : propertyNames) {
@@ -651,6 +653,29 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 
 		setValidationResults(firstWorstIndependendResultHolder, consolidatedResult.values());
 
+	}
+
+	private Collection<String> getDependendProperties(final Collection<String> propertyNames) {
+		if (EmptyCheck.isEmpty(beanPropertyValidators)) {
+			return propertyNames;
+		}
+		for (final IBeanPropertyValidator<BEAN_TYPE> validator : beanPropertyValidators) {
+			//if there are validators depending on all properties all attributes must be validated
+			if (EmptyCheck.isEmpty(validator.getPropertyDependencies())) {
+				return attributes.getPropertyNames();
+			}
+		}
+		final Set<String> result = new LinkedHashSet<String>();
+		for (final String propertyName : propertyNames) {
+			result.add(propertyName);
+			for (final IBeanPropertyValidator<BEAN_TYPE> validator : beanPropertyValidators) {
+				if (validator.getPropertyDependencies().contains(propertyName)) {
+					result.addAll(validator.getPropertyDependencies());
+				}
+			}
+		}
+
+		return result;
 	}
 
 	private IObserverSet<IExternalBeanValidator> getRegisteredExternalValidators(final String propertyName) {
@@ -783,9 +808,9 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 			for (final IBeanPropertyValidator<BEAN_TYPE> validator : validators) {
 				if (EmptyCheck.isEmpty(validator.getPropertyDependencies())
 					|| validator.getPropertyDependencies().contains(propertyName)) {
-					final Collection<IBeanValidationResult> validationResult = validator.validateProperty(this, propertyName);
-					if (!EmptyCheck.isEmpty(validationResult)) {
-						builder.addResult(context, validationResult);
+					final Collection<IBeanValidationResult> results = validator.validateProperty(this, propertyName);
+					if (!EmptyCheck.isEmpty(results)) {
+						builder.addResult(context, results);
 					}
 				}
 			}

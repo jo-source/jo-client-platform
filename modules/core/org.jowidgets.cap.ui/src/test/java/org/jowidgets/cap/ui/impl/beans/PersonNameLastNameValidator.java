@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2012, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -25,44 +25,30 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
+
 package org.jowidgets.cap.ui.impl.beans;
 
-import java.util.Arrays;
-import java.util.List;
+import org.jowidgets.cap.common.tools.validation.AbstractSingleConcernBeanValidator;
+import org.jowidgets.util.EmptyCheck;
+import org.jowidgets.validation.IValidationResult;
+import org.jowidgets.validation.ValidationResult;
 
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+public final class PersonNameLastNameValidator extends AbstractSingleConcernBeanValidator<IPerson> {
 
-import org.jowidgets.cap.common.api.annotation.BeanValidator;
-import org.jowidgets.cap.common.api.annotation.PropertyValidator;
-import org.jowidgets.cap.common.api.bean.IBean;
+	private static final long serialVersionUID = 3995642751853640816L;
 
-@BeanValidator({PersonNameWordCountValidator.class, PersonNameLastNameValidator.class})
-public interface IPerson extends IBean {
+	public PersonNameLastNameValidator() {
+		super(IPerson.NAME_PROPERTY, IPerson.LAST_NAME_PROPERTY);
+	}
 
-	String NAME_PROPERTY = "name";
-	String LAST_NAME_PROPERTY = "lastname";
-	String GENDER_PROPERTY = "gender";
-
-	List<String> ALL_PROPERTIES = Arrays.asList(NAME_PROPERTY, LAST_NAME_PROPERTY, GENDER_PROPERTY);
-
-	@NotNull
-	@Size(min = 2, max = 50)
-	@PropertyValidator(PersonNameValidator.class)
-	String getName();
-
-	void setName(String name);
-
-	@NotNull
-	@Size(min = 2, max = 50)
-	String getLastname();
-
-	void setLastname(String name);
-
-	@NotNull
-	@Size(min = 1, max = 1)
-	Gender getGender();
-
-	void setGender(final Gender gender);
+	@Override
+	public IValidationResult validateBean(final IPerson bean) {
+		final String name = bean.getName();
+		final String lastname = bean.getLastname();
+		if (!EmptyCheck.isEmpty(name) && !EmptyCheck.isEmpty(lastname) && lastname.equals(name)) {
+			return ValidationResult.error("Name and lastname must be different");
+		}
+		return ValidationResult.ok();
+	}
 
 }
