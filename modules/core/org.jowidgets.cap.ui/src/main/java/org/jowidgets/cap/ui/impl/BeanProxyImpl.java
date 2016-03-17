@@ -1290,10 +1290,11 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 	}
 
 	private String getProgress() {
-		String result;
-		try {
-			final Integer worked = executionTask.getWorked();
-			final Integer total = executionTask.getTotalStepCount();
+		String result = null;
+		final IExecutionTask currentExecutionTask = executionTask;
+		if (currentExecutionTask != null) {
+			final Integer worked = currentExecutionTask.getWorked();
+			final Integer total = currentExecutionTask.getTotalStepCount();
 			if (total != null) {
 				if (worked == null) {
 					result = "0%";
@@ -1307,10 +1308,6 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 				result = "?";
 			}
 		}
-		catch (final Exception exception) {
-			result = null;
-		}
-
 		lastProgress = result;
 		return result;
 	}
