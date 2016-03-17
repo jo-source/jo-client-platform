@@ -30,6 +30,7 @@ package org.jowidgets.message.api;
 
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.Set;
@@ -65,6 +66,13 @@ public final class MessageToolkit {
 		messageReceiverBrokers.put(receiver.getBrokerId(), receiver);
 	}
 
+	/**
+	 * Adds a exception callback for a defined broker id, this will not remove the other exception callbacks
+	 * added before to this broker
+	 * 
+	 * @param brokerId The broker to set the callback for
+	 * @param exceptionCallback The callback to set
+	 */
 	public static synchronized void addExceptionCallback(final Object brokerId, final IExceptionCallback exceptionCallback) {
 		if (exceptionCallback == null) {
 			throw new IllegalArgumentException("Parameter 'exceptionCallback' must not be null");
@@ -74,10 +82,29 @@ public final class MessageToolkit {
 		}
 		Set<IExceptionCallback> callbacks = exceptionCallbacks.get(brokerId);
 		if (callbacks == null) {
-			callbacks = new HashSet<IExceptionCallback>();
+			callbacks = new LinkedHashSet<IExceptionCallback>();
 			exceptionCallbacks.put(brokerId, callbacks);
 		}
 		callbacks.add(exceptionCallback);
+	}
+
+	/**
+	 * Sets the exception callback for a defined broker id, this will remove all other exception callbacks for this broker
+	 * 
+	 * @param brokerId The broker to set the callback for
+	 * @param exceptionCallback The callback to set
+	 */
+	public static synchronized void setExceptionCallback(final Object brokerId, final IExceptionCallback exceptionCallback) {
+		if (exceptionCallback == null) {
+			throw new IllegalArgumentException("Parameter 'exceptionCallback' must not be null");
+		}
+		if (brokerId == null) {
+			throw new IllegalArgumentException("Parameter 'brokerId' must not be null");
+		}
+
+		final Set<IExceptionCallback> callbacks = new HashSet<IExceptionCallback>();
+		callbacks.add(exceptionCallback);
+		exceptionCallbacks.put(brokerId, callbacks);
 	}
 
 	public static synchronized void removeExceptionCallback(final Object brokerId, final IExceptionCallback exceptionCallback) {
