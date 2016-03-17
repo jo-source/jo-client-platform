@@ -67,10 +67,20 @@ public final class MessageBrokerBuilder {
 		if (url == null) {
 			throw new IllegalStateException("url must be set");
 		}
-		final MessageBroker broker = new MessageBroker(brokerId, url, httpClient == null ? new DefaultHttpClient(
-			new ThreadSafeClientConnManager()) : httpClient);
+		if (httpClient == null) {
+			final DefaultHttpClient client = new DefaultHttpClient(new ThreadSafeClientConnManager());
+
+			//final HttpParams params = client.getParams();
+			//params.setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, 10000);
+			//params.setParameter(CoreConnectionPNames.SO_TIMEOUT, 10000);
+
+			//		HttpConnectionParams.setConnectionTimeout(params, 10000);
+			//		HttpConnectionParams.setSoTimeout(params, 10000);
+			//client.setDefaultHttpParams(params);
+			httpClient = client;
+		}
+		final MessageBroker broker = new MessageBroker(brokerId, url, httpClient);
 		broker.setHttpRequestInitializer(httpRequestInitializer);
 		return broker;
 	}
-
 }

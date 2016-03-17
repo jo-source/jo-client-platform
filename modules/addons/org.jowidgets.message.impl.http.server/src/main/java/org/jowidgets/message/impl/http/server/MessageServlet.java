@@ -41,10 +41,16 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.api.widgets.IFrame;
+import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
 import org.jowidgets.message.api.IMessageReceiver;
 import org.jowidgets.message.api.IMessageReceiverBroker;
 import org.jowidgets.message.api.MessageToolkit;
+import org.jowidgets.tools.widgets.blueprint.BPF;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.IObservableValue;
+import org.jowidgets.util.ObservableValue;
 import org.jowidgets.util.concurrent.DaemonThreadFactory;
 
 public final class MessageServlet extends HttpServlet implements IMessageReceiverBroker {
@@ -61,9 +67,16 @@ public final class MessageServlet extends HttpServlet implements IMessageReceive
 			new DaemonThreadFactory());
 	private volatile IMessageReceiver receiver;
 
+	private final IObservableValue<Long> sleepTime = new ObservableValue<Long>(0L);
+
 	public MessageServlet(final Object brokerId) {
 		super();
 		this.brokerId = brokerId;
+
+		final IFrame frame = Toolkit.createRootFrame(BPF.frame("delay"));
+		frame.setLayout(new MigLayoutDescriptor("[grow, 0::]", "[]"));
+		frame.add(BPF.inputFieldLongNumber().setObservableValue(sleepTime), "growx, w 0::");
+		frame.setVisible(true);
 	}
 
 	@Override
@@ -106,6 +119,15 @@ public final class MessageServlet extends HttpServlet implements IMessageReceive
 			oos.writeInt(messages.size());
 			for (final Object msg : messages) {
 				try {
+					final Long sleep = sleepTime.getValue();
+					if (sleep != null && sleep.longValue() > 0)
+						try {
+							Thread.sleep(sleep.longValue());
+						}
+						catch (final InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
 					oos.flush();
 					oos.writeObject(msg);
 				}

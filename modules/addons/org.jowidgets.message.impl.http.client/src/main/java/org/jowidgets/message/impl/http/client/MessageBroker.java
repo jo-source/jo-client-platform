@@ -39,6 +39,8 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import javax.swing.SwingUtilities;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
@@ -46,11 +48,17 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ByteArrayEntity;
+import org.jowidgets.api.threads.IUiThreadAccess;
+import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.api.widgets.IFrame;
 import org.jowidgets.classloading.tools.SharedClassLoadingObjectInputStream;
+import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
 import org.jowidgets.message.api.IExceptionCallback;
 import org.jowidgets.message.api.IMessageChannel;
 import org.jowidgets.message.api.IMessageReceiver;
 import org.jowidgets.message.api.MessageToolkit;
+import org.jowidgets.tools.widgets.blueprint.BPF;
+import org.jowidgets.util.ObservableBoolean;
 import org.jowidgets.util.concurrent.DaemonThreadFactory;
 import org.jowidgets.util.io.IoUtils;
 
@@ -75,6 +83,10 @@ final class MessageBroker implements IMessageBroker, IMessageChannel {
 			new DaemonThreadFactory());
 	private final CountDownLatch sessionInitialized = new CountDownLatch(1);
 
+	private final ObservableBoolean nullMessage = new ObservableBoolean(false);
+	private IFrame frame;
+	private IUiThreadAccess uiThreadAccess;
+
 	private IHttpRequestInitializer httpRequestInitializer;
 
 	private volatile IMessageReceiver receiver;
@@ -85,6 +97,18 @@ final class MessageBroker implements IMessageBroker, IMessageChannel {
 		this.httpClient = httpClient;
 		createSenderThread().start();
 		createReceiverThread().start();
+
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				uiThreadAccess = Toolkit.getUiThreadAccess();
+				frame = Toolkit.createRootFrame(BPF.frame("Message Client"));
+				frame.setLayout(new MigLayoutDescriptor("[]", "[]"));
+				frame.add(BPF.checkBox().setText("Null Message").setObservableValue(nullMessage), "");
+				frame.setVisible(true);
+			}
+		});
+
 	}
 
 	@Override
@@ -220,7 +244,7 @@ final class MessageBroker implements IMessageBroker, IMessageChannel {
 							final int num = ois.readInt();
 							for (int i = 0; i < num; i++) {
 								try {
-									final Object msg = ois.readObject();
+									final Object msg = nullMessage.get() ? null : ois.readObject();
 									incomingExecutor.execute(new Runnable() {
 										@Override
 										public void run() {
