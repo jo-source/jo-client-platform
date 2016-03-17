@@ -72,7 +72,7 @@ final class DefaultJpaExceptionDecorator implements IDecorator<Throwable> {
 		}
 		//TODO MG handle more jpa exceptions 
 
-		return new ServiceException(exception);
+		return new ServiceException("Exception on jpa service execution", exception);
 	}
 
 	private Object getBeanId(final Object bean) {

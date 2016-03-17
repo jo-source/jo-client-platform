@@ -84,17 +84,14 @@ public class ServiceException extends RuntimeException {
 		super(message);
 		this.userMessage = userMessage;
 
-		final StringBuilder stackTraceBuilder = new StringBuilder(getStackTrace(this));
-
+		final StringBuilder stackTraceBuilder = new StringBuilder();
+		final StringWriter stringWriter = new StringWriter();
+		super.printStackTrace(new PrintWriter(stringWriter));
+		stackTraceBuilder.append(stringWriter.toString());
 		if (cause != null) {
-			if (cause instanceof ServiceException) {
-				stackTraceBuilder.append(((ServiceException) cause).getStackTraceString());
-			}
-			else {
-				stackTraceBuilder.append("\n" + getStackTrace(cause));
-			}
+			stackTraceBuilder.append("Caused by: ");
+			stackTraceBuilder.append(getStackTrace(cause));
 		}
-
 		stackTrace = stackTraceBuilder.toString();
 	}
 

@@ -214,7 +214,6 @@ final class BeanExceptionConverterImpl implements IBeanExceptionConverter {
 
 	private IBeanMessage convertUndefinedServiceException(final String shortMessage, final ServiceException exception) {
 		//CHECKSTYLE:OFF
-		System.out.println(exception.getMessage());
 		exception.printStackTrace();
 		//CHECKSTYLE:ON
 		final String userMessage = exception.getUserMessage();
