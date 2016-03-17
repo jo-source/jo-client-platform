@@ -43,7 +43,7 @@ import org.jowidgets.util.CancelCallback;
 
 public final class RemotingBasicAuthenticationLoginInterceptor implements ILoginInterceptor {
 
-	private static final long REMOTING_INITIALIZATION_DEFAULT_TIMEOUT = 600;
+	private static final long REMOTING_INITIALIZATION_DEFAULT_TIMEOUT = 60000;
 	private static final IMessage SERVER_NOT_AVAILABLE = Messages.getMessage("RemotingBasicAuthenticationLoginInterceptor.ServerNotAvailable");
 
 	private final RemotingServiceInitializer remotingServiceInitializer;
