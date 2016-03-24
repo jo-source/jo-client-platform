@@ -52,8 +52,8 @@ import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
 import org.jowidgets.cap.ui.api.widgets.IExecutionTaskDialog;
 import org.jowidgets.cap.ui.api.widgets.IExecutionTaskDialogBluePrint;
 import org.jowidgets.cap.ui.tools.execution.AbstractUiResultCallback;
-import org.jowidgets.logging.api.api.ILogger;
-import org.jowidgets.logging.api.api.LoggerProvider;
+import org.jowidgets.logging.api.ILogger;
+import org.jowidgets.logging.api.LoggerProvider;
 import org.jowidgets.util.concurrent.DaemonThreadFactory;
 
 class CsvExportExecutor<BEAN_TYPE> implements IExecutor<BEAN_TYPE, ICsvExportParameter> {
