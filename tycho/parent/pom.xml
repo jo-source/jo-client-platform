@@ -351,6 +351,11 @@
 		</dependency>
 		<dependency>
 			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.logging.api.bundle</artifactId>
+			<version>${jowidgets.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
 			<artifactId>org.jowidgets.i18n.bundle</artifactId>
 			<version>${jowidgets.version}</version>
 		</dependency>
@@ -437,6 +442,21 @@
 		<dependency>
 			<groupId>org.jowidgets</groupId>
 			<artifactId>org.jowidgets.addons.bridge.swt.awt.bundle</artifactId>
+			<version>${jowidgets.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.addons.logging.nop.bundle</artifactId>
+			<version>${jowidgets.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.addons.logging.jul.bundle</artifactId>
+			<version>${jowidgets.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jowidgets</groupId>
+			<artifactId>org.jowidgets.addons.logging.slf4j.bundle</artifactId>
 			<version>${jowidgets.version}</version>
 		</dependency>
 		<dependency>
