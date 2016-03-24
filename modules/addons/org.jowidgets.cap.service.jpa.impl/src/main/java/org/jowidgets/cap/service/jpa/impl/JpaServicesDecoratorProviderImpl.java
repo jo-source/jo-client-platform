@@ -46,6 +46,8 @@ import org.jowidgets.cap.common.tools.proxy.AbstractCapServiceInvocationHandler;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.jpa.api.EntityManagerFactoryProvider;
 import org.jowidgets.cap.service.jpa.api.EntityManagerHolder;
+import org.jowidgets.logging.api.api.ILogger;
+import org.jowidgets.logging.api.api.LoggerProvider;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.IServicesDecoratorProvider;
 import org.jowidgets.util.Assert;
@@ -54,6 +56,8 @@ import org.jowidgets.util.IExceptionLogger;
 import org.jowidgets.util.Tuple;
 
 final class JpaServicesDecoratorProviderImpl implements IServicesDecoratorProvider {
+
+	private static final ILogger LOGGER = LoggerProvider.get(JpaServicesDecoratorProviderImpl.class);
 
 	private final String persistenceUnitName;
 	private final Set<Class<?>> entityManagerServices;
@@ -244,6 +248,7 @@ final class JpaServicesDecoratorProviderImpl implements IServicesDecoratorProvid
 		private Throwable decorateException(final Throwable exception, final IExecutionCallback executionCallback) {
 			if (executionCallback == null || !executionCallback.isCanceled()) {
 				exceptionLogger.log(exception);
+				LOGGER.error(exception);
 			}
 			Throwable result = exception;
 			for (final IDecorator<Throwable> exceptionDecorator : exceptionDecorators) {

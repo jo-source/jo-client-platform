@@ -52,9 +52,13 @@ import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
 import org.jowidgets.cap.ui.api.widgets.IExecutionTaskDialog;
 import org.jowidgets.cap.ui.api.widgets.IExecutionTaskDialogBluePrint;
 import org.jowidgets.cap.ui.tools.execution.AbstractUiResultCallback;
+import org.jowidgets.logging.api.api.ILogger;
+import org.jowidgets.logging.api.api.LoggerProvider;
 import org.jowidgets.util.concurrent.DaemonThreadFactory;
 
 class CsvExportExecutor<BEAN_TYPE> implements IExecutor<BEAN_TYPE, ICsvExportParameter> {
+
+	private static final ILogger LOGGER = LoggerProvider.get(CsvExportExecutor.class);
 
 	private final IBeanTableModel<BEAN_TYPE> model;
 
@@ -122,10 +126,7 @@ class CsvExportExecutor<BEAN_TYPE> implements IExecutor<BEAN_TYPE, ICsvExportPar
 
 		@Override
 		public void exceptionUi(final Throwable exception) {
-			//TODO MG remove this later
-			//CHECKSTYLE:OFF
-			exception.printStackTrace();
-			//CHECKSTYLE:ON
+			LOGGER.error(exception);
 			executionTaskDialog.executionError(exception.getMessage());
 		}
 

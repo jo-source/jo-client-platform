@@ -37,8 +37,12 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.jowidgets.classloading.api.SharedClassLoader;
+import org.jowidgets.logging.api.api.ILogger;
+import org.jowidgets.logging.api.api.LoggerProvider;
 
 public final class MessageToolkit {
+
+	private static final ILogger LOGGER = LoggerProvider.get(MessageToolkit.class);
 
 	private static final IMessageToolkit INSTANCE = new MessageToolkitImpl();
 
@@ -66,7 +70,10 @@ public final class MessageToolkit {
 		messageReceiverBrokers.put(receiver.getBrokerId(), receiver);
 	}
 
+	@Deprecated
 	/**
+	 * @deprecated jowidgets logging api will be used by default from now
+	 * 
 	 * Adds a exception callback for a defined broker id, this will not remove the other exception callbacks
 	 * added before to this broker
 	 * 
@@ -88,8 +95,12 @@ public final class MessageToolkit {
 		callbacks.add(exceptionCallback);
 	}
 
+	@Deprecated
 	/**
-	 * Sets the exception callback for a defined broker id, this will remove all other exception callbacks for this broker
+	 * @deprecated jowidgets logging api will be used by default from now
+	 * 
+	 * Sets the exception callback for a defined broker id, this will remove all other exception callbacks for this
+	 * broker
 	 * 
 	 * @param brokerId The broker to set the callback for
 	 * @param exceptionCallback The callback to set
@@ -107,6 +118,15 @@ public final class MessageToolkit {
 		exceptionCallbacks.put(brokerId, callbacks);
 	}
 
+	@Deprecated
+	/**
+	 * @deprecated jowidgets logging api will be used by default from now
+	 * 
+	 * Removes a earlier registered exception callback for a given broker id
+	 * 
+	 * @param brokerId
+	 * @param exceptionCallback
+	 */
 	public static synchronized void removeExceptionCallback(final Object brokerId, final IExceptionCallback exceptionCallback) {
 		if (exceptionCallback == null) {
 			throw new IllegalArgumentException("Parameter 'exceptionCallback' must not be null");
@@ -135,8 +155,14 @@ public final class MessageToolkit {
 		if (throwable == null) {
 			throw new IllegalArgumentException("Parameter 'throwable' must not be null");
 		}
-		for (final IExceptionCallback exceptionCallback : getExceptionCallbacks(brokerId)) {
-			exceptionCallback.exception(throwable);
+		final Set<IExceptionCallback> callbacks = getExceptionCallbacks(brokerId);
+		if (callbacks.isEmpty()) {
+			LOGGER.error("Error on message broker '" + brokerId + "'", throwable);
+		}
+		else {
+			for (final IExceptionCallback exceptionCallback : callbacks) {
+				exceptionCallback.exception(throwable);
+			}
 		}
 	}
 

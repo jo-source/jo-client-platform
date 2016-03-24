@@ -41,6 +41,8 @@ import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.tools.proxy.AbstractCapServiceInvocationHandler;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.neo4j.api.GraphDBConfig;
+import org.jowidgets.logging.api.api.ILogger;
+import org.jowidgets.logging.api.api.LoggerProvider;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.IServicesDecoratorProvider;
 import org.jowidgets.util.Assert;
@@ -49,6 +51,8 @@ import org.jowidgets.util.IExceptionLogger;
 import org.neo4j.graphdb.Transaction;
 
 final class Neo4JServicesDecoratorProviderImpl implements IServicesDecoratorProvider {
+
+	private static final ILogger LOGGER = LoggerProvider.get(Neo4JServicesDecoratorProviderImpl.class);
 
 	private final Set<Class<?>> transactionalServices;
 	private final List<IDecorator<Throwable>> exceptionDecorators;
@@ -204,6 +208,7 @@ final class Neo4JServicesDecoratorProviderImpl implements IServicesDecoratorProv
 
 		private Throwable decorateException(final Throwable exception, final IExecutionCallback executionCallback) {
 			if (executionCallback == null || !executionCallback.isCanceled()) {
+				LOGGER.error(exception);
 				exceptionLogger.log(exception);
 			}
 			Throwable result = exception;

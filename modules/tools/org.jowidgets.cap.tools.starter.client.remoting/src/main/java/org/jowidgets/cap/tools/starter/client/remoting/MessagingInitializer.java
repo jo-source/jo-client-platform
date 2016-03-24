@@ -29,7 +29,6 @@
 package org.jowidgets.cap.tools.starter.client.remoting;
 
 import org.jowidgets.cap.remoting.common.RemotingBrokerId;
-import org.jowidgets.message.api.IExceptionCallback;
 import org.jowidgets.message.api.MessageToolkit;
 import org.jowidgets.message.impl.http.client.IMessageBroker;
 import org.jowidgets.message.impl.http.client.MessageBrokerBuilder;
@@ -59,14 +58,6 @@ public class MessagingInitializer {
 			final IMessageBroker messageBroker = builder.build();
 			MessageToolkit.addChannelBroker(messageBroker);
 			MessageToolkit.addReceiverBroker(messageBroker);
-			MessageToolkit.addExceptionCallback(RemotingBrokerId.DEFAULT_BROKER_ID, new IExceptionCallback() {
-				@Override
-				public void exception(final Throwable throwable) {
-					//CHECKSTYLE:OFF
-					throwable.printStackTrace();
-					//CHECKSTYLE:ON
-				}
-			});
 			messagingInitialized = true;
 		}
 	}

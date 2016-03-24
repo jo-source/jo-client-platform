@@ -35,9 +35,13 @@ import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.common.widgets.controller.ITableCellPopupEvent;
 import org.jowidgets.common.widgets.controller.ITableColumnPopupEvent;
+import org.jowidgets.logging.api.api.ILogger;
+import org.jowidgets.logging.api.api.LoggerProvider;
 import org.jowidgets.tools.command.ActionBuilder;
 
 final class BeanTableEditFilterActionBuilder extends ActionBuilder {
+
+	private static final ILogger LOGGER = LoggerProvider.get(BeanTableEditFilterActionBuilder.class);
 
 	BeanTableEditFilterActionBuilder(final IBeanTableModel<?> model) {
 		super();
@@ -49,10 +53,7 @@ final class BeanTableEditFilterActionBuilder extends ActionBuilder {
 			public void execute(final IExecutionContext executionContext) throws Exception {
 				final ITableColumnPopupEvent columnPopupEvent = executionContext.getValue(IBeanTable.COLUMN_POPUP_EVENT_CONTEXT_KEY);
 				final ITableCellPopupEvent cellPopupEvent = executionContext.getValue(IBeanTable.CELL_POPUP_EVENT_CONTEXT_KEY);
-				//CHECKSTYLE:OFF
-				System.out.println("TODO delete filter:" + columnPopupEvent); //$NON-NLS-1$
-				System.out.println("TODO delete filter:" + cellPopupEvent); //$NON-NLS-1$
-				//CHECKSTYLE:ON
+				LOGGER.warn("Edit filter is not yet implemented, " + columnPopupEvent + " " + cellPopupEvent);
 			}
 		});
 	}

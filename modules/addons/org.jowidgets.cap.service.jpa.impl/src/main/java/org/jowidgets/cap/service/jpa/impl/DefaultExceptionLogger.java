@@ -28,18 +28,11 @@
 
 package org.jowidgets.cap.service.jpa.impl;
 
-import org.jowidgets.cap.common.api.exception.ServiceCanceledException;
 import org.jowidgets.util.IExceptionLogger;
 
 final class DefaultExceptionLogger implements IExceptionLogger {
 
 	@Override
-	public void log(final Throwable exception) {
-		if (exception != null && !(exception instanceof ServiceCanceledException)) {
-			//CHECKSTYLE:OFF
-			exception.printStackTrace();
-			//CHECKSTYLE:ON
-		}
-	}
+	public void log(final Throwable exception) {}
 
 }

@@ -76,6 +76,15 @@ public interface IJpaServicesDecoratorProviderBuilder {
 	 */
 	IJpaServicesDecoratorProviderBuilder addExceptionDecorator(IDecorator<Throwable> decorator);
 
+	@Deprecated
+	/**
+	 * @deprecated  Exceptions will be logged by jowidgets logging api from now
+	 *
+	 * Sets the exception logger for the services 
+	 * @param logger The logger to set
+	 *
+	 * @return The builder
+	 */
 	IJpaServicesDecoratorProviderBuilder setExceptionLogger(IExceptionLogger logger);
 
 	IJpaServicesDecoratorProviderBuilder setOrder(int order);

@@ -142,6 +142,8 @@ import org.jowidgets.common.image.IImageConstant;
 import org.jowidgets.common.model.ITableCell;
 import org.jowidgets.common.types.Markup;
 import org.jowidgets.i18n.api.IMessage;
+import org.jowidgets.logging.api.api.ILogger;
+import org.jowidgets.logging.api.api.LoggerProvider;
 import org.jowidgets.plugin.api.IPluginProperties;
 import org.jowidgets.plugin.api.IPluginPropertiesBuilder;
 import org.jowidgets.plugin.api.PluginProvider;
@@ -166,6 +168,8 @@ import org.jowidgets.validation.IValidationConditionListener;
 import org.jowidgets.validation.IValidationResult;
 
 final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> {
+
+	private static final ILogger LOGGER = LoggerProvider.get(BeanTableModelImpl.class);
 
 	private static final IMessage USER_CANCELED = Messages.getMessage("BeanTableModelImpl.user_canceled");
 	private static final IMessage LOAD_ERROR = Messages.getMessage("BeanTableModelImpl.load_error");
@@ -1967,9 +1971,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 				final IBeanProxy<BEAN_TYPE> bean = getBean(rowIndex);
 				if (bean == null) {
 					//TODO MG this should not happen, if happens the the addedData array might be fixed
-					//CHECKSTYLE:OFF
-					System.out.println("Uup's, added data might be inconsistent" + rowIndex);
-					//CHECKSTYLE:ON
+					LOGGER.warn("Added data might be inconsistent" + rowIndex);
 					return new TableCellBuilder().build();
 				}
 				else {
@@ -2448,10 +2450,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			finished = true;
 			countedRowCount = null;
 
-			//TODO MG exception handling
-			//CHECKSTYLE:OFF
-			exception.printStackTrace();
-			//CHECKSTYLE:ON
+			LOGGER.error(exception);
 
 			fireBeansChanged();
 		}
@@ -2752,9 +2751,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		}
 
 		private void setException(final Throwable exception) {
-			//CHECKSTYLE:OFF
-			exception.printStackTrace();
-			//CHECKSTYLE:ON
+			LOGGER.error(exception);
 			dummyBeanProxy.setExecutionTask(null);
 			final List<IBeanProxy<BEAN_TYPE>> dummyBeanList = Collections.singletonList(dummyBeanProxy);
 			if (!(exception instanceof ServiceCanceledException)) {

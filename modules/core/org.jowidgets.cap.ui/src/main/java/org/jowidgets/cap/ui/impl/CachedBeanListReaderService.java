@@ -51,13 +51,16 @@ import org.jowidgets.cap.common.api.sort.BeanDtoComparator;
 import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.common.tools.filter.FilterUtil;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
+import org.jowidgets.logging.api.api.ILogger;
+import org.jowidgets.logging.api.api.LoggerProvider;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.util.NullCompatibleEquivalence;
 import org.jowidgets.util.maybe.IMaybe;
 
-//CHECKSTYLE:OFF
 final class CachedBeanListReaderService<PARAM_TYPE, BEAN_TYPE> implements IReaderService<PARAM_TYPE> {
+
+	private static final ILogger LOGGER = LoggerProvider.get(CachedBeanListReaderService.class);
 
 	private static final IBeanKey EMPTY_PARENT_BEAN_KEY = new EmptyParentBeanKey();
 
@@ -101,14 +104,14 @@ final class CachedBeanListReaderService<PARAM_TYPE, BEAN_TYPE> implements IReade
 				sorting,
 				firstRow,
 				maxRows);
-			System.out.println("READ FROM SERVICE");
+			LOGGER.debug("Read from service");
 			original.read(decoratedResult, parentBeanKeys, filter, sorting, firstRow, maxRows, parameter, executionCallback);
 		}
 		else {
 			final ReadCacheEntry cacheEntry = readCache.get(getParentBeanKey(parentBeanKeys));
 			if (cacheEntry != null) {
 				try {
-					System.out.println("READ FROM CACHE");
+					LOGGER.debug("Read from cache");
 					result.finished(cacheEntry.getResult(filter, sorting, firstRow, maxRows, executionCallback));
 				}
 				catch (final Exception e) {
@@ -352,16 +355,16 @@ final class CachedBeanListReaderService<PARAM_TYPE, BEAN_TYPE> implements IReade
 				&& lastMaxRows == maxRows
 				&& NullCompatibleEquivalence.equals(lastFilter, filter)
 				&& NullCompatibleEquivalence.equals(lastSort, sort)) {
-				System.out.println("READ FROM LAST RESULT");
+				LOGGER.debug("Read from last result");
 				return lastResult;
 			}
 			else {
 				if (filter == null && EmptyCheck.isEmpty(sort)) {
-					System.out.println("READ FROM ALL");
+					LOGGER.debug("Read from all");
 					lastResult = new LinkedList<IBeanDto>(beans);
 				}
 				else {
-					System.out.println("SORT AND FILTER");
+					LOGGER.debug("Sort and filter");
 					List<IBeanDto> result = new LinkedList<IBeanDto>(beans);
 
 					if (!FilterUtil.isEmpty(filter)) {

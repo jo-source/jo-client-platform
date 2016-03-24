@@ -50,10 +50,14 @@ import org.jowidgets.cap.ui.api.bean.IBeanMessage;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.i18n.api.MessageReplacer;
+import org.jowidgets.logging.api.api.ILogger;
+import org.jowidgets.logging.api.api.LoggerProvider;
 import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.util.StringUtils;
 
 final class BeanExceptionConverterImpl implements IBeanExceptionConverter {
+
+	private static final ILogger LOGGER = LoggerProvider.get(BeanExceptionConverterImpl.class);
 
 	private static final IMessage EXECUTABLE_CHECK_BEAN = Messages.getMessage("BeanExceptionConverterImpl.executableCheckBean");
 	private static final IMessage EXECUTABLE_CHECK = Messages.getMessage("BeanExceptionConverterImpl.executableCheck");
@@ -213,9 +217,7 @@ final class BeanExceptionConverterImpl implements IBeanExceptionConverter {
 	}
 
 	private IBeanMessage convertUndefinedServiceException(final String shortMessage, final ServiceException exception) {
-		//CHECKSTYLE:OFF
-		exception.printStackTrace();
-		//CHECKSTYLE:ON
+		LOGGER.error("Undefined service exception", exception);
 		final String userMessage = exception.getUserMessage();
 		if (!EmptyCheck.isEmpty(userMessage)) {
 			return new BeanMessageImpl(BeanMessageType.ERROR, shortMessage, userMessage, exception);
@@ -226,10 +228,7 @@ final class BeanExceptionConverterImpl implements IBeanExceptionConverter {
 	}
 
 	private IBeanMessage convertUndefinedException(final String shortMessage, final Throwable throwable) {
-		//CHECKSTYLE:OFF
-		System.out.println(throwable.getMessage());
-		throwable.printStackTrace();
-		//CHECKSTYLE:ON
+		LOGGER.error("Undefined service exception", throwable);
 		return new BeanMessageImpl(BeanMessageType.ERROR, shortMessage, UNDEFINED_RUNTIME_EXCEPTION.get(), throwable);
 	}
 

@@ -61,11 +61,15 @@ import org.jowidgets.cap.ui.tools.execution.AbstractUiExecutionCallbackListener;
 import org.jowidgets.cap.ui.tools.execution.AbstractUiResultCallback;
 import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.i18n.api.MessageReplacer;
+import org.jowidgets.logging.api.api.ILogger;
+import org.jowidgets.logging.api.api.LoggerProvider;
 import org.jowidgets.tools.command.EnabledCheckerCompositeBuilder;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCheck;
 
 final class BeanLinkDeleterCommand<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> implements ICommand, ICommandExecutor {
+
+	private static final ILogger LOGGER = LoggerProvider.get(BeanLinkDeleterCommand.class);
 
 	private static final IMessage SINGLE_DELETION_CONFIRM = Messages.getMessage("BeanLinkDeleterCommand.single_deletion_confirm_message");
 	private static final IMessage MULTI_DELETION_CONFIRM = Messages.getMessage("BeanLinkDeleterCommand.multi_deletion_confirm_message");
@@ -288,9 +292,7 @@ final class BeanLinkDeleterCommand<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> implement
 
 				@Override
 				protected void exceptionUi(final Throwable exception) {
-					//CHECKSTYLE:OFF
-					exception.printStackTrace();
-					//CHECKSTYLE:ON
+					LOGGER.error(exception);
 
 					onError(exception);
 

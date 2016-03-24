@@ -34,8 +34,6 @@ import org.eclipse.jetty.servlet.FilterMapping;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.jowidgets.cap.remoting.common.RemotingBrokerId;
-import org.jowidgets.message.api.IExceptionCallback;
-import org.jowidgets.message.api.MessageToolkit;
 import org.jowidgets.security.impl.http.server.BasicAuthenticationFilter;
 import org.jowidgets.security.impl.http.server.SecurityRemotingServlet;
 import org.jowidgets.util.Assert;
@@ -60,14 +58,6 @@ public final class CapServerStarter {
 
 	public static void startServer(final String brokerId, final int port) throws Exception {
 		Assert.paramNotNull(brokerId, "brokerId");
-		MessageToolkit.addExceptionCallback(brokerId, new IExceptionCallback() {
-			@Override
-			public void exception(final Throwable throwable) {
-				//CHECKSTYLE:OFF
-				throwable.printStackTrace();
-				//CHECKSTYLE:ON
-			}
-		});
 		final Server server = new Server(port);
 		final ServletContextHandler root = new ServletContextHandler(ServletContextHandler.SESSIONS);
 		root.addServlet(new ServletHolder(new SecurityRemotingServlet(brokerId)), "/");
