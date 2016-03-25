@@ -44,10 +44,9 @@ import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.tools.proxy.AbstractCapServiceInvocationHandler;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
+import org.jowidgets.cap.service.api.exception.IServiceExceptionLogger;
 import org.jowidgets.cap.service.jpa.api.EntityManagerFactoryProvider;
 import org.jowidgets.cap.service.jpa.api.EntityManagerHolder;
-import org.jowidgets.logging.api.ILogger;
-import org.jowidgets.logging.api.LoggerProvider;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.IServicesDecoratorProvider;
 import org.jowidgets.util.Assert;
@@ -57,13 +56,12 @@ import org.jowidgets.util.Tuple;
 
 final class JpaServicesDecoratorProviderImpl implements IServicesDecoratorProvider {
 
-	private static final ILogger LOGGER = LoggerProvider.get(JpaServicesDecoratorProviderImpl.class);
-
 	private final String persistenceUnitName;
 	private final Set<Class<?>> entityManagerServices;
 	private final Set<Class<?>> transactionalServices;
 	private final List<IDecorator<Throwable>> exceptionDecorators;
-	private final IExceptionLogger exceptionLogger;
+	private final IExceptionLogger deprecatedExceptionLogger;
+	private final IServiceExceptionLogger exceptionLogger;
 	private final int order;
 
 	JpaServicesDecoratorProviderImpl(
@@ -71,19 +69,22 @@ final class JpaServicesDecoratorProviderImpl implements IServicesDecoratorProvid
 		final Set<Class<?>> entityManagerServices,
 		final Set<Class<?>> transactionalServices,
 		final List<IDecorator<Throwable>> exceptionDecorators,
-		final IExceptionLogger exceptionLogger,
+		final IExceptionLogger deprecatedExceptionLogger,
+		final IServiceExceptionLogger exceptionLogger,
 		final int order) {
 
 		Assert.paramNotNull(persistenceUnitName, "persistenceUnitName");
 		Assert.paramNotNull(entityManagerServices, "entityManagerServices");
 		Assert.paramNotNull(transactionalServices, "transactionalServices");
 		Assert.paramNotNull(exceptionDecorators, "exceptionDecorators");
+		Assert.paramNotNull(deprecatedExceptionLogger, "deprecatedExceptionLogger");
 		Assert.paramNotNull(exceptionLogger, "exceptionLogger");
 
 		this.persistenceUnitName = persistenceUnitName;
 		this.entityManagerServices = new HashSet<Class<?>>(entityManagerServices);
 		this.transactionalServices = new HashSet<Class<?>>(transactionalServices);
 		this.exceptionDecorators = new LinkedList<IDecorator<Throwable>>(exceptionDecorators);
+		this.deprecatedExceptionLogger = deprecatedExceptionLogger;
 		this.exceptionLogger = exceptionLogger;
 		this.order = order;
 	}
@@ -127,11 +128,13 @@ final class JpaServicesDecoratorProviderImpl implements IServicesDecoratorProvid
 
 	private final class JpaInvocationHandler extends AbstractCapServiceInvocationHandler {
 
+		private final Class<?> serviceType;
 		private final Object original;
 		private final boolean entityManagerService;
 		private final boolean transactionalService;
 
 		private JpaInvocationHandler(final Class<?> serviceType, final Object original) {
+			this.serviceType = serviceType;
 			this.original = original;
 			this.entityManagerService = entityManagerServices.contains(serviceType);
 			this.transactionalService = transactionalServices.contains(serviceType);
@@ -247,13 +250,13 @@ final class JpaServicesDecoratorProviderImpl implements IServicesDecoratorProvid
 
 		private Throwable decorateException(final Throwable exception, final IExecutionCallback executionCallback) {
 			if (executionCallback == null || !executionCallback.isCanceled()) {
-				exceptionLogger.log(exception);
-				LOGGER.error(exception);
+				deprecatedExceptionLogger.log(exception);
 			}
 			Throwable result = exception;
 			for (final IDecorator<Throwable> exceptionDecorator : exceptionDecorators) {
 				result = exceptionDecorator.decorate(result);
 			}
+			exceptionLogger.log(serviceType, exception, result);
 			return result;
 		}
 

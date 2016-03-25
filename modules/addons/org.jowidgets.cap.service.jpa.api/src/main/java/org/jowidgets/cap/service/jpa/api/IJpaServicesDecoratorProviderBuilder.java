@@ -30,6 +30,7 @@ package org.jowidgets.cap.service.jpa.api;
 
 import java.util.Collection;
 
+import org.jowidgets.cap.service.api.exception.IServiceExceptionLogger;
 import org.jowidgets.service.api.IServicesDecoratorProvider;
 import org.jowidgets.util.IDecorator;
 import org.jowidgets.util.IExceptionLogger;
@@ -78,7 +79,8 @@ public interface IJpaServicesDecoratorProviderBuilder {
 
 	@Deprecated
 	/**
-	 * @deprecated  Exceptions will be logged by jowidgets logging api from now
+	 * @deprecated  Exceptions will be logged by jowidgets logging api from now, 
+	 * use {@link #setExceptionLogger(IServiceExceptionLogger)} to change default behavior
 	 *
 	 * Sets the exception logger for the services 
 	 * @param logger The logger to set
@@ -86,6 +88,15 @@ public interface IJpaServicesDecoratorProviderBuilder {
 	 * @return The builder
 	 */
 	IJpaServicesDecoratorProviderBuilder setExceptionLogger(IExceptionLogger logger);
+
+	/**
+	 * Sets the exception logger for all services
+	 * 
+	 * @param logger The logger to set, may be null for default behavior
+	 * 
+	 * @return This builder
+	 */
+	IJpaServicesDecoratorProviderBuilder setExceptionLogger(IServiceExceptionLogger logger);
 
 	IJpaServicesDecoratorProviderBuilder setOrder(int order);
 

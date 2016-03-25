@@ -43,7 +43,9 @@ import org.jowidgets.cap.common.api.service.ILinkDeleterService;
 import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.service.IRefreshService;
 import org.jowidgets.cap.common.api.service.IUpdaterService;
+import org.jowidgets.cap.service.api.exception.IServiceExceptionLogger;
 import org.jowidgets.cap.service.jpa.api.IJpaServicesDecoratorProviderBuilder;
+import org.jowidgets.cap.service.tools.exception.DefaultServiceExceptionLogger;
 import org.jowidgets.service.api.IServicesDecoratorProvider;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.IDecorator;
@@ -51,12 +53,16 @@ import org.jowidgets.util.IExceptionLogger;
 
 final class JpaServicesDecoratorProviderBuilder implements IJpaServicesDecoratorProviderBuilder {
 
+	private static final IServiceExceptionLogger DEFAULT_SERVICE_EXCEPTION_LOGGER = new DefaultServiceExceptionLogger(
+		JpaServicesDecoratorProviderImpl.class.getName());
+
 	private final String persistenceUnitName;
 	private final Set<Class<?>> entityManagerServices;
 	private final Set<Class<?>> transactionalServices;
 	private final List<IDecorator<Throwable>> exceptionDecorators;
 
-	private IExceptionLogger exceptionLogger;
+	private IExceptionLogger deprecatedExceptionLogger;
+	private IServiceExceptionLogger exceptionLogger;
 
 	private int order;
 
@@ -68,7 +74,8 @@ final class JpaServicesDecoratorProviderBuilder implements IJpaServicesDecorator
 		this.transactionalServices = new HashSet<Class<?>>();
 		this.exceptionDecorators = new LinkedList<IDecorator<Throwable>>();
 		exceptionDecorators.add(new DefaultJpaExceptionDecorator());
-		this.exceptionLogger = new DefaultExceptionLogger();
+		this.deprecatedExceptionLogger = new DefaultLegacyExceptionLogger();
+		this.exceptionLogger = DEFAULT_SERVICE_EXCEPTION_LOGGER;
 
 		addEntityManagerServices(
 				ICreatorService.class,
@@ -140,8 +147,19 @@ final class JpaServicesDecoratorProviderBuilder implements IJpaServicesDecorator
 	@Override
 	public IJpaServicesDecoratorProviderBuilder setExceptionLogger(final IExceptionLogger exceptionLogger) {
 		Assert.paramNotNull(exceptionLogger, "logger");
-		this.exceptionLogger = exceptionLogger;
+		this.deprecatedExceptionLogger = exceptionLogger;
 		return this;
+	}
+
+	@Override
+	public IJpaServicesDecoratorProviderBuilder setExceptionLogger(final IServiceExceptionLogger exceptionLogger) {
+		if (exceptionLogger != null) {
+			this.exceptionLogger = exceptionLogger;
+		}
+		else {
+			this.exceptionLogger = DEFAULT_SERVICE_EXCEPTION_LOGGER;
+		}
+		return null;
 	}
 
 	@Override
@@ -157,6 +175,7 @@ final class JpaServicesDecoratorProviderBuilder implements IJpaServicesDecorator
 			entityManagerServices,
 			transactionalServices,
 			exceptionDecorators,
+			deprecatedExceptionLogger,
 			exceptionLogger,
 			order);
 	}
