@@ -30,6 +30,7 @@ package org.jowidgets.cap.service.neo4j.api;
 
 import java.util.Collection;
 
+import org.jowidgets.cap.service.api.exception.IServiceExceptionLogger;
 import org.jowidgets.service.api.IServicesDecoratorProvider;
 import org.jowidgets.util.IDecorator;
 import org.jowidgets.util.IExceptionLogger;
@@ -72,6 +73,15 @@ public interface INeo4JServicesDecoratorProviderBuilder {
 	 * @return The builder
 	 */
 	INeo4JServicesDecoratorProviderBuilder setExceptionLogger(IExceptionLogger logger);
+
+	/**
+	 * Sets the exception logger for all services
+	 * 
+	 * @param logger The logger to set, may be null for default behavior
+	 * 
+	 * @return This builder
+	 */
+	INeo4JServicesDecoratorProviderBuilder setExceptionLogger(IServiceExceptionLogger logger);
 
 	INeo4JServicesDecoratorProviderBuilder setOrder(int order);
 

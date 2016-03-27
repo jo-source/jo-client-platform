@@ -30,7 +30,7 @@ package org.jowidgets.cap.service.jpa.impl;
 
 import org.jowidgets.util.IExceptionLogger;
 
-final class DefaultLegacyExceptionLogger implements IExceptionLogger {
+final class DefaultDeprecatedExceptionLogger implements IExceptionLogger {
 
 	@Override
 	public void log(final Throwable exception) {}

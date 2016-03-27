@@ -30,7 +30,7 @@ package org.jowidgets.cap.service.neo4J.impl;
 
 import org.jowidgets.util.IExceptionLogger;
 
-final class DefaultExceptionLogger implements IExceptionLogger {
+final class DefaultDeprecatedExceptionLogger implements IExceptionLogger {
 
 	@Override
 	public void log(final Throwable exception) {}

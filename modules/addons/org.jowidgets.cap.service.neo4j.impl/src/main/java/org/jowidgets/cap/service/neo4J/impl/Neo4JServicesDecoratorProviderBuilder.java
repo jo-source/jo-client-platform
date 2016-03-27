@@ -41,7 +41,9 @@ import org.jowidgets.cap.common.api.service.IExecutorService;
 import org.jowidgets.cap.common.api.service.ILinkCreatorService;
 import org.jowidgets.cap.common.api.service.ILinkDeleterService;
 import org.jowidgets.cap.common.api.service.IUpdaterService;
+import org.jowidgets.cap.service.api.exception.IServiceExceptionLogger;
 import org.jowidgets.cap.service.neo4j.api.INeo4JServicesDecoratorProviderBuilder;
+import org.jowidgets.cap.service.tools.exception.DefaultServiceExceptionLogger;
 import org.jowidgets.service.api.IServicesDecoratorProvider;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.IDecorator;
@@ -49,10 +51,14 @@ import org.jowidgets.util.IExceptionLogger;
 
 final class Neo4JServicesDecoratorProviderBuilder implements INeo4JServicesDecoratorProviderBuilder {
 
+	private static final IServiceExceptionLogger DEFAULT_SERVICE_EXCEPTION_LOGGER = new DefaultServiceExceptionLogger(
+		Neo4JServicesDecoratorProviderBuilder.class.getName());
+
 	private final Set<Class<?>> transactionalServices;
 	private final List<IDecorator<Throwable>> exceptionDecorators;
 
-	private IExceptionLogger exceptionLogger;
+	private IServiceExceptionLogger exceptionLogger;
+	private IExceptionLogger deprecatedExceptionLogger;
 
 	private int order;
 
@@ -61,7 +67,8 @@ final class Neo4JServicesDecoratorProviderBuilder implements INeo4JServicesDecor
 		this.order = INeo4JServicesDecoratorProviderBuilder.DEFAULT_ORDER;
 		this.transactionalServices = new HashSet<Class<?>>();
 		this.exceptionDecorators = new LinkedList<IDecorator<Throwable>>();
-		this.exceptionLogger = new DefaultExceptionLogger();
+		this.deprecatedExceptionLogger = new DefaultDeprecatedExceptionLogger();
+		this.exceptionLogger = DEFAULT_SERVICE_EXCEPTION_LOGGER;
 
 		addTransactionalServices(
 				ICreatorService.class,
@@ -108,7 +115,18 @@ final class Neo4JServicesDecoratorProviderBuilder implements INeo4JServicesDecor
 	@Override
 	public INeo4JServicesDecoratorProviderBuilder setExceptionLogger(final IExceptionLogger exceptionLogger) {
 		Assert.paramNotNull(exceptionLogger, "logger");
-		this.exceptionLogger = exceptionLogger;
+		this.deprecatedExceptionLogger = exceptionLogger;
+		return this;
+	}
+
+	@Override
+	public INeo4JServicesDecoratorProviderBuilder setExceptionLogger(final IServiceExceptionLogger exceptionLogger) {
+		if (exceptionLogger != null) {
+			this.exceptionLogger = exceptionLogger;
+		}
+		else {
+			this.exceptionLogger = DEFAULT_SERVICE_EXCEPTION_LOGGER;
+		}
 		return this;
 	}
 
@@ -120,7 +138,12 @@ final class Neo4JServicesDecoratorProviderBuilder implements INeo4JServicesDecor
 
 	@Override
 	public IServicesDecoratorProvider build() {
-		return new Neo4JServicesDecoratorProviderImpl(transactionalServices, exceptionDecorators, exceptionLogger, order);
+		return new Neo4JServicesDecoratorProviderImpl(
+			transactionalServices,
+			exceptionDecorators,
+			deprecatedExceptionLogger,
+			exceptionLogger,
+			order);
 	}
 
 }

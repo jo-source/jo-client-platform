@@ -74,7 +74,7 @@ final class JpaServicesDecoratorProviderBuilder implements IJpaServicesDecorator
 		this.transactionalServices = new HashSet<Class<?>>();
 		this.exceptionDecorators = new LinkedList<IDecorator<Throwable>>();
 		exceptionDecorators.add(new DefaultJpaExceptionDecorator());
-		this.deprecatedExceptionLogger = new DefaultLegacyExceptionLogger();
+		this.deprecatedExceptionLogger = new DefaultDeprecatedExceptionLogger();
 		this.exceptionLogger = DEFAULT_SERVICE_EXCEPTION_LOGGER;
 
 		addEntityManagerServices(

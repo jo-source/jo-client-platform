@@ -40,9 +40,8 @@ import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.tools.proxy.AbstractCapServiceInvocationHandler;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
+import org.jowidgets.cap.service.api.exception.IServiceExceptionLogger;
 import org.jowidgets.cap.service.neo4j.api.GraphDBConfig;
-import org.jowidgets.logging.api.ILogger;
-import org.jowidgets.logging.api.LoggerProvider;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.IServicesDecoratorProvider;
 import org.jowidgets.util.Assert;
@@ -52,25 +51,27 @@ import org.neo4j.graphdb.Transaction;
 
 final class Neo4JServicesDecoratorProviderImpl implements IServicesDecoratorProvider {
 
-	private static final ILogger LOGGER = LoggerProvider.get(Neo4JServicesDecoratorProviderImpl.class);
-
 	private final Set<Class<?>> transactionalServices;
 	private final List<IDecorator<Throwable>> exceptionDecorators;
-	private final IExceptionLogger exceptionLogger;
+	private final IServiceExceptionLogger exceptionLogger;
+	private final IExceptionLogger deprecatedExceptionLogger;
 	private final int order;
 
 	Neo4JServicesDecoratorProviderImpl(
 		final Set<Class<?>> transactionalServices,
 		final List<IDecorator<Throwable>> exceptionDecorators,
-		final IExceptionLogger exceptionLogger,
+		final IExceptionLogger deprecatedExceptionLogger,
+		final IServiceExceptionLogger exceptionLogger,
 		final int order) {
 
 		Assert.paramNotNull(transactionalServices, "transactionalServices");
 		Assert.paramNotNull(exceptionDecorators, "exceptionDecorators");
+		Assert.paramNotNull(deprecatedExceptionLogger, "deprecatedExceptionLogger");
 		Assert.paramNotNull(exceptionLogger, "exceptionLogger");
 
 		this.transactionalServices = new HashSet<Class<?>>(transactionalServices);
 		this.exceptionDecorators = new LinkedList<IDecorator<Throwable>>(exceptionDecorators);
+		this.deprecatedExceptionLogger = deprecatedExceptionLogger;
 		this.exceptionLogger = exceptionLogger;
 		this.order = order;
 	}
@@ -99,10 +100,12 @@ final class Neo4JServicesDecoratorProviderImpl implements IServicesDecoratorProv
 
 	private final class Neo4JInvocationHandler extends AbstractCapServiceInvocationHandler {
 
+		private final Class<?> serviceType;
 		private final Object original;
 		private final boolean transactionalService;
 
 		private Neo4JInvocationHandler(final Class<?> serviceType, final Object original) {
+			this.serviceType = serviceType;
 			this.original = original;
 			this.transactionalService = transactionalServices.contains(serviceType);
 		}
@@ -208,13 +211,13 @@ final class Neo4JServicesDecoratorProviderImpl implements IServicesDecoratorProv
 
 		private Throwable decorateException(final Throwable exception, final IExecutionCallback executionCallback) {
 			if (executionCallback == null || !executionCallback.isCanceled()) {
-				LOGGER.error(exception);
-				exceptionLogger.log(exception);
+				deprecatedExceptionLogger.log(exception);
 			}
 			Throwable result = exception;
 			for (final IDecorator<Throwable> exceptionDecorator : exceptionDecorators) {
 				result = exceptionDecorator.decorate(result);
 			}
+			exceptionLogger.log(serviceType, exception, result);
 			return result;
 		}
 
