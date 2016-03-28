@@ -30,7 +30,7 @@ package org.jowidgets.cap.remoting.common;
 
 public final class RemotingBrokerId {
 
-	public static final String DEFAULT_BROKER_ID = RemotingBrokerId.class.getName() + "DEFAULT_REMOTING_BROKER_ID";
+	public static final String DEFAULT_BROKER_ID = RemotingBrokerId.class.getName() + "_DEFAULT_REMOTING_BROKER_ID";
 
 	private RemotingBrokerId() {}
 
