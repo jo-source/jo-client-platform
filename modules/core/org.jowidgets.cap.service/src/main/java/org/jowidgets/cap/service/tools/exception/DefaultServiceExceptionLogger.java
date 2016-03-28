@@ -28,6 +28,17 @@
 
 package org.jowidgets.cap.service.tools.exception;
 
+import org.jowidgets.cap.common.api.exception.AuthorizationFailedException;
+import org.jowidgets.cap.common.api.exception.BeanException;
+import org.jowidgets.cap.common.api.exception.BeanValidationException;
+import org.jowidgets.cap.common.api.exception.DeletedBeanException;
+import org.jowidgets.cap.common.api.exception.ExecutableCheckException;
+import org.jowidgets.cap.common.api.exception.ForeignKeyConstraintViolationException;
+import org.jowidgets.cap.common.api.exception.ServiceCanceledException;
+import org.jowidgets.cap.common.api.exception.ServiceException;
+import org.jowidgets.cap.common.api.exception.StaleBeanException;
+import org.jowidgets.cap.common.api.exception.UniqueConstraintViolationException;
+import org.jowidgets.cap.common.api.validation.IBeanValidationResult;
 import org.jowidgets.cap.service.api.exception.IServiceExceptionLogger;
 import org.jowidgets.logging.api.ILogger;
 import org.jowidgets.logging.api.LoggerProvider;
@@ -48,13 +59,191 @@ public class DefaultServiceExceptionLogger implements IServiceExceptionLogger {
 
 	@Override
 	public void log(final Class<?> serviceType, final Throwable original, final Throwable decorated) {
-		//TODO log with different log levels
+		if (!logServiceException(serviceType, original, decorated)) {
+			logUnknownException(serviceType, original, decorated);
+		}
+	}
 
-		logger.error("Error invoking service of type '" + serviceType + "'", decorated);
+	protected void logUnknownException(final Class<?> serviceType, final Throwable original, final Throwable decorated) {
+		logger.error("Unkwown exception invoking service of type '" + serviceType + "'", decorated);
 		if (original != decorated) {
 			logger.error("Caused by: ", original);
 		}
+	}
 
+	protected boolean logServiceException(final Class<?> serviceType, final Throwable original, final Throwable decorated) {
+		if (decorated instanceof ServiceException) {
+			final ServiceException serviceException = (ServiceException) decorated;
+			if (logServiceCanceledException(serviceType, original, serviceException)
+				|| logAuthorizationFailedException(serviceType, original, serviceException)
+				|| logBeanException(serviceType, original, serviceException)
+				|| logForeignKeyConstraintViolationException(serviceType, original, serviceException)) {
+				return true;
+			}
+			else {
+				//log as unknown exception
+				return false;
+			}
+		}
+		else {
+			return false;
+		}
+	}
+
+	protected boolean logServiceCanceledException(
+		final Class<?> serviceType,
+		final Throwable original,
+		final ServiceException serviceException) {
+		if (serviceException instanceof ServiceCanceledException) {
+			if (logger.isInfoEnabled()) {
+				logger.info("Service '" + serviceType + "' canceled by user");
+			}
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
+	protected boolean logAuthorizationFailedException(
+		final Class<?> serviceType,
+		final Throwable original,
+		final ServiceException serviceException) {
+		if (serviceException instanceof AuthorizationFailedException) {
+			if (logger.isInfoEnabled()) {
+				final AuthorizationFailedException authorizationException = (AuthorizationFailedException) serviceException;
+				logger.info("Authorization failed for '" + authorizationException.getAuthorisation() + "'");
+			}
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
+	protected boolean logBeanException(
+		final Class<?> serviceType,
+		final Throwable original,
+		final ServiceException serviceException) {
+		if (serviceException instanceof BeanException) {
+			final BeanException beanException = (BeanException) serviceException;
+			if (logBeanValidationException(serviceType, original, beanException)
+				|| logDeletedBeanException(serviceType, original, beanException)
+				|| logExecutableCheckException(serviceType, original, beanException)
+				|| logStaleBeanException(serviceType, original, beanException)) {
+				return true;
+			}
+			else {
+				//log as unknown exception
+				return false;
+			}
+		}
+		else {
+			return false;
+		}
+	}
+
+	protected boolean logBeanValidationException(
+		final Class<?> serviceType,
+		final Throwable original,
+		final BeanException beanException) {
+		if (beanException instanceof BeanValidationException) {
+			if (logger.isInfoEnabled()) {
+				final BeanValidationException beanValidationException = (BeanValidationException) beanException;
+				final IBeanValidationResult validationResult = beanValidationException.getValidationResult();
+				if (validationResult != null && validationResult.getValidationResult() != null) {
+					logger.info("Bean validation failed: "
+						+ validationResult.getValidationResult().getAll()
+						+ " for bean: "
+						+ beanValidationException.getBeanId());
+				}
+				else {
+					logger.info("Bean validation failed for bean: " + beanValidationException.getBeanId());
+				}
+			}
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
+	protected boolean logDeletedBeanException(
+		final Class<?> serviceType,
+		final Throwable original,
+		final BeanException beanException) {
+		if (beanException instanceof DeletedBeanException) {
+			if (logger.isInfoEnabled()) {
+				logger.info("Bean already deleted: " + beanException.getBeanId());
+			}
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
+	protected boolean logExecutableCheckException(
+		final Class<?> serviceType,
+		final Throwable original,
+		final BeanException beanException) {
+		if (beanException instanceof ExecutableCheckException) {
+			if (logger.isInfoEnabled()) {
+				logger.info("Executable check failed for bean: "
+					+ beanException.getBeanId()
+					+ " "
+					+ beanException.getUserMessage());
+			}
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
+	protected boolean logStaleBeanException(
+		final Class<?> serviceType,
+		final Throwable original,
+		final BeanException beanException) {
+		if (beanException instanceof StaleBeanException) {
+			if (logger.isInfoEnabled()) {
+				logger.info("Bean is stale: " + beanException.getBeanId());
+			}
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
+	protected boolean logForeignKeyConstraintViolationException(
+		final Class<?> serviceType,
+		final Throwable original,
+		final ServiceException decorated) {
+		if (decorated instanceof ForeignKeyConstraintViolationException) {
+			if (logger.isInfoEnabled()) {
+				logger.info("Foreign key constraint violation: " + decorated.getUserMessage());
+			}
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
+	protected boolean logUniqueConstraintViolationException(
+		final Class<?> serviceType,
+		final Throwable original,
+		final ServiceException decorated) {
+		if (decorated instanceof UniqueConstraintViolationException) {
+			if (logger.isInfoEnabled()) {
+				logger.info("Unique key constraint violation: " + decorated.getUserMessage());
+			}
+			return true;
+		}
+		else {
+			return false;
+		}
 	}
 
 }
