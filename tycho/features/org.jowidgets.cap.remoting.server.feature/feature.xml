@@ -2,7 +2,7 @@
 <feature
     id="org.jowidgets.cap.remoting.server.feature"
     label="jo-client-platform remoting server feature"
-    version="0.53.0">
+    version="0.53.1.qualifier">
 
 	<description url="http://www.example.com/description">
 		Feature that holds all cap remoting server bundles
