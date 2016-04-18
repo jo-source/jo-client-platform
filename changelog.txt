@@ -4,18 +4,18 @@ Features:
 
 * Set vendor for bundles to org.jowidgets
 * Beans will added and removed in batch mode after loading to improve performance
-* Fixed Issue #22 (https://github.com/jo-source/jo-client-platform/issues/22) Allow only to validate modified beans. Default setting NOT changed, features must explicitely activated.
+* Fixed issue #22 (https://github.com/jo-source/jo-client-platform/issues/22) Allow only to validate modified beans. Default settings NOT changed, features must explicitely activated.
 
 
 Bugfixes:
 
-* Fixed Issue #28 (https://github.com/jo-source/jo-client-platform/issues/28) Add link do not work for readonly properties
-* Fixed Issue #21 (https://github.com/jo-source/jo-client-platform/issues/21) Fixed ConcurentModificationException
-* Invalid beans must not become valid on undo modifications if they was invalid without modifaction
-* Fixed some validation issues, added some JUnit Tests for IBeanProxy validation
-* Fixed Issue #33 (https://github.com/jo-source/jo-client-platform/issues/33) timeout for login is to short
-* Fixed Issue #35 (https://github.com/jo-source/jo-client-platform/issues/35) NPE im BeanProxyImpl
-* Fixed Issue #34 (https://github.com/jo-source/jo-client-platform/issues/34) Missing Stacktrace in ServiceExceptions
+* Fixed issue #28 (https://github.com/jo-source/jo-client-platform/issues/28) Add link do not work for readonly properties
+* Fixed issue #21 (https://github.com/jo-source/jo-client-platform/issues/21) Fixed ConcurentModificationException
+* Invalid beans must not become valid on undo modifications if they was invalid without modification
+* Fixed some validation issues, added some JUnit tests for IBeanProxy validation
+* Fixed issue #33 (https://github.com/jo-source/jo-client-platform/issues/33) timeout for login is to short
+* Fixed issue #35 (https://github.com/jo-source/jo-client-platform/issues/35) NPE im BeanProxyImpl
+* Fixed issue #34 (https://github.com/jo-source/jo-client-platform/issues/34) Missing stacktrace in ServiceExceptions
 
 
 ----------------------------------------------------------------------------------------------------------------------------
@@ -24,7 +24,7 @@ Bugfixes:
 
 Features:
 
-* Use jowidgets logging api for logging (instead of individual logging handler and some sysautsch)+
+* Use jowidgets logging api for logging (instead of individual logging handler and some sysautsch)
 * Added IServiceExceptionLogger to decorate logging for default CRUD services
 
 
