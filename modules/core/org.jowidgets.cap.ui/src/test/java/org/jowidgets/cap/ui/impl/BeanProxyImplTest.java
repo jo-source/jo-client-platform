@@ -63,7 +63,7 @@ import org.jowidgets.cap.ui.impl.beans.PersonDtoDescriptorBuilder;
 import org.jowidgets.cap.ui.impl.beans.PersonNameValidator;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 import org.jowidgets.common.widgets.factory.ICustomWidgetFactory;
-import org.jowidgets.test.tools.TestLoggerProvider;
+import org.jowidgets.logging.api.TestLoggerProvider;
 import org.jowidgets.test.tools.TestToolkit;
 import org.jowidgets.tools.widgets.blueprint.BPF;
 import org.jowidgets.util.ValueHolder;
@@ -95,7 +95,7 @@ public class BeanProxyImplTest {
 
 	@Before
 	public void setUp() {
-		TestLoggerProvider.setUpLoggingBeforeTest();
+		TestLoggerProvider.setConsoleLoggerForCurrentThread();
 		TestToolkit.setUpToolkitBeforeTest();
 		this.personDescriptor = new PersonDtoDescriptorBuilder().build();
 		this.personAttributes = createAttributes(personDescriptor);
@@ -113,7 +113,7 @@ public class BeanProxyImplTest {
 	@After
 	public void tearDown() {
 		TestToolkit.tearDownToolkitAfterTest();
-		TestLoggerProvider.tearDownLoggingAfterTest();
+		TestLoggerProvider.clearLoggerForCurrentThread();
 	}
 
 	private IBeanProxy<IPerson> createPersonProxy(final IBeanDto beanDto) {
