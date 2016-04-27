@@ -45,6 +45,15 @@ Bugfixes:
 
 * Fixed tycho build
 
+----------------------------------------------------------------------------------------------------------------------------
+
+0.54.0 
+
+
+Features:
+
+* Allow to set save delegate on IDataModelContext
+
 
 
 
