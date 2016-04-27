@@ -76,6 +76,13 @@ public interface IDataModelContext {
 	void permitChangeAsync(IChangeResponse changeRespose, ICallback<Boolean> callback);
 
 	/**
+	 * Sets the delegate for save action
+	 * 
+	 * @param saveDelegate The delegate to set, must not be null
+	 */
+	void setSaveDelegate(IDataModelSaveDelegate saveDelegate);
+
+	/**
 	 * Dispose the context.
 	 */
 	void dispose();

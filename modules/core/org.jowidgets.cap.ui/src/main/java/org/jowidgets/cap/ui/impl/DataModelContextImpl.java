@@ -62,8 +62,8 @@ final class DataModelContextImpl implements IDataModelContext {
 
 	private final Set<IDataModel> selectionChangeModels;
 	private final Set<IDataModel> dataChangeModels;
-	private final IDataModelSaveDelegate saveDelegate;
 
+	private IDataModelSaveDelegate saveDelegate;
 	private boolean hasAsyncRequest;
 
 	DataModelContextImpl(
@@ -72,6 +72,7 @@ final class DataModelContextImpl implements IDataModelContext {
 		final IDataModelSaveDelegate saveDelegate) {
 		Assert.paramNotNull(rootModel, "rootModel");
 		Assert.paramNotNull(rootModelDepenency, "rootModelDepenency");
+		Assert.paramNotNull(saveDelegate, "saveDelegate");
 
 		this.selectionChangeModels = new LinkedHashSet<IDataModel>();
 		this.dataChangeModels = new LinkedHashSet<IDataModel>();
@@ -168,6 +169,12 @@ final class DataModelContextImpl implements IDataModelContext {
 		}
 		hasAsyncRequest = false;
 
+	}
+
+	@Override
+	public void setSaveDelegate(final IDataModelSaveDelegate saveDelegate) {
+		Assert.paramNotNull(saveDelegate, "saveDelegate");
+		this.saveDelegate = saveDelegate;
 	}
 
 	private boolean shouldDataBeRefused() {
