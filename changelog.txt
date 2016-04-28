@@ -54,6 +54,10 @@ Features:
 
 * Allow to set save delegate on IDataModelContext
 
+Bugfixes:
+
+* Fixed Issue #38 https://github.com/jo-source/jo-client-platform/issues/38 NPE after executing query which contains whitespaces 
+
 
 
 
