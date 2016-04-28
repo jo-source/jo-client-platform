@@ -649,17 +649,22 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 			int index = 0;
 			for (Object param : filter.getParameters()) {
 				param = getConvertedParameter(param, converter);
-				final String paramString = (String) param;
-				if (paramString.contains("*") || paramString.contains("%")) {
-					havePlaceholder = true;
-				}
-				if (caseInsensitive) {
-					newParams.add(paramString.toUpperCase());
+				if (param != null) {
+					final String paramString = (String) param;
+					if (paramString.contains("*") || paramString.contains("%")) {
+						havePlaceholder = true;
+					}
+					if (caseInsensitive) {
+						newParams.add(paramString.toUpperCase());
+					}
+					else {
+						newParams.add(paramString);
+					}
+					predicates[index] = createEqualPredicate(criteriaBuilder, filter, path, false, param);
 				}
 				else {
-					newParams.add(paramString);
+					predicates[index] = createEmptyPredicate(criteriaBuilder, filter, path, false);
 				}
-				predicates[index] = createEqualPredicate(criteriaBuilder, filter, path, false, param);
 				index++;
 			}
 			if (havePlaceholder) {//if the string have placeholders, use disjunction instead
