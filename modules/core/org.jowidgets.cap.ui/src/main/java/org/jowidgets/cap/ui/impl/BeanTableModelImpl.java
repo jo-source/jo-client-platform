@@ -157,6 +157,7 @@ import org.jowidgets.tools.model.table.TableModel;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.CollectionUtils;
 import org.jowidgets.util.EmptyCheck;
+import org.jowidgets.util.EmptyCompatibleEquivalence;
 import org.jowidgets.util.IProvider;
 import org.jowidgets.util.Interval;
 import org.jowidgets.util.NullCompatibleEquivalence;
@@ -2987,9 +2988,10 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 					data.put(Integer.valueOf(pageIndex), newPage);
 				}
 			}
-			beansStateTracker.unregister(beansToUnregister);
 
+			beansStateTracker.unregister(beansToUnregister);
 			if (dataChanged) {
+
 				//change the row count to the new row count
 				rowCount = startPageIndex * pageSize + resultBeanDtos.size();
 
@@ -3047,13 +3049,14 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			if (!(oldBean.getId().equals(newBean.getId()))) {
 				return true;
 			}
-			if (!(oldBean.getVersion() != newBean.getVersion())) {
+			if (oldBean.getVersion() != newBean.getVersion()) {
 				return true;
 			}
 			for (final String propertyName : oldBean.getProperties()) {
 				final Object oldValue = oldBean.getValue(propertyName);
 				final Object newValue = newBean.getValue(propertyName);
-				if (!NullCompatibleEquivalence.equals(oldValue, newValue)) {
+				if (!IBeanProxy.ALL_META_ATTRIBUTES.contains(propertyName)
+					&& !EmptyCompatibleEquivalence.equals(oldValue, newValue)) {
 					return true;
 				}
 			}
