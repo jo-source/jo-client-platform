@@ -163,8 +163,8 @@ public final class JpaEntityService extends AbstractEntityService implements IEn
 
 		builder.setRefreshService(CapServiceToolkit.refreshServiceBuilder(beanAccess).setBeanDtoFactory(propertyNames).build());
 
-		final IUpdaterService updaterService = CapServiceToolkit.updaterServiceBuilder(beanAccess).setBeanDtoFactoryAndBeanModifier(
-				propertyNames).build();
+		final IUpdaterService updaterService = CapServiceToolkit.updaterServiceBuilder(
+				beanAccess).setBeanDtoFactoryAndBeanModifier(propertyNames).build();
 		builder.setUpdaterService(tpf.createProxy(updaterService, "update"));
 
 		return builder.build();

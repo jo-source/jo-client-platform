@@ -28,7 +28,9 @@
 
 package org.jowidgets.cap.service.spring;
 
+import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.service.api.annotation.CapService;
+import org.jowidgets.cap.service.spring.jpa.JpaMultiEntityService;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.tools.ServiceId;
 import org.springframework.beans.factory.ListableBeanFactory;
@@ -53,8 +55,8 @@ public final class ServicePostProcessor implements BeanPostProcessor, Applicatio
 				}
 				else {
 					if (bean.getClass().getInterfaces().length == 0) {
-						throw new RuntimeException(beanName
-							+ " must implement at least one interface or type must be set on @CapService annotation");
+						throw new RuntimeException(
+							beanName + " must implement at least one interface or type must be set on @CapService annotation");
 					}
 					serviceType = bean.getClass().getInterfaces()[0];
 				}
@@ -62,8 +64,16 @@ public final class ServicePostProcessor implements BeanPostProcessor, Applicatio
 				if (id.isEmpty()) {
 					id = serviceType.getName();
 				}
-				final IServiceId<Object> serviceId = new ServiceId<Object>(id, serviceType);
-				SpringServiceProvider.getInstance().addService(serviceId, beanProxyFactory.createProxy(beanName, serviceType));
+				final Object createProxy = beanProxyFactory.createProxy(beanName, serviceType);
+				if (id.equals(IEntityService.class.getName())) {
+					if (createProxy instanceof IEntityService) {
+						getMultiService().addJpaEntityService((IEntityService) createProxy);
+					}
+				}
+				else {
+					final IServiceId<Object> serviceId = new ServiceId<Object>(id, serviceType);
+					SpringServiceProvider.getInstance().addService(serviceId, createProxy);
+				}
 			}
 		}
 		catch (final NoSuchBeanDefinitionException e) {
@@ -80,6 +90,19 @@ public final class ServicePostProcessor implements BeanPostProcessor, Applicatio
 	public void setApplicationContext(final ApplicationContext applicationContext) {
 		beanFactory = applicationContext;
 		beanProxyFactory = new BeanProxyFactory(beanFactory);
+	}
+
+	private JpaMultiEntityService getMultiService() {
+		JpaMultiEntityService multiService = null;
+		final IEntityService service = SpringServiceProvider.getInstance().get(IEntityService.ID);
+		if (service == null || !(service instanceof JpaMultiEntityService)) {
+			multiService = new JpaMultiEntityService();
+			SpringServiceProvider.getInstance().addService(IEntityService.ID, multiService);
+		}
+		else {
+			multiService = (JpaMultiEntityService) service;
+		}
+		return multiService;
 	}
 
 }
