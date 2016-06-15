@@ -72,3 +72,15 @@ Bugfixes:
 * Bugfix: Avoid that beans always identified as changed after loading in background
 * Fixed issue #40 https://github.com/jo-source/jo-client-platform/issues/40 userQuestion in decorated service leads to client freeze
 
+----------------------------------------------------------------------------------------------------------------------------
+
+0.56.0 
+
+
+Features:
+
+
+Bugfixes:
+
+* Fixed issue #24 https://github.com/jo-source/jo-client-platform/issues/24 Handling of ServiceCanceledException for Service decorators
+
