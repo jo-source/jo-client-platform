@@ -114,7 +114,7 @@ final class ExecutionTask implements IExecutionTask, IUserAnswerCallback, Serial
 	}
 
 	@Override
-	public synchronized UserQuestionResult userQuestion(final String question) {
+	public UserQuestionResult userQuestion(final String question) {
 		Assert.paramNotNull(question, "question");
 		this.userQuestion = question;
 		userQuestionWaitThread = new Thread(new Runnable() {
@@ -165,12 +165,10 @@ final class ExecutionTask implements IExecutionTask, IUserAnswerCallback, Serial
 
 		if (userQuestionCallback != null) {
 			userQuestionCallback.questionAnswered(result);
-			//TODO MG is this necessary?
 			userQuestionCallback = null;
 		}
 		else if (userQuestionWaitThread != null) {
 			userQuestionWaitThread.interrupt();
-			//TODO MG is this necessary?
 			userQuestionWaitThread = null;
 		}
 		else {

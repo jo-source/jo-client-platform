@@ -59,6 +59,16 @@ Bugfixes:
 * Fixed Issue #38 https://github.com/jo-source/jo-client-platform/issues/38 NPE after executing query which contains whitespaces 
 
 
+----------------------------------------------------------------------------------------------------------------------------
+
+0.55.0 
 
 
+Features:
+
+
+Bugfixes:
+
+* Bugfix: Avoid that beans always identified as changed after loading in background
+* Fixed issue #40 https://github.com/jo-source/jo-client-platform/issues/40 userQuestion in decorated service leads to client freeze
 

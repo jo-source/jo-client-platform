@@ -36,7 +36,6 @@ import org.jowidgets.cap.ui.api.execution.IExecutionTask;
 import org.jowidgets.cap.ui.api.execution.IExecutionTaskFactory;
 import org.jowidgets.cap.ui.api.execution.IExecutionTaskListener;
 import org.jowidgets.cap.ui.api.execution.IUserAnswerCallback;
-import org.jowidgets.util.ValueHolder;
 
 final class ExecutionTaskFactory implements IExecutionTaskFactory {
 
@@ -61,27 +60,19 @@ final class ExecutionTaskFactory implements IExecutionTaskFactory {
 
 		@Override
 		public void userQuestionAsked(final String question, final IUserAnswerCallback callback) {
-			final ValueHolder<QuestionResult> resultHolder = new ValueHolder<QuestionResult>();
-			try {
-				uiThreadAccess.invokeAndWait(new Runnable() {
-					@Override
-					public void run() {
-						final QuestionResult result = Toolkit.getQuestionPane().askYesNoQuestion(question);
-						resultHolder.set(result);
+			uiThreadAccess.invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					final QuestionResult result = Toolkit.getQuestionPane().askYesNoQuestion(question);
+
+					if (QuestionResult.YES == result) {
+						callback.setQuestionResult(UserQuestionResult.YES);
 					}
-				});
-			}
-			catch (final InterruptedException e) {
-				callback.setQuestionResult(UserQuestionResult.NO);
-			}
-
-			if (QuestionResult.YES == resultHolder.get()) {
-				callback.setQuestionResult(UserQuestionResult.YES);
-			}
-			else {
-				callback.setQuestionResult(UserQuestionResult.NO);
-			}
-
+					else {
+						callback.setQuestionResult(UserQuestionResult.NO);
+					}
+				}
+			});
 		}
 
 		@Override
