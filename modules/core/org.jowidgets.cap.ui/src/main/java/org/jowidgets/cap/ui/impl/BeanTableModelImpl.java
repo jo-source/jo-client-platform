@@ -276,7 +276,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		final boolean validateUnmodifiedBeans,
 		final String labelSingular,
 		final String labelPlural,
-		List<IAttribute<Object>> attributes,
+		final List<IAttribute<Object>> attributes,
 		final ISortModelConfig sortModelConfig,
 		final IReaderService<? extends Object> readerService,
 		final IProvider<? extends Object> paramProvider,
@@ -344,18 +344,21 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		});
 
 		//inject table model plugins
-		attributes = createModifiedByPluginsAttributes(entityId, (Class<BEAN_TYPE>) beanType, attributes);
+		List<IAttribute<Object>> modifiedAttributes = createModifiedByPluginsAttributes(
+				entityId,
+				(Class<BEAN_TYPE>) beanType,
+				attributes);
 
 		//if no updater service available, set all attributes to editable false
 		if (updaterService == null && creatorService == null) {
-			attributes = createReadonlyAttributes(attributes);
+			modifiedAttributes = createReadonlyAttributes(modifiedAttributes);
 		}
 
-		this.attributeSet = AttributeSet.create(attributes);
+		this.attributeSet = AttributeSet.create(modifiedAttributes);
 
 		final List<String> mutablePropertyNames = new LinkedList<String>();
 		this.defaultValues = new HashMap<String, Object>();
-		for (final IAttribute<?> attribute : attributes) {
+		for (final IAttribute<?> attribute : modifiedAttributes) {
 			final String propertyName = attribute.getPropertyName();
 			mutablePropertyNames.add(propertyName);
 			final Object defaultValue = attribute.getDefaultValue();
@@ -401,7 +404,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 		this.beanPropertyValidators = new LinkedList<IBeanPropertyValidator<BEAN_TYPE>>();
 		this.beanPropertyValidatorsView = Collections.unmodifiableList(beanPropertyValidators);
-		beanPropertyValidators.add(new AttributesBeanPropertyValidator<BEAN_TYPE>(attributes));
+		beanPropertyValidators.add(new AttributesBeanPropertyValidator<BEAN_TYPE>(modifiedAttributes));
 		for (final IBeanValidator<BEAN_TYPE> beanValidator : beanValidators) {
 			addBeanValidator(beanValidator);
 		}
@@ -411,14 +414,14 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		sortModel.addChangeListener(sortModelChangeListener);
 
 		//model creation
-		this.columnModel = createColumnModel(attributes);
+		this.columnModel = createColumnModel(modifiedAttributes);
 		this.dataModel = new DataModel(cellRenderers);
 		dataModel.addDataModelListener(tableDataModelListener);
 		this.tableModel = new TableModel(columnModel, dataModel);
 
 		//add some listeners
 		this.lookUpListenersStrongRef = new HashSet<AttributeLookUpListener>();
-		addAttributeListeners(attributes, lookUpListenersStrongRef);
+		addAttributeListeners(modifiedAttributes, lookUpListenersStrongRef);
 
 		//update the columns
 		updateColumnModel();
@@ -491,6 +494,10 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	@Override
 	public IEnabledChecker getDataAddableChecker() {
 		return parentSelectionAddabledChecker;
+	}
+
+	void setScheduledExecutorService(final ScheduledExecutorService scheduledExecutorService) {
+		this.scheduledExecutorService = scheduledExecutorService;
 	}
 
 	private void setLastBeanByParentState() {
@@ -687,7 +694,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	public void dispose() {
 		if (!disposed) {
 			tryCancelAutoRefreshExecutionTask();
-			tryToCanceLoader();
+			tryToCancelLoader();
 			disposeObservable.fireOnDispose();
 			lastSelectedBeans.clear();
 			data.clear();
@@ -798,7 +805,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			throw new IllegalStateException("Clear must be invoked in the ui thread");
 		}
 
-		tryToCanceLoader();
+		tryToCancelLoader();
 		lastSelectedBeans.clear();
 		removeSelection();
 		rowCount = 0;
@@ -839,8 +846,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			clear();
 		}
 		else {
-			tryToCanceLoader();
-			lastSelectedBeans.clear();
+			tryToCancelLoader();
 			lastSelectedBeans.addAll(removeSelection());
 			beansStateTracker.clearAll();
 			if (rowCount == 0) {
@@ -992,15 +998,20 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		if (autoDisposeInvisiblePages) {
 			int newMaxPage = 0;
 			final Set<Integer> selectedPages = getSelectedPages();
+
 			for (final Integer pageIndexW : new ArrayList<Integer>(data.keySet())) {
 				final int pageIndex = pageIndexW.intValue();
+
 				if (!selectedPages.contains(pageIndexW) && (pageIndex < visiblePageIndex - 1 || pageIndex > visiblePageIndex + 1)) {
+
 					removePage(pageIndex);
 				}
+
 				else {
 					newMaxPage = Math.max(newMaxPage, pageIndex);
 				}
 			}
+
 			maxPageIndex = newMaxPage;
 		}
 	}
@@ -1039,7 +1050,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		}
 	}
 
-	private void tryToCanceLoader() {
+	private void tryToCancelLoader() {
 		tryToCancelBackgroundPageLoader();
 		tryToCancelProgrammaticPageLoader();
 		tryToCancelCountLoader();
@@ -1329,7 +1340,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	private List<IBeanProxy<BEAN_TYPE>> removeBeansImpl(final Iterable<? extends IBeanDto> beans, final boolean fireEvents) {
 		Assert.paramNotNull(beans, "beans");
 		//data structure must rebuild, so do not load until this happens
-		tryToCanceLoader();
+		tryToCancelLoader();
 
 		final List<IBeanProxy<BEAN_TYPE>> selectedBeans = getSelectedBeans();
 		final List<Integer> newSelection = new LinkedList<Integer>();
