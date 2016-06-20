@@ -119,9 +119,8 @@ final class JpaServicesDecoratorProviderImpl implements IServicesDecoratorProvid
 	private EntityManagerFactory getEntityManagerFactory() {
 		final EntityManagerFactory result = EntityManagerFactoryProvider.get(persistenceUnitName);
 		if (result == null) {
-			throw new IllegalArgumentException("Could not create an EntityManagerFactory for persistence unit name '"
-				+ persistenceUnitName
-				+ "'.");
+			throw new IllegalArgumentException(
+				"Could not create an EntityManagerFactory for persistence unit name '" + persistenceUnitName + "'.");
 		}
 		return result;
 	}
@@ -141,7 +140,8 @@ final class JpaServicesDecoratorProviderImpl implements IServicesDecoratorProvid
 		}
 
 		@Override
-		protected Object invokeSyncSignature(final Method method, final Object[] args, final IExecutionCallback executionCallback) throws Throwable {
+		protected Object invokeSyncSignature(final Method method, final Object[] args, final IExecutionCallback executionCallback)
+				throws Throwable {
 			Tuple<EntityManager, Boolean> entityManagerTuple = null;
 			Tuple<EntityTransaction, Boolean> transactionTuple = null;
 			try {
@@ -293,7 +293,11 @@ final class JpaServicesDecoratorProviderImpl implements IServicesDecoratorProvid
 		private Tuple<EntityManager, Boolean> entityManagerBegin() {
 			boolean created = false;
 			EntityManager entityManager = EntityManagerHolder.get();
-			if (entityManagerService && entityManager == null) {
+			if (entityManagerService
+				&& (entityManager == null
+					|| (entityManager != null
+						&& !entityManager.getEntityManagerFactory().getPersistenceUnitUtil().toString().equals(
+								persistenceUnitName)))) {
 				entityManager = getEntityManagerFactory().createEntityManager();
 				EntityManagerHolder.set(entityManager);
 				created = true;
