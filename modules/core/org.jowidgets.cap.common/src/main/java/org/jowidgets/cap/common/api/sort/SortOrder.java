@@ -37,7 +37,7 @@ public enum SortOrder {
 
 	private IMessage label;
 
-	private SortOrder(final IMessage label) {
+	SortOrder(final IMessage label) {
 		this.label = label;
 	}
 

@@ -67,7 +67,8 @@ final class BeanGraphAttributeListImpl extends CompositeWrapper {
 	private static final IColorConstant ATTRIBUTE_HEADER_BACKGROUND = new ColorValue(6, 27, 95);
 	private static final IColorConstant ATTRIBUTE_GROUP_BACKGROUND = new ColorValue(200, 220, 255);
 
-	private static final ITextLabelBluePrint LABEL_HEADER = BPF.textLabel().setColor(Colors.WHITE).setMarkup(Markup.STRONG).alignCenter();
+	private static final ITextLabelBluePrint LABEL_HEADER = BPF.textLabel().setColor(Colors.WHITE).setMarkup(
+			Markup.STRONG).alignCenter();
 	private static final ITextLabelBluePrint LABEL_ALL = BPF.textLabel().alignLeft().setMarkup(Markup.STRONG);
 	private static final ITextLabelBluePrint LABEL_GROUP = BPF.textLabel().setAlignment(AlignmentHorizontal.LEFT);
 	private static final ICheckBoxBluePrint CHECK_BOCK_PB = BPF.checkBox().alignCenter();
@@ -153,7 +154,7 @@ final class BeanGraphAttributeListImpl extends CompositeWrapper {
 
 		private final ICheckBox checkBox;
 
-		public AllAttributeComposite(final IContainer container) {
+		AllAttributeComposite(final IContainer container) {
 			super(container);
 			setBackgroundColor(row ? ATTRIBUTE_GROUP_BACKGROUND : Colors.WHITE);
 			row = !row;
@@ -186,7 +187,7 @@ final class BeanGraphAttributeListImpl extends CompositeWrapper {
 
 	private final class AttributeHeaderComposite extends ContainerWrapper {
 
-		public AttributeHeaderComposite(final IContainer container) {
+		AttributeHeaderComposite(final IContainer container) {
 			super(container);
 			setBackgroundColor(ATTRIBUTE_HEADER_BACKGROUND);
 			setLayout(attributeLayoutManager.rowBuilder().build());
@@ -200,7 +201,7 @@ final class BeanGraphAttributeListImpl extends CompositeWrapper {
 
 		private final ICheckBox checkBox;
 
-		public AttributeGroupComposite(final IContainer container, final String key, final boolean selected, final boolean row) {
+		AttributeGroupComposite(final IContainer container, final String key, final boolean selected, final boolean row) {
 			super(container);
 			final int[] color = groupColorMap.get(key);
 			setBackgroundColor(new ColorValue(color[0], color[1], color[2]));
@@ -238,7 +239,7 @@ final class BeanGraphAttributeListImpl extends CompositeWrapper {
 
 		private final ICheckBox checkBox;
 
-		public AttributeEdgeComposite(final IContainer container, final String key, final boolean selected, final boolean row) {
+		AttributeEdgeComposite(final IContainer container, final String key, final boolean selected, final boolean row) {
 			super(container);
 			setBackgroundColor(row ? ATTRIBUTE_GROUP_BACKGROUND : Colors.WHITE);
 			setLayout(attributeLayoutManager.rowBuilder().build());

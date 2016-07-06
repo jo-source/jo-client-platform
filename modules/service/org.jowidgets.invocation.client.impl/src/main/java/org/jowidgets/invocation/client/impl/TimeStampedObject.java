@@ -33,7 +33,7 @@ final class TimeStampedObject<OBJECT_TYPE> {
 	private final OBJECT_TYPE object;
 	private final long timestamp;
 
-	public TimeStampedObject(final OBJECT_TYPE object) {
+	TimeStampedObject(final OBJECT_TYPE object) {
 		this.object = object;
 		this.timestamp = System.currentTimeMillis();
 	}

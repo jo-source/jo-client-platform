@@ -47,7 +47,7 @@ final class LinkDeleterServiceProxy implements ILinkDeleterService, Serializable
 
 	private ILinkDeleterService original;
 
-	public LinkDeleterServiceProxy(final IServiceId<ILinkDeleterService> serviceId) {
+	LinkDeleterServiceProxy(final IServiceId<ILinkDeleterService> serviceId) {
 		Assert.paramNotNull(serviceId, "serviceId");
 		this.serviceId = serviceId;
 	}

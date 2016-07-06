@@ -61,7 +61,7 @@ public enum ArithmeticOperator implements IOperator {
 	private final IMessage label;
 	private final IMessage labelLong;
 
-	private ArithmeticOperator(final IMessage label, final IMessage labelLong) {
+	ArithmeticOperator(final IMessage label, final IMessage labelLong) {
 		this.label = label;
 		this.labelLong = labelLong;
 	}

@@ -39,7 +39,7 @@ final class MessageChannelBroker implements IMessageChannelBroker {
 	private final Object brokerId;
 	private final IMessageChannel messageProducer;
 
-	public MessageChannelBroker(final Object brokerId, final Peer peer, final Peer receiverPeer, final Executor executor) {
+	MessageChannelBroker(final Object brokerId, final Peer peer, final Peer receiverPeer, final Executor executor) {
 		Assert.paramNotNull(brokerId, "brokerId");
 		Assert.paramNotNull(executor, "executor");
 		this.brokerId = brokerId;

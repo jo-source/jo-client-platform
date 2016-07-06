@@ -141,7 +141,7 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 	}
 
 	@SuppressWarnings("unchecked")
-	public AttributeBuilderImpl(final IProperty property) {
+	AttributeBuilderImpl(final IProperty property) {
 		this();
 		Assert.paramNotNull(property, "property");
 		this.valueType = property.getValueType();
@@ -396,10 +396,11 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 	@Override
 	public IControlPanelProviderBluePrint<ELEMENT_VALUE_TYPE> setControlPanel() {
 		this.controlPanels.clear();
-		return addControlPanel(new DisplayFormatImpl(
-			ControlPanelProviderBuilderImpl.DEFAULT_DISPLAY_FORMAT_ID,
-			ControlPanelProviderBuilderImpl.DEFAULT_DISPLAY_NAME,
-			null));
+		return addControlPanel(
+				new DisplayFormatImpl(
+					ControlPanelProviderBuilderImpl.DEFAULT_DISPLAY_FORMAT_ID,
+					ControlPanelProviderBuilderImpl.DEFAULT_DISPLAY_NAME,
+					null));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -438,8 +439,10 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 
 			if (controlSupport != null) {
 				for (final IInputControlProvider<ELEMENT_VALUE_TYPE> controlProvider : controlSupport.getControls()) {
-					final IObjectLabelConverter<ELEMENT_VALUE_TYPE> objectLabelConverter = controlProvider.getObjectLabelConverter(valueRange);
-					final IStringObjectConverter<ELEMENT_VALUE_TYPE> stringObjectConverter = controlProvider.getStringObjectConverter(valueRange);
+					final IObjectLabelConverter<ELEMENT_VALUE_TYPE> objectLabelConverter = controlProvider.getObjectLabelConverter(
+							valueRange);
+					final IStringObjectConverter<ELEMENT_VALUE_TYPE> stringObjectConverter = controlProvider.getStringObjectConverter(
+							valueRange);
 					final ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> elementControlCreator = controlProvider.getControlCreator(
 							objectLabelConverter,
 							stringObjectConverter,
@@ -461,9 +464,10 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 						&& Cardinality.LESS_OR_EQUAL_ONE == cardinality
 						&& collectionControlCreator != null
 						&& elementControlCreator != null) {
-						builder.setCollectionControlCreator(new CombinedCollectionControlCreator<ELEMENT_VALUE_TYPE>(
-							elementControlCreator,
-							collectionControlCreator));
+						builder.setCollectionControlCreator(
+								new CombinedCollectionControlCreator<ELEMENT_VALUE_TYPE>(
+									elementControlCreator,
+									collectionControlCreator));
 					}
 					else {
 						builder.setCollectionControlCreator(collectionControlCreator);
@@ -544,17 +548,17 @@ final class AttributeBuilderImpl<ELEMENT_VALUE_TYPE> implements IAttributeBuilde
 			}
 			else if (object instanceof ControlPanelProviderBluePrintImpl) {
 				final ControlPanelProviderBluePrintImpl<?> bluePrint = (ControlPanelProviderBluePrintImpl<?>) object;
-				panels.add((IControlPanelProvider<? extends ELEMENT_VALUE_TYPE>) bluePrint.create(
-						propertyName,
-						valueType,
-						elementValueType,
-						valueRange,
-						currentCardinality));
+				panels.add(
+						(IControlPanelProvider<? extends ELEMENT_VALUE_TYPE>) bluePrint.create(
+								propertyName,
+								valueType,
+								elementValueType,
+								valueRange,
+								currentCardinality));
 			}
 			else {
-				throw new IllegalStateException("Control panel type '"
-					+ object.getClass().getName()
-					+ "' is not supported. This seems to be a bug.");
+				throw new IllegalStateException(
+					"Control panel type '" + object.getClass().getName() + "' is not supported. This seems to be a bug.");
 			}
 		}
 

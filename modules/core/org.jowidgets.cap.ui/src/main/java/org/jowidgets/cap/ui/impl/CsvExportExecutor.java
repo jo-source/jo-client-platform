@@ -138,7 +138,7 @@ class CsvExportExecutor<BEAN_TYPE> implements IExecutor<BEAN_TYPE, ICsvExportPar
 		private final long version;
 		private final Map<String, Object> values;
 
-		public BeanDto(final IBeanProxy<?> bean, final Collection<String> properties) {
+		BeanDto(final IBeanProxy<?> bean, final Collection<String> properties) {
 
 			this.id = bean.getId();
 			this.version = bean.getVersion();

@@ -307,8 +307,11 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 			@Override
 			public void componentResized(final ComponentEvent e) {
 				display.setSize(swingContainer.getSize());
-				nodeCountLabel.setBounds(display.getWidth() - (NODECOUNTLABEL_WIDTH + 1), display.getHeight()
-					- (NODECOUNTLABEL_HEIGHT + 1), NODECOUNTLABEL_WIDTH, NODECOUNTLABEL_HEIGHT);
+				nodeCountLabel.setBounds(
+						display.getWidth() - (NODECOUNTLABEL_WIDTH + 1),
+						display.getHeight() - (NODECOUNTLABEL_HEIGHT + 1),
+						NODECOUNTLABEL_WIDTH,
+						NODECOUNTLABEL_HEIGHT);
 			}
 
 			@Override
@@ -453,8 +456,11 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 	private Component initializeLayeredPane() {
 		final JLayeredPane finalContainer = new JLayeredPane();
 		nodeCountLabel = new JLabel(" NodeCount: " + getVisibleNodeCount() + " / " + maxNodeCount);
-		nodeCountLabel.setBounds(display.getWidth() - (NODECOUNTLABEL_WIDTH + 1), display.getHeight()
-			- (NODECOUNTLABEL_HEIGHT + 1), NODECOUNTLABEL_WIDTH, NODECOUNTLABEL_HEIGHT);
+		nodeCountLabel.setBounds(
+				display.getWidth() - (NODECOUNTLABEL_WIDTH + 1),
+				display.getHeight() - (NODECOUNTLABEL_HEIGHT + 1),
+				NODECOUNTLABEL_WIDTH,
+				NODECOUNTLABEL_HEIGHT);
 		nodeCountLabel.setBorder(BorderFactory.createEtchedBorder(Color.black, Color.lightGray));
 		nodeCountLabel.setOpaque(true);
 
@@ -489,10 +495,8 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		final double addition = (secondIcon) ? EXPAND_ICON_SIZE * scale : 0;
 		final boolean result = ((e.getX() > (item.getBounds().getX() * scale + ((1 * scale) + addition) - display.getDisplayX()))
 			&& (e.getX()) < (item.getBounds().getX() * scale + ((EXPAND_ICON_SIZE * scale) + addition) - display.getDisplayX())
-			&& (e.getY()) > item.getBounds().getY() * scale - display.getDisplayY() && (e.getY()) < item.getBounds().getY()
-			* scale
-			+ (EXPAND_ICON_SIZE * scale)
-			- display.getDisplayY());
+			&& (e.getY()) > item.getBounds().getY() * scale - display.getDisplayY()
+			&& (e.getY()) < item.getBounds().getY() * scale + (EXPAND_ICON_SIZE * scale) - display.getDisplayY());
 		return result;
 	}
 
@@ -823,7 +827,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 
 		private final IBeanRelationNodeModel<Object, Object> relationNodeModel;
 
-		public ChildModelListener(final IBeanRelationNodeModel<Object, Object> relationNodeModel) {
+		ChildModelListener(final IBeanRelationNodeModel<Object, Object> relationNodeModel) {
 			this.relationNodeModel = relationNodeModel;
 		}
 
@@ -837,7 +841,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		private final IBeanRelationNodeModel<Object, Object> relationNodeModel;
 		private final int level;
 
-		public ExpandLevelNodeListener(final IBeanRelationNodeModel<Object, Object> relationNodeModel, final int level) {
+		ExpandLevelNodeListener(final IBeanRelationNodeModel<Object, Object> relationNodeModel, final int level) {
 			this.relationNodeModel = relationNodeModel;
 			this.level = level;
 		}
@@ -1244,8 +1248,8 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		node.set("tooltip", label.getText());
 		node.set(
 				"name",
-				(label.getText().length() > MAX_LABELTEXT_LENGTH) ? label.getText().substring(0, MAX_LABELTEXT_LENGTH - 1)
-					+ "..." : label.getText());
+				(label.getText().length() > MAX_LABELTEXT_LENGTH)
+						? label.getText().substring(0, MAX_LABELTEXT_LENGTH - 1) + "..." : label.getText());
 		node.set("level", node.getDepth());
 	}
 
@@ -1278,7 +1282,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 	private static class ImageSelection implements Transferable {
 		private final Image image;
 
-		public ImageSelection(final Image image) {
+		ImageSelection(final Image image) {
 			this.image = image;
 		}
 
@@ -1306,7 +1310,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		private final List<Node> formerLastNodes = new LinkedList<Node>();
 		private final List<Node> lastNodes = new LinkedList<Node>();
 
-		public AutoExpandLevelVisibilityAction(final String group) {
+		AutoExpandLevelVisibilityAction(final String group) {
 			super(group);
 		}
 
@@ -1372,7 +1376,8 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 					final Iterator<?> itSecond = lastNodes.iterator();
 					while (itSecond.hasNext()) {
 						final VisualItem second = (VisualItem) itSecond.next();
-						final IBeanRelationNodeModel<Object, Object> beanRelationNodeModel = getBeanRelationNodeModelFromNode((Node) second.getSourceTuple());
+						final IBeanRelationNodeModel<Object, Object> beanRelationNodeModel = getBeanRelationNodeModelFromNode(
+								(Node) second.getSourceTuple());
 						if (beanRelationNodeModel != null) {
 							final int level = highestLevel;
 							if (!getUiThreadAccess().isUiThread()) {
@@ -1397,14 +1402,14 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 		}
 	}
 
-	static enum Expand {
+	enum Expand {
 
 		FULL,
 		PARTIALLY,
 		NOT;
 	}
 
-	static enum GraphLayout {
+	enum GraphLayout {
 
 		//TODO i18n
 		FORCE_DIRECTED_LAYOUT("Force directed layout"),
@@ -1413,7 +1418,7 @@ class BeanRelationGraphImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements I
 
 		private final String label;
 
-		private GraphLayout(final String label) {
+		GraphLayout(final String label) {
 			this.label = label;
 		}
 

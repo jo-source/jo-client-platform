@@ -39,7 +39,7 @@ final class JpaDeleterServiceBuilderImpl<BEAN_TYPE extends IBean> extends Abstra
 
 	private final IBeanAccess<BEAN_TYPE> beanAccess;
 
-	public JpaDeleterServiceBuilderImpl(final IBeanAccess<BEAN_TYPE> beanAccess) {
+	JpaDeleterServiceBuilderImpl(final IBeanAccess<BEAN_TYPE> beanAccess) {
 		super();
 		this.beanAccess = beanAccess;
 	}

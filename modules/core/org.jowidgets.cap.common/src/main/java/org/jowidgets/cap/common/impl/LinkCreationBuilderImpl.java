@@ -46,7 +46,7 @@ final class LinkCreationBuilderImpl implements ILinkCreationBuilder {
 
 	private IBeanData additionalLinkProperties;
 
-	public LinkCreationBuilderImpl() {
+	LinkCreationBuilderImpl() {
 		super();
 		this.sourceBeans = new LinkedList<IBeanKey>();
 		this.transientSourceBeans = new LinkedList<IBeanData>();

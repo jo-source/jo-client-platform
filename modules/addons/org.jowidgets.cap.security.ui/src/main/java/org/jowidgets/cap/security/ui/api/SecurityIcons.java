@@ -40,7 +40,7 @@ public enum SecurityIcons implements IImageUrlProvider {
 
 	private final URL url;
 
-	private SecurityIcons(final String path) {
+	SecurityIcons(final String path) {
 		this.url = getClass().getClassLoader().getResource(rootPath + path);
 	}
 

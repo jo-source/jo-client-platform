@@ -376,9 +376,8 @@ final class CachedBeanListReaderService<PARAM_TYPE, BEAN_TYPE> implements IReade
 					}
 
 					if (result.size() >= firstRow) {
-						lastResult = new LinkedList<IBeanDto>(result.subList(
-								firstRow,
-								Math.min(firstRow + maxRows, result.size())));
+						lastResult = new LinkedList<IBeanDto>(
+							result.subList(firstRow, Math.min(firstRow + maxRows, result.size())));
 					}
 					else {
 						lastResult = new LinkedList<IBeanDto>();
@@ -465,7 +464,7 @@ final class CachedBeanListReaderService<PARAM_TYPE, BEAN_TYPE> implements IReade
 		private final Comparator<IBeanDto> original;
 		private final IExecutionCallback executionCallback;
 
-		public BeanDtoComparatorDecorator(final List<? extends ISort> sorting, final IExecutionCallback executionCallback) {
+		BeanDtoComparatorDecorator(final List<? extends ISort> sorting, final IExecutionCallback executionCallback) {
 			this.original = BeanDtoComparator.create(sorting);
 			this.executionCallback = executionCallback;
 		}

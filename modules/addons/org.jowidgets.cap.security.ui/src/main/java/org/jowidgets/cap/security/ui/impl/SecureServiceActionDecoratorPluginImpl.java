@@ -38,7 +38,7 @@ final class SecureServiceActionDecoratorPluginImpl<AUTHORIZATION_TYPE> implement
 
 	private final IAuthorizationChecker<AUTHORIZATION_TYPE> authorizationChecker;
 
-	public SecureServiceActionDecoratorPluginImpl(final IAuthorizationChecker<AUTHORIZATION_TYPE> authorizationChecker) {
+	SecureServiceActionDecoratorPluginImpl(final IAuthorizationChecker<AUTHORIZATION_TYPE> authorizationChecker) {
 		this.authorizationChecker = authorizationChecker;
 	}
 

@@ -43,7 +43,7 @@ public enum FilterType implements IFilterType {
 	private final IMessage label;
 	private final IMessage description;
 
-	private FilterType(final IMessage label, final IMessage description) {
+	FilterType(final IMessage label, final IMessage description) {
 		this.label = label;
 		this.description = description;
 	}

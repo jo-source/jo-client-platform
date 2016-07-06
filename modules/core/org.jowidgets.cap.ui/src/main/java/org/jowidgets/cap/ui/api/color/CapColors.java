@@ -37,7 +37,7 @@ public enum CapColors implements IColorConstant {
 
 	private ColorValue colorValue;
 
-	private CapColors(final ColorValue colorValue) {
+	CapColors(final ColorValue colorValue) {
 		this.colorValue = colorValue;
 	}
 

@@ -103,8 +103,8 @@ final class BeanGraphSettingsDialog extends Frame {
 			FilterType.GROUPS,
 			groupColorMap);
 
-		tabFolder.setSelectedItem((getFilterTabByIndex(filterTabIndex) != null)
-				? getFilterTabByIndex(filterTabIndex).getIndex() : 0);
+		tabFolder.setSelectedItem(
+				(getFilterTabByIndex(filterTabIndex) != null) ? getFilterTabByIndex(filterTabIndex).getIndex() : 0);
 
 		return beanGraphAttributeListImplGroup;
 	}
@@ -128,7 +128,7 @@ final class BeanGraphSettingsDialog extends Frame {
 
 		private final int index;
 
-		private FilterTab(final int index) {
+		FilterTab(final int index) {
 			this.index = index;
 		}
 

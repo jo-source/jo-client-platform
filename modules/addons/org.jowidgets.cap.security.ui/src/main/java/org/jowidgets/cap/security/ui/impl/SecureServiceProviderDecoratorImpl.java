@@ -184,7 +184,8 @@ final class SecureServiceProviderDecoratorImpl<AUTHORIZATION_TYPE> implements ID
 		}
 
 		@Override
-		protected Object invokeSyncSignature(final Method method, final Object[] args, final IExecutionCallback executionCallback) throws Throwable {
+		protected Object invokeSyncSignature(final Method method, final Object[] args, final IExecutionCallback executionCallback)
+				throws Throwable {
 			if ("getAuthorization".equals(method.getName())) {
 				return authorization;
 			}
@@ -220,7 +221,7 @@ final class SecureServiceProviderDecoratorImpl<AUTHORIZATION_TYPE> implements ID
 
 		private final IEntityService original;
 
-		public DecoratedEntityService(final IEntityService original) {
+		DecoratedEntityService(final IEntityService original) {
 			this.original = original;
 		}
 
@@ -308,7 +309,8 @@ final class SecureServiceProviderDecoratorImpl<AUTHORIZATION_TYPE> implements ID
 					final IReaderService<Void> readerService = beanServices.readerService();
 					if (readerService != null) {
 						if (readerService instanceof ISecureObject) {
-							return !authorizationChecker.hasAuthorization((AUTHORIZATION_TYPE) ((ISecureObject<?>) readerService).getAuthorization());
+							return !authorizationChecker.hasAuthorization(
+									(AUTHORIZATION_TYPE) ((ISecureObject<?>) readerService).getAuthorization());
 						}
 					}
 				}

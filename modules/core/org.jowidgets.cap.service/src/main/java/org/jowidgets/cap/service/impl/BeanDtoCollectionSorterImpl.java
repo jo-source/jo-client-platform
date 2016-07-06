@@ -74,7 +74,7 @@ final class BeanDtoCollectionSorterImpl implements IBeanDtoCollectionSorter {
 		private final Comparator<IBeanDto> original;
 		private final IExecutionCallback executionCallback;
 
-		public BeanDtoComparatorDecorator(final List<? extends ISort> sorting, final IExecutionCallback executionCallback) {
+		BeanDtoComparatorDecorator(final List<? extends ISort> sorting, final IExecutionCallback executionCallback) {
 			if (sortConverters != null) {
 				this.original = BeanDtoComparator.create(sortConverters, sorting);
 			}

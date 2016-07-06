@@ -55,7 +55,7 @@ final class BeanFormLayouterBuilderImpl implements IBeanFormLayouterBuilder {
 	private IColorConstant contentTextColor;
 	private IColorConstant contentBackgroundColor;
 
-	public BeanFormLayouterBuilderImpl(final IBeanFormLayout layout) {
+	BeanFormLayouterBuilderImpl(final IBeanFormLayout layout) {
 		Assert.paramNotNull(layout, "layout");
 		this.layout = layout;
 

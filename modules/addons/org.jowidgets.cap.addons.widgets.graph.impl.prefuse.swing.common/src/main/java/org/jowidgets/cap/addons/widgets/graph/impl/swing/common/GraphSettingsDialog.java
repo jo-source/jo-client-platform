@@ -253,26 +253,10 @@ final class GraphSettingsDialog extends Frame {
 
 		DEFAULT_SLIDER_SETTINGS.put(slider, defaultVal);
 
-		inputField.addInputListener(new ParameterListener(
-			slider,
-			inputField,
-			null,
-			forceNumber,
-			step,
-			min,
-			false,
-			Listener.INPUTFIELD,
-			layout));
-		slider.addInputListener(new ParameterListener(
-			slider,
-			inputField,
-			null,
-			forceNumber,
-			step,
-			min,
-			false,
-			Listener.SLIDER,
-			layout));
+		inputField.addInputListener(
+				new ParameterListener(slider, inputField, null, forceNumber, step, min, false, Listener.INPUTFIELD, layout));
+		slider.addInputListener(
+				new ParameterListener(slider, inputField, null, forceNumber, step, min, false, Listener.SLIDER, layout));
 	}
 
 	private void createSliderComponent(
@@ -283,8 +267,8 @@ final class GraphSettingsDialog extends Frame {
 
 		final String forceParameter = force.getParameterName(param);
 
-		final double value = MODIFIED_VALUES.containsKey(forceParameter + "_DEFAULT") ? MODIFIED_VALUES.get(forceParameter
-			+ "_DEFAULT") : force.getParameter(param);
+		final double value = MODIFIED_VALUES.containsKey(forceParameter + "_DEFAULT")
+				? MODIFIED_VALUES.get(forceParameter + "_DEFAULT") : force.getParameter(param);
 		final double min = MODIFIED_VALUES.containsKey(forceParameter + "_MIN")
 				? MODIFIED_VALUES.get(forceParameter + "_MIN") : force.getMinValue(param);
 		final double max = MODIFIED_VALUES.containsKey(forceParameter + "_MAX")
@@ -326,26 +310,28 @@ final class GraphSettingsDialog extends Frame {
 		}
 		DEFAULT_SLIDER_SETTINGS.put(slider, defaultValue);
 
-		inputField.addInputListener(new ParameterListener(
-			slider,
-			inputField,
-			force,
-			param,
-			step,
-			min,
-			displayPercent,
-			Listener.INPUTFIELD,
-			GraphLayout.FORCE_DIRECTED_LAYOUT));
-		slider.addInputListener(new ParameterListener(
-			slider,
-			inputField,
-			force,
-			param,
-			step,
-			min,
-			displayPercent,
-			Listener.SLIDER,
-			GraphLayout.FORCE_DIRECTED_LAYOUT));
+		inputField.addInputListener(
+				new ParameterListener(
+					slider,
+					inputField,
+					force,
+					param,
+					step,
+					min,
+					displayPercent,
+					Listener.INPUTFIELD,
+					GraphLayout.FORCE_DIRECTED_LAYOUT));
+		slider.addInputListener(
+				new ParameterListener(
+					slider,
+					inputField,
+					force,
+					param,
+					step,
+					min,
+					displayPercent,
+					Listener.SLIDER,
+					GraphLayout.FORCE_DIRECTED_LAYOUT));
 	}
 
 	//Define own values with syntax : ForceParameterName_(MIN | MAX | DEFAULT)
@@ -365,7 +351,7 @@ final class GraphSettingsDialog extends Frame {
 		private final Listener type;
 		private final GraphLayout layout;
 
-		public ParameterListener(
+		ParameterListener(
 			final ISlider slider,
 			final IInputField<Integer> inputField,
 			final Force force,

@@ -58,7 +58,7 @@ class BeanDialogImpl<BEAN_TYPE> extends WindowWrapper implements IBeanDialog<BEA
 
 	private boolean okPressed;
 
-	public BeanDialogImpl(final IFrame frame, final IBeanDialogBluePrint<BEAN_TYPE> bluePrint) {
+	BeanDialogImpl(final IFrame frame, final IBeanDialogBluePrint<BEAN_TYPE> bluePrint) {
 		super(frame);
 
 		this.okPressed = false;

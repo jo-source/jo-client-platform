@@ -32,16 +32,18 @@ import org.jowidgets.i18n.api.IMessage;
 
 public enum DisplayFormat implements IDisplayFormat {
 
-	LONG(Messages.getMessage("DisplayFormat.long"), //$NON-NLS-1$
+	LONG(
+		Messages.getMessage("DisplayFormat.long"), //$NON-NLS-1$
 		Messages.getMessage("DisplayFormat.long_display_format")), //$NON-NLS-1$
 
-	SHORT(Messages.getMessage("DisplayFormat.short"), //$NON-NLS-1$
+	SHORT(
+		Messages.getMessage("DisplayFormat.short"), //$NON-NLS-1$
 		Messages.getMessage("DisplayFormat.short_display_format")); //$NON-NLS-1$
 
 	private IMessage name;
 	private IMessage description;
 
-	private DisplayFormat(final IMessage name, final IMessage description) {
+	DisplayFormat(final IMessage name, final IMessage description) {
 		this.name = name;
 		this.description = description;
 	}

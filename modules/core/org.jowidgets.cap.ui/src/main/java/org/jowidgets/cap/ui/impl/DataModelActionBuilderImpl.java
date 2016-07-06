@@ -125,7 +125,7 @@ final class DataModelActionBuilderImpl implements IDataModelActionBuilder {
 
 	private class DataModelAction extends ActionWrapper implements IDataModelAction {
 
-		public DataModelAction(final IAction action) {
+		DataModelAction(final IAction action) {
 			super(action);
 		}
 

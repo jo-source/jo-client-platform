@@ -40,7 +40,7 @@ final class GenericInterimRequestCallback implements IInterimRequestCallback<Obj
 	private final IInterimRequestCallback<UserQuestionRequest, UserQuestionResult> userQuestionRequestCallback;
 	private final InputStreamRequestCallback inputStreamRequestCallback;
 
-	public GenericInterimRequestCallback(
+	GenericInterimRequestCallback(
 		final IInterimRequestCallback<UserQuestionRequest, UserQuestionResult> userQuestionRequestCallback,
 		final InputStreamRequestCallback inputStreamRequestCallback) {
 		this.userQuestionRequestCallback = userQuestionRequestCallback;
@@ -72,7 +72,9 @@ final class GenericInterimRequestCallback implements IInterimRequestCallback<Obj
 		}
 	}
 
-	private void inputStreamRequest(final IInterimResponseCallback<UserQuestionResult> callback, final IInputStreamRequest request) {
+	private void inputStreamRequest(
+		final IInterimResponseCallback<UserQuestionResult> callback,
+		final IInputStreamRequest request) {
 		if (inputStreamRequestCallback != null) {
 			inputStreamRequestCallback.request(callback, request);
 		}

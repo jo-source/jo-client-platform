@@ -53,7 +53,7 @@ final class InputControlProviderBuilderImpl<ELEMENT_VALUE_TYPE> implements IInpu
 	private ICustomWidgetCreator<IInputControl<ELEMENT_VALUE_TYPE>> controlCreator;
 	private ICustomWidgetCreator<IInputControl<? extends Collection<ELEMENT_VALUE_TYPE>>> collectionControlCreator;
 
-	public InputControlProviderBuilderImpl(final Class<ELEMENT_VALUE_TYPE> elementValueType) {
+	InputControlProviderBuilderImpl(final Class<ELEMENT_VALUE_TYPE> elementValueType) {
 		Assert.paramNotNull(elementValueType, "elementValueType");
 		this.elementValueType = elementValueType;
 		this.displayFormat = CapUiToolkit.displayFormatFactory().getDefault();

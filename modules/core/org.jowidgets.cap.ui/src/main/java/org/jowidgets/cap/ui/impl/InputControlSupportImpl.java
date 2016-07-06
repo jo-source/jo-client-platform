@@ -42,7 +42,7 @@ final class InputControlSupportImpl<ELEMENT_VALUE_TYPE> implements IInputControl
 	private final IDisplayFormat defaultDisplayFormat;
 	private final List<IInputControlProvider<ELEMENT_VALUE_TYPE>> controls;
 
-	public InputControlSupportImpl(
+	InputControlSupportImpl(
 		final IDisplayFormat defaultDisplayFormat,
 		final List<IInputControlProvider<ELEMENT_VALUE_TYPE>> controls) {
 		Assert.paramNotNull(defaultDisplayFormat, "defaultDisplayFormat");

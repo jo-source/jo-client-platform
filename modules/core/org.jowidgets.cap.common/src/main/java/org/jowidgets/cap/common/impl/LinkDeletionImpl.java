@@ -43,7 +43,7 @@ final class LinkDeletionImpl implements ILinkDeletion, Serializable {
 	private final IBeanKey destinationKey;
 	private final boolean deleteDestination;
 
-	public LinkDeletionImpl(
+	LinkDeletionImpl(
 		final IBeanKey sourceKey,
 		final boolean deleteSource,
 		final IBeanKey destinationKey,

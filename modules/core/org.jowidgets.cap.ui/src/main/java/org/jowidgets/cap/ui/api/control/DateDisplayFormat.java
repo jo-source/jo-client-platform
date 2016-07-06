@@ -43,7 +43,7 @@ public enum DateDisplayFormat implements IDisplayFormat {
 	private IMessage name;
 	private IMessage description;
 
-	private DateDisplayFormat(final IMessage name, final IMessage description) {
+	DateDisplayFormat(final IMessage name, final IMessage description) {
 		this.name = name;
 		this.description = description;
 	}

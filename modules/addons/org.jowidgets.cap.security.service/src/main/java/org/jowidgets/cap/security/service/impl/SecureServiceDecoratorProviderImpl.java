@@ -49,7 +49,7 @@ final class SecureServiceDecoratorProviderImpl implements IServicesDecoratorProv
 	private final DecorationMode decorationMode;
 
 	@SuppressWarnings("unchecked")
-	public SecureServiceDecoratorProviderImpl(
+	SecureServiceDecoratorProviderImpl(
 		final IAuthorizationChecker<? extends Object> authorizationChecker,
 		final DecorationMode decorationMode,
 		final int order) {
@@ -80,11 +80,8 @@ final class SecureServiceDecoratorProviderImpl implements IServicesDecoratorProv
 			return new IdentityTransformationDecorator<SERVICE_TYPE>();
 		}
 		else {
-			throw new RuntimeException("The service with the id '"
-				+ id
-				+ "' has not the type '"
-				+ ISecureServiceId.class.getName()
-				+ "'");
+			throw new RuntimeException(
+				"The service with the id '" + id + "' has not the type '" + ISecureServiceId.class.getName() + "'");
 		}
 	}
 

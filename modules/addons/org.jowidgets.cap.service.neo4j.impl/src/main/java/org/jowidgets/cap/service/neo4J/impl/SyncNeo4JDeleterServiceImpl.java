@@ -67,7 +67,8 @@ final class SyncNeo4JDeleterServiceImpl<BEAN_TYPE extends IBean> implements ISyn
 		final boolean allowDeletedData,
 		final boolean allowStaleData) {
 
-		final IExecutorServiceBuilder<BEAN_TYPE, Void> executorServiceBuilder = CapServiceToolkit.executorServiceBuilder(beanAccess);
+		final IExecutorServiceBuilder<BEAN_TYPE, Void> executorServiceBuilder = CapServiceToolkit.executorServiceBuilder(
+				beanAccess);
 		if (executableChecker != null) {
 			executorServiceBuilder.setExecutableChecker(executableChecker);
 		}
@@ -91,7 +92,7 @@ final class SyncNeo4JDeleterServiceImpl<BEAN_TYPE extends IBean> implements ISyn
 		private final boolean allowDeletedData;
 		private final IDeleterServiceInterceptor<BEAN_TYPE> interceptor;
 
-		public DeleteExecutor(
+		DeleteExecutor(
 			final IBeanAccess<BEAN_TYPE> beanAccess,
 			final boolean allowDeletedData,
 			final IDeleterServiceInterceptor<BEAN_TYPE> interceptor) {
@@ -133,9 +134,8 @@ final class SyncNeo4JDeleterServiceImpl<BEAN_TYPE extends IBean> implements ISyn
 				}
 			}
 			else {
-				throw new IllegalStateException("The bean type '"
-					+ beanType
-					+ "' is neither a node bean nor a relationship bean.");
+				throw new IllegalStateException(
+					"The bean type '" + beanType + "' is neither a node bean nor a relationship bean.");
 			}
 			return null;
 		}

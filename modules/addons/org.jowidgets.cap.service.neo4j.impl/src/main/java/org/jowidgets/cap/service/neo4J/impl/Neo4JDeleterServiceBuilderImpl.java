@@ -39,7 +39,7 @@ final class Neo4JDeleterServiceBuilderImpl<BEAN_TYPE extends IBean> extends Abst
 
 	private final IBeanAccess<BEAN_TYPE> beanAccess;
 
-	public Neo4JDeleterServiceBuilderImpl(final IBeanAccess<BEAN_TYPE> beanAccess) {
+	Neo4JDeleterServiceBuilderImpl(final IBeanAccess<BEAN_TYPE> beanAccess) {
 		this.beanAccess = beanAccess;
 	}
 

@@ -994,7 +994,8 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			final Set<Integer> selectedPages = getSelectedPages();
 			for (final Integer pageIndexW : new ArrayList<Integer>(data.keySet())) {
 				final int pageIndex = pageIndexW.intValue();
-				if (!selectedPages.contains(pageIndexW) && (pageIndex < visiblePageIndex - 1 || pageIndex > visiblePageIndex + 1)) {
+				if (!selectedPages.contains(pageIndexW)
+					&& (pageIndex < visiblePageIndex - 1 || pageIndex > visiblePageIndex + 1)) {
 					removePage(pageIndex);
 				}
 				else {
@@ -2810,7 +2811,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 		private int rowIndex;
 
-		public BeanPropertyChangeListener(final int rowIndex) {
+		BeanPropertyChangeListener(final int rowIndex) {
 			this.rowIndex = rowIndex;
 		}
 

@@ -48,7 +48,7 @@ final class LinkCreationImpl implements ILinkCreation, Serializable {
 	private final Collection<IBeanKey> linkableBeans;
 	private final Collection<IBeanData> transientLinkableBeans;
 
-	public LinkCreationImpl(
+	LinkCreationImpl(
 		final Collection<IBeanKey> sourceBeans,
 		final Collection<IBeanData> transientSourceBeans,
 		final IBeanData additionalLinkProperties,

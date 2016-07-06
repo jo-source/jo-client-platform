@@ -54,7 +54,7 @@ final class UniqueConstraintCheckerImpl implements IUniqueConstraintChecker {
 	@SuppressWarnings("unused")
 	private final IBeanAccess<IBean> beanAccess;
 
-	public UniqueConstraintCheckerImpl(
+	UniqueConstraintCheckerImpl(
 		final IBeanServiceFactory serviceFactory,
 		final Class<? extends IBean> beanType,
 		final Object beanTypeId,

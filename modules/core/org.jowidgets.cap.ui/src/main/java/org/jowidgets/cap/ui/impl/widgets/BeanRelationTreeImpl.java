@@ -122,7 +122,8 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 	private static final IMessage WAIT_TEXT = Messages.getMessage("BeanRelationTreeImpl.wait_text");
 	private static final IMessage WAIT_TOOLTIP = Messages.getMessage("BeanRelationTreeImpl.wait_tooltip");
 	private static final IMessage LOAD_MORE_DATASETS_LABEL = Messages.getMessage("BeanRelationTreeImpl.load_more_datasets_label");
-	private static final IMessage LOAD_MORE_DATASETS_TOOLTIP = Messages.getMessage("BeanRelationTreeImpl.load_more_datasets_tooltip");
+	private static final IMessage LOAD_MORE_DATASETS_TOOLTIP = Messages.getMessage(
+			"BeanRelationTreeImpl.load_more_datasets_tooltip");
 
 	private final IBeanRelationTreeModel<CHILD_BEAN_TYPE> treeModel;
 	private final IFilter<IBeanRelationNodeModel<Object, Object>> childRelationFilter;
@@ -543,7 +544,10 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 			relationNodeModel.getParentBeanType());
 		try {
 			if (link.getLinkCreatorService() != null) {
-				IPasteLinkActionBuilder<Object, Object, Object> builder = actionFactory.pasteLinkActionBuilder(source, link, this);
+				IPasteLinkActionBuilder<Object, Object, Object> builder = actionFactory.pasteLinkActionBuilder(
+						source,
+						link,
+						this);
 				builder.setLinkedModel(relationNodeModel);
 				if (!autoKeyBinding) {
 					builder.setAccelerator(null);
@@ -930,7 +934,7 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 		private final IBeanRelationNodeModel<Object, Object> relationNodeModel;
 		private final IMenuModel nodeMenu;
 
-		public ChildModelListener(
+		ChildModelListener(
 			final ITreeNode parentNode,
 			final IBeanRelationNodeModel<Object, Object> relationNodeModel,
 			final IMenuModel nodeMenu) {
@@ -1090,10 +1094,8 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 							childRelationNode.addTreeNodeListener(new TreeNodeExpansionTrackingListener(childRelationNode));
 						}
 
-						childRelationNodeModel.addBeanListModelListener(new ChildModelListener(
-							childRelationNode,
-							childRelationNodeModel,
-							nodesMenu));
+						childRelationNodeModel.addBeanListModelListener(
+								new ChildModelListener(childRelationNode, childRelationNodeModel, nodesMenu));
 
 						final boolean loadOccured = childRelationNodeModel.loadIfNotYetDone();
 						if (!loadOccured) {

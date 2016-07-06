@@ -72,9 +72,9 @@ import org.jowidgets.validation.IValidationResult;
 import org.jowidgets.validation.IValidationResultBuilder;
 import org.jowidgets.validation.ValidationResult;
 
-final class BeanLinkPanelImpl<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> extends
-		AbstractInputControl<IBeanLink<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE>> implements
-		IBeanLinkPanel<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> {
+final class BeanLinkPanelImpl<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE>
+		extends AbstractInputControl<IBeanLink<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE>>
+		implements IBeanLinkPanel<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> {
 
 	private static final String BEAN_LINK_SEARCH_FILTER_ID = "BEAN_LINK_SEARCH_FILTER_ID";
 
@@ -93,9 +93,7 @@ final class BeanLinkPanelImpl<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> extends
 
 	private boolean editable;
 
-	public BeanLinkPanelImpl(
-		final IComposite composite,
-		final IBeanLinkPanelBluePrint<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> bluePrint) {
+	BeanLinkPanelImpl(final IComposite composite, final IBeanLinkPanelBluePrint<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> bluePrint) {
 		super(composite);
 
 		this.editable = true;
