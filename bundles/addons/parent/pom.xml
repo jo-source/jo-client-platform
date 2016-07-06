@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>org.jowidgets</groupId>
 		<artifactId>org.jowidgets.cap.bundles.parent</artifactId>
-		<version>0.55.0-SNAPSHOT</version>
+		<version>0.56.0-SNAPSHOT</version>
 		<relativePath>../../parent/pom.xml</relativePath>
 	</parent>
 	
@@ -18,7 +18,6 @@
 		<module>../org.jowidgets.cap.addons.plugins.beanform.document.bundle</module>
 		<module>../org.jowidgets.message.impl.http.client.bundle</module>	
 		<module>../org.jowidgets.message.impl.http.server.bundle</module>
-		<module>../org.jowidgets.message.impl.akka.bundle</module>	
 		<module>../org.jowidgets.cap.service.jpa.api.bundle</module>
 		<module>../org.jowidgets.cap.service.jpa.impl.bundle</module>	
 		<module>../org.jowidgets.cap.service.hibernate.bundle</module>
