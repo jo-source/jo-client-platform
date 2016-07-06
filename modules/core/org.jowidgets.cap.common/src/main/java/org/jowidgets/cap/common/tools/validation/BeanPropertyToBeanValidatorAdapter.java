@@ -84,7 +84,7 @@ public final class BeanPropertyToBeanValidatorAdapter<BEAN_TYPE> implements IBea
 	public Collection<IBeanValidationResult> validate(final BEAN_TYPE bean) {
 		final IBeanValidationResultListBuilder builder = CapCommonToolkit.beanValidationResultListBuilder();
 		if (bean != null) {
-			Object propertyValue;
+			final Object propertyValue;
 			try {
 				propertyValue = readMethod.invoke(bean);
 			}

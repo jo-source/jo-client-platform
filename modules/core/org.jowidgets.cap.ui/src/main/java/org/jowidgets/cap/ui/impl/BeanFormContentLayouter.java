@@ -187,12 +187,16 @@ final class BeanFormContentLayouter implements IBeanFormLayouter {
 
 				final String sizeGroupLabel = "sg lbl" + logicalColumn;
 				final String sizeGroupControl = "sgy r" + row + "ctrlspn" + propertyRowSpan;
-				final ICustomWidgetCreator<? extends IControl> validationLabelCreator = controlFactory.createPropertyValidationLabel(propertyName);
+				final ICustomWidgetCreator<? extends IControl> validationLabelCreator = controlFactory.createPropertyValidationLabel(
+						propertyName);
 
 				final int firstPropertyColumn = (3 * logicalColumn);
 
 				//add label
+				//CHECKSTYLE:OFF
+				//FinalLocalVariable check seems to be broken in some cases
 				String cell;
+				//CHECKSTYLE:ON
 				if (property.showLabel()) {
 					final AlignmentVertical labelAlignmentVertical = property.getLabelAlignmentVertical();
 					if (AlignmentVertical.TOP.equals(labelAlignmentVertical)) {

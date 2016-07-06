@@ -135,7 +135,7 @@ final class PasteLinkCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYP
 		this.exceptionConverter = exceptionConverter;
 
 		if (sourceSelectionAutoRefresh) {
-			BeanSelectionProviderRefreshInterceptor<SOURCE_BEAN_TYPE, List<IBeanDto>> refreshInterceptor;
+			final BeanSelectionProviderRefreshInterceptor<SOURCE_BEAN_TYPE, List<IBeanDto>> refreshInterceptor;
 			refreshInterceptor = new BeanSelectionProviderRefreshInterceptor<SOURCE_BEAN_TYPE, List<IBeanDto>>(source);
 			executionObservable.addExecutionInterceptor(refreshInterceptor);
 		}

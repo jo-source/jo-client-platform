@@ -138,7 +138,8 @@ import org.jowidgets.util.concurrent.DaemonThreadFactory;
 
 final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTable<BEAN_TYPE> {
 
-	private static final IMessage NO_SERVICE_AVAILABLE_ENTITY = Messages.getMessage("BeanTableImpl.noServiceAvailableEntityLabel");
+	private static final IMessage NO_SERVICE_AVAILABLE_ENTITY = Messages.getMessage(
+			"BeanTableImpl.noServiceAvailableEntityLabel");
 	private static final IMessage NO_SERVICE_AVAILABLE = Messages.getMessage("BeanTableImpl.noServiceAvailable");
 
 	private final ITable table;
@@ -658,7 +659,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 
 	private IMenuModel createHeaderPopupMenuModelUndecorated(final Integer index) {
 
-		IMenuModel menuModel;
+		final IMenuModel menuModel;
 		if (hasDefaultMenus) {
 			final IMenuModel headerPopupMenu = menuFactory.headerPopupMenu(this, index.intValue());
 			if (headerPopupMenu != null) {
@@ -702,7 +703,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 
 	private IMenuModel createCellPopupMenuModel(final Integer index) {
 
-		IMenuModel menuModel;
+		final IMenuModel menuModel;
 		if (hasDefaultMenus) {
 			final IMenuModel headerPopupMenuModelUndecorated;
 			if (!isColumnPopupDetectionSupported()) {

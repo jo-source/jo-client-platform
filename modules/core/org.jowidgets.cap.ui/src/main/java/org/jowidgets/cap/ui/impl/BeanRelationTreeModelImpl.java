@@ -72,9 +72,8 @@ import org.jowidgets.validation.IValidationResultBuilder;
 import org.jowidgets.validation.ValidationResult;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
-public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE> implements
-		IBeanRelationTreeModel<CHILD_BEAN_TYPE>,
-		IValidationResultCreator {
+public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE>
+		implements IBeanRelationTreeModel<CHILD_BEAN_TYPE>, IValidationResultCreator {
 
 	private static final IBeanSelection<Object> EMPTY_BEAN_SELECTION = new BeanSelectionImpl<Object>();
 	private static final IBeanRelationTreeSelection EMPTY_TREE_SELECTION = new BeanRelationTreeSelectionImpl();
@@ -164,11 +163,13 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE> implements
 		final IEntityTypeId<METHOD_CHILD_BEAN_TYPE> childEntityTypeId) {
 
 		final Tuple<IBeanProxy<METHOD_PARENT_BEAN_TYPE>, IEntityTypeId<METHOD_CHILD_BEAN_TYPE>> key;
-		key = new Tuple<IBeanProxy<METHOD_PARENT_BEAN_TYPE>, IEntityTypeId<METHOD_CHILD_BEAN_TYPE>>(parentBean, childEntityTypeId);
+		key = new Tuple<IBeanProxy<METHOD_PARENT_BEAN_TYPE>, IEntityTypeId<METHOD_CHILD_BEAN_TYPE>>(
+			parentBean,
+			childEntityTypeId);
 
 		Object result = relationNodes.get(key);
 		if (result == null) {
-			BeanRelationNodeModelBuilder<METHOD_PARENT_BEAN_TYPE, METHOD_CHILD_BEAN_TYPE, IBeanRelationNodeModelBluePrint<?, ?>> builder;
+			final BeanRelationNodeModelBuilder<METHOD_PARENT_BEAN_TYPE, METHOD_CHILD_BEAN_TYPE, IBeanRelationNodeModelBluePrint<?, ?>> builder;
 			builder = new BeanRelationNodeModelBuilder<METHOD_PARENT_BEAN_TYPE, METHOD_CHILD_BEAN_TYPE, IBeanRelationNodeModelBluePrint<?, ?>>(
 				parentEntityTypeId,
 				parentBean,

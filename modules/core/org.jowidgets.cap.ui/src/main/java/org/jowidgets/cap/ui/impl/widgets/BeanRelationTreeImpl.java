@@ -397,7 +397,7 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 		}
 
 		//map the child node to the relation model
-		Tuple<IBeanRelationNodeModel<Object, Object>, IBeanProxy<Object>> tuple;
+		final Tuple<IBeanRelationNodeModel<Object, Object>, IBeanProxy<Object>> tuple;
 		tuple = new Tuple<IBeanRelationNodeModel<Object, Object>, IBeanProxy<Object>>(relationNodeModel, bean);
 		nodesMap.put(childNode, tuple);
 

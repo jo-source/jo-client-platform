@@ -71,8 +71,10 @@ final class BeanLinkDeleterCommand<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> implement
 
 	private static final ILogger LOGGER = LoggerProvider.get(BeanLinkDeleterCommand.class);
 
-	private static final IMessage SINGLE_DELETION_CONFIRM = Messages.getMessage("BeanLinkDeleterCommand.single_deletion_confirm_message");
-	private static final IMessage MULTI_DELETION_CONFIRM = Messages.getMessage("BeanLinkDeleterCommand.multi_deletion_confirm_message");
+	private static final IMessage SINGLE_DELETION_CONFIRM = Messages.getMessage(
+			"BeanLinkDeleterCommand.single_deletion_confirm_message");
+	private static final IMessage MULTI_DELETION_CONFIRM = Messages.getMessage(
+			"BeanLinkDeleterCommand.multi_deletion_confirm_message");
 	private static final IMessage CAN_NOT_BE_UNDONE = Messages.getMessage("BeanLinkDeleterCommand.can_not_be_undone");
 	private static final IMessage NOTHING_SELECTED = Messages.getMessage("BeanLinkDeleterCommand.nothing_selected");
 	private static final IMessage SHORT_ERROR = Messages.getMessage("BeanLinkDeleterCommand.short_error_message");
@@ -117,23 +119,25 @@ final class BeanLinkDeleterCommand<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> implement
 
 		final EnabledCheckerCompositeBuilder enabledCheckerBuilder = new EnabledCheckerCompositeBuilder();
 
-		enabledCheckerBuilder.add(new BeanSelectionProviderEnabledChecker<SOURCE_BEAN_TYPE>(
-			source,
-			sourceMultiSelection ? BeanSelectionPolicy.MULTI_SELECTION : BeanSelectionPolicy.SINGLE_SELECTION,
-			sourceModificationPolicy,
-			sourceMessageStatePolicy,
-			enabledCheckers,
-			sourceExecutableCheckers,
-			false));
+		enabledCheckerBuilder.add(
+				new BeanSelectionProviderEnabledChecker<SOURCE_BEAN_TYPE>(
+					source,
+					sourceMultiSelection ? BeanSelectionPolicy.MULTI_SELECTION : BeanSelectionPolicy.SINGLE_SELECTION,
+					sourceModificationPolicy,
+					sourceMessageStatePolicy,
+					enabledCheckers,
+					sourceExecutableCheckers,
+					false));
 
-		enabledCheckerBuilder.add(new BeanSelectionProviderEnabledChecker<LINKED_BEAN_TYPE>(
-			linkedModel,
-			linkedMultiSelection ? BeanSelectionPolicy.MULTI_SELECTION : BeanSelectionPolicy.SINGLE_SELECTION,
-			linkedModificationPolicy,
-			linkedMessageStatePolicy,
-			new LinkedList<IEnabledChecker>(),
-			linkedExecutableCheckers,
-			false));
+		enabledCheckerBuilder.add(
+				new BeanSelectionProviderEnabledChecker<LINKED_BEAN_TYPE>(
+					linkedModel,
+					linkedMultiSelection ? BeanSelectionPolicy.MULTI_SELECTION : BeanSelectionPolicy.SINGLE_SELECTION,
+					linkedModificationPolicy,
+					linkedMessageStatePolicy,
+					new LinkedList<IEnabledChecker>(),
+					linkedExecutableCheckers,
+					false));
 
 		this.enabledChecker = enabledCheckerBuilder.build();
 
@@ -147,7 +151,7 @@ final class BeanLinkDeleterCommand<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> implement
 		this.autoSelection = autoSelection;
 
 		if (sourceSelectionAutoRefresh) {
-			BeanSelectionProviderRefreshInterceptor<SOURCE_BEAN_TYPE, Void> refreshInterceptor;
+			final BeanSelectionProviderRefreshInterceptor<SOURCE_BEAN_TYPE, Void> refreshInterceptor;
 			refreshInterceptor = new BeanSelectionProviderRefreshInterceptor<SOURCE_BEAN_TYPE, Void>(source);
 			executionObservable.addExecutionInterceptor(refreshInterceptor);
 		}
@@ -249,9 +253,8 @@ final class BeanLinkDeleterCommand<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> implement
 					if (firstIteration) {
 						linkedBean.setExecutionTask(executionTask);
 					}
-					linkDeletions.add(LinkDeletion.create(
-							beanKeyFactory.createKey(sourceBean),
-							beanKeyFactory.createKey(linkedBean)));
+					linkDeletions.add(
+							LinkDeletion.create(beanKeyFactory.createKey(sourceBean), beanKeyFactory.createKey(linkedBean)));
 				}
 				firstIteration = false;
 			}

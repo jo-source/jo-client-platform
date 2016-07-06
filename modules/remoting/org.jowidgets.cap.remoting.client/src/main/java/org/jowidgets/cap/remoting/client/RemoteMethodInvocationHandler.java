@@ -285,7 +285,7 @@ final class RemoteMethodInvocationHandler implements InvocationHandler {
 						if (!Collection.class.isAssignableFrom(parameterTypes[i])) {
 							throw new IllegalArgumentException("Iterables that hold InputStreams must be Collections");
 						}
-						Collection<InputStreamDummy> inputStreamDummies;
+						final Collection<InputStreamDummy> inputStreamDummies;
 						try {
 							inputStreamDummies = (Collection<InputStreamDummy>) iterable.getClass().newInstance();
 						}

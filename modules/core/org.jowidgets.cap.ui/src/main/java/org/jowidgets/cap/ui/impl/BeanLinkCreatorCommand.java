@@ -172,7 +172,7 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 		this.exceptionConverter = exceptionConverter;
 
 		if (sourceSelectionAutoRefresh) {
-			BeanSelectionProviderRefreshInterceptor<SOURCE_BEAN_TYPE, List<IBeanDto>> refreshInterceptor;
+			final BeanSelectionProviderRefreshInterceptor<SOURCE_BEAN_TYPE, List<IBeanDto>> refreshInterceptor;
 			refreshInterceptor = new BeanSelectionProviderRefreshInterceptor<SOURCE_BEAN_TYPE, List<IBeanDto>>(source);
 			executionObservable.addExecutionInterceptor(refreshInterceptor);
 		}
@@ -341,11 +341,8 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 
 		final List<IBeanProxy<LINKABLE_BEAN_TYPE>> defaultLinkedBeans;
 		if (linkableBeanForm != null) {
-			defaultLinkedBeans = Collections.singletonList(createDefaultBean(
-					linkableBeanForm,
-					linkableBeanTypeId,
-					linkableBeanType,
-					linkableBeanPropertyValidators));
+			defaultLinkedBeans = Collections.singletonList(
+					createDefaultBean(linkableBeanForm, linkableBeanTypeId, linkableBeanType, linkableBeanPropertyValidators));
 		}
 		else {
 			defaultLinkedBeans = Collections.emptyList();

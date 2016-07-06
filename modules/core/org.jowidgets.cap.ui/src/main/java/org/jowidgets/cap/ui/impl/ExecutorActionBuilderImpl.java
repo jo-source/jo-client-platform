@@ -73,9 +73,9 @@ import org.jowidgets.util.maybe.IMaybe;
 import org.jowidgets.util.maybe.Nothing;
 import org.jowidgets.util.maybe.Some;
 
-final class ExecutorActionBuilderImpl<BEAN_TYPE, PARAM_TYPE> extends
-		AbstractCapActionBuilderImpl<IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE>> implements
-		IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> {
+final class ExecutorActionBuilderImpl<BEAN_TYPE, PARAM_TYPE>
+		extends AbstractCapActionBuilderImpl<IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE>>
+		implements IExecutorActionBuilder<BEAN_TYPE, PARAM_TYPE> {
 
 	private final IBeanListModel<BEAN_TYPE> listModel;
 	private final List<IExecutableChecker<Object>> executableCheckers;
@@ -192,7 +192,7 @@ final class ExecutorActionBuilderImpl<BEAN_TYPE, PARAM_TYPE> extends
 				inputDialog.setValue(defaultParameter);
 				inputDialog.setVisible(true);
 
-				IMaybe<PARAM_TYPE> result;
+				final IMaybe<PARAM_TYPE> result;
 				if (inputDialog.isOkPressed()) {
 					result = new Some<PARAM_TYPE>(inputDialog.getValue());
 				}

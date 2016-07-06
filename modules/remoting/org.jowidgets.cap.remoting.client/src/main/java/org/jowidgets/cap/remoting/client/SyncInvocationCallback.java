@@ -105,7 +105,7 @@ final class SyncInvocationCallback<RESULT_TYPE> implements IInvocationCallback<R
 
 	RESULT_TYPE getResultSynchronious() {
 
-		boolean hasTimeout;
+		final boolean hasTimeout;
 		try {
 			hasTimeout = !latch.await(timeout, TimeUnit.MILLISECONDS);
 		}

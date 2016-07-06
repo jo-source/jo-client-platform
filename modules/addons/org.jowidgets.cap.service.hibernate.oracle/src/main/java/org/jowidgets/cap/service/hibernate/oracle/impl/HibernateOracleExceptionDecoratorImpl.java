@@ -150,7 +150,7 @@ final class HibernateOracleExceptionDecoratorImpl implements IDecorator<Throwabl
 		final EntityManager em = EntityManagerHolder.get();
 		final String sql = "select CONSTRAINT_TYPE from user_constraints where constraint_name ='" + constraintName + "'";
 		final Query query = em.createNativeQuery(sql);
-		Object queryResult;
+		final Object queryResult;
 		try {
 			queryResult = query.getSingleResult();
 		}
@@ -173,7 +173,7 @@ final class HibernateOracleExceptionDecoratorImpl implements IDecorator<Throwabl
 			+ constraintName
 			+ "'";
 		final Query query = em.createNativeQuery(sql);
-		Object queryResult;
+		final Object queryResult;
 		try {
 			queryResult = query.getSingleResult();
 		}
@@ -221,7 +221,9 @@ final class HibernateOracleExceptionDecoratorImpl implements IDecorator<Throwabl
 		return readViolatedPropertiesFromQuery(sql, constraintType);
 	}
 
-	private List<String> readViolatedPropertiesFromUserIndColumns(final String constraintName, final ConstraintType constraintType) {
+	private List<String> readViolatedPropertiesFromUserIndColumns(
+		final String constraintName,
+		final ConstraintType constraintType) {
 		final String sql = "select TABLE_NAME, COLUMN_NAME from user_ind_columns where index_name='" + constraintName + "'";
 		return readViolatedPropertiesFromQuery(sql, constraintType);
 	}

@@ -88,8 +88,8 @@ import org.jowidgets.util.Assert;
 import org.jowidgets.util.Tuple;
 import org.jowidgets.util.event.IChangeListener;
 
-final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper implements
-		IBeanRelationTreeDetail<CHILD_BEAN_TYPE> {
+final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper
+		implements IBeanRelationTreeDetail<CHILD_BEAN_TYPE> {
 
 	private final IBeanRelationTreeModel<CHILD_BEAN_TYPE> treeModel;
 	private final IBeanRelationTreeDetailMenuInterceptor menuInterceptor;
@@ -284,11 +284,13 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 		builder = BeanTableModel.builder(relation.getChildEntityId(), relation.getChildBeanType());
 		builder.setBeanProxyContext(relation.getBeanProxyContext());
 		if (relation.getParentBean() != null) {
-			builder.setParent(new ImutableSingleBeanSelectionProvider<Object>(
-				relation.getParentBean(),
-				relation.getParentEntityId(),
-				relation.getParentBeanTypeId(),
-				relation.getParentBeanType()), LinkType.SELECTION_FIRST);
+			builder.setParent(
+					new ImutableSingleBeanSelectionProvider<Object>(
+						relation.getParentBean(),
+						relation.getParentEntityId(),
+						relation.getParentBeanTypeId(),
+						relation.getParentBeanType()),
+					LinkType.SELECTION_FIRST);
 		}
 		fireOnModelCreate(relation, builder);
 		final IBeanTableModel<Object> result = builder.build();
@@ -302,7 +304,7 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 		if (lastBeanTable != null && lastParentRelation != null) {
 			final IBeanTableModelConfig tableModelConfig = lastBeanTable.getModel().getConfig();
 			final IBeanTableConfig tableConfig = lastBeanTable.getConfig();
-			Tuple<IBeanTableModelConfig, IBeanTableConfig> config;
+			final Tuple<IBeanTableModelConfig, IBeanTableConfig> config;
 			config = new Tuple<IBeanTableModelConfig, IBeanTableConfig>(tableModelConfig, tableConfig);
 			tableConfigs.put(lastParentRelation.getChildEntityId(), config);
 		}
@@ -358,7 +360,9 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 		}
 	}
 
-	private void fireAfterTableCreated(final IBeanRelationNodeModel<Object, Object> relationNode, final IBeanTable<Object> table) {
+	private void fireAfterTableCreated(
+		final IBeanRelationNodeModel<Object, Object> relationNode,
+		final IBeanTable<Object> table) {
 		for (final IBeanTableLifecycleInterceptor<Object> interceptor : new LinkedList<IBeanTableLifecycleInterceptor<Object>>(
 			tableLifecycleInterceptors)) {
 			interceptor.afterTableCreated(relationNode, table);
@@ -441,7 +445,9 @@ final class BeanRelationTreeDetailImpl<CHILD_BEAN_TYPE> extends ControlWrapper i
 		}
 	}
 
-	private IAction createDeleterAction(final IBeanTable<Object> table, final IBeanRelationNodeModel<Object, Object> relationNode) {
+	private IAction createDeleterAction(
+		final IBeanTable<Object> table,
+		final IBeanRelationNodeModel<Object, Object> relationNode) {
 		IDeleterActionBuilder<Object> builder = CapUiToolkit.beanTableMenuFactory().deleterActionBuilder(table);
 		builder.addExecutionInterceptor(new DeleteBeanInterceptor(table.getModel(), relationNode));
 		builder.setAccelerator(VirtualKey.DELETE, Modifier.ALT);

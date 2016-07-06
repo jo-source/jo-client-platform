@@ -247,7 +247,7 @@ final class GraphSettingsDialog extends Frame {
 		slider = content.add(sliderBp, "growx, w 0::");
 		slider.setValue(defaultVal);
 
-		IInputField<Integer> inputField;
+		final IInputField<Integer> inputField;
 		inputField = content.add(BPF.inputFieldIntegerNumber(), "growx, w 0::, wrap");
 		inputField.setValue((int) (slider.getValue()));
 
@@ -284,7 +284,7 @@ final class GraphSettingsDialog extends Frame {
 		final ISlider slider;
 		final int defaultValue;
 
-		IInputField<Integer> inputField;
+		final IInputField<Integer> inputField;
 		if (Arrays.asList(DISPLAY_PERCENT_PARAMETER).contains(forceParameter)) {
 			sliderBp.setMaximum(100).setMinimum(0).setTickSpacing(5);
 			slider = content.add(sliderBp, "growx, w 0::");

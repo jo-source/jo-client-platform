@@ -212,7 +212,7 @@ class NodeRenderer extends LabelRenderer {
 			final FontMetrics fm = DEFAULT_GRAPHICS.getFontMetrics(m_font);
 
 			// compute available width
-			double tw;
+			final double tw;
 			switch (m_imagePos) {
 				case Constants.TOP:
 				case Constants.BOTTOM:
@@ -223,7 +223,7 @@ class NodeRenderer extends LabelRenderer {
 			}
 
 			// compute available height
-			double th;
+			final double th;
 			switch (m_imagePos) {
 				case Constants.LEFT:
 				case Constants.RIGHT:
@@ -370,7 +370,7 @@ class NodeRenderer extends LabelRenderer {
 		final double y,
 		final double w) {
 		// compute the x-coordinate
-		double tx;
+		final double tx;
 		switch (m_hTextAlign) {
 			case Constants.LEFT:
 				tx = x;

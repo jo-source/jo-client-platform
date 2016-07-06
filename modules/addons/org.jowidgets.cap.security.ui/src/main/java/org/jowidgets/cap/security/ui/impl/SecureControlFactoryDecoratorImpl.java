@@ -60,10 +60,11 @@ import org.jowidgets.util.Assert;
 import org.jowidgets.util.IDecorator;
 import org.jowidgets.util.reflection.ReflectionCache;
 
-final class SecureControlFactoryDecoratorImpl<WIDGET_TYPE extends IControl, DESCRIPTOR_TYPE extends IWidgetDescriptor<WIDGET_TYPE>, AUTHORIZATION_TYPE> implements
-		IDecorator<IWidgetFactory<WIDGET_TYPE, DESCRIPTOR_TYPE>> {
+final class SecureControlFactoryDecoratorImpl<WIDGET_TYPE extends IControl, DESCRIPTOR_TYPE extends IWidgetDescriptor<WIDGET_TYPE>, AUTHORIZATION_TYPE>
+		implements IDecorator<IWidgetFactory<WIDGET_TYPE, DESCRIPTOR_TYPE>> {
 
-	private static final IMessage DEFAULT_FAILED_MESSAGE = Messages.getMessage("SecureControlFactoryDecoratorImpl.defaultFailedText");
+	private static final IMessage DEFAULT_FAILED_MESSAGE = Messages.getMessage(
+			"SecureControlFactoryDecoratorImpl.defaultFailedText");
 
 	private final ISecureControlMapper<WIDGET_TYPE, DESCRIPTOR_TYPE, AUTHORIZATION_TYPE> controlAuthorizationMapper;
 	private final IAuthorizationChecker<AUTHORIZATION_TYPE> authorizationChecker;
@@ -153,7 +154,7 @@ final class SecureControlFactoryDecoratorImpl<WIDGET_TYPE extends IControl, DESC
 					ISecureControlCreatorDecoratorPlugin.DESCRIPTOR_INTERFACE_PROPERTY_KEY,
 					descriptor.getDescriptorInterface());
 			final IPluginProperties pluginProperties = propertiesBuilder.build();
-			List<ISecureControlCreatorDecoratorPlugin> plugins;
+			final List<ISecureControlCreatorDecoratorPlugin> plugins;
 			plugins = PluginProvider.getPlugins(ISecureControlCreatorDecoratorPlugin.ID, pluginProperties);
 			for (final ISecureControlCreatorDecoratorPlugin plugin : plugins) {
 				result = plugin.decorate((ISecureControlCreator<IControl>) result, descriptor, widget, pluginProperties);

@@ -74,11 +74,12 @@ final class GenericRemoteMethod implements IMethodInvocationService<Object, Obje
 							parameter);
 				}
 				else {
-					throw new IllegalArgumentException("No method found for '"
-						+ parameter.getMethodName()
-						+ "' with parameters '"
-						+ parameter.getParameterTypes()
-						+ "'");
+					throw new IllegalArgumentException(
+						"No method found for '"
+							+ parameter.getMethodName()
+							+ "' with parameters '"
+							+ parameter.getParameterTypes()
+							+ "'");
 				}
 			}
 			else {
@@ -135,7 +136,7 @@ final class GenericRemoteMethod implements IMethodInvocationService<Object, Obje
 				else if (Collection.class.isAssignableFrom(parameterTypes[i])) {
 					final Collection<?> collection = (Collection<?>) arguments[i];
 					if (collection != null && isIterableOfType(collection, InputStreamDummy.class)) {
-						Collection<InputStream> inputStreams;
+						final Collection<InputStream> inputStreams;
 						try {
 							inputStreams = collection.getClass().newInstance();
 						}

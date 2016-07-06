@@ -59,7 +59,7 @@ final class BeanPropertyValidatorAdapter implements IValidator<Object>, Serializ
 	@Override
 	public IValidationResult validate(final Object value) {
 		if (propertyValidatable) {
-			Set<ConstraintViolation<Object>> beanValidationResult;
+			final Set<ConstraintViolation<Object>> beanValidationResult;
 			try {
 				final Validator beanValidator = CapCommonToolkit.beanValidator();
 				beanValidationResult = beanValidator.validateValue((Class<Object>) beanType, propertyName, value);
