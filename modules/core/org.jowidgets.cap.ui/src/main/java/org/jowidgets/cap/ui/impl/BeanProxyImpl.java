@@ -564,7 +564,9 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 		}
 		if (beanValidationResults.size() > 0) {
 			final Collection<IBeanValidationResult> consolidatedResult;
-			consolidatedResult = consolidateBeanValidationResult(firstWorstIndependendResultHolder, beanValidationResults).values();
+			consolidatedResult = consolidateBeanValidationResult(
+					firstWorstIndependendResultHolder,
+					beanValidationResults).values();
 			setValidationResults(firstWorstIndependendResultHolder, externalValidator.validate(consolidatedResult));
 		}
 	}
@@ -1293,16 +1295,11 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 		String result = null;
 		final IExecutionTask currentExecutionTask = executionTask;
 		if (currentExecutionTask != null) {
-			final Integer worked = currentExecutionTask.getWorked();
+			final int worked = currentExecutionTask.getWorked();
 			final Integer total = currentExecutionTask.getTotalStepCount();
 			if (total != null) {
-				if (worked == null) {
-					result = "0%";
-				}
-				else {
-					final double percent = (((double) worked) * 100) / total;
-					result = "" + Math.round(percent) + "%";
-				}
+				final double percent = (((double) worked) * 100) / total;
+				result = "" + Math.round(percent) + "%";
 			}
 			else {
 				result = "?";
@@ -1316,11 +1313,12 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 		final List<PropertyChangeEvent> result = new LinkedList<PropertyChangeEvent>();
 		for (final Entry<String, IBeanModification> modificationEntry : modifications.entrySet()) {
 			final String propertyName = modificationEntry.getKey();
-			result.add(new PropertyChangeEvent(
-				this,
-				propertyName,
-				modificationEntry.getValue().getNewValue(),
-				beanDto.getValue(propertyName)));
+			result.add(
+					new PropertyChangeEvent(
+						this,
+						propertyName,
+						modificationEntry.getValue().getNewValue(),
+						beanDto.getValue(propertyName)));
 		}
 		return result;
 	}
@@ -1329,11 +1327,12 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 		final List<PropertyChangeEvent> result = new LinkedList<PropertyChangeEvent>();
 		for (final Entry<String, IBeanModification> modificationEntry : undoneModifications.entrySet()) {
 			final String propertyName = modificationEntry.getKey();
-			result.add(new PropertyChangeEvent(
-				this,
-				propertyName,
-				modificationEntry.getValue().getNewValue(),
-				beanDto.getValue(propertyName)));
+			result.add(
+					new PropertyChangeEvent(
+						this,
+						propertyName,
+						modificationEntry.getValue().getNewValue(),
+						beanDto.getValue(propertyName)));
 		}
 		return result;
 	}
