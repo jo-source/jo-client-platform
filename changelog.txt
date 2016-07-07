@@ -83,4 +83,5 @@ Features:
 Bugfixes:
 
 * Fixed issue #24 https://github.com/jo-source/jo-client-platform/issues/24 Handling of ServiceCanceledException for Service decorators
+* Fixes issue #47 https://github.com/jo-source/jo-client-platform/issues/47 MenuInterceptor for BeanReleationTree will not be invoked for root node
 
