@@ -903,16 +903,23 @@ final class BeanRelationTreeImpl<CHILD_BEAN_TYPE> extends ControlWrapper impleme
 
 		private final IBeanRelationNodeModel root;
 		private final ITree tree;
-		private final IMenuModel nodeMenu;
+		private IMenuModel nodeMenu;
 
 		private RootModelListener() {
 			this.root = treeModel.getRoot();
 			this.tree = getWidget();
-			this.nodeMenu = new MenuModel();
 
+			final MenuModel menu = new MenuModel();
 			final IAction copyAction = createCopyAction(root);
 			if (copyAction != null) {
-				nodeMenu.addAction(copyAction);
+				menu.addAction(copyAction);
+			}
+
+			if (menuInterceptor != null) {
+				nodeMenu = menuInterceptor.nodeMenu(root, menu);
+			}
+			else {
+				nodeMenu = menu;
 			}
 		}
 
