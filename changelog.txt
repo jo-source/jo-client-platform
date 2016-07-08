@@ -79,6 +79,9 @@ Bugfixes:
 
 Features:
 
+* Implemented issue #48 https://github.com/jo-source/jo-client-platform/issues/48 Allow to create transient bean proxy with default validators and default values easily
+  Some methods on IBeanProxyFactory became deprecated
+
 
 Bugfixes:
 
