@@ -195,7 +195,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 
 		this.validateUnmodifiedBeans = validateUnmodfiedBeans;
 		this.beanPropertyValidators = new LinkedList<IBeanPropertyValidator<BEAN_TYPE>>();
-		beanPropertyValidators.add(new BeanPropertyValidatorImpl<BEAN_TYPE>(attributes));
+		beanPropertyValidators.add(new AttributesBeanPropertyValidator<BEAN_TYPE>(attributes));
 		for (final IBeanValidator<BEAN_TYPE> beanValidator : beanValidators) {
 			beanPropertyValidators.add(new BeanPropertyValidatorAdapter<BEAN_TYPE>(beanValidator));
 		}
@@ -211,7 +211,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 		this.linkType = linkType;
 
 		this.beansStateTracker = CapUiToolkit.beansStateTracker(beanProxyContext, validateUnmodfiedBeans);
-		this.beanProxyFactory = CapUiToolkit.beanProxyFactory(beanTypeId, beanType);
+		this.beanProxyFactory = CapUiToolkit.beanProxyFactory(beanTypeId, beanType, attributeSet);
 
 		this.changeObservable = new ChangeObservable();
 		this.beanListModelObservable = new BeanListModelObservable<BEAN_TYPE>();
@@ -539,7 +539,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 	}
 
 	private IBeanProxy<BEAN_TYPE> createBeanProxy(final IBeanDto beanDto) {
-		final IBeanProxy<BEAN_TYPE> beanProxy = beanProxyFactory.createProxy(beanDto, attributeSet);
+		final IBeanProxy<BEAN_TYPE> beanProxy = beanProxyFactory.createProxy(beanDto);
 		if (!EmptyCheck.isEmpty(beanPropertyValidators)) {
 			beanProxy.addBeanPropertyValidators(beanPropertyValidators);
 		}
@@ -548,7 +548,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 
 	@Override
 	public IBeanProxy<BEAN_TYPE> addTransientBean() {
-		final IBeanProxy<BEAN_TYPE> result = beanProxyFactory.createTransientProxy(attributeSet, defaultValues);
+		final IBeanProxy<BEAN_TYPE> result = beanProxyFactory.createTransientProxy(defaultValues);
 		if (!EmptyCheck.isEmpty(beanPropertyValidators)) {
 			result.addBeanPropertyValidators(beanPropertyValidators);
 		}
@@ -672,7 +672,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 				}
 			});
 
-			dummyBean = beanProxyFactory.createDummyProxy(attributeSet);
+			dummyBean = beanProxyFactory.createDummyProxy();
 			beansStateTracker.register(dummyBean);
 			dummyBean.setExecutionTask(executionTask);
 
@@ -733,7 +733,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 
 			if (beanDtos.size() > 0) {
 				final IBeanDto beanDto = beanDtos.iterator().next();
-				bean = beanProxyFactory.createProxy(beanDto, attributeSet);
+				bean = beanProxyFactory.createProxy(beanDto);
 				bean.setValidateUnmodified(validateUnmodifiedBeans);
 				if (!EmptyCheck.isEmpty(beanPropertyValidators)) {
 					bean.addBeanPropertyValidators(beanPropertyValidators);

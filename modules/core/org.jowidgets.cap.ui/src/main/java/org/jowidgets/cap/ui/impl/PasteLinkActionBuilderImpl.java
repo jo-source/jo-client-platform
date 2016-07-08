@@ -139,8 +139,9 @@ final class PasteLinkActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABL
 							public IBeanProxy<LINK_BEAN_TYPE> create() {
 								final IBeanProxyFactory<LINK_BEAN_TYPE> proxyFactory = CapUiToolkit.beanProxyFactory(
 										linkBeanTypeId,
-										linkBeanType);
-								return proxyFactory.createTransientProxy(attributeSet, defaultValues);
+										linkBeanType,
+										attributeSet);
+								return proxyFactory.createTransientProxy(defaultValues);
 							}
 						});
 					}

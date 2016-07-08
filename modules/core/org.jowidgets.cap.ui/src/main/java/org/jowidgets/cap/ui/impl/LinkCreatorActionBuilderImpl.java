@@ -162,15 +162,15 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 							}
 							final IBeanProxyFactory<LINK_BEAN_TYPE> proxyFactory = CapUiToolkit.beanProxyFactory(
 									linkBeanTypeId,
-									linkBeanType);
+									linkBeanType,
+									attributeSet);
 
-							final IBeanProxy<LINK_BEAN_TYPE> result = proxyFactory.createTransientProxy(
-									attributeSet,
-									defaultValues);
-							result.addBeanPropertyValidator(new BeanPropertyValidatorImpl<LINK_BEAN_TYPE>(attributes));
-							if (!EmptyCheck.isEmpty(descriptor.getValidators())) {
-								result.addBeanPropertyValidators((Collection) descriptor.getValidators());
+							final IBeanProxy<LINK_BEAN_TYPE> result = proxyFactory.createTransientProxy(defaultValues);
+							result.addBeanPropertyValidator(new AttributesBeanPropertyValidator<LINK_BEAN_TYPE>(attributes));
+							for (final IBeanValidator beanValidator : descriptor.getValidators()) {
+								result.addBeanPropertyValidator(new BeanPropertyValidatorAdapter<LINK_BEAN_TYPE>(beanValidator));
 							}
+
 							return result;
 						}
 					});
@@ -198,7 +198,7 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 						setLinkBeanForm(beanFormBp);
 
 						final List<IBeanPropertyValidator<LINK_BEAN_TYPE>> linkValidators = new LinkedList<IBeanPropertyValidator<LINK_BEAN_TYPE>>();
-						linkValidators.add(new BeanPropertyValidatorImpl<LINK_BEAN_TYPE>(filteredAttributes));
+						linkValidators.add(new AttributesBeanPropertyValidator<LINK_BEAN_TYPE>(filteredAttributes));
 						for (final IBeanValidator beanValidator : descriptor.getValidators()) {
 							linkValidators.add(new BeanPropertyValidatorAdapter<LINK_BEAN_TYPE>(beanValidator));
 						}

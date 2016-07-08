@@ -30,8 +30,10 @@ package org.jowidgets.cap.ui.impl;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import junit.framework.Assert;
 
@@ -50,9 +52,10 @@ import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeSet;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
+import org.jowidgets.cap.ui.api.bean.BeanProxyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeanPropertyValidator;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
-import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
+import org.jowidgets.cap.ui.api.bean.IBeanProxyFactoryBuilder;
 import org.jowidgets.cap.ui.api.form.IBeanFormControlFactory;
 import org.jowidgets.cap.ui.api.form.IBeanFormLayouter;
 import org.jowidgets.cap.ui.api.widgets.IBeanForm;
@@ -122,9 +125,11 @@ public class BeanProxyImplTest {
 	}
 
 	private IBeanProxy<IPerson> createPersonProxy(final IBeanDto beanDto, final List<IBeanPropertyValidator<IPerson>> validators) {
-		final IBeanProxyFactory<IPerson> factory = CapUiToolkit.beanProxyFactory(IPerson.class, IPerson.class);
-		final IBeanProxy<IPerson> result = factory.createProxy(beanDto, personAttributes);
-		result.addBeanPropertyValidators(validators);
+		final IBeanProxyFactoryBuilder<IPerson> factoryBuilder = BeanProxyFactory.builder(IPerson.class);
+		factoryBuilder.setBeanTypeId(IPerson.class);
+		factoryBuilder.setAttributes(personAttributes);
+		factoryBuilder.setBeanPropertyValidators(validators);
+		final IBeanProxy<IPerson> result = factoryBuilder.build().createProxy(beanDto);
 		return result;
 	}
 
@@ -148,7 +153,7 @@ public class BeanProxyImplTest {
 		final Collection<IAttribute<Object>> attributes) {
 		final List<IBeanPropertyValidator<BEAN_TYPE>> result = new LinkedList<IBeanPropertyValidator<BEAN_TYPE>>();
 
-		result.add(new BeanPropertyValidatorImpl<BEAN_TYPE>(attributes));
+		result.add(new AttributesBeanPropertyValidator<BEAN_TYPE>(attributes));
 		for (final IBeanValidator beanValidator : descriptor.getValidators()) {
 			result.add(new BeanPropertyValidatorAdapter<BEAN_TYPE>(beanValidator));
 		}
@@ -266,6 +271,39 @@ public class BeanProxyImplTest {
 		//make all valid again
 		personProxy.undoModifications();
 		Assert.assertTrue(personProxy.validate().isOk());
+	}
+
+	@Test
+	public void testCreateTransientPersonWithFactoryDefaults() {
+		final IBeanProxyFactoryBuilder<IPerson> factoryBuilder = BeanProxyFactory.builder(IPerson.class);
+		factoryBuilder.setBeanTypeId(IPerson.class);
+		factoryBuilder.setAttributes(personAttributes);
+		final Map<String, Object> defaultValues = new HashMap<String, Object>();
+		defaultValues.put(IPerson.NAME_PROPERTY, PERSON_NAME);
+		defaultValues.put(IPerson.LAST_NAME_PROPERTY, PERSON_LAST_NAME);
+		factoryBuilder.setDefaultValuesForTransientBeans(defaultValues);
+		final IPerson person = factoryBuilder.build().createTransientProxy().getBean();
+		Assert.assertEquals(PERSON_NAME, person.getName());
+		Assert.assertEquals(PERSON_LAST_NAME, person.getLastname());
+	}
+
+	@Test
+	public void testCreateTransientPersonWithOverriddenDefaults() {
+		final IBeanProxyFactoryBuilder<IPerson> factoryBuilder = BeanProxyFactory.builder(IPerson.class);
+		factoryBuilder.setBeanTypeId(IPerson.class);
+		factoryBuilder.setAttributes(personAttributes);
+		final Map<String, Object> originalDefaults = new HashMap<String, Object>();
+		originalDefaults.put(IPerson.NAME_PROPERTY, INVALID_PERSON_NAME);
+		originalDefaults.put(IPerson.LAST_NAME_PROPERTY, INVALID_PERSON_NAME);
+
+		final Map<String, Object> overridenDefaults = new HashMap<String, Object>();
+		overridenDefaults.put(IPerson.NAME_PROPERTY, PERSON_NAME);
+
+		factoryBuilder.setDefaultValuesForTransientBeans(originalDefaults);
+		final IPerson person = factoryBuilder.build().createTransientProxy(overridenDefaults).getBean();
+		Assert.assertEquals(PERSON_NAME, person.getName());
+		//all properties will be overridden and if not set, null is the new default
+		Assert.assertNull(person.getLastname());
 	}
 
 	private IBeanForm<IPerson> createBeanForm() {

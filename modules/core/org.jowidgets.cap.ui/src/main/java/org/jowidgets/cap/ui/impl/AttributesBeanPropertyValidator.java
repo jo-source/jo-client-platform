@@ -45,11 +45,11 @@ import org.jowidgets.validation.IValidator;
 import org.jowidgets.validation.ValidationResult;
 import org.jowidgets.validation.Validator;
 
-final class BeanPropertyValidatorImpl<BEAN_TYPE> implements IBeanPropertyValidator<BEAN_TYPE> {
+final class AttributesBeanPropertyValidator<BEAN_TYPE> implements IBeanPropertyValidator<BEAN_TYPE> {
 
 	private final Map<String, IValidator<Object>> validators;
 
-	BeanPropertyValidatorImpl(final Collection<? extends IAttribute<?>> attributes) {
+	AttributesBeanPropertyValidator(final Collection<? extends IAttribute<?>> attributes) {
 		this.validators = new HashMap<String, IValidator<Object>>();
 		for (final IAttribute<?> attribute : attributes) {
 			final IValidator<Object> validator = attribute.getValidator();

@@ -29,6 +29,7 @@
 package org.jowidgets.cap.ui.impl;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -38,6 +39,7 @@ import java.util.UUID;
 
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.ui.api.attribute.IAttributeSet;
+import org.jowidgets.cap.ui.api.bean.IBeanPropertyValidator;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
 import org.jowidgets.util.Assert;
@@ -48,12 +50,20 @@ final class BeanProxyFactoryImpl<BEAN_TYPE> implements IBeanProxyFactory<BEAN_TY
 
 	private final Object beanTypeId;
 	private final Class<? extends BEAN_TYPE> beanType;
+	private final IAttributeSet attributeSet;
+	private final Collection<IBeanPropertyValidator<BEAN_TYPE>> validators;
+	private final Map<String, Object> defaultValues;
+	private final boolean validateUnmodified;
 
-	BeanProxyFactoryImpl(final Object beanTypeId, final Class<? extends BEAN_TYPE> beanType) {
-		Assert.paramNotNull(beanTypeId, "beanTypeId");
-		Assert.paramNotNull(beanType, "beanType");
-		this.beanTypeId = beanTypeId;
-		this.beanType = beanType;
+	BeanProxyFactoryImpl(final BeanProxyFactoryBuilderImpl<BEAN_TYPE> builder) {
+		Assert.paramNotNull(builder.getBeanTypeId(), "builder.getBeanTypeId()");
+		Assert.paramNotNull(builder.getBeanType(), "builder.getBeanType()");
+		this.beanTypeId = builder.getBeanTypeId();
+		this.beanType = builder.getBeanType();
+		this.attributeSet = builder.getAttributes();
+		this.validators = new ArrayList<IBeanPropertyValidator<BEAN_TYPE>>(builder.getValidators());
+		this.defaultValues = new HashMap<String, Object>(builder.getDefaultValues());
+		this.validateUnmodified = builder.isValidateUnmodified();
 	}
 
 	@Override
@@ -71,38 +81,94 @@ final class BeanProxyFactoryImpl<BEAN_TYPE> implements IBeanProxyFactory<BEAN_TY
 	public IBeanProxy<BEAN_TYPE> createProxy(final IBeanDto beanDto, final IAttributeSet attributes) {
 		Assert.paramNotNull(beanDto, "beanDto");
 		Assert.paramNotNull(attributes, "attributes");
-		return new BeanProxyImpl<BEAN_TYPE>(beanDto, beanTypeId, beanType, attributes, false, false, false);
+		return create(beanDto, beanTypeId, beanType, attributes, false, false, false, validateUnmodified);
 	}
 
 	@Override
 	public IBeanProxy<BEAN_TYPE> createTransientProxy(final IAttributeSet attributes) {
-		return createTransientProxy(attributes, new HashMap<String, Object>());
+		Assert.paramNotNull(attributes, "attributes");
+		return createTransientProxy(attributes, defaultValues);
 	}
 
 	@Override
 	public IBeanProxy<BEAN_TYPE> createTransientProxy(final IAttributeSet attributes, Map<String, Object> defaultValues) {
+		Assert.paramNotNull(attributes, "attributes");
 		if (defaultValues == null) {
 			defaultValues = new HashMap<String, Object>();
 		}
-		return new BeanProxyImpl<BEAN_TYPE>(new BeanDto(defaultValues), beanTypeId, beanType, attributes, false, true, false);
+		return create(new BeanDto(defaultValues), beanTypeId, beanType, attributes, false, true, false, validateUnmodified);
 	}
 
 	@Override
 	public IBeanProxy<BEAN_TYPE> createLastRowDummyProxy(final IAttributeSet attributes) {
-		return new BeanProxyImpl<BEAN_TYPE>(
-			new BeanDto(new HashMap<String, Object>()),
-			beanTypeId,
-			beanType,
-			attributes,
-			false,
-			true,
-			true);
+		Assert.paramNotNull(attributes, "attributes");
+		return create(
+				new BeanDto(new HashMap<String, Object>()),
+				beanTypeId,
+				beanType,
+				attributes,
+				false,
+				true,
+				true,
+				validateUnmodified);
 	}
 
 	@Override
 	public IBeanProxy<BEAN_TYPE> createDummyProxy(final IAttributeSet attributes) {
 		Assert.paramNotNull(attributes, "attributes");
-		return new BeanProxyImpl<BEAN_TYPE>(new DummyBeanDto(), beanTypeId, beanType, attributes, true, false, false);
+		return create(new DummyBeanDto(), beanTypeId, beanType, attributes, true, false, false, validateUnmodified);
+	}
+
+	IBeanProxy<BEAN_TYPE> create(
+		final IBeanDto beanDto,
+		final Object beanTypeId,
+		final Class<? extends BEAN_TYPE> beanType,
+		final IAttributeSet attributes,
+		final boolean isDummy,
+		final boolean isTransient,
+		final boolean isLastRowDummy,
+		final boolean validateUnmodified) {
+		final BeanProxyImpl<BEAN_TYPE> result = new BeanProxyImpl<BEAN_TYPE>(
+			beanDto,
+			beanTypeId,
+			beanType,
+			attributes,
+			isDummy,
+			isTransient,
+			isLastRowDummy,
+			validateUnmodified);
+		result.addBeanPropertyValidators(validators);
+		return result;
+	}
+
+	@Override
+	public List<IBeanProxy<BEAN_TYPE>> createProxies(final Collection<? extends IBeanDto> beanDtos) {
+		return createProxies(beanDtos, attributeSet);
+	}
+
+	@Override
+	public IBeanProxy<BEAN_TYPE> createProxy(final IBeanDto beanDto) {
+		return createProxy(beanDto, attributeSet);
+	}
+
+	@Override
+	public IBeanProxy<BEAN_TYPE> createTransientProxy() {
+		return createTransientProxy(attributeSet);
+	}
+
+	@Override
+	public IBeanProxy<BEAN_TYPE> createTransientProxy(final Map<String, Object> defaultValues) {
+		return createTransientProxy(attributeSet, defaultValues);
+	}
+
+	@Override
+	public IBeanProxy<BEAN_TYPE> createLastRowDummyProxy() {
+		return createLastRowDummyProxy(attributeSet);
+	}
+
+	@Override
+	public IBeanProxy<BEAN_TYPE> createDummyProxy() {
+		return createDummyProxy(attributeSet);
 	}
 
 	private static class DummyBeanDto implements IBeanDto {

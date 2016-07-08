@@ -31,6 +31,7 @@ package org.jowidgets.cap.ui.api;
 import java.util.Collection;
 
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.cap.ui.api.attribute.IAttributeSet;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
 import org.jowidgets.cap.ui.api.bean.BeanMessageType;
 import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
@@ -39,6 +40,7 @@ import org.jowidgets.cap.ui.api.bean.IBeanMessageBuilder;
 import org.jowidgets.cap.ui.api.bean.IBeanMessageFixBuilder;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyContext;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
+import org.jowidgets.cap.ui.api.bean.IBeanProxyFactoryBuilder;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyLabelRenderer;
 import org.jowidgets.cap.ui.api.bean.IBeansStateTracker;
 import org.jowidgets.cap.ui.api.clipboard.IBeanSelectionClipboardBuilder;
@@ -109,7 +111,27 @@ public interface ICapUiToolkit {
 
 	<BEAN_TYPE> IBeansStateTracker<BEAN_TYPE> beansStateTracker(IBeanProxyContext context, boolean validateUnmodifiedBeans);
 
+	<BEAN_TYPE> IBeanProxyFactoryBuilder<BEAN_TYPE> beanProxyFactoryBuilder(Class<? extends BEAN_TYPE> beanType);
+
+	<BEAN_TYPE> IBeanProxyFactoryBuilder<BEAN_TYPE> beanProxyFactoryBuilder(Object entityId);
+
+	/**
+	 * Creates a new bean proxy factory
+	 * 
+	 * @param beanTypeId The bean type id to use for created bean proxies
+	 * @param beanType The bean type to use for the created bean proxies
+	 * 
+	 * @return A new IBeanProxyFactory
+	 * 
+	 * @deprecated Use {@link #beanProxyFactory(Object, Class, IAttributeSet)}
+	 */
+	@Deprecated
 	<BEAN_TYPE> IBeanProxyFactory<BEAN_TYPE> beanProxyFactory(Object beanTypeId, Class<? extends BEAN_TYPE> beanType);
+
+	<BEAN_TYPE> IBeanProxyFactory<BEAN_TYPE> beanProxyFactory(
+		Object beanTypeId,
+		Class<? extends BEAN_TYPE> beanType,
+		IAttributeSet attributeSet);
 
 	IBeanProxyContext beanProxyContext();
 

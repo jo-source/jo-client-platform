@@ -37,16 +37,89 @@ import org.jowidgets.cap.ui.api.attribute.IAttributeSet;
 
 public interface IBeanProxyFactory<BEAN_TYPE> {
 
+	/**
+	 * Creates a list of bean proxies from bean dtos
+	 * 
+	 * @param beanDtos The bean dto's to crate the bean proxies for
+	 * 
+	 * @return A list of created bean proxies
+	 */
+	List<IBeanProxy<BEAN_TYPE>> createProxies(Collection<? extends IBeanDto> beanDtos);
+
+	/**
+	 * Creates a bean proxy from an bean dto
+	 * 
+	 * @param beanDto The bean dto to crate the bean proxy from
+	 * 
+	 * @return A bean proxy
+	 */
+	IBeanProxy<BEAN_TYPE> createProxy(IBeanDto beanDto);
+
+	/**
+	 * Creates a transient bean proxy
+	 * 
+	 * @return The created bean proxy
+	 */
+	IBeanProxy<BEAN_TYPE> createTransientProxy();
+
+	/**
+	 * Creates a transient bean proxy with given default values.
+	 * 
+	 * Remark: This may override the default values defined for the factory
+	 * 
+	 * @param defaultValues The default value to use
+	 * 
+	 * @returnThe created bean proxy
+	 */
+	IBeanProxy<BEAN_TYPE> createTransientProxy(Map<String, Object> defaultValues);
+
+	/**
+	 * Creates a last row dummy bean proxy
+	 * 
+	 * @return The created bean proxy
+	 */
+	IBeanProxy<BEAN_TYPE> createLastRowDummyProxy();
+
+	/**
+	 * Creates a dummy bean proxy
+	 * 
+	 * @return The created dummy bean proxy
+	 */
+	IBeanProxy<BEAN_TYPE> createDummyProxy();
+
+	@Deprecated
+	/**
+	 * @deprecated replaced by {@link #createProxies(Collection<? extends IBeanDto> beanDtos)}
+	 */
 	List<IBeanProxy<BEAN_TYPE>> createProxies(Collection<? extends IBeanDto> beanDtos, IAttributeSet attributes);
 
+	@Deprecated
+	/**
+	 * @deprecated replaced by {@link #createProxy(IBeanDto beanDto)}
+	 */
 	IBeanProxy<BEAN_TYPE> createProxy(IBeanDto beanDto, IAttributeSet attributes);
 
+	@Deprecated
+	/**
+	 * @deprecated replaced by {@link #createTransientProxy()}
+	 */
 	IBeanProxy<BEAN_TYPE> createTransientProxy(IAttributeSet attributes);
 
+	@Deprecated
+	/**
+	 * @deprecated replaced by {@link #createTransientProxy(Map<String, Object> defaultValues)}
+	 */
 	IBeanProxy<BEAN_TYPE> createTransientProxy(IAttributeSet attributes, Map<String, Object> defaultValues);
 
+	@Deprecated
+	/**
+	 * @deprecated replaced by {@link #createLastRowDummyProxy()}
+	 */
 	IBeanProxy<BEAN_TYPE> createLastRowDummyProxy(IAttributeSet attributes);
 
+	@Deprecated
+	/**
+	 * @deprecated replaced by {@link #createDummyProxy(IAttributeSet attributes)}
+	 */
 	IBeanProxy<BEAN_TYPE> createDummyProxy(IAttributeSet attributes);
-
 }

@@ -341,8 +341,11 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 
 		final List<IBeanProxy<LINKABLE_BEAN_TYPE>> defaultLinkedBeans;
 		if (linkableBeanForm != null) {
-			defaultLinkedBeans = Collections.singletonList(
-					createDefaultBean(linkableBeanForm, linkableBeanTypeId, linkableBeanType, linkableBeanPropertyValidators));
+			defaultLinkedBeans = Collections.singletonList(createDefaultBean(
+					linkableBeanForm,
+					linkableBeanTypeId,
+					linkableBeanType,
+					linkableBeanPropertyValidators));
 		}
 		else {
 			defaultLinkedBeans = Collections.emptyList();
@@ -406,9 +409,9 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 					defaultValues.put(propertyName, defaultValue);
 				}
 			}
-			final IBeanProxyFactory<BEAN_TYPE> proxyFactory = CapUiToolkit.beanProxyFactory(beanTypeId, beanType);
-			final IBeanProxy<BEAN_TYPE> result = proxyFactory.createTransientProxy(attributeSet, defaultValues);
-			result.addBeanPropertyValidator(new BeanPropertyValidatorImpl<BEAN_TYPE>(attributes));
+			final IBeanProxyFactory<BEAN_TYPE> proxyFactory = CapUiToolkit.beanProxyFactory(beanTypeId, beanType, attributeSet);
+			final IBeanProxy<BEAN_TYPE> result = proxyFactory.createTransientProxy(defaultValues);
+			result.addBeanPropertyValidator(new AttributesBeanPropertyValidator<BEAN_TYPE>(attributes));
 			if (!EmptyCheck.isEmpty(validators)) {
 				result.addBeanPropertyValidators(validators);
 			}

@@ -146,7 +146,8 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 		final IAttributeSet attributes,
 		final boolean isDummy,
 		final boolean isTransient,
-		final boolean isLastRowDummy) {
+		final boolean isLastRowDummy,
+		final boolean validateUnmodified) {
 		Assert.paramNotNull(beanDto, "beanDto");
 		Assert.paramNotNull(beanTypeId, "beanTypeId");
 		Assert.paramNotNull(beanType, "beanType");
@@ -154,7 +155,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 
 		this.attributes = attributes;
 
-		this.validateUnmodified = true;
+		this.validateUnmodified = validateUnmodified;
 		this.disposed = false;
 		this.beanDto = beanDto;
 		this.beanTypeId = beanTypeId;
@@ -219,8 +220,8 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 			attributes,
 			isDummy,
 			isTransient,
-			isLastRowDummy);
-		result.setValidateUnmodified(isValidateUnmodified());
+			isLastRowDummy,
+			validateUnmodified);
 		for (final IBeanModification modification : modifications.values()) {
 			result.setValue(modification.getPropertyName(), modification.getNewValue());
 		}
@@ -249,8 +250,8 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 			attributes,
 			isDummy,
 			isTransient,
-			isLastRowDummy);
-		result.setValidateUnmodified(isValidateUnmodified());
+			isLastRowDummy,
+			validateUnmodified);
 		setValidators(result);
 
 		return result;
@@ -564,9 +565,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 		}
 		if (beanValidationResults.size() > 0) {
 			final Collection<IBeanValidationResult> consolidatedResult;
-			consolidatedResult = consolidateBeanValidationResult(
-					firstWorstIndependendResultHolder,
-					beanValidationResults).values();
+			consolidatedResult = consolidateBeanValidationResult(firstWorstIndependendResultHolder, beanValidationResults).values();
 			setValidationResults(firstWorstIndependendResultHolder, externalValidator.validate(consolidatedResult));
 		}
 	}
@@ -1313,12 +1312,11 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 		final List<PropertyChangeEvent> result = new LinkedList<PropertyChangeEvent>();
 		for (final Entry<String, IBeanModification> modificationEntry : modifications.entrySet()) {
 			final String propertyName = modificationEntry.getKey();
-			result.add(
-					new PropertyChangeEvent(
-						this,
-						propertyName,
-						modificationEntry.getValue().getNewValue(),
-						beanDto.getValue(propertyName)));
+			result.add(new PropertyChangeEvent(
+				this,
+				propertyName,
+				modificationEntry.getValue().getNewValue(),
+				beanDto.getValue(propertyName)));
 		}
 		return result;
 	}
@@ -1327,12 +1325,11 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 		final List<PropertyChangeEvent> result = new LinkedList<PropertyChangeEvent>();
 		for (final Entry<String, IBeanModification> modificationEntry : undoneModifications.entrySet()) {
 			final String propertyName = modificationEntry.getKey();
-			result.add(
-					new PropertyChangeEvent(
-						this,
-						propertyName,
-						modificationEntry.getValue().getNewValue(),
-						beanDto.getValue(propertyName)));
+			result.add(new PropertyChangeEvent(
+				this,
+				propertyName,
+				modificationEntry.getValue().getNewValue(),
+				beanDto.getValue(propertyName)));
 		}
 		return result;
 	}

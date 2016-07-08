@@ -392,7 +392,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		this.maxPageIndex = 0;
 		this.beanProxyContext = beanProxyContext;
 		this.beansStateTracker = CapUiToolkit.beansStateTracker(beanProxyContext, validateUnmodifiedBeans);
-		this.beanProxyFactory = CapUiToolkit.beanProxyFactory(beanTypeId, beanType);
+		this.beanProxyFactory = CapUiToolkit.beanProxyFactory(beanTypeId, beanType, attributeSet);
 		this.beanListModelObservable = new BeanListModelObservable<BEAN_TYPE>();
 		this.beanSelectionObservable = new BeanSelectionObservable<BEAN_TYPE>();
 		this.disposeObservable = new DisposeObservable();
@@ -401,7 +401,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 		this.beanPropertyValidators = new LinkedList<IBeanPropertyValidator<BEAN_TYPE>>();
 		this.beanPropertyValidatorsView = Collections.unmodifiableList(beanPropertyValidators);
-		beanPropertyValidators.add(new BeanPropertyValidatorImpl<BEAN_TYPE>(attributes));
+		beanPropertyValidators.add(new AttributesBeanPropertyValidator<BEAN_TYPE>(attributes));
 		for (final IBeanValidator<BEAN_TYPE> beanValidator : beanValidators) {
 			addBeanValidator(beanValidator);
 		}
@@ -504,7 +504,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 	private void addLastBean() {
 		if (lastBean == null) {
-			lastBean = beanProxyFactory.createLastRowDummyProxy(attributeSet);
+			lastBean = beanProxyFactory.createLastRowDummyProxy();
 			lastBean.addBeanPropertyValidators(beanPropertyValidators);
 
 			final ValueHolder<PropertyChangeListener> listenerHolder = new ValueHolder<PropertyChangeListener>();
@@ -994,8 +994,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			final Set<Integer> selectedPages = getSelectedPages();
 			for (final Integer pageIndexW : new ArrayList<Integer>(data.keySet())) {
 				final int pageIndex = pageIndexW.intValue();
-				if (!selectedPages.contains(pageIndexW)
-					&& (pageIndex < visiblePageIndex - 1 || pageIndex > visiblePageIndex + 1)) {
+				if (!selectedPages.contains(pageIndexW) && (pageIndex < visiblePageIndex - 1 || pageIndex > visiblePageIndex + 1)) {
 					removePage(pageIndex);
 				}
 				else {
@@ -1290,7 +1289,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 	@Override
 	public IBeanProxy<BEAN_TYPE> addTransientBean() {
-		final IBeanProxy<BEAN_TYPE> result = beanProxyFactory.createTransientProxy(attributeSet, defaultValues);
+		final IBeanProxy<BEAN_TYPE> result = beanProxyFactory.createTransientProxy(defaultValues);
 		if (!EmptyCheck.isEmpty(beanPropertyValidators)) {
 			result.addBeanPropertyValidators(beanPropertyValidators);
 		}
@@ -1299,7 +1298,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	}
 
 	private IBeanProxy<BEAN_TYPE> createBeanProxy(final IBeanDto beanDto) {
-		final IBeanProxy<BEAN_TYPE> beanProxy = beanProxyFactory.createProxy(beanDto, attributeSet);
+		final IBeanProxy<BEAN_TYPE> beanProxy = beanProxyFactory.createProxy(beanDto);
 		beanProxy.setValidateUnmodified(validateUnmodifiedBeans);
 		if (!EmptyCheck.isEmpty(beanPropertyValidators)) {
 			beanProxy.addBeanPropertyValidators(beanPropertyValidators);
@@ -2529,7 +2528,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 		void startPageLoading() {
 
-			dummyBeanProxy = beanProxyFactory.createDummyProxy(attributeSet);
+			dummyBeanProxy = beanProxyFactory.createDummyProxy();
 			executionTask = CapUiToolkit.executionTaskFactory().create();
 			executionTask.setDescription(LOADING_DATA.get());
 			executionTask.addExecutionCallbackListener(new AbstractUiExecutionCallbackListener() {

@@ -216,7 +216,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 
 		this.validateUnmodifiedBeans = validateUnmodifiedBeans;
 		this.beanPropertyValidators = new LinkedList<IBeanPropertyValidator<CHILD_BEAN_TYPE>>();
-		beanPropertyValidators.add(new BeanPropertyValidatorImpl<CHILD_BEAN_TYPE>(childBeanAttributes));
+		beanPropertyValidators.add(new AttributesBeanPropertyValidator<CHILD_BEAN_TYPE>(childBeanAttributes));
 		for (final IBeanValidator<CHILD_BEAN_TYPE> beanValidator : beanValidators) {
 			beanPropertyValidators.add(new BeanPropertyValidatorAdapter<CHILD_BEAN_TYPE>(beanValidator));
 		}
@@ -228,7 +228,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 		this.beanSelectionObservable = new BeanSelectionObservable<CHILD_BEAN_TYPE>();
 		this.beanProxyContext = beanProxyContext;
 		this.beanStateTracker = CapUiToolkit.beansStateTracker(beanProxyContext, validateUnmodifiedBeans);
-		this.beanProxyFactory = CapUiToolkit.beanProxyFactory(childBeanTypeId, childBeanType);
+		this.beanProxyFactory = CapUiToolkit.beanProxyFactory(childBeanTypeId, childBeanType, childBeanAttributeSet);
 		this.filters = new HashMap<String, IUiFilter>();
 
 		this.sortModel = new SortModelImpl();
@@ -681,7 +681,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 
 	@Override
 	public IBeanProxy<CHILD_BEAN_TYPE> addTransientBean() {
-		final IBeanProxy<CHILD_BEAN_TYPE> result = beanProxyFactory.createTransientProxy(childBeanAttributeSet, defaultValues);
+		final IBeanProxy<CHILD_BEAN_TYPE> result = beanProxyFactory.createTransientProxy(defaultValues);
 		if (!EmptyCheck.isEmpty(beanPropertyValidators)) {
 			result.addBeanPropertyValidators(beanPropertyValidators);
 		}
@@ -690,7 +690,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 	}
 
 	private IBeanProxy<CHILD_BEAN_TYPE> createBeanProxy(final IBeanDto beanDto) {
-		final IBeanProxy<CHILD_BEAN_TYPE> beanProxy = beanProxyFactory.createProxy(beanDto, childBeanAttributeSet);
+		final IBeanProxy<CHILD_BEAN_TYPE> beanProxy = beanProxyFactory.createProxy(beanDto);
 		beanProxy.setValidateUnmodified(validateUnmodifiedBeans);
 		if (!EmptyCheck.isEmpty(beanPropertyValidators)) {
 			beanProxy.addBeanPropertyValidators(beanPropertyValidators);
@@ -943,7 +943,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 				}
 			});
 
-			dummyBean = beanProxyFactory.createDummyProxy(childBeanAttributeSet);
+			dummyBean = beanProxyFactory.createDummyProxy();
 			beanStateTracker.register(dummyBean);
 			dummyBean.setExecutionTask(executionTask);
 			addedData.add(dummyBean);
@@ -1015,7 +1015,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 			beanStateTracker.register(beansToRegister);
 
 			if (beanDtos.size() > pageSize) {
-				endOfPageDummy = beanProxyFactory.createDummyProxy(childBeanAttributeSet);
+				endOfPageDummy = beanProxyFactory.createDummyProxy();
 				endOfPageDummy.setCustomProperty(IS_PAGE_END_DUMMY, Boolean.TRUE);
 			}
 

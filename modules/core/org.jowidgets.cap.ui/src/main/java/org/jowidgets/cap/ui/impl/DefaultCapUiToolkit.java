@@ -33,6 +33,7 @@ import java.util.Collections;
 
 import org.jowidgets.cap.ui.api.ICapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.cap.ui.api.attribute.IAttributeSet;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
 import org.jowidgets.cap.ui.api.bean.BeanMessageType;
 import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
@@ -41,6 +42,7 @@ import org.jowidgets.cap.ui.api.bean.IBeanMessageBuilder;
 import org.jowidgets.cap.ui.api.bean.IBeanMessageFixBuilder;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyContext;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
+import org.jowidgets.cap.ui.api.bean.IBeanProxyFactoryBuilder;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyLabelRenderer;
 import org.jowidgets.cap.ui.api.bean.IBeansStateTracker;
 import org.jowidgets.cap.ui.api.clipboard.IBeanSelectionClipboardBuilder;
@@ -73,6 +75,7 @@ import org.jowidgets.cap.ui.api.types.IEntityTypeId;
 import org.jowidgets.cap.ui.api.widgets.ICapApiBluePrintFactory;
 import org.jowidgets.cap.ui.api.workbench.ICapWorkbenchToolkit;
 import org.jowidgets.cap.ui.impl.workbench.CapWorkbenchToolkitImpl;
+import org.jowidgets.util.Assert;
 
 public final class DefaultCapUiToolkit implements ICapUiToolkit {
 
@@ -209,7 +212,32 @@ public final class DefaultCapUiToolkit implements ICapUiToolkit {
 	public <BEAN_TYPE> IBeanProxyFactory<BEAN_TYPE> beanProxyFactory(
 		final Object beanTypeId,
 		final Class<? extends BEAN_TYPE> beanType) {
-		return new BeanProxyFactoryImpl<BEAN_TYPE>(beanTypeId, beanType);
+		final IBeanProxyFactoryBuilder<BEAN_TYPE> builder = beanProxyFactoryBuilder(beanType);
+		return builder.setBeanTypeId(beanTypeId).build();
+	}
+
+	@Override
+	public <BEAN_TYPE> IBeanProxyFactory<BEAN_TYPE> beanProxyFactory(
+		final Object beanTypeId,
+		final Class<? extends BEAN_TYPE> beanType,
+		final IAttributeSet attributeSet) {
+		final IBeanProxyFactoryBuilder<BEAN_TYPE> builder = beanProxyFactoryBuilder(beanType);
+		return builder.setBeanTypeId(beanTypeId).setAttributes(attributeSet).build();
+	}
+
+	@SuppressWarnings({"unchecked", "rawtypes"})
+	@Override
+	public <BEAN_TYPE> IBeanProxyFactoryBuilder<BEAN_TYPE> beanProxyFactoryBuilder(final Object entityId) {
+		final Class beanType = EntityServiceHelper.getBeanType(entityId);
+		final IBeanProxyFactoryBuilder<BEAN_TYPE> result = beanProxyFactoryBuilder(beanType);
+		result.configureFromEntityService(entityId);
+		return result;
+	}
+
+	@Override
+	public <BEAN_TYPE> IBeanProxyFactoryBuilder<BEAN_TYPE> beanProxyFactoryBuilder(final Class<? extends BEAN_TYPE> beanType) {
+		Assert.paramNotNull(beanType, "beanType");
+		return new BeanProxyFactoryBuilderImpl<BEAN_TYPE>(beanType);
 	}
 
 	@Override

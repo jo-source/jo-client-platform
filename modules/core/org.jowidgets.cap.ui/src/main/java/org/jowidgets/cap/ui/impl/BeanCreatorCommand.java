@@ -55,6 +55,7 @@ import org.jowidgets.cap.ui.api.attribute.AttributeSet;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeSet;
 import org.jowidgets.cap.ui.api.bean.BeanMessageType;
+import org.jowidgets.cap.ui.api.bean.BeanProxyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanMessageBuilder;
 import org.jowidgets.cap.ui.api.bean.IBeanPropertyValidator;
@@ -89,7 +90,7 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 	private final IBeanProxyFactory<BEAN_TYPE> beanFactory;
 	private final ExecutionObservable<List<IBeanDto>> executionObservable;
 	private final IProvider<Map<String, Object>> defaultValuesProvider;
-	private final IAttributeSet attributes;
+	private final IAttributeSet attributeSet;
 	private final List<ICreatorInterceptor<BEAN_TYPE>> creatorInterceptors;
 
 	private Rectangle dialogBounds;
@@ -133,7 +134,6 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 			null,
 			true);
 
-		this.beanFactory = CapUiToolkit.beanProxyFactory(beanTypeId, beanType);
 		this.executionObservable = new ExecutionObservable<List<IBeanDto>>(executionInterceptors);
 		this.creatorInterceptors = new LinkedList<ICreatorInterceptor<BEAN_TYPE>>(creatorInterceptors);
 
@@ -142,7 +142,8 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 		this.creatorService = creatorService;
 		this.parentBeanKeysProvider = parentBeanKeysProvider;
 		this.exceptionConverter = exceptionConverter;
-		this.attributes = AttributeSet.create(attributes);
+		this.attributeSet = AttributeSet.create(attributes);
+		this.beanFactory = BeanProxyFactory.create(beanTypeId, beanType, attributeSet);
 		this.defaultValuesProvider = defaultValuesProvider;
 		this.beanPropertyValidators = new LinkedList<IBeanPropertyValidator<BEAN_TYPE>>(beanPropertyValidators);
 	}
@@ -168,7 +169,7 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 			return;
 		}
 
-		IBeanProxy<BEAN_TYPE> bean = beanFactory.createTransientProxy(attributes, defaultValuesProvider.get());
+		IBeanProxy<BEAN_TYPE> bean = beanFactory.createTransientProxy(defaultValuesProvider.get());
 		for (final ICreatorInterceptor<BEAN_TYPE> interceptor : creatorInterceptors) {
 			interceptor.onBeanInitialized(bean);
 		}
@@ -234,7 +235,7 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 
 	private IBeanData createBeanData(final IBeanProxy<BEAN_TYPE> bean) {
 		final IBeanDataBuilder builder = CapCommonToolkit.beanDataBuilder();
-		for (final IAttribute<?> attribute : attributes) {
+		for (final IAttribute<?> attribute : attributeSet) {
 			final String propertyName = attribute.getPropertyName();
 			if (propertyName != IBean.ID_PROPERTY && !IBeanProxy.ALL_META_ATTRIBUTES.contains(propertyName)) {
 				builder.setProperty(propertyName, bean.getValue(propertyName));

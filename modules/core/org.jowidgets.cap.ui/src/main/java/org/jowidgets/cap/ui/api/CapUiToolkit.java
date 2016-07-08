@@ -33,6 +33,7 @@ import java.util.Collection;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
+import org.jowidgets.cap.ui.api.attribute.IAttributeSet;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
 import org.jowidgets.cap.ui.api.bean.BeanMessageType;
 import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
@@ -41,6 +42,7 @@ import org.jowidgets.cap.ui.api.bean.IBeanMessageBuilder;
 import org.jowidgets.cap.ui.api.bean.IBeanMessageFixBuilder;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyContext;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyFactory;
+import org.jowidgets.cap.ui.api.bean.IBeanProxyFactoryBuilder;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyLabelRenderer;
 import org.jowidgets.cap.ui.api.bean.IBeansStateTracker;
 import org.jowidgets.cap.ui.api.clipboard.IBeanSelectionClipboardBuilder;
@@ -167,10 +169,36 @@ public final class CapUiToolkit {
 		return getInstance().beansStateTracker(context, validateUnmodifiedBeans);
 	}
 
+	public static <BEAN_TYPE> IBeanProxyFactoryBuilder<BEAN_TYPE> beanProxyFactoryBuilder(final Class<BEAN_TYPE> beanType) {
+		return getInstance().beanProxyFactoryBuilder(beanType);
+	}
+
+	public static <BEAN_TYPE> IBeanProxyFactoryBuilder<BEAN_TYPE> beanProxyFactoryBuilder(final Object entityId) {
+		return getInstance().beanProxyFactoryBuilder(entityId);
+	}
+
+	/**
+	 * Creates a new bean proxy factory
+	 * 
+	 * @param beanTypeId The bean type id to use for created bean proxies
+	 * @param beanType The bean type to use for the created bean proxies
+	 * 
+	 * @return A new IBeanProxyFactory
+	 * 
+	 * @deprecated Use {@link #beanProxyFactory(Object, Class, IAttributeSet)}
+	 */
+	@Deprecated
 	public static <BEAN_TYPE> IBeanProxyFactory<BEAN_TYPE> beanProxyFactory(
 		final Object beanTypeId,
 		final Class<? extends BEAN_TYPE> proxyType) {
 		return getInstance().beanProxyFactory(beanTypeId, proxyType);
+	}
+
+	public static <BEAN_TYPE> IBeanProxyFactory<BEAN_TYPE> beanProxyFactory(
+		final Object beanTypeId,
+		final Class<? extends BEAN_TYPE> beanType,
+		final IAttributeSet attributeSet) {
+		return getInstance().beanProxyFactory(beanTypeId, beanType, attributeSet);
 	}
 
 	public static IBeanProxyContext beanProxyContext() {
