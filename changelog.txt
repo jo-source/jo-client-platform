@@ -87,4 +87,7 @@ Bugfixes:
 
 * Fixed issue #24 https://github.com/jo-source/jo-client-platform/issues/24 Handling of ServiceCanceledException for Service decorators
 * Fixes issue #47 https://github.com/jo-source/jo-client-platform/issues/47 MenuInterceptor for BeanReleationTree will not be invoked for root node
+* Fixed issue #46 https://github.com/jo-source/jo-client-platform/issues/46 Class cast Exception when creating linked bean with IBeanValidator
+* Fixed issue #41 https://github.com/jo-source/jo-client-platform/issues/41 Selection lost in BeanTable when sorting twice in quick succession
+* Fixed issue #43 https://github.com/jo-source/jo-client-platform/issues/43 JpaServiceDecorator PersistenceUnitName 
 
