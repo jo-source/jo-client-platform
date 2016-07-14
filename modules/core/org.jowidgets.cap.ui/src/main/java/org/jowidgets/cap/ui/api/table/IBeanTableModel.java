@@ -136,7 +136,7 @@ public interface IBeanTableModel<BEAN_TYPE> extends
 	IReaderService<Object> getReaderService();
 
 	/**
-	 * Creates a reader that could be used to read the beans from a table external.
+	 * Creates a reader that could be used to read the beans from a table externally.
 	 * The read beans will not be associated with this model.
 	 * This could be used e.g. to export beans of this table.
 	 * 
