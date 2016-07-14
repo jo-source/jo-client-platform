@@ -83,7 +83,10 @@ import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.common.api.sort.SortOrder;
 import org.jowidgets.cap.common.api.validation.IBeanValidator;
 import org.jowidgets.cap.common.tools.bean.BeanKey;
+import org.jowidgets.cap.common.tools.execution.BeanDtoListUpdateCallbackAdapter;
 import org.jowidgets.cap.common.tools.execution.ResultCallbackAdapter;
+import org.jowidgets.cap.common.tools.execution.UpdateCallbackAdapter;
+import org.jowidgets.cap.common.tools.service.DummyReaderService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.AttributeSet;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
@@ -786,7 +789,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	public IReaderService<Object> getReaderService() {
 		//Do not return the null reader service. It is only used to make this
 		//implementation more robust. The reader service set on this model is null
-		if (readerService instanceof NullReaderService<?>) {
+		if (readerService instanceof DummyReaderService<?>) {
 			return null;
 		}
 		else {
@@ -2377,7 +2380,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 				});
 
 				readerService.count(
-						createResultCallback(),
+						new UpdateCallbackAdapter<Integer>(createResultCallback()),
 						getParentBeanKeys(),
 						filter,
 						readerParameterProvider.get(),
@@ -2612,7 +2615,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 		void readDataFromService() {
 			cachedReaderService.read(
-					createResultCallback(),
+					new BeanDtoListUpdateCallbackAdapter(createResultCallback()),
 					getParentBeanKeys(),
 					filter,
 					sortModel.getSorting(),
@@ -2902,7 +2905,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			});
 
 			readerService.read(
-					createResultCallback(),
+					new BeanDtoListUpdateCallbackAdapter(createResultCallback()),
 					getParentBeanKeys(),
 					filter,
 					sortModel.getSorting(),
@@ -3183,13 +3186,26 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			final int firstRow,
 			final int maxRows,
 			final IExecutionCallback executionCallback) {
-			readerService.read(result, parentBeanKeys, filter, sorting, firstRow, maxRows, parameter, executionCallback);
+			readerService.read(
+					new BeanDtoListUpdateCallbackAdapter(result),
+					parentBeanKeys,
+					filter,
+					sorting,
+					firstRow,
+					maxRows,
+					parameter,
+					executionCallback);
 
 		}
 
 		@Override
 		public void count(final IResultCallback<Integer> result, final IExecutionCallback executionCallback) {
-			readerService.count(result, getParentBeanKeys(), getFilter(), readerParameterProvider.get(), executionCallback);
+			readerService.count(
+					new UpdateCallbackAdapter<Integer>(result),
+					getParentBeanKeys(),
+					getFilter(),
+					readerParameterProvider.get(),
+					executionCallback);
 		}
 
 	}

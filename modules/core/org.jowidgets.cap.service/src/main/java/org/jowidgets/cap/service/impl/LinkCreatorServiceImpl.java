@@ -58,6 +58,7 @@ import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.common.api.service.ILinkCreatorService;
 import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.tools.execution.SyncResultCallback;
+import org.jowidgets.cap.common.tools.execution.UpdateCallbackAdapter;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
@@ -448,7 +449,12 @@ final class LinkCreatorServiceImpl<SOURCE_BEAN_TYPE extends IBean, LINKED_BEAN_T
 				}
 
 				final SyncResultCallback<Integer> result = new SyncResultCallback<Integer>();
-				linkableReaderService.count(result, Collections.singletonList(sourceBean), filter, null, executionCallback);
+				linkableReaderService.count(
+						new UpdateCallbackAdapter<Integer>(result),
+						Collections.singletonList(sourceBean),
+						filter,
+						null,
+						executionCallback);
 				final Integer count = result.getResultSynchronious();
 
 				if (count == null || count.intValue() < linkableKeys.length) {

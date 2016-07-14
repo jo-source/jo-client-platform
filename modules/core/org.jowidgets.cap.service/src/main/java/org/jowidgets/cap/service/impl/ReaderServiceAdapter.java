@@ -31,12 +31,14 @@ package org.jowidgets.cap.service.impl;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.common.api.bean.IBeanDtosUpdate;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.cap.common.api.execution.IResultCallback;
+import org.jowidgets.cap.common.api.execution.IUpdateCallback;
 import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.sort.ISort;
+import org.jowidgets.cap.common.tools.bean.BeanDtosInsertionUpdate;
 import org.jowidgets.cap.service.api.adapter.ISyncReaderService;
 
 public final class ReaderServiceAdapter<PARAM_TYPE> implements IReaderService<PARAM_TYPE> {
@@ -49,7 +51,7 @@ public final class ReaderServiceAdapter<PARAM_TYPE> implements IReaderService<PA
 
 	@Override
 	public void read(
-		final IResultCallback<List<IBeanDto>> resultCallback,
+		final IUpdateCallback<IBeanDtosUpdate> resultCallback,
 		final List<? extends IBeanKey> parentBeanKeys,
 		final IFilter filter,
 		final List<? extends ISort> sorting,
@@ -66,7 +68,7 @@ public final class ReaderServiceAdapter<PARAM_TYPE> implements IReaderService<PA
 					maxRows,
 					parameter,
 					executionCallback);
-			resultCallback.finished(result);
+			resultCallback.finished(new BeanDtosInsertionUpdate(result));
 		}
 		catch (final Exception exception) {
 			resultCallback.exception(exception);
@@ -75,7 +77,7 @@ public final class ReaderServiceAdapter<PARAM_TYPE> implements IReaderService<PA
 
 	@Override
 	public void count(
-		final IResultCallback<Integer> resultCallback,
+		final IUpdateCallback<Integer> resultCallback,
 		final List<? extends IBeanKey> parentBeanKeys,
 		final IFilter filter,
 		final PARAM_TYPE parameter,

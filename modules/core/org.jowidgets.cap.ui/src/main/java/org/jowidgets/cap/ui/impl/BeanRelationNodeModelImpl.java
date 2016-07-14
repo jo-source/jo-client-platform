@@ -62,7 +62,9 @@ import org.jowidgets.cap.common.api.service.IUpdaterService;
 import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.common.api.validation.IBeanValidator;
 import org.jowidgets.cap.common.tools.bean.BeanKey;
+import org.jowidgets.cap.common.tools.execution.BeanDtoListUpdateCallbackAdapter;
 import org.jowidgets.cap.common.tools.execution.ResultCallbackAdapter;
+import org.jowidgets.cap.common.tools.service.DummyReaderService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.AttributeSet;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
@@ -319,7 +321,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 	public IReaderService<Object> getReaderService() {
 		//Do not return the null reader service. It is only used to make this
 		//implementation more robust. The reader service set on this model is null
-		if (readerService instanceof NullReaderService<?>) {
+		if (readerService instanceof DummyReaderService<?>) {
 			return null;
 		}
 		else {
@@ -949,7 +951,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 			addedData.add(dummyBean);
 
 			readerService.read(
-					createResultCallback(),
+					new BeanDtoListUpdateCallbackAdapter(createResultCallback()),
 					getParentBeanKeys(),
 					filter,
 					sortModel.getSorting(),

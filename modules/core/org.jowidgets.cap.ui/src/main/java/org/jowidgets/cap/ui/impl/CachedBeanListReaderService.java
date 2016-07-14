@@ -40,15 +40,20 @@ import java.util.Set;
 
 import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.common.api.bean.IBeanDtosUpdate;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.exception.ServiceCanceledException;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
+import org.jowidgets.cap.common.api.execution.IUpdateCallback;
 import org.jowidgets.cap.common.api.filter.IBeanDtoFilter;
 import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.sort.BeanDtoComparator;
 import org.jowidgets.cap.common.api.sort.ISort;
+import org.jowidgets.cap.common.tools.bean.BeanDtosInsertionUpdate;
+import org.jowidgets.cap.common.tools.execution.BeanDtoListResultCallbackAdapter;
+import org.jowidgets.cap.common.tools.execution.BeanDtoListUpdateCallbackAdapter;
 import org.jowidgets.cap.common.tools.filter.FilterUtil;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.logging.api.ILogger;
@@ -83,7 +88,7 @@ final class CachedBeanListReaderService<PARAM_TYPE, BEAN_TYPE> implements IReade
 
 	@Override
 	public void read(
-		final IResultCallback<List<IBeanDto>> result,
+		final IUpdateCallback<IBeanDtosUpdate> result,
 		final List<? extends IBeanKey> parentBeanKeys,
 		final IFilter filter,
 		final List<? extends ISort> sorting,
@@ -97,22 +102,30 @@ final class CachedBeanListReaderService<PARAM_TYPE, BEAN_TYPE> implements IReade
 		}
 		else if (!isReadFromCachePossible(parentBeanKeys, filter, firstRow, maxRows, parameter)) {
 			clearCache(parentBeanKeys);
-			final IResultCallback<List<IBeanDto>> decoratedResult = new ReadResultCallback(
-				result,
-				parentBeanKeys,
-				filter,
-				sorting,
-				firstRow,
-				maxRows);
+			final IResultCallback<List<IBeanDto>> decoratedResult = new ReadResultCallback(new BeanDtoListResultCallbackAdapter(
+				result), parentBeanKeys, filter, sorting, firstRow, maxRows);
 			LOGGER.debug("Read from service");
-			original.read(decoratedResult, parentBeanKeys, filter, sorting, firstRow, maxRows, parameter, executionCallback);
+			original.read(
+					new BeanDtoListUpdateCallbackAdapter(decoratedResult),
+					parentBeanKeys,
+					filter,
+					sorting,
+					firstRow,
+					maxRows,
+					parameter,
+					executionCallback);
 		}
 		else {
 			final ReadCacheEntry cacheEntry = readCache.get(getParentBeanKey(parentBeanKeys));
 			if (cacheEntry != null) {
 				try {
 					LOGGER.debug("Read from cache");
-					result.finished(cacheEntry.getResult(filter, sorting, firstRow, maxRows, executionCallback));
+					result.finished(new BeanDtosInsertionUpdate(cacheEntry.getResult(
+							filter,
+							sorting,
+							firstRow,
+							maxRows,
+							executionCallback)));
 				}
 				catch (final Exception e) {
 					result.exception(e);
@@ -120,14 +133,14 @@ final class CachedBeanListReaderService<PARAM_TYPE, BEAN_TYPE> implements IReade
 			}
 			else {
 				final List<IBeanDto> emptyList = Collections.emptyList();
-				result.finished(emptyList);
+				result.finished(new BeanDtosInsertionUpdate(emptyList));
 			}
 		}
 	}
 
 	@Override
 	public void count(
-		final IResultCallback<Integer> result,
+		final IUpdateCallback<Integer> result,
 		final List<? extends IBeanKey> parentBeanKeys,
 		final IFilter filter,
 		final PARAM_TYPE parameter,
@@ -376,8 +389,9 @@ final class CachedBeanListReaderService<PARAM_TYPE, BEAN_TYPE> implements IReade
 					}
 
 					if (result.size() >= firstRow) {
-						lastResult = new LinkedList<IBeanDto>(
-							result.subList(firstRow, Math.min(firstRow + maxRows, result.size())));
+						lastResult = new LinkedList<IBeanDto>(result.subList(
+								firstRow,
+								Math.min(firstRow + maxRows, result.size())));
 					}
 					else {
 						lastResult = new LinkedList<IBeanDto>();

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, grossmann
+ * Copyright (c) 2016, MGrossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,45 +26,35 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.tools.service;
+package org.jowidgets.cap.common.tools.execution;
 
-import java.util.Collections;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanDtosUpdate;
-import org.jowidgets.cap.common.api.bean.IBeanKey;
-import org.jowidgets.cap.common.api.execution.IExecutionCallback;
+import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.execution.IUpdateCallback;
-import org.jowidgets.cap.common.api.filter.IFilter;
-import org.jowidgets.cap.common.api.service.IReaderService;
-import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.common.tools.bean.BeanDtosInsertionUpdate;
+import org.jowidgets.util.Assert;
 
-public class DummyReaderService<PARAM_TYPE> implements IReaderService<PARAM_TYPE> {
+public final class BeanDtoListResultCallbackAdapter implements IResultCallback<List<IBeanDto>> {
 
-	@Override
-	public void read(
-		final IUpdateCallback<IBeanDtosUpdate> result,
-		final List<? extends IBeanKey> parentBeanKeys,
-		final IFilter filter,
-		final List<? extends ISort> sorting,
-		final int firstRow,
-		final int maxRows,
-		final PARAM_TYPE parameter,
-		final IExecutionCallback executionCallback) {
-		final List<IBeanDto> emptyList = Collections.emptyList();
-		result.finished(new BeanDtosInsertionUpdate(emptyList));
+	private final IUpdateCallback<IBeanDtosUpdate> updateCallback;
+
+	public BeanDtoListResultCallbackAdapter(final IUpdateCallback<IBeanDtosUpdate> updateCallback) {
+		Assert.paramNotNull(updateCallback, "updateCallback");
+		this.updateCallback = updateCallback;
 	}
 
 	@Override
-	public void count(
-		final IUpdateCallback<Integer> result,
-		final List<? extends IBeanKey> parentBeanKeys,
-		final IFilter filter,
-		final PARAM_TYPE parameter,
-		final IExecutionCallback executionCallback) {
-		result.finished(Integer.valueOf(0));
+	public void finished(final List<IBeanDto> result) {
+		updateCallback.finished(new BeanDtosInsertionUpdate(result));
+
+	}
+
+	@Override
+	public void exception(final Throwable exception) {
+		updateCallback.exception(exception);
 	}
 
 }

@@ -35,14 +35,16 @@ import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
+import org.jowidgets.cap.common.api.bean.IBeanDtosUpdate;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.cap.common.api.execution.IResultCallback;
+import org.jowidgets.cap.common.api.execution.IUpdateCallback;
 import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.sort.ISort;
+import org.jowidgets.cap.common.tools.bean.BeanDtosInsertionUpdate;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.model.LinkType;
@@ -236,7 +238,7 @@ final class BeanRelationTreeModelBuilderImpl<CHILD_BEAN_TYPE> extends
 
 		@Override
 		public void read(
-			final IResultCallback<List<IBeanDto>> resultCallback,
+			final IUpdateCallback<IBeanDtosUpdate> resultCallback,
 			final List<? extends IBeanKey> parentBeanKeys,
 			final IFilter filter,
 			final List<? extends ISort> sorting,
@@ -258,7 +260,7 @@ final class BeanRelationTreeModelBuilderImpl<CHILD_BEAN_TYPE> extends
 					}
 				}
 
-				resultCallback.finished(result);
+				resultCallback.finished(new BeanDtosInsertionUpdate(result));
 			}
 			catch (final Exception e) {
 				resultCallback.exception(e);
@@ -280,7 +282,7 @@ final class BeanRelationTreeModelBuilderImpl<CHILD_BEAN_TYPE> extends
 
 		@Override
 		public void count(
-			final IResultCallback<Integer> resultCallback,
+			final IUpdateCallback<Integer> resultCallback,
 			final List<? extends IBeanKey> parentBeanKeys,
 			final IFilter filter,
 			final Void parameter,

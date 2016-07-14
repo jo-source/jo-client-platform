@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, grossmann
+ * Copyright (c) 2016, MGrossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,43 +26,48 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl;
+package org.jowidgets.cap.common.tools.execution;
 
-import java.util.Collections;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBeanDto;
-import org.jowidgets.cap.common.api.bean.IBeanKey;
-import org.jowidgets.cap.common.api.execution.IExecutionCallback;
+import org.jowidgets.cap.common.api.bean.IBeanDtosInsertionUpdate;
+import org.jowidgets.cap.common.api.bean.IBeanDtosUpdate;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
-import org.jowidgets.cap.common.api.filter.IFilter;
-import org.jowidgets.cap.common.api.service.IReaderService;
-import org.jowidgets.cap.common.api.sort.ISort;
+import org.jowidgets.cap.common.api.execution.IUpdateCallback;
+import org.jowidgets.util.Assert;
 
-final class NullReaderService<PARAM_TYPE> implements IReaderService<PARAM_TYPE> {
+public class BeanDtoListUpdateCallbackAdapter implements IUpdateCallback<IBeanDtosUpdate> {
 
-	@Override
-	public void read(
-		final IResultCallback<List<IBeanDto>> result,
-		final List<? extends IBeanKey> parentBeanKeys,
-		final IFilter filter,
-		final List<? extends ISort> sorting,
-		final int firstRow,
-		final int maxRows,
-		final PARAM_TYPE parameter,
-		final IExecutionCallback executionCallback) {
-		final List<IBeanDto> emptyList = Collections.emptyList();
-		result.finished(emptyList);
+	private final IResultCallback<List<IBeanDto>> resultCallback;
+
+	public BeanDtoListUpdateCallbackAdapter(final IResultCallback<List<IBeanDto>> resultCallback) {
+		Assert.paramNotNull(resultCallback, "resultCallback");
+		this.resultCallback = resultCallback;
 	}
 
 	@Override
-	public void count(
-		final IResultCallback<Integer> result,
-		final List<? extends IBeanKey> parentBeanKeys,
-		final IFilter filter,
-		final PARAM_TYPE parameter,
-		final IExecutionCallback executionCallback) {
-		result.finished(0);
+	public void finished(final IBeanDtosUpdate result) {
+		if (result instanceof IBeanDtosInsertionUpdate) {
+			resultCallback.finished(((IBeanDtosInsertionUpdate) result).getInsertedBeans());
+		}
+		else if (result == null) {
+			resultCallback.finished(null);
+		}
+		else {
+			throw new IllegalArgumentException(
+				"Only insertion updates are implemented for this callback. Feel free and implement it.");
+		}
+	}
+
+	@Override
+	public void exception(final Throwable exception) {
+		resultCallback.exception(exception);
+	}
+
+	@Override
+	public void update(final IBeanDtosUpdate result) {
+		throw new UnsupportedOperationException("Update is not supported for this callback. Feel free and implement it.");
 	}
 
 }

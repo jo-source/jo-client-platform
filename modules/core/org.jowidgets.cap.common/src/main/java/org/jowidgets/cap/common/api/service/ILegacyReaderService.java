@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, grossmann, beuck
+ * Copyright (c) 2011, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -31,15 +31,13 @@ package org.jowidgets.cap.common.api.service;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBeanDto;
-import org.jowidgets.cap.common.api.bean.IBeanDtosUpdate;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
-import org.jowidgets.cap.common.api.execution.IUpdateCallback;
 import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.common.api.sort.ISort;
 
-public interface IReaderService2<PARAM_TYPE> {
+public interface ILegacyReaderService<PARAM_TYPE> {
 
 	/**
 	 * Reads the beans asynchronous.
@@ -61,7 +59,6 @@ public interface IReaderService2<PARAM_TYPE> {
 	 */
 	void read(
 		IResultCallback<List<IBeanDto>> result,
-		IUpdateCallback<IBeanDtosUpdate> updates,
 		List<? extends IBeanKey> parentBeanKeys,
 		IFilter filter,
 		List<? extends ISort> sorting,
@@ -89,7 +86,6 @@ public interface IReaderService2<PARAM_TYPE> {
 	 */
 	void count(
 		IResultCallback<Integer> result,
-		IUpdateCallback<Integer> update,
 		List<? extends IBeanKey> parentBeanKeys,
 		IFilter filter,
 		PARAM_TYPE parameter,

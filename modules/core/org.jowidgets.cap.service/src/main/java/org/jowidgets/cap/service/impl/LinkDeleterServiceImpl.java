@@ -55,6 +55,7 @@ import org.jowidgets.cap.common.api.service.IDeleterService;
 import org.jowidgets.cap.common.api.service.ILinkDeleterService;
 import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.sort.ISort;
+import org.jowidgets.cap.common.tools.execution.BeanDtoListUpdateCallbackAdapter;
 import org.jowidgets.cap.common.tools.execution.SyncResultCallback;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
@@ -199,7 +200,15 @@ final class LinkDeleterServiceImpl<SOURCE_BEAN_TYPE extends IBean, LINKED_BEAN_T
 		final List<ISort> sorting = Collections.emptyList();
 		final List<IBeanKey> parentBeanKeys = Collections.emptyList();
 		final SyncResultCallback<List<IBeanDto>> syncResultCallback = new SyncResultCallback<List<IBeanDto>>();
-		linkReaderService.read(syncResultCallback, parentBeanKeys, filter, sorting, 0, maxRows, null, executionCallback);
+		linkReaderService.read(
+				new BeanDtoListUpdateCallbackAdapter(syncResultCallback),
+				parentBeanKeys,
+				filter,
+				sorting,
+				0,
+				maxRows,
+				null,
+				executionCallback);
 		return syncResultCallback.getResultSynchronious();
 	}
 

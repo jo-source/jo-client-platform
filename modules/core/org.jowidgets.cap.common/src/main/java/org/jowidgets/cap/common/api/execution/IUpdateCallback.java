@@ -28,10 +28,9 @@
 
 package org.jowidgets.cap.common.api.execution;
 
-public interface IUpdateCallback<RESULT_TYPE> {
+public interface IUpdateCallback<RESULT_TYPE> extends IResultCallback<RESULT_TYPE> {
 
+	//no updates after finished
 	void update(RESULT_TYPE result);
-
-	void exception(Throwable exception);
 
 }

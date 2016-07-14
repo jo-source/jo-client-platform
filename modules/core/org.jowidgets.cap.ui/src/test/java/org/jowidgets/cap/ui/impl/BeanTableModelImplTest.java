@@ -46,13 +46,15 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.common.api.bean.IBeanDtosUpdate;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.cap.common.api.execution.IResultCallback;
+import org.jowidgets.cap.common.api.execution.IUpdateCallback;
 import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.common.api.sort.SortOrder;
+import org.jowidgets.cap.common.tools.bean.BeanDtosInsertionUpdate;
 import org.jowidgets.cap.common.tools.sort.Sort;
 import org.jowidgets.cap.ui.api.attribute.Attribute;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
@@ -105,7 +107,7 @@ public class BeanTableModelImplTest {
 		return new IReaderService<Void>() {
 			@Override
 			public void read(
-				final IResultCallback<List<IBeanDto>> result,
+				final IUpdateCallback<IBeanDtosUpdate> result,
 				final List<? extends IBeanKey> parentBeanKeys,
 				final IFilter filter,
 				final List<? extends ISort> sorting,
@@ -115,16 +117,22 @@ public class BeanTableModelImplTest {
 				final IExecutionCallback executionCallback) {
 
 				if (!sorting.isEmpty() && sorting.get(0).getSortOrder().equals(SortOrder.DESC)) {
-					result.finished(Arrays.asList((IBeanDto) bean3, (IBeanDto) bean2, (IBeanDto) bean1));
+					result.finished(new BeanDtosInsertionUpdate(Arrays.asList(
+							(IBeanDto) bean3,
+							(IBeanDto) bean2,
+							(IBeanDto) bean1)));
 				}
 				else {
-					result.finished(Arrays.asList((IBeanDto) bean1, (IBeanDto) bean2, (IBeanDto) bean3));
+					result.finished(new BeanDtosInsertionUpdate(Arrays.asList(
+							(IBeanDto) bean1,
+							(IBeanDto) bean2,
+							(IBeanDto) bean3)));
 				}
 			}
 
 			@Override
 			public void count(
-				final IResultCallback<Integer> result,
+				final IUpdateCallback<Integer> result,
 				final List<? extends IBeanKey> parentBeanKeys,
 				final IFilter filter,
 				final Void parameter,
@@ -316,14 +324,14 @@ public class BeanTableModelImplTest {
 			}
 
 			@Override
-			public <T> T invokeAny(final Collection<? extends Callable<T>> tasks, final long timeout, final TimeUnit unit)
-					throws InterruptedException, ExecutionException, TimeoutException {
+			public <T> T invokeAny(final Collection<? extends Callable<T>> tasks, final long timeout, final TimeUnit unit) throws InterruptedException,
+					ExecutionException,
+					TimeoutException {
 				throw new UnsupportedOperationException();
 			}
 
 			@Override
-			public <T> T invokeAny(final Collection<? extends Callable<T>> tasks)
-					throws InterruptedException, ExecutionException {
+			public <T> T invokeAny(final Collection<? extends Callable<T>> tasks) throws InterruptedException, ExecutionException {
 				throw new UnsupportedOperationException();
 			}
 
@@ -404,8 +412,9 @@ public class BeanTableModelImplTest {
 			}
 
 			@Override
-			public Object get(final long timeout, final TimeUnit unit)
-					throws InterruptedException, ExecutionException, TimeoutException {
+			public Object get(final long timeout, final TimeUnit unit) throws InterruptedException,
+					ExecutionException,
+					TimeoutException {
 				return result;
 			}
 

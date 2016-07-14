@@ -26,30 +26,30 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.tools.bean;
+package org.jowidgets.cap.common.tools.bean;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBeanDto;
-import org.jowidgets.cap.common.api.bean.IBeanDtosChangeUpdate;
+import org.jowidgets.cap.common.api.bean.IBeanDtosInsertionUpdate;
 import org.jowidgets.util.Assert;
 
-public final class BeanDtosChangeUpdate implements IBeanDtosChangeUpdate, Serializable {
+public final class BeanDtosInsertionUpdate implements IBeanDtosInsertionUpdate, Serializable {
 
 	private static final long serialVersionUID = 1L;
 
-	private final List<IBeanDto> changedBeans;
+	private final List<IBeanDto> insertedBeans;
 
-	public BeanDtosChangeUpdate(final List<IBeanDto> changedBeans) {
-		Assert.paramNotEmpty(changedBeans, "changedBeans");
-		this.changedBeans = new ArrayList<IBeanDto>(changedBeans);
+	public BeanDtosInsertionUpdate(final List<IBeanDto> insertedBeans) {
+		Assert.paramNotNull(insertedBeans, "insertedBeans");
+		this.insertedBeans = new ArrayList<IBeanDto>(insertedBeans);
 	}
 
 	@Override
-	public List<IBeanDto> getChangedBeans() {
-		return changedBeans;
+	public List<IBeanDto> getInsertedBeans() {
+		return insertedBeans;
 	}
 
 }

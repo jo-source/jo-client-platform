@@ -30,10 +30,10 @@ package org.jowidgets.cap.common.api.service;
 
 import java.util.List;
 
-import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.common.api.bean.IBeanDtosUpdate;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.cap.common.api.execution.IResultCallback;
+import org.jowidgets.cap.common.api.execution.IUpdateCallback;
 import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.common.api.sort.ISort;
 
@@ -44,11 +44,14 @@ public interface IReaderService<PARAM_TYPE> {
 	 * 
 	 * This method returns directly and provides the result with help of the given
 	 * result callback. In case of success, a list of IBeanDto objects will be
-	 * returned to the callback with the {@link IResultCallback#finished(Object)} method,
-	 * in case of an exception, the {@link IResultCallback#exception(Throwable)} will be
+	 * returned to the callback with the {@link IUpdateCallback#finished(Object)} method,
+	 * in case of an exception, the {@link IUpdateCallback#exception(Throwable)} will be
 	 * invoked with the given exception.
 	 * 
 	 * @param result The result callback that will be invoked on success or error
+	 *            TODO
+	 *            ########################################################################################################__NB
+	 * 
 	 * @param parentBeanKeys The parent keys for master - detail readers
 	 * @param filter The filter, may be null
 	 * @param sorting The sorting, may be empty but never null
@@ -58,7 +61,7 @@ public interface IReaderService<PARAM_TYPE> {
 	 * @param executionCallback Callback to send progress or get informed when user canceled
 	 */
 	void read(
-		IResultCallback<List<IBeanDto>> result,
+		IUpdateCallback<IBeanDtosUpdate> result,
 		List<? extends IBeanKey> parentBeanKeys,
 		IFilter filter,
 		List<? extends ISort> sorting,
@@ -72,20 +75,22 @@ public interface IReaderService<PARAM_TYPE> {
 	 * 
 	 * This method returns directly and provides the result with help of the given
 	 * result callback. In case of success, a Integer will be returned to the callback
-	 * with the {@link IResultCallback#finished(Object)} method. The value represents the
+	 * with the {@link IUpdateCallback#finished(Object)} method. The value represents the
 	 * total number of currently available beans by this service, or is null, if count is
 	 * not supported.
-	 * In case of an exception, the {@link IResultCallback#exception(Throwable)} will be
+	 * In case of an exception, the {@link IUpdateCallback#exception(Throwable)} will be
 	 * invoked with the given exception.
 	 * 
 	 * @param result The result callback that will be invoked on success or error
+	 *            TODO
+	 *            ########################################################################################################__NB
 	 * @param parentBeanKeys The parent keys for master - detail readers
 	 * @param filter The filter, may be null
 	 * @param parameter A generic parameter object for further use
 	 * @param executionCallback Callback to send progress or get informed when user canceled
 	 */
 	void count(
-		IResultCallback<Integer> result,
+		IUpdateCallback<Integer> result,
 		List<? extends IBeanKey> parentBeanKeys,
 		IFilter filter,
 		PARAM_TYPE parameter,

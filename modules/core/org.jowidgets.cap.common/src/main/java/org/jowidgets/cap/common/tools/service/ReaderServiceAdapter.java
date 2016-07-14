@@ -26,55 +26,65 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common;
+package org.jowidgets.cap.common.tools.service;
 
 import java.util.List;
 
-import org.jowidgets.cap.common.api.bean.IBeanDto;
-import org.jowidgets.cap.common.api.bean.IBeanDtosChangeUpdate;
 import org.jowidgets.cap.common.api.bean.IBeanDtosUpdate;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.execution.IUpdateCallback;
 import org.jowidgets.cap.common.api.filter.IFilter;
-import org.jowidgets.cap.common.api.service.IReaderService2;
+import org.jowidgets.cap.common.api.service.ILegacyReaderService;
+import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.sort.ISort;
+import org.jowidgets.cap.common.tools.execution.BeanDtoListResultCallbackAdapter;
+import org.jowidgets.cap.common.tools.execution.UpdateCallbackToResultCallbackAdapter;
+import org.jowidgets.util.Assert;
 
-public class ReaderService2Impl implements IReaderService2<Void> {
+public final class ReaderServiceAdapter<PARAM_TYPE> implements IReaderService<PARAM_TYPE> {
+
+	private final ILegacyReaderService<PARAM_TYPE> legacyReaderService;
+
+	public ReaderServiceAdapter(final ILegacyReaderService<PARAM_TYPE> legacyReaderService) {
+		Assert.paramNotNull(legacyReaderService, "legacyReaderService");
+		this.legacyReaderService = legacyReaderService;
+	}
 
 	@Override
 	public void read(
-		final IResultCallback<List<IBeanDto>> result,
-		final IUpdateCallback<IBeanDtosUpdate> updates,
+		final IUpdateCallback<IBeanDtosUpdate> result,
 		final List<? extends IBeanKey> parentBeanKeys,
 		final IFilter filter,
 		final List<? extends ISort> sorting,
 		final int firstRow,
 		final int maxRows,
-		final Void parameter,
+		final PARAM_TYPE parameter,
 		final IExecutionCallback executionCallback) {
-		updates.update(new IBeanDtosChangeUpdate() {
-
-			@Override
-			public List<IBeanDto> getChangedBeans() {
-				// TODO Auto-generated method stub
-				return null;
-			}
-		});
-
+		legacyReaderService.read(
+				new BeanDtoListResultCallbackAdapter(result),
+				parentBeanKeys,
+				filter,
+				sorting,
+				firstRow,
+				maxRows,
+				parameter,
+				executionCallback);
 	}
 
 	@Override
 	public void count(
-		final IResultCallback<Integer> result,
-		final IUpdateCallback<Integer> update,
+		final IUpdateCallback<Integer> result,
 		final List<? extends IBeanKey> parentBeanKeys,
 		final IFilter filter,
-		final Void parameter,
+		final PARAM_TYPE parameter,
 		final IExecutionCallback executionCallback) {
-		// TODO Auto-generated method stub
-
+		legacyReaderService.count(
+				new UpdateCallbackToResultCallbackAdapter<Integer>(result),
+				parentBeanKeys,
+				filter,
+				parameter,
+				executionCallback);
 	}
 
 }
