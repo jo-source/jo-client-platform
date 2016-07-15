@@ -36,6 +36,7 @@ import java.util.concurrent.ScheduledExecutorService;
 
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
+import org.jowidgets.cap.common.api.execution.IUpdateCallback;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.decorator.IExecutionInterceptor;
 import org.jowidgets.util.Assert;
@@ -165,24 +166,11 @@ final class GenericServiceAsyncDecorator implements IDecorator<Object> {
 			if (executionCallback == null) {
 				return original;
 			}
+			else if (original instanceof IUpdateCallback<?>) {
+				return new DecoratedUpdateCallback((IUpdateCallback<Object>) original, executionCallback);
+			}
 			else {
-				return new IResultCallback<Object>() {
-
-					@Override
-					public void finished(final Object result) {
-						if (!executionCallback.isCanceled()) {
-							original.finished(result);
-						}
-					}
-
-					@Override
-					public void exception(final Throwable exception) {
-						if (!executionCallback.isCanceled()) {
-							original.exception(exception);
-						}
-					}
-
-				};
+				return new DecoratedResultCallback(original, executionCallback);
 			}
 		}
 
@@ -195,6 +183,56 @@ final class GenericServiceAsyncDecorator implements IDecorator<Object> {
 				}
 			}
 			return -1;
+		}
+
+	}
+
+	private class DecoratedResultCallback implements IResultCallback<Object> {
+
+		private final IResultCallback<Object> original;
+		private final IExecutionCallback executionCallback;
+
+		DecoratedResultCallback(final IResultCallback<Object> original, final IExecutionCallback executionCallback) {
+			Assert.paramNotNull(original, "original");
+			Assert.paramNotNull(executionCallback, "executionCallback");
+			this.original = original;
+			this.executionCallback = executionCallback;
+		}
+
+		@Override
+		public final void finished(final Object result) {
+			if (!executionCallback.isCanceled()) {
+				original.finished(result);
+			}
+		}
+
+		@Override
+		public final void exception(final Throwable exception) {
+			if (!executionCallback.isCanceled()) {
+				original.exception(exception);
+			}
+		}
+
+		IExecutionCallback getExecutionCallback() {
+			return executionCallback;
+		}
+
+	}
+
+	private final class DecoratedUpdateCallback extends DecoratedResultCallback implements IUpdateCallback<Object> {
+
+		private final IUpdateCallback<Object> original;
+
+		DecoratedUpdateCallback(final IUpdateCallback<Object> original, final IExecutionCallback executionCallback) {
+			super(original, executionCallback);
+			this.original = original;
+		}
+
+		@Override
+		public void update(final Object update) {
+			if (!getExecutionCallback().isCanceled()) {
+				original.update(update);
+			}
 		}
 
 	}

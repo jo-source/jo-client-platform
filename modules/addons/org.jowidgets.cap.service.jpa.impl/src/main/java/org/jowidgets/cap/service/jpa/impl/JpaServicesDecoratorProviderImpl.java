@@ -42,6 +42,7 @@ import javax.persistence.EntityTransaction;
 
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
+import org.jowidgets.cap.common.api.execution.IUpdateCallback;
 import org.jowidgets.cap.common.tools.proxy.AbstractCapServiceInvocationHandler;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.exception.IServiceExceptionLogger;
@@ -119,8 +120,9 @@ final class JpaServicesDecoratorProviderImpl implements IServicesDecoratorProvid
 	private EntityManagerFactory getEntityManagerFactory() {
 		final EntityManagerFactory result = EntityManagerFactoryProvider.get(persistenceUnitName);
 		if (result == null) {
-			throw new IllegalArgumentException(
-				"Could not create an EntityManagerFactory for persistence unit name '" + persistenceUnitName + "'.");
+			throw new IllegalArgumentException("Could not create an EntityManagerFactory for persistence unit name '"
+				+ persistenceUnitName
+				+ "'.");
 		}
 		return result;
 	}
@@ -140,8 +142,7 @@ final class JpaServicesDecoratorProviderImpl implements IServicesDecoratorProvid
 		}
 
 		@Override
-		protected Object invokeSyncSignature(final Method method, final Object[] args, final IExecutionCallback executionCallback)
-				throws Throwable {
+		protected Object invokeSyncSignature(final Method method, final Object[] args, final IExecutionCallback executionCallback) throws Throwable {
 			Tuple<EntityManager, Boolean> entityManagerTuple = null;
 			Tuple<EntityTransaction, Boolean> transactionTuple = null;
 			try {
@@ -185,56 +186,11 @@ final class JpaServicesDecoratorProviderImpl implements IServicesDecoratorProvid
 				return null;
 			}
 
-			final IResultCallback<Object> decoratedResultCallback = new IResultCallback<Object>() {
-
-				@Override
-				public void finished(final Object result) {
-					try {
-						CapServiceToolkit.checkCanceled(executionCallback);
-						transactionCommit(transactionTuple);
-					}
-					catch (final Exception e) {
-						exception(e);
-						return;
-					}
-					finally {
-						try {
-							transactionRollback(transactionTuple);
-						}
-						catch (final Exception e) {
-							exception(e);
-							return;
-						}
-						finally {
-							entityManagerEnd(entityManagerTuple);
-						}
-					}
-					try {
-						CapServiceToolkit.checkCanceled(executionCallback);
-					}
-					catch (final Exception e) {
-						exception(e);
-						return;
-					}
-					resultCallback.finished(result);
-				}
-
-				@Override
-				public void exception(final Throwable exception) {
-					resultCallback.exception(decorateException(exception, executionCallback));
-					try {
-						transactionRollback(transactionTuple);
-					}
-					catch (final Exception e) {
-						//ignore this exception, because earlier an exception was thrown
-						//what may be the cause of this exception
-					}
-					finally {
-						entityManagerEnd(entityManagerTuple);
-					}
-				}
-
-			};
+			final IResultCallback<Object> decoratedResultCallback = getDecoratedResultcCallback(
+					resultCallback,
+					executionCallback,
+					entityManagerTuple,
+					transactionTuple);
 
 			args[resultCallbackIndex] = decoratedResultCallback;
 
@@ -245,6 +201,24 @@ final class JpaServicesDecoratorProviderImpl implements IServicesDecoratorProvid
 			catch (final Exception exception) {
 				decoratedResultCallback.exception(exception);
 				return null;
+			}
+		}
+
+		private IResultCallback<Object> getDecoratedResultcCallback(
+			final IResultCallback<Object> resultCallback,
+			final IExecutionCallback executionCallback,
+			final Tuple<EntityManager, Boolean> entityManagerTuple,
+			final Tuple<EntityTransaction, Boolean> transactionTuple) {
+
+			if (resultCallback instanceof IUpdateCallback<?>) {
+				return new DecoratedUpdateCallback(
+					(IUpdateCallback<Object>) resultCallback,
+					executionCallback,
+					entityManagerTuple,
+					transactionTuple);
+			}
+			else {
+				return new DecoratedResultCallback(resultCallback, executionCallback, entityManagerTuple, transactionTuple);
 			}
 		}
 
@@ -294,10 +268,8 @@ final class JpaServicesDecoratorProviderImpl implements IServicesDecoratorProvid
 			boolean created = false;
 			EntityManager entityManager = EntityManagerHolder.get();
 			if (entityManagerService
-				&& (entityManager == null
-					|| (entityManager != null
-						&& !entityManager.getEntityManagerFactory().getPersistenceUnitUtil().toString().equals(
-								persistenceUnitName)))) {
+				&& (entityManager == null || (entityManager != null && !entityManager.getEntityManagerFactory().getPersistenceUnitUtil().toString().equals(
+						persistenceUnitName)))) {
 				entityManager = getEntityManagerFactory().createEntityManager();
 				EntityManagerHolder.set(entityManager);
 				created = true;
@@ -312,6 +284,133 @@ final class JpaServicesDecoratorProviderImpl implements IServicesDecoratorProvid
 				entityManagerTuple.getFirst().close();
 				EntityManagerHolder.set(null);
 			}
+		}
+
+		private class DecoratedResultCallback implements IResultCallback<Object> {
+
+			private final IResultCallback<Object> resultCallback;
+			private final IExecutionCallback executionCallback;
+			private final Tuple<EntityManager, Boolean> entityManagerTuple;
+			private final Tuple<EntityTransaction, Boolean> transactionTuple;
+
+			DecoratedResultCallback(
+				final IResultCallback<Object> resultCallback,
+				final IExecutionCallback executionCallback,
+				final Tuple<EntityManager, Boolean> entityManagerTuple,
+				final Tuple<EntityTransaction, Boolean> transactionTuple) {
+
+				this.resultCallback = resultCallback;
+				this.executionCallback = executionCallback;
+				this.entityManagerTuple = entityManagerTuple;
+				this.transactionTuple = transactionTuple;
+			}
+
+			@Override
+			public final void finished(final Object result) {
+				try {
+					CapServiceToolkit.checkCanceled(executionCallback);
+					transactionCommit(transactionTuple);
+				}
+				catch (final Exception e) {
+					exception(e);
+					return;
+				}
+				finally {
+					try {
+						transactionRollback(transactionTuple);
+					}
+					catch (final Exception e) {
+						exception(e);
+						return;
+					}
+					finally {
+						entityManagerEnd(entityManagerTuple);
+					}
+				}
+				try {
+					CapServiceToolkit.checkCanceled(executionCallback);
+				}
+				catch (final Exception e) {
+					exception(e);
+					return;
+				}
+				resultCallback.finished(result);
+			}
+
+			@Override
+			public final void exception(final Throwable exception) {
+				resultCallback.exception(decorateException(exception, executionCallback));
+				try {
+					transactionRollback(transactionTuple);
+				}
+				catch (final Exception e) {
+					//ignore this exception, because earlier an exception was thrown
+					//what may be the cause of this exception
+				}
+				finally {
+					entityManagerEnd(entityManagerTuple);
+				}
+			}
+
+			IExecutionCallback getExecutionCallback() {
+				return executionCallback;
+			}
+
+			Tuple<EntityManager, Boolean> getEntityManagerTuple() {
+				return entityManagerTuple;
+			}
+
+			Tuple<EntityTransaction, Boolean> getTransactionTuple() {
+				return transactionTuple;
+			}
+
+		}
+
+		private class DecoratedUpdateCallback extends DecoratedResultCallback implements IUpdateCallback<Object> {
+
+			private final IUpdateCallback<Object> updateCallback;
+
+			DecoratedUpdateCallback(
+				final IUpdateCallback<Object> updateCallback,
+				final IExecutionCallback executionCallback,
+				final Tuple<EntityManager, Boolean> entityManagerTuple,
+				final Tuple<EntityTransaction, Boolean> transactionTuple) {
+				super(updateCallback, executionCallback, entityManagerTuple, transactionTuple);
+				this.updateCallback = updateCallback;
+			}
+
+			@Override
+			public void update(final Object update) {
+				try {
+					CapServiceToolkit.checkCanceled(getExecutionCallback());
+					transactionCommit(getTransactionTuple());
+				}
+				catch (final Exception e) {
+					exception(e);
+					return;
+				}
+				finally {
+					try {
+						transactionRollback(getTransactionTuple());
+					}
+					catch (final Exception e) {
+						exception(e);
+						return;
+					}
+					finally {
+						entityManagerEnd(getEntityManagerTuple());
+					}
+				}
+				try {
+					CapServiceToolkit.checkCanceled(getExecutionCallback());
+				}
+				catch (final Exception e) {
+					exception(e);
+					return;
+				}
+				updateCallback.update(update);
+			}
+
 		}
 
 	}

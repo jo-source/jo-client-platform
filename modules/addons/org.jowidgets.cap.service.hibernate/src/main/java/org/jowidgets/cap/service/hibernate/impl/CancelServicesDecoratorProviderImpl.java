@@ -47,6 +47,7 @@ import org.jowidgets.cap.common.api.exception.ServiceCanceledException;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IExecutionCallbackListener;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
+import org.jowidgets.cap.common.api.execution.IUpdateCallback;
 import org.jowidgets.cap.common.tools.proxy.AbstractCapServiceInvocationHandler;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.jpa.api.EntityManagerFactoryProvider;
@@ -167,30 +168,7 @@ final class CancelServicesDecoratorProviderImpl implements IServicesDecoratorPro
 
 		private Object invoke() {
 
-			final IResultCallback<Object> decoratedResultCallback = new IResultCallback<Object>() {
-
-				@Override
-				public void finished(final Object result) {
-					isRunning.set(false);
-					checkCanceled();
-					resultCallback.finished(result);
-				}
-
-				@Override
-				public void exception(final Throwable exception) {
-					isRunning.set(false);
-					checkCanceled();
-					if (executionCallback != null
-						&& executionCallback.isCanceled()
-						&& !(exception instanceof ServiceCanceledException)) {
-						resultCallback.exception(new ServiceCanceledException());
-					}
-					else {
-						resultCallback.exception(exception);
-
-					}
-				}
-			};
+			final IResultCallback<Object> decoratedResultCallback = createDecoratedResultCallback();
 
 			args[resultCallbackIndex] = decoratedResultCallback;
 
@@ -206,6 +184,15 @@ final class CancelServicesDecoratorProviderImpl implements IServicesDecoratorPro
 				return null;
 			}
 
+		}
+
+		private IResultCallback<Object> createDecoratedResultCallback() {
+			if (resultCallback instanceof IUpdateCallback<?>) {
+				return new DecoratedUpdateCallback();
+			}
+			else {
+				return new DecoratedResultCallback();
+			}
 		}
 
 		private void checkCanceled() {
@@ -249,6 +236,40 @@ final class CancelServicesDecoratorProviderImpl implements IServicesDecoratorPro
 					}
 				});
 			}
+		}
+
+		private class DecoratedResultCallback implements IResultCallback<Object> {
+
+			@Override
+			public final void finished(final Object result) {
+				isRunning.set(false);
+				checkCanceled();
+				resultCallback.finished(result);
+			}
+
+			@Override
+			public final void exception(final Throwable exception) {
+				isRunning.set(false);
+				checkCanceled();
+				if (executionCallback != null
+					&& executionCallback.isCanceled()
+					&& !(exception instanceof ServiceCanceledException)) {
+					resultCallback.exception(new ServiceCanceledException());
+				}
+				else {
+					resultCallback.exception(exception);
+				}
+			}
+		}
+
+		private class DecoratedUpdateCallback extends DecoratedResultCallback implements IUpdateCallback<Object> {
+
+			@Override
+			public void update(final Object result) {
+				checkCanceled();
+				((IUpdateCallback<Object>) resultCallback).update(result);
+			}
+
 		}
 
 	}
