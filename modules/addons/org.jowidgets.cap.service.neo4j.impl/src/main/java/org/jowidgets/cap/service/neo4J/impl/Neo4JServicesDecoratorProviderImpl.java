@@ -38,6 +38,7 @@ import java.util.Set;
 
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
+import org.jowidgets.cap.common.api.execution.IUpdateCallback;
 import org.jowidgets.cap.common.tools.proxy.AbstractCapServiceInvocationHandler;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.exception.IServiceExceptionLogger;
@@ -158,44 +159,10 @@ final class Neo4JServicesDecoratorProviderImpl implements IServicesDecoratorProv
 				tx = null;
 			}
 
-			final IResultCallback<Object> decoratedResultCallback = new IResultCallback<Object>() {
-
-				@Override
-				public void finished(final Object result) {
-					try {
-						CapServiceToolkit.checkCanceled(executionCallback);
-						if (tx != null) {
-							tx.success();
-						}
-					}
-					catch (final Exception e) {
-						exception(e);
-						return;
-					}
-					finally {
-						if (tx != null) {
-							tx.finish();
-						}
-					}
-					resultCallback.finished(result);
-				}
-
-				@Override
-				public void exception(final Throwable exception) {
-					try {
-						if (tx != null) {
-							tx.failure();
-						}
-					}
-					finally {
-						if (tx != null) {
-							tx.finish();
-						}
-					}
-					resultCallback.exception(decorateException(exception, executionCallback));
-				}
-
-			};
+			final IResultCallback<Object> decoratedResultCallback = createDecoratedResultCallback(
+					resultCallback,
+					executionCallback,
+					tx);
 
 			args[resultCallbackIndex] = decoratedResultCallback;
 
@@ -209,6 +176,18 @@ final class Neo4JServicesDecoratorProviderImpl implements IServicesDecoratorProv
 			}
 		}
 
+		private IResultCallback<Object> createDecoratedResultCallback(
+			final IResultCallback<Object> original,
+			final IExecutionCallback executionCallback,
+			final Transaction tx) {
+			if (original instanceof IUpdateCallback<?>) {
+				return new DecoratedUpdateCallback((IUpdateCallback<Object>) original, executionCallback, tx);
+			}
+			else {
+				return new DecoratedResultCallback(original, executionCallback, tx);
+			}
+		}
+
 		private Throwable decorateException(final Throwable exception, final IExecutionCallback executionCallback) {
 			if (executionCallback == null || !executionCallback.isCanceled()) {
 				deprecatedExceptionLogger.log(exception);
@@ -219,6 +198,81 @@ final class Neo4JServicesDecoratorProviderImpl implements IServicesDecoratorProv
 			}
 			exceptionLogger.log(serviceType, exception, result);
 			return result;
+		}
+
+		private class DecoratedResultCallback implements IResultCallback<Object> {
+
+			private final IResultCallback<Object> original;
+			private final IExecutionCallback executionCallback;
+			private final Transaction tx;
+
+			DecoratedResultCallback(
+				final IResultCallback<Object> original,
+				final IExecutionCallback executionCallback,
+				final Transaction tx) {
+
+				Assert.paramNotNull(original, "original");
+				Assert.paramNotNull(executionCallback, "executionCallback");
+
+				this.original = original;
+				this.executionCallback = executionCallback;
+				this.tx = tx;
+			}
+
+			@Override
+			public final void finished(final Object result) {
+				try {
+					CapServiceToolkit.checkCanceled(executionCallback);
+					if (tx != null) {
+						tx.success();
+					}
+				}
+				catch (final Exception e) {
+					exception(e);
+					return;
+				}
+				finally {
+					if (tx != null) {
+						tx.finish();
+					}
+				}
+				original.finished(result);
+			}
+
+			@Override
+			public final void exception(final Throwable exception) {
+				try {
+					if (tx != null) {
+						tx.failure();
+					}
+				}
+				finally {
+					if (tx != null) {
+						tx.finish();
+					}
+				}
+				original.exception(decorateException(exception, executionCallback));
+			}
+
+		}
+
+		private final class DecoratedUpdateCallback extends DecoratedResultCallback implements IUpdateCallback<Object> {
+
+			private final IUpdateCallback<Object> original;
+
+			DecoratedUpdateCallback(
+				final IUpdateCallback<Object> original,
+				final IExecutionCallback executionCallback,
+				final Transaction tx) {
+				super(original, executionCallback, tx);
+				this.original = original;
+			}
+
+			@Override
+			public void update(final Object result) {
+				original.update(result);
+			}
+
 		}
 
 	}
