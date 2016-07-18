@@ -29,6 +29,7 @@
 package org.jowidgets.cap.ui.impl;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
@@ -54,6 +55,8 @@ import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.common.api.sort.SortOrder;
+import org.jowidgets.cap.common.tools.bean.BeanDtosChangeUpdate;
+import org.jowidgets.cap.common.tools.bean.BeanDtosDeletionUpdate;
 import org.jowidgets.cap.common.tools.bean.BeanDtosInsertionUpdate;
 import org.jowidgets.cap.common.tools.sort.Sort;
 import org.jowidgets.cap.ui.api.attribute.Attribute;
@@ -62,6 +65,7 @@ import org.jowidgets.cap.ui.api.attribute.IAttributeBuilder;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.logging.api.TestLoggerProvider;
 import org.jowidgets.test.tools.TestToolkit;
+import org.jowidgets.util.Interval;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -75,11 +79,17 @@ public class BeanTableModelImplTest {
 	private final Object entityId = new Object();
 	private final Object beanTypeId = new Object();
 
-	private final TestBean bean1 = new TestBean(1);
-	private final TestBean bean2 = new TestBean(2);
-	private final TestBean bean3 = new TestBean(3);
+	private final TestBean bean1 = new TestBean(1, "foo");
+	private final TestBean bean1a = new TestBean(1, "foobar");
+	private final TestBean bean2 = new TestBean(2, "bar");
+	private final TestBean bean3 = new TestBean(3, "baz");
 
 	private final Queue<Runnable> scheduledRunnables = new LinkedList<Runnable>();
+
+	private IUpdateCallback<IBeanDtosUpdate> updateCallback;
+	private final List<IExecutionCallback> updateExecutionCallbacks = new LinkedList<IExecutionCallback>();
+	private IUpdateCallback<Integer> countCallback;
+	private List<? extends ISort> mostRecentSorting;
 
 	@SuppressWarnings("unchecked")
 	@Before
@@ -103,6 +113,19 @@ public class BeanTableModelImplTest {
 		return attribute;
 	}
 
+	private void loadAllBeansAtOnce() {
+		countCallback.finished(Integer.valueOf(3));
+
+		if (!mostRecentSorting.isEmpty() && mostRecentSorting.get(0).getSortOrder().equals(SortOrder.DESC)) {
+			updateCallback.finished(
+					new BeanDtosInsertionUpdate(Arrays.asList((IBeanDto) bean3, (IBeanDto) bean2, (IBeanDto) bean1)));
+		}
+		else {
+			updateCallback.finished(
+					new BeanDtosInsertionUpdate(Arrays.asList((IBeanDto) bean1, (IBeanDto) bean2, (IBeanDto) bean3)));
+		}
+	}
+
 	private IReaderService<Void> createReaderService() {
 		return new IReaderService<Void>() {
 			@Override
@@ -116,18 +139,9 @@ public class BeanTableModelImplTest {
 				final Void parameter,
 				final IExecutionCallback executionCallback) {
 
-				if (!sorting.isEmpty() && sorting.get(0).getSortOrder().equals(SortOrder.DESC)) {
-					result.finished(new BeanDtosInsertionUpdate(Arrays.asList(
-							(IBeanDto) bean3,
-							(IBeanDto) bean2,
-							(IBeanDto) bean1)));
-				}
-				else {
-					result.finished(new BeanDtosInsertionUpdate(Arrays.asList(
-							(IBeanDto) bean1,
-							(IBeanDto) bean2,
-							(IBeanDto) bean3)));
-				}
+				setUpdateCallback(result);
+				setMostRecentSorting(sorting);
+				addUpdateExecutionCallback(executionCallback);
 			}
 
 			@Override
@@ -138,9 +152,25 @@ public class BeanTableModelImplTest {
 				final Void parameter,
 				final IExecutionCallback executionCallback) {
 
-				result.finished(Integer.valueOf(3));
+				setCountCallback(result);
 			}
 		};
+	}
+
+	private void setUpdateCallback(final IUpdateCallback<IBeanDtosUpdate> updateCallback) {
+		this.updateCallback = updateCallback;
+	}
+
+	private void setCountCallback(final IUpdateCallback<Integer> countCallback) {
+		this.countCallback = countCallback;
+	}
+
+	public void setMostRecentSorting(final List<? extends ISort> mostRecentSorting) {
+		this.mostRecentSorting = mostRecentSorting;
+	}
+
+	public void addUpdateExecutionCallback(final IExecutionCallback updateExecutionCallback) {
+		this.updateExecutionCallbacks.add(updateExecutionCallback);
 	}
 
 	@After
@@ -154,6 +184,7 @@ public class BeanTableModelImplTest {
 		tableModel.load();
 
 		triggerPageLoading();
+		loadAllBeansAtOnce();
 
 		assertTrue("3 beans should be loaded", tableModel.getSize() == 3);
 	}
@@ -165,6 +196,7 @@ public class BeanTableModelImplTest {
 
 		triggerPageLoading();
 		scheduledRunnables.poll().run();
+		loadAllBeansAtOnce();
 
 		assertTrue("3 beans should be loaded", tableModel.getSize() == 3);
 	}
@@ -173,6 +205,7 @@ public class BeanTableModelImplTest {
 	public void testSelectionCanBeRetrieved() {
 		tableModel.load();
 		triggerPageLoading();
+		loadAllBeansAtOnce();
 
 		tableModel.setSelection(Arrays.asList(0, 2));
 		final List<IBeanProxy<ITestBean>> selectedBeans = tableModel.getSelectedBeans();
@@ -186,10 +219,12 @@ public class BeanTableModelImplTest {
 	public void testSelectionSurvivesSorting() {
 		tableModel.load();
 		triggerPageLoading();
+		loadAllBeansAtOnce();
 
 		tableModel.setSelection(Arrays.asList(1, 2));
 		tableModel.getSortModel().setCurrentSorting(Arrays.asList(new Sort("value", SortOrder.DESC)));
 		triggerPageLoading();
+		loadAllBeansAtOnce();
 
 		final List<IBeanProxy<ITestBean>> selectedBeans = tableModel.getSelectedBeans();
 		assertTrue("2 beans should still be selected", selectedBeans.size() == 2);
@@ -201,12 +236,14 @@ public class BeanTableModelImplTest {
 	public void testSelectionSurvivesRepeatedOverlappingSorting_Issue41() {
 		tableModel.load();
 		triggerPageLoading();
+		loadAllBeansAtOnce();
 
 		tableModel.setSelection(Arrays.asList(1, 2));
 		tableModel.getSortModel().setCurrentSorting(Arrays.asList(new Sort("value", SortOrder.DESC)));
 		tableModel.getSortModel().setCurrentSorting(Arrays.asList(new Sort("value", SortOrder.ASC)));
 		triggerPageLoading();
 		triggerPageLoading();
+		loadAllBeansAtOnce();
 
 		final List<IBeanProxy<ITestBean>> selectedBeans = tableModel.getSelectedBeans();
 		assertTrue("2 beans should still be selected", selectedBeans.size() == 2);
@@ -214,23 +251,86 @@ public class BeanTableModelImplTest {
 		assertEquals("Bean3 should be selected!", bean3, selectedBeans.get(1).getBean());
 	}
 
+	@Test
+	public void testLoadInBackground() {
+		tableModel.updateInBackground(new Interval<Integer>(0, 10));
+
+		triggerPageLoading();
+		loadAllBeansAtOnce();
+
+		assertTrue("3 beans should be loaded", tableModel.getSize() == 3);
+	}
+
+	@Test
+	public void testBeanInsertionUpdate() {
+		tableModel.updateInBackground(new Interval<Integer>(0, 10));
+
+		triggerPageLoading();
+		updateCallback.update(new BeanDtosInsertionUpdate(Arrays.asList((IBeanDto) bean1, (IBeanDto) bean2)));
+
+		assertTrue("2 beans should be loaded", tableModel.getSize() == 2);
+	}
+
+	@Test
+	public void testBeanDeletionUpdate() {
+		tableModel.updateInBackground(new Interval<Integer>(0, 10));
+
+		triggerPageLoading();
+		updateCallback.update(new BeanDtosInsertionUpdate(Arrays.asList((IBeanDto) bean1, (IBeanDto) bean2)));
+		updateCallback.update(new BeanDtosDeletionUpdate(Arrays.asList(bean1.getId())));
+
+		assertTrue("Exactly one bean should be remaining after deletion update", tableModel.getSize() == 1);
+	}
+
+	@Test
+	public void testBeanChangeUpdate() {
+		tableModel.updateInBackground(new Interval<Integer>(0, 10));
+
+		triggerPageLoading();
+		updateCallback.update(new BeanDtosInsertionUpdate(Arrays.asList((IBeanDto) bean1, (IBeanDto) bean2)));
+		updateCallback.update(new BeanDtosChangeUpdate(Arrays.asList((IBeanDto) bean1a)));
+
+		assertTrue("2 beans should be loaded", tableModel.getSize() == 2);
+		assertTrue(
+				"first bean should be changed by update",
+				tableModel.getBean(0).getValue("value").equals(bean1a.getValue("value")));
+		assertTrue(
+				"second bean should be unchanged by update",
+				tableModel.getBean(1).getValue("value").equals(bean2.getValue("value")));
+	}
+
+	@Test
+	public void testCancelCallbackOnLoad() {
+		tableModel.updateInBackground(new Interval<Integer>(0, 10));
+		triggerPageLoading();
+
+		tableModel.load();
+		triggerPageLoading();
+
+		assertTrue(updateExecutionCallbacks.size() == 2);
+		assertTrue(updateExecutionCallbacks.get(0).isCanceled());
+		assertFalse(updateExecutionCallbacks.get(1).isCanceled());
+	}
+
 	private void triggerPageLoading() {
 		tableModel.getTableModel().getCell(0, 0);
 	}
 
-	private static interface ITestBean {
-		int getValue();
+	private static interface ITestBean extends IBeanDto {
+		String getValue();
 	}
 
-	private class TestBean implements ITestBean, IBeanDto {
-		private final int value;
+	private class TestBean implements ITestBean {
+		private final Integer key;
+		private final String value;
 
-		TestBean(final int value) {
+		TestBean(final int key, final String value) {
+			this.key = Integer.valueOf(key);
 			this.value = value;
 		}
 
 		@Override
-		public int getValue() {
+		public String getValue() {
 			return value;
 		}
 
@@ -239,7 +339,7 @@ public class BeanTableModelImplTest {
 			final int prime = 31;
 			int result = 1;
 			result = prime * result + getOuterType().hashCode();
-			result = prime * result + value;
+			result = prime * result + key;
 			return result;
 		}
 
@@ -252,8 +352,8 @@ public class BeanTableModelImplTest {
 			if (!(obj instanceof ITestBean))
 				return false;
 			final ITestBean other = (ITestBean) obj;
-			final int value2 = other.getValue();
-			if (value != value2)
+			final Object key2 = other.getId();
+			if (key != key2)
 				return false;
 			return true;
 		}
@@ -269,12 +369,17 @@ public class BeanTableModelImplTest {
 
 		@Override
 		public Object getId() {
-			return value;
+			return key;
 		}
 
 		@Override
 		public long getVersion() {
 			return 0;
+		}
+
+		@Override
+		public String toString() {
+			return String.format("TestBean(%d, %s)", key, value);
 		}
 	}
 
@@ -324,14 +429,14 @@ public class BeanTableModelImplTest {
 			}
 
 			@Override
-			public <T> T invokeAny(final Collection<? extends Callable<T>> tasks, final long timeout, final TimeUnit unit) throws InterruptedException,
-					ExecutionException,
-					TimeoutException {
+			public <T> T invokeAny(final Collection<? extends Callable<T>> tasks, final long timeout, final TimeUnit unit)
+					throws InterruptedException, ExecutionException, TimeoutException {
 				throw new UnsupportedOperationException();
 			}
 
 			@Override
-			public <T> T invokeAny(final Collection<? extends Callable<T>> tasks) throws InterruptedException, ExecutionException {
+			public <T> T invokeAny(final Collection<? extends Callable<T>> tasks)
+					throws InterruptedException, ExecutionException {
 				throw new UnsupportedOperationException();
 			}
 
@@ -412,9 +517,8 @@ public class BeanTableModelImplTest {
 			}
 
 			@Override
-			public Object get(final long timeout, final TimeUnit unit) throws InterruptedException,
-					ExecutionException,
-					TimeoutException {
+			public Object get(final long timeout, final TimeUnit unit)
+					throws InterruptedException, ExecutionException, TimeoutException {
 				return result;
 			}
 
