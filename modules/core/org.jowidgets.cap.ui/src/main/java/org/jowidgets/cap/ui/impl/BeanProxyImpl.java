@@ -78,6 +78,8 @@ import org.jowidgets.cap.ui.api.execution.IExecutionTask;
 import org.jowidgets.cap.ui.api.execution.IExecutionTaskListener;
 import org.jowidgets.cap.ui.api.plugin.IBeanProxyPlugin;
 import org.jowidgets.cap.ui.tools.execution.ExecutionTaskAdapter;
+import org.jowidgets.logging.api.ILogger;
+import org.jowidgets.logging.api.LoggerProvider;
 import org.jowidgets.plugin.api.IPluginProperties;
 import org.jowidgets.plugin.api.PluginProperties;
 import org.jowidgets.plugin.api.PluginProvider;
@@ -98,6 +100,8 @@ import org.jowidgets.validation.IValidationResultBuilder;
 import org.jowidgets.validation.ValidationResult;
 
 final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidationResultCreator, IExternalBeanValidatorListener {
+
+	private static final ILogger LOGGER = LoggerProvider.get(BeanProxyImpl.class);
 
 	private final Object beanTypeId;
 	private final Class<? extends BEAN_TYPE> beanType;
@@ -565,7 +569,9 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 		}
 		if (beanValidationResults.size() > 0) {
 			final Collection<IBeanValidationResult> consolidatedResult;
-			consolidatedResult = consolidateBeanValidationResult(firstWorstIndependendResultHolder, beanValidationResults).values();
+			consolidatedResult = consolidateBeanValidationResult(
+					firstWorstIndependendResultHolder,
+					beanValidationResults).values();
 			setValidationResults(firstWorstIndependendResultHolder, externalValidator.validate(consolidatedResult));
 		}
 	}
@@ -756,8 +762,18 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 		builder.addResult(ValidationResult.ok(), propertyName);
 
 		if (validateUnmodified || hasModifications()) {
-			final String currentLabel = getAttribute(propertyName).getCurrentLabel();
-			addValidationResults(beanPropertyValidators, builder, propertyName, currentLabel);
+			final IAttribute<Object> attribute = getAttribute(propertyName);
+			if (attribute != null) {
+				final String currentLabel = attribute.getCurrentLabel();
+				addValidationResults(beanPropertyValidators, builder, propertyName, currentLabel);
+			}
+			else {
+				LOGGER.warn(
+						"Try to validate property with name '"
+							+ propertyName
+							+ "' but property is not known to this IBeanProxy: "
+							+ this);
+			}
 		}
 
 		return builder.build();
@@ -1312,11 +1328,12 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 		final List<PropertyChangeEvent> result = new LinkedList<PropertyChangeEvent>();
 		for (final Entry<String, IBeanModification> modificationEntry : modifications.entrySet()) {
 			final String propertyName = modificationEntry.getKey();
-			result.add(new PropertyChangeEvent(
-				this,
-				propertyName,
-				modificationEntry.getValue().getNewValue(),
-				beanDto.getValue(propertyName)));
+			result.add(
+					new PropertyChangeEvent(
+						this,
+						propertyName,
+						modificationEntry.getValue().getNewValue(),
+						beanDto.getValue(propertyName)));
 		}
 		return result;
 	}
@@ -1325,11 +1342,12 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 		final List<PropertyChangeEvent> result = new LinkedList<PropertyChangeEvent>();
 		for (final Entry<String, IBeanModification> modificationEntry : undoneModifications.entrySet()) {
 			final String propertyName = modificationEntry.getKey();
-			result.add(new PropertyChangeEvent(
-				this,
-				propertyName,
-				modificationEntry.getValue().getNewValue(),
-				beanDto.getValue(propertyName)));
+			result.add(
+					new PropertyChangeEvent(
+						this,
+						propertyName,
+						modificationEntry.getValue().getNewValue(),
+						beanDto.getValue(propertyName)));
 		}
 		return result;
 	}
