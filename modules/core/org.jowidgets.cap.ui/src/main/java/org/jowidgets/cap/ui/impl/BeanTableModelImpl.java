@@ -33,12 +33,14 @@ import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -63,11 +65,16 @@ import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.common.api.bean.IBeanDtosChangeUpdate;
+import org.jowidgets.cap.common.api.bean.IBeanDtosDeletionUpdate;
+import org.jowidgets.cap.common.api.bean.IBeanDtosInsertionUpdate;
+import org.jowidgets.cap.common.api.bean.IBeanDtosUpdate;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.bean.IBeanModification;
 import org.jowidgets.cap.common.api.exception.ServiceCanceledException;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
+import org.jowidgets.cap.common.api.execution.IUpdateCallback;
 import org.jowidgets.cap.common.api.filter.ArithmeticOperator;
 import org.jowidgets.cap.common.api.filter.BooleanOperator;
 import org.jowidgets.cap.common.api.filter.IArithmeticFilterBuilder;
@@ -79,6 +86,7 @@ import org.jowidgets.cap.common.api.service.IDeleterService;
 import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.service.IRefreshService;
 import org.jowidgets.cap.common.api.service.IUpdaterService;
+import org.jowidgets.cap.common.api.sort.BeanDtoComparator;
 import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.common.api.sort.SortOrder;
 import org.jowidgets.cap.common.api.validation.IBeanValidator;
@@ -140,6 +148,7 @@ import org.jowidgets.cap.ui.tools.bean.BeanSelectionImpl;
 import org.jowidgets.cap.ui.tools.bean.BeanSelectionObservable;
 import org.jowidgets.cap.ui.tools.execution.AbstractUiExecutionCallbackListener;
 import org.jowidgets.cap.ui.tools.execution.AbstractUiResultCallback;
+import org.jowidgets.cap.ui.tools.execution.AbstractUiUpdateCallback;
 import org.jowidgets.common.color.IColorConstant;
 import org.jowidgets.common.image.IImageConstant;
 import org.jowidgets.common.model.ITableCell;
@@ -1005,7 +1014,8 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			for (final Integer pageIndexW : new ArrayList<Integer>(data.keySet())) {
 				final int pageIndex = pageIndexW.intValue();
 
-				if (!selectedPages.contains(pageIndexW) && (pageIndex < visiblePageIndex - 1 || pageIndex > visiblePageIndex + 1)) {
+				if (!selectedPages.contains(pageIndexW)
+					&& (pageIndex < visiblePageIndex - 1 || pageIndex > visiblePageIndex + 1)) {
 
 					removePage(pageIndex);
 				}
@@ -1244,6 +1254,76 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		addBeanImpl(bean, true);
 		beanListModelObservable.fireBeansAdded(bean);
 		beanListModelObservable.fireBeansChanged();
+	}
+
+	public void addBeanDtos(final Collection<IBeanDto> beanDtos, final boolean sorted) {
+		final List<IBeanProxy<BEAN_TYPE>> proxies = new ArrayList<IBeanProxy<BEAN_TYPE>>(beanDtos.size());
+
+		for (final IBeanDto beanDto : beanDtos) {
+			final IBeanProxy<BEAN_TYPE> beanProxy = createBeanProxy(beanDto);
+			proxies.add(beanProxy);
+		}
+
+		addBeans(proxies, sorted);
+	}
+
+	public void addBeans(final Collection<IBeanProxy<BEAN_TYPE>> beans, final boolean sorted) {
+		final List<IBeanProxy<BEAN_TYPE>> selectedBeans = getSelectedBeans();
+		final List<Integer> newSelection = new LinkedList<Integer>();
+
+		removeBeansFromData(new HashSet<IBeanProxy<BEAN_TYPE>>(selectedBeans), newSelection, beans);
+
+		if (sorted) {
+			final Comparator<IBeanDto> comparator = BeanDtoComparator.create(sortModel.getSorting());
+			final List<IBeanProxy<BEAN_TYPE>> beansToDeregister = new LinkedList<IBeanProxy<BEAN_TYPE>>();
+			final ListIterator<IBeanProxy<BEAN_TYPE>> addedDataIterator = addedData.listIterator();
+			for (final IBeanProxy<BEAN_TYPE> bean : beans) {
+				boolean doAdd = true;
+				while (addedDataIterator.hasNext()) {
+					final IBeanProxy<BEAN_TYPE> next = addedDataIterator.next();
+					final int compare = comparator.compare(bean, next);
+					if (compare < 0) {
+						addedDataIterator.previous();
+						break;
+					}
+					if (compare == 0 && bean.getId().equals(next.getId())) {
+						beansToDeregister.add(next);
+						addedDataIterator.set(bean);
+						doAdd = false;
+						break;
+					}
+				}
+				if (doAdd) {
+					addedDataIterator.add(bean);
+					// rowCount += 1;
+				}
+			}
+			beansStateTracker.unregister(beansToDeregister);
+		}
+
+		else {
+			removeBeansFromAddedData(new HashSet<IBeanProxy<BEAN_TYPE>>(selectedBeans), newSelection, beans);
+
+			for (final IBeanProxy<BEAN_TYPE> bean : beans) {
+				addedData.add(bean);
+				final int index = dataModel.getRowCount() - dataModel.getLastBeanCount() - 1;
+				bean.addPropertyChangeListener(new BeanPropertyChangeListener(index));
+			}
+		}
+
+		beansStateTracker.register(beans);
+		cachedReaderService.addBeans(getParentBeanKeys(), new HashSet<IBeanProxy<BEAN_TYPE>>(beans));
+	}
+
+	public void removeBeansByKey(final List<Object> idsToRemove) {
+		final ListIterator<IBeanProxy<BEAN_TYPE>> listIterator = addedData.listIterator();
+		while (listIterator.hasNext()) {
+			final IBeanProxy<BEAN_TYPE> next = listIterator.next();
+			if (idsToRemove.contains(next.getBeanKey().getId())) {
+				listIterator.remove();
+				beansStateTracker.unregister(next);
+			}
+		}
 	}
 
 	private void addBeanImpl(final IBeanProxy<BEAN_TYPE> bean, final boolean fireBeansChanged) {
@@ -2615,7 +2695,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 		void readDataFromService() {
 			cachedReaderService.read(
-					new BeanDtoListUpdateCallbackAdapter(createResultCallback()),
+					createUpdateCallback(),
 					getParentBeanKeys(),
 					filter,
 					sortModel.getSorting(),
@@ -2643,19 +2723,40 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			}
 		}
 
-		private IResultCallback<List<IBeanDto>> createResultCallback() {
-			return new AbstractUiResultCallback<List<IBeanDto>>() {
+		private IUpdateCallback<IBeanDtosUpdate> createUpdateCallback() {
+			return new AbstractUiUpdateCallback<IBeanDtosUpdate>() {
 
 				@Override
-				public void finishedUi(final List<IBeanDto> beanDtos) {
+				public void finishedUi(final IBeanDtosUpdate result) {
 					if (!canceled && !executionTask.isCanceled()) {
-						setResult(beanDtos);
+						if (result instanceof IBeanDtosInsertionUpdate)
+							setResult(((IBeanDtosInsertionUpdate) result).getInsertedBeans());
+						else {
+							throw new UnsupportedOperationException("Only insertion updates are allowed on finish!");
+						}
 					}
 				}
 
 				@Override
 				public void exceptionUi(final Throwable exception) {
 					setException(exception);
+				}
+
+				@Override
+				protected void updateUi(final IBeanDtosUpdate update) {
+					if (update instanceof IBeanDtosInsertionUpdate) {
+						addBeanDtos(((IBeanDtosInsertionUpdate) update).getInsertedBeans(), true);
+						fireBeansChanged();
+					}
+					else if (update instanceof IBeanDtosDeletionUpdate) {
+						removeBeansByKey(((IBeanDtosDeletionUpdate) update).getDeletedBeanIds());
+						fireBeansChanged();
+					}
+					else if (update instanceof IBeanDtosChangeUpdate) {
+						((IBeanDtosChangeUpdate) update).getChangedBeans();
+						addBeanDtos(((IBeanDtosChangeUpdate) update).getChangedBeans(), true);
+						fireBeansChanged();
+					}
 				}
 
 			};

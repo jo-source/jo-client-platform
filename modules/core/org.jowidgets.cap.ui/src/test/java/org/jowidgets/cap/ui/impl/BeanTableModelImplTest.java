@@ -32,6 +32,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -263,30 +264,35 @@ public class BeanTableModelImplTest {
 
 	@Test
 	public void testBeanInsertionUpdate() {
-		tableModel.updateInBackground(new Interval<Integer>(0, 10));
+		tableModel.load();
 
 		triggerPageLoading();
+		updateCallback.finished(new BeanDtosInsertionUpdate(new ArrayList<IBeanDto>()));
 		updateCallback.update(new BeanDtosInsertionUpdate(Arrays.asList((IBeanDto) bean1, (IBeanDto) bean2)));
 
-		assertTrue("2 beans should be loaded", tableModel.getSize() == 2);
+		final int size = tableModel.getSize();
+		assertTrue("2 beans should be loaded, but was " + size, size == 2);
 	}
 
 	@Test
 	public void testBeanDeletionUpdate() {
-		tableModel.updateInBackground(new Interval<Integer>(0, 10));
+		tableModel.load();
 
 		triggerPageLoading();
+		updateCallback.finished(new BeanDtosInsertionUpdate(new ArrayList<IBeanDto>()));
 		updateCallback.update(new BeanDtosInsertionUpdate(Arrays.asList((IBeanDto) bean1, (IBeanDto) bean2)));
 		updateCallback.update(new BeanDtosDeletionUpdate(Arrays.asList(bean1.getId())));
 
-		assertTrue("Exactly one bean should be remaining after deletion update", tableModel.getSize() == 1);
+		final int size = tableModel.getSize();
+		assertTrue("Exactly one bean should be remaining after deletion update, but was " + size, size == 1);
 	}
 
 	@Test
 	public void testBeanChangeUpdate() {
-		tableModel.updateInBackground(new Interval<Integer>(0, 10));
+		tableModel.load();
 
 		triggerPageLoading();
+		updateCallback.finished(new BeanDtosInsertionUpdate(new ArrayList<IBeanDto>()));
 		updateCallback.update(new BeanDtosInsertionUpdate(Arrays.asList((IBeanDto) bean1, (IBeanDto) bean2)));
 		updateCallback.update(new BeanDtosChangeUpdate(Arrays.asList((IBeanDto) bean1a)));
 
@@ -301,7 +307,7 @@ public class BeanTableModelImplTest {
 
 	@Test
 	public void testCancelCallbackOnLoad() {
-		tableModel.updateInBackground(new Interval<Integer>(0, 10));
+		tableModel.load();
 		triggerPageLoading();
 
 		tableModel.load();
