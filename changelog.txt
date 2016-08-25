@@ -108,6 +108,6 @@ Features:
 
 Bugfixes:
 
-
 * Fixed issue #50 https://github.com/jo-source/jo-client-platform/issues/50 Validation Warning persists after undo in BeanTable
+* Fixed issue #32 https://github.com/jo-source/jo-client-platform/issues/32 CachedEntityService returns EntityInfo for unknown entities
 
