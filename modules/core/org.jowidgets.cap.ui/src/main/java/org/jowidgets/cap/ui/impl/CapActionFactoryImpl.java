@@ -50,6 +50,7 @@ import org.jowidgets.cap.ui.api.command.IRefreshLookUpsActionBuilder;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.model.IDataModel;
 import org.jowidgets.common.types.Modifier;
+import org.jowidgets.common.types.VirtualKey;
 
 final class CapActionFactoryImpl implements ICapActionFactory {
 
@@ -98,7 +99,7 @@ final class CapActionFactoryImpl implements ICapActionFactory {
 		final IDataModelActionBuilder builder = new DataModelActionBuilderImpl(new DataModelSaveCommand());
 		builder.setText(Messages.getString("CapActionFactoryImpl.save"));
 		builder.setIcon(IconsSmall.DISK);
-		builder.setAccelerator('S', Modifier.CTRL);
+		builder.setAccelerator(VirtualKey.S, Modifier.CTRL);
 		return builder;
 	}
 
@@ -106,7 +107,7 @@ final class CapActionFactoryImpl implements ICapActionFactory {
 	public IDataModelActionBuilder dataModelUndoActionBuilder() {
 		final IDataModelActionBuilder builder = new DataModelActionBuilderImpl(new DataModelUndoCommand());
 		builder.setText(Messages.getString("CapActionFactoryImpl.undo"));
-		builder.setAccelerator('Z', Modifier.CTRL);
+		builder.setAccelerator(VirtualKey.Z, Modifier.CTRL);
 		builder.setIcon(IconsSmall.UNDO);
 		return builder;
 	}
