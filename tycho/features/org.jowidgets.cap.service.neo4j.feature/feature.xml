@@ -2,7 +2,7 @@
 <feature
     id="org.jowidgets.cap.service.neo4j.feature"
     label="jo-client-platform neo4j service feature"
-    version="0.58.0">
+    version="0.58.1.qualifier">
 
 	<description url="http://www.example.com/description">
 		Feature that holds all neo4j service bundles
