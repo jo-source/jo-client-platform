@@ -91,3 +91,24 @@ Bugfixes:
 * Fixed issue #41 https://github.com/jo-source/jo-client-platform/issues/41 Selection lost in BeanTable when sorting twice in quick succession
 * Fixed issue #43 https://github.com/jo-source/jo-client-platform/issues/43 JpaServiceDecorator PersistenceUnitName 
 
+----------------------------------------------------------------------------------------------------------------------------
+
+0.57.0 
+
+
+New jowidgets version 0.63.0 will be used
+
+----------------------------------------------------------------------------------------------------------------------------
+
+0.58.0 
+
+
+Features:
+
+
+Bugfixes:
+
+* Fixed issue #50 https://github.com/jo-source/jo-client-platform/issues/50 Validation Warning persists after undo in BeanTable
+* Fixed issue #32 https://github.com/jo-source/jo-client-platform/issues/32 CachedEntityService returns EntityInfo for unknown entities
+* Fixed issue #52 https://github.com/jo-source/jo-client-platform/issues/52 Save and Undo shortcuts of default actions will not work with swing implementation
+

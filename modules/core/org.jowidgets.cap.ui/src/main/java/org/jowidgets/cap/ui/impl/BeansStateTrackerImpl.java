@@ -247,6 +247,7 @@ final class BeansStateTrackerImpl<BEAN_TYPE> implements
 		removeNotTransientBean(bean.getId(), bean);
 		bean.removeProcessStateListener(processStateListener);
 		removeUnprocessingBean(bean);
+		bean.removeValidationStateListener(validationStateListener);
 		validationDirtyBeans.remove(bean);
 		if (setValidationCacheDirty) {
 			validationCache.setDirty();

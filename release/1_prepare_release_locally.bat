@@ -2,9 +2,9 @@ REM local build only, no push or deployment
 
 SET SOURCE_URL=https://github.com/jo-source/jo-client-platform.git
 
-SET RELEASE_VERSION=0.48.0
-SET TAG_NAME=0.48.0
-SET MAINTENANCE_BRANCH_NAME=MAINTENANCE_0.48
+SET RELEASE_VERSION=0.58.0
+SET TAG_NAME=0.58.0
+SET MAINTENANCE_BRANCH_NAME=MAINTENANCE_0.58
 
 SET "WORK_PATH=workspace"
 SET "MVN_SETTINGS_PATH=../../maven/settings.xml"
@@ -33,29 +33,29 @@ git checkout -b %MAINTENANCE_BRANCH_NAME%
 echo "setting release version and creating a tag" > %LOG_PATH% 2>&1
 cd >> %LOG_PATH% 2>&1
 
-echo call mvn -gs %MVN_SETTINGS_PATH% clean install -Dmaven.repo.local=%MVN_REPO_PATH% >> %LOG_PATH%
-call mvn -gs %MVN_SETTINGS_PATH% clean install -Dmaven.repo.local=%MVN_REPO_PATH% >> %LOG_PATH% 2>&1
+echo call mvn -s %MVN_SETTINGS_PATH% -gs %MVN_SETTINGS_PATH% clean install -Dmaven.repo.local=%MVN_REPO_PATH% >> %LOG_PATH%
+call mvn -s %MVN_SETTINGS_PATH% -gs %MVN_SETTINGS_PATH% clean install -Dmaven.repo.local=%MVN_REPO_PATH% >> %LOG_PATH% 2>&1
 
-echo call mvn -gs %MVN_SETTINGS_PATH% versions:set -DnewVersion=%RELEASE_VERSION% -DgenerateBackupPoms=false -Dmaven.repo.local=%MVN_REPO_PATH% >> %LOG_PATH%
-call mvn -gs %MVN_SETTINGS_PATH% versions:set -DnewVersion=%RELEASE_VERSION% -DgenerateBackupPoms=false -Dmaven.repo.local=%MVN_REPO_PATH% >> %LOG_PATH% 2>&1
+echo call mvn -s %MVN_SETTINGS_PATH% -gs %MVN_SETTINGS_PATH% versions:set -DnewVersion=%RELEASE_VERSION% -DgenerateBackupPoms=false -Dmaven.repo.local=%MVN_REPO_PATH% >> %LOG_PATH%
+call mvn -s %MVN_SETTINGS_PATH% -gs %MVN_SETTINGS_PATH% versions:set -DnewVersion=%RELEASE_VERSION% -DgenerateBackupPoms=false -Dmaven.repo.local=%MVN_REPO_PATH% >> %LOG_PATH% 2>&1
 
-echo call mvn -gs %MVN_SETTINGS_PATH% clean install -Dmaven.repo.local=%MVN_REPO_PATH% >> %LOG_PATH%
-call mvn -gs %MVN_SETTINGS_PATH% clean install -Dmaven.repo.local=%MVN_REPO_PATH% >> %LOG_PATH% 2>&1
+echo call mvn -s %MVN_SETTINGS_PATH% -gs %MVN_SETTINGS_PATH% clean install -Dmaven.repo.local=%MVN_REPO_PATH% >> %LOG_PATH%
+call mvn -s %MVN_SETTINGS_PATH% -gs %MVN_SETTINGS_PATH% clean install -Dmaven.repo.local=%MVN_REPO_PATH% >> %LOG_PATH% 2>&1
 
 cd tycho/parent
 cd >> %LOG_PATH% 2>&1
 
-echo call mvn -gs ../../%MVN_SETTINGS_PATH% clean install -Dmaven.repo.local=../../%MVN_REPO_PATH% >> ../../%LOG_PATH% 2>&1
-call mvn -gs ../../%MVN_SETTINGS_PATH% clean install -Dmaven.repo.local=../../%MVN_REPO_PATH% >> ../../%LOG_PATH% 2>&1
+echo call mvn -s ../../%MVN_SETTINGS_PATH% -gs ../../%MVN_SETTINGS_PATH% clean install -Dmaven.repo.local=../../%MVN_REPO_PATH% >> ../../%LOG_PATH% 2>&1
+call mvn -s ../../%MVN_SETTINGS_PATH% -gs ../../%MVN_SETTINGS_PATH% clean install -Dmaven.repo.local=../../%MVN_REPO_PATH% >> ../../%LOG_PATH% 2>&1
 
-echo call mvn -gs ../../%MVN_SETTINGS_PATH% org.eclipse.tycho:tycho-versions-plugin:0.19.0:set-version -DnewVersion=%RELEASE_VERSION% -Dtycho.mode=maven -Dmaven.repo.local=../../%MVN_REPO_PATH% >> ../../%LOG_PATH%
-call mvn -gs ../../%MVN_SETTINGS_PATH% org.eclipse.tycho:tycho-versions-plugin:0.19.0:set-version -DnewVersion=%RELEASE_VERSION% -Dtycho.mode=maven -Dmaven.repo.local=../../%MVN_REPO_PATH% >> ../../%LOG_PATH% 2>&1
+echo call mvn -s ../../%MVN_SETTINGS_PATH% -gs ../../%MVN_SETTINGS_PATH% org.eclipse.tycho:tycho-versions-plugin:0.19.0:set-version -DnewVersion=%RELEASE_VERSION% -Dtycho.mode=maven -Dmaven.repo.local=../../%MVN_REPO_PATH% >> ../../%LOG_PATH%
+call mvn -s ../../%MVN_SETTINGS_PATH% -gs ../../%MVN_SETTINGS_PATH% org.eclipse.tycho:tycho-versions-plugin:0.19.0:set-version -DnewVersion=%RELEASE_VERSION% -Dtycho.mode=maven -Dmaven.repo.local=../../%MVN_REPO_PATH% >> ../../%LOG_PATH% 2>&1
 
-echo call mvn -gs ../../%MVN_SETTINGS_PATH% versions:update-parent -DallowSnapshots=true -DgenerateBackupPoms=false -Dmaven.repo.local=../../%MVN_REPO_PATH% >> ../../%LOG_PATH%
-call mvn -gs ../../%MVN_SETTINGS_PATH% versions:update-parent -DallowSnapshots=true -DgenerateBackupPoms=false -Dmaven.repo.local=../../%MVN_REPO_PATH% >> ../../%LOG_PATH% 2>&1
+echo call mvn -s ../../%MVN_SETTINGS_PATH% -gs ../../%MVN_SETTINGS_PATH% versions:update-parent -DallowSnapshots=true -DgenerateBackupPoms=false -Dmaven.repo.local=../../%MVN_REPO_PATH% >> ../../%LOG_PATH%
+call mvn -s ../../%MVN_SETTINGS_PATH% -gs ../../%MVN_SETTINGS_PATH% versions:update-parent -DallowSnapshots=true -DgenerateBackupPoms=false -Dmaven.repo.local=../../%MVN_REPO_PATH% >> ../../%LOG_PATH% 2>&1
 
-echo call mvn -gs ../../%MVN_SETTINGS_PATH% clean install -Dmaven.repo.local=../../%MVN_REPO_PATH% >> ../../%LOG_PATH%
-call mvn -gs ../../%MVN_SETTINGS_PATH% clean install -Dmaven.repo.local=../../%MVN_REPO_PATH% >> ../../%LOG_PATH% 2>&1
+echo call mvn -s ../../%MVN_SETTINGS_PATH% -gs ../../%MVN_SETTINGS_PATH% clean install -Dmaven.repo.local=../../%MVN_REPO_PATH% >> ../../%LOG_PATH%
+call mvn -s ../../%MVN_SETTINGS_PATH% -gs ../../%MVN_SETTINGS_PATH% clean install -Dmaven.repo.local=../../%MVN_REPO_PATH% >> ../../%LOG_PATH% 2>&1
 
 cd ../..
 cd >> %LOG_PATH%

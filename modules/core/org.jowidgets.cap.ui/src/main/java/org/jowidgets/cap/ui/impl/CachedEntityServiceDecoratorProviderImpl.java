@@ -28,19 +28,7 @@
 
 package org.jowidgets.cap.ui.impl;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
-import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
-import org.jowidgets.cap.common.api.service.IBeanServicesProvider;
-import org.jowidgets.cap.common.api.service.IEntityInfo;
 import org.jowidgets.cap.common.api.service.IEntityService;
-import org.jowidgets.cap.common.tools.service.AbstractEntityService;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.IServicesDecoratorProvider;
 import org.jowidgets.util.Assert;
@@ -75,93 +63,6 @@ final class CachedEntityServiceDecoratorProviderImpl implements IServicesDecorat
 	@Override
 	public int getOrder() {
 		return order;
-	}
-
-	private final class CachedEntityServiceImpl extends AbstractEntityService implements IEntityService {
-
-		private final IEntityService original;
-
-		private final Map<Object, IEntityInfo> cache;
-		private final AtomicBoolean allAccessed;
-
-		CachedEntityServiceImpl(final IEntityService original) {
-			Assert.paramNotNull(original, "original");
-			this.original = original;
-			this.cache = new ConcurrentHashMap<Object, IEntityInfo>();
-			this.allAccessed = new AtomicBoolean(false);
-		}
-
-		@Override
-		public Collection<IEntityInfo> getEntityInfos() {
-			if (!allAccessed.get()) {
-				final Collection<IEntityInfo> entityInfos = original.getEntityInfos();
-				for (final IEntityInfo entityInfo : entityInfos) {
-					cache.put(entityInfo.getEntityId(), entityInfo);
-				}
-				allAccessed.set(true);
-				return entityInfos;
-			}
-			else {
-				return cache.values();
-			}
-		}
-
-		@Override
-		public IEntityInfo getEntityInfo(final Object entityId) {
-			if (entityId == null) {
-				return null;
-			}
-			IEntityInfo result;
-			if (!cache.containsKey(entityId)) {
-				result = original.getEntityInfo(entityId);
-				if (result == null) {
-					result = new NullEntityInfo(entityId);
-				}
-				cache.put(entityId, result);
-			}
-			else {
-				result = cache.get(entityId);
-			}
-			return result;
-		}
-
-		@Override
-		public void clearCache() {
-			allAccessed.set(false);
-			cache.clear();
-		}
-
-	}
-
-	private static final class NullEntityInfo implements IEntityInfo {
-
-		private final Object entityId;
-
-		NullEntityInfo(final Object entityId) {
-			Assert.paramNotNull(entityId, "entityId");
-			this.entityId = entityId;
-		}
-
-		@Override
-		public Object getEntityId() {
-			return entityId;
-		}
-
-		@Override
-		public IBeanDtoDescriptor getDescriptor() {
-			return null;
-		}
-
-		@Override
-		public IBeanServicesProvider getBeanServices() {
-			return null;
-		}
-
-		@Override
-		public List<IEntityLinkDescriptor> getEntityLinks() {
-			return Collections.emptyList();
-		}
-
 	}
 
 }
