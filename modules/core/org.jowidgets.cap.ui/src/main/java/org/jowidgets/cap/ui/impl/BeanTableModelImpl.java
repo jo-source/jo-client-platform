@@ -66,6 +66,7 @@ import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanDtosChangeUpdate;
+import org.jowidgets.cap.common.api.bean.IBeanDtosClearUpdate;
 import org.jowidgets.cap.common.api.bean.IBeanDtosDeletionUpdate;
 import org.jowidgets.cap.common.api.bean.IBeanDtosInsertionUpdate;
 import org.jowidgets.cap.common.api.bean.IBeanDtosUpdate;
@@ -1295,7 +1296,6 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 				}
 				if (doAdd) {
 					addedDataIterator.add(bean);
-					// rowCount += 1;
 				}
 			}
 			beansStateTracker.unregister(beansToDeregister);
@@ -1313,6 +1313,14 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 		beansStateTracker.register(beans);
 		cachedReaderService.addBeans(getParentBeanKeys(), new HashSet<IBeanProxy<BEAN_TYPE>>(beans));
+	}
+
+	public void clearAddedData() {
+		for (final IBeanProxy<BEAN_TYPE> bean : addedData) {
+			beansStateTracker.unregister(bean);
+		}
+		lastSelectedBeans.removeAll(addedData);
+		addedData.clear();
 	}
 
 	public void removeBeansByKey(final List<Object> idsToRemove) {
@@ -2747,16 +2755,25 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 					if (update instanceof IBeanDtosInsertionUpdate) {
 						addBeanDtos(((IBeanDtosInsertionUpdate) update).getInsertedBeans(), true);
 						fireBeansChanged();
+						fireSelectionChanged();
 					}
 					else if (update instanceof IBeanDtosDeletionUpdate) {
 						removeBeansByKey(((IBeanDtosDeletionUpdate) update).getDeletedBeanIds());
 						fireBeansChanged();
+						fireSelectionChanged();
 					}
 					else if (update instanceof IBeanDtosChangeUpdate) {
 						((IBeanDtosChangeUpdate) update).getChangedBeans();
 						addBeanDtos(((IBeanDtosChangeUpdate) update).getChangedBeans(), true);
 						fireBeansChanged();
+						fireSelectionChanged();
 					}
+					else if (update instanceof IBeanDtosClearUpdate) {
+						clearAddedData();
+						fireBeansChanged();
+						fireSelectionChanged();
+					}
+
 				}
 
 			};

@@ -57,6 +57,7 @@ import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.common.api.sort.SortOrder;
 import org.jowidgets.cap.common.tools.bean.BeanDtosChangeUpdate;
+import org.jowidgets.cap.common.tools.bean.BeanDtosClearUpdate;
 import org.jowidgets.cap.common.tools.bean.BeanDtosDeletionUpdate;
 import org.jowidgets.cap.common.tools.bean.BeanDtosInsertionUpdate;
 import org.jowidgets.cap.common.tools.sort.Sort;
@@ -303,6 +304,19 @@ public class BeanTableModelImplTest {
 		assertTrue(
 				"second bean should be unchanged by update",
 				tableModel.getBean(1).getValue("value").equals(bean2.getValue("value")));
+	}
+
+	@Test
+	public void testClearUpdateClears() {
+		tableModel.load();
+
+		triggerPageLoading();
+		updateCallback.finished(new BeanDtosInsertionUpdate(new ArrayList<IBeanDto>()));
+		updateCallback.update(new BeanDtosInsertionUpdate(Arrays.asList((IBeanDto) bean1, (IBeanDto) bean2)));
+		updateCallback.update(new BeanDtosClearUpdate());
+
+		final int size = tableModel.getSize();
+		assertTrue("table should be clear but " + size + " bean(s) remained", size == 0);
 	}
 
 	@Test
