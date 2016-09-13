@@ -1300,7 +1300,6 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			}
 			beansStateTracker.unregister(beansToDeregister);
 		}
-
 		else {
 			removeBeansFromAddedData(new HashSet<IBeanProxy<BEAN_TYPE>>(selectedBeans), newSelection, beans);
 
@@ -1313,6 +1312,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 		beansStateTracker.register(beans);
 		cachedReaderService.addBeans(getParentBeanKeys(), new HashSet<IBeanProxy<BEAN_TYPE>>(beans));
+		setSelectedBeans(selectedBeans);
 	}
 
 	public void clearAddedData() {
@@ -1324,14 +1324,19 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	}
 
 	public void removeBeansByKey(final List<Object> idsToRemove) {
+		final List<IBeanProxy<BEAN_TYPE>> selectedBeans = new ArrayList<IBeanProxy<BEAN_TYPE>>(getSelectedBeans());
+
 		final ListIterator<IBeanProxy<BEAN_TYPE>> listIterator = addedData.listIterator();
 		while (listIterator.hasNext()) {
 			final IBeanProxy<BEAN_TYPE> next = listIterator.next();
 			if (idsToRemove.contains(next.getBeanKey().getId())) {
 				listIterator.remove();
 				beansStateTracker.unregister(next);
+				selectedBeans.remove(next);
 			}
 		}
+
+		setSelectedBeans(selectedBeans);
 	}
 
 	private void addBeanImpl(final IBeanProxy<BEAN_TYPE> bean, final boolean fireBeansChanged) {
@@ -2770,6 +2775,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 					}
 					else if (update instanceof IBeanDtosClearUpdate) {
 						clearAddedData();
+						setSelection(new ArrayList<Integer>());
 						fireBeansChanged();
 						fireSelectionChanged();
 					}
