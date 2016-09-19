@@ -493,8 +493,10 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 		modifications.clear();
 		firePropertyChangeEvents(propertyChangeEvents);
 		if (oldModificationState) {
+			clearMessages();
 			modificationStateObservable.fireModificationStateChanged(this);
 		}
+
 		validateAllInternalProperties();
 		fireAfterUndoModifications();
 	}
@@ -1129,11 +1131,13 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 	@Override
 	public void clearMessages() {
 		checkDisposed();
-		messagesList = new ArrayList<IBeanMessage>(0);
-		infoMessagesList = new ArrayList<IBeanMessage>(0);
-		warningMessagesList = new ArrayList<IBeanMessage>(0);
-		errorMessagesList = new ArrayList<IBeanMessage>(0);
-		messageStateObservable.fireMessageStateChanged(this);
+		if (hasMessages()) {
+			messagesList = new ArrayList<IBeanMessage>(0);
+			infoMessagesList = new ArrayList<IBeanMessage>(0);
+			warningMessagesList = new ArrayList<IBeanMessage>(0);
+			errorMessagesList = new ArrayList<IBeanMessage>(0);
+			messageStateObservable.fireMessageStateChanged(this);
+		}
 	}
 
 	@Override

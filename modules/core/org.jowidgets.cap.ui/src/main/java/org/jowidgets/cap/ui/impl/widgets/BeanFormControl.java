@@ -112,9 +112,8 @@ import org.jowidgets.validation.IValidationResultBuilder;
 import org.jowidgets.validation.MessageType;
 import org.jowidgets.validation.ValidationResult;
 
-final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN_TYPE>> implements
-		IBeanForm<BEAN_TYPE>,
-		IExternalBeanValidator {
+final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<BEAN_TYPE>>
+		implements IBeanForm<BEAN_TYPE>, IExternalBeanValidator {
 
 	private static final IMessage PROCESSING_DATA = Messages.getMessage("BeanFormControl.processing_data");
 
@@ -578,7 +577,9 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 		IValidationResult validationResult = ValidationResult.ok();
 		final IInputControl<?> control = controls.get(propertyName);
 		final String propertyLabel = getLabel(propertyName);
-		if (bean != null && control != null && EmptyCompatibleEquivalence.equals(control.getValue(), bean.getValue(propertyName))) {
+		if (bean != null
+			&& control != null
+			&& EmptyCompatibleEquivalence.equals(control.getValue(), bean.getValue(propertyName))) {
 			validationResult = control.validate();
 			//use the parent result if the control result is valid and the parent result is not valid
 			if (validationResult.isValid() && !parentValidationResult.isValid()) {
@@ -752,9 +753,8 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 						@Override
 						public IInputControl<Object> create(final ICustomWidgetFactory widgetFactory) {
 							if (controls.containsKey(propertyName)) {
-								throw new IllegalStateException("Control must not be created more than once for the property '"
-									+ propertyName
-									+ "'.");
+								throw new IllegalStateException(
+									"Control must not be created more than once for the property '" + propertyName + "'.");
 							}
 
 							final IInputControl<Object> result = widgetCreator.create(widgetFactory);
@@ -781,9 +781,8 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 				@Override
 				public IControl create(final ICustomWidgetFactory widgetFactory) {
 					if (validationLabels.containsKey(propertyName)) {
-						throw new IllegalStateException("Validation label must not be created more than once for the property '"
-							+ propertyName
-							+ "'.");
+						throw new IllegalStateException(
+							"Validation label must not be created more than once for the property '" + propertyName + "'.");
 					}
 					final IValidationResultLabelBluePrint validationLabelBp = BPF.validationResultLabel();
 					validationLabelBp.setSetup(propertyValidationLabelSetup);
@@ -993,6 +992,11 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 	private final class BeanMessageStateListener implements IBeanMessageStateListener<BEAN_TYPE> {
 		@Override
 		public void messageStateChanged(final IBeanProxy<BEAN_TYPE> bean) {
+			for (final Entry<String, IInputControl<Object>> entry : controls.entrySet()) {
+				final String propertyName = entry.getKey();
+				final IInputControl<Object> control = entry.getValue();
+				setForeground(bean, propertyName, control);
+			}
 			setValidationCacheDirty();
 		}
 	}
