@@ -227,8 +227,19 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 				model.getEntityId(),
 				model.getBeanType());
 
-		final IMenuModel editMenuModel = new MenuModel();
+		final IMenuModel editMenuModel;
 		final boolean hasDefaultEditAction = bluePrint.hasDefaultEditAction();
+		final IAction editAction;
+		if (hasDefaultEditAction) {
+			editMenuModel = new MenuModel();
+			final IBeanTableMenuFactory<BEAN_TYPE> beanTableMenuFactory = CapUiToolkit.beanTableMenuFactory();
+			editAction = beanTableMenuFactory.editAction(model);
+			editMenuModel.addAction(editAction);
+		}
+		else {
+			editMenuModel = null;
+			editAction = null;
+		}
 		menuInterceptors.add(new BeanTableMenuInterceptorAdapter<BEAN_TYPE>() {
 			@Override
 			public IMenuModel editMenu(final IBeanTable<BEAN_TYPE> table, final int columnIndex, final IMenuModel menuModel) {
@@ -236,9 +247,6 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 					return null;
 				}
 				else if (hasDefaultEditAction) {
-					final IBeanTableMenuFactory<BEAN_TYPE> beanTableMenuFactory = CapUiToolkit.beanTableMenuFactory();
-					final IAction editAction = beanTableMenuFactory.editAction(model);
-					editMenuModel.addAction(editAction);
 					menuModel.addAction(0, editAction);
 					return menuModel;
 				}

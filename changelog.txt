@@ -112,3 +112,16 @@ Bugfixes:
 * Fixed issue #32 https://github.com/jo-source/jo-client-platform/issues/32 CachedEntityService returns EntityInfo for unknown entities
 * Fixed issue #52 https://github.com/jo-source/jo-client-platform/issues/52 Save and Undo shortcuts of default actions will not work with swing implementation
 
+
+----------------------------------------------------------------------------------------------------------------------------
+
+0.59.0 
+
+
+Features:
+
+
+Bugfixes:
+
+* Fixed issue #52 https://github.com/jo-source/jo-client-platform/issues/53 Shortcut(CTRL+E) not working for edit in Beantable when popup was not visible before
+
