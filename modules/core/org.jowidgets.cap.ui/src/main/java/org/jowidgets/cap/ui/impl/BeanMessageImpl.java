@@ -128,7 +128,7 @@ final class BeanMessageImpl implements IBeanMessage {
 
 	@Override
 	public String toString() {
-		return type + ": " + message;
+		return getLabel();
 	}
 
 	@Override
