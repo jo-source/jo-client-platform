@@ -123,5 +123,6 @@ Features:
 
 Bugfixes:
 
-* Fixed issue #52 https://github.com/jo-source/jo-client-platform/issues/53 Shortcut(CTRL+E) not working for edit in Beantable when popup was not visible before
+* Fixed issue #53 https://github.com/jo-source/jo-client-platform/issues/53 Shortcut(CTRL+E) not working for edit in Beantable when popup was not visible before
+* Fixed issue #54 https://github.com/jo-source/jo-client-platform/issues/54 User Question Dialog has no title
 

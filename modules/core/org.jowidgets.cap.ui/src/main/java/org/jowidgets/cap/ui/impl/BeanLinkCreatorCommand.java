@@ -218,7 +218,7 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 		final List<IBeanProxy<SOURCE_BEAN_TYPE>> selection,
 		final IBeanLink<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> beanLink) {
 
-		final IExecutionTask executionTask = CapUiToolkit.executionTaskFactory().create();
+		final IExecutionTask executionTask = CapUiToolkit.executionTaskFactory().create(executionContext);
 		final IUiThreadAccess uiThreadAccess = Toolkit.getUiThreadAccess();
 		executionTask.addExecutionCallbackListener(new IExecutionCallbackListener() {
 			@Override
@@ -341,11 +341,8 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 
 		final List<IBeanProxy<LINKABLE_BEAN_TYPE>> defaultLinkedBeans;
 		if (linkableBeanForm != null) {
-			defaultLinkedBeans = Collections.singletonList(createDefaultBean(
-					linkableBeanForm,
-					linkableBeanTypeId,
-					linkableBeanType,
-					linkableBeanPropertyValidators));
+			defaultLinkedBeans = Collections.singletonList(
+					createDefaultBean(linkableBeanForm, linkableBeanTypeId, linkableBeanType, linkableBeanPropertyValidators));
 		}
 		else {
 			defaultLinkedBeans = Collections.emptyList();

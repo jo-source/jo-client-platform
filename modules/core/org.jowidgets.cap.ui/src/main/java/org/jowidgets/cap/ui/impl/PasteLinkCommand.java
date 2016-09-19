@@ -219,7 +219,7 @@ final class PasteLinkCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYP
 
 	private void linkBeans(final IExecutionContext executionContext, final List<IBeanProxy<SOURCE_BEAN_TYPE>> selection) {
 
-		final IExecutionTask executionTask = CapUiToolkit.executionTaskFactory().create();
+		final IExecutionTask executionTask = CapUiToolkit.executionTaskFactory().create(executionContext);
 		final IUiThreadAccess uiThreadAccess = Toolkit.getUiThreadAccess();
 		executionTask.addExecutionCallbackListener(new IExecutionCallbackListener() {
 			@Override

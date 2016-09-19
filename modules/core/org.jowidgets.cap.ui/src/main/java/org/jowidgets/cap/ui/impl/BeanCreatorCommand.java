@@ -206,7 +206,7 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 	}
 
 	private void createBean(final IExecutionContext executionContext, final IBeanProxy<BEAN_TYPE> bean) {
-		final IExecutionTask executionTask = CapUiToolkit.executionTaskFactory().create();
+		final IExecutionTask executionTask = CapUiToolkit.executionTaskFactory().create(executionContext);
 		bean.setExecutionTask(executionTask);
 		final IUiThreadAccess uiThreadAccess = Toolkit.getUiThreadAccess();
 		executionTask.addExecutionCallbackListener(new IExecutionCallbackListener() {

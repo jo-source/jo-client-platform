@@ -244,7 +244,7 @@ final class BeanLinkDeleterCommand<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> implement
 			this.linkedSelection = linkedSelection;
 
 			final IBeanKeyFactory beanKeyFactory = CapUiToolkit.beanKeyFactory();
-			this.executionTask = CapUiToolkit.executionTaskFactory().create();
+			this.executionTask = CapUiToolkit.executionTaskFactory().create(executionContext);
 
 			this.linkDeletions = new LinkedList<ILinkDeletion>();
 			boolean firstIteration = true;
