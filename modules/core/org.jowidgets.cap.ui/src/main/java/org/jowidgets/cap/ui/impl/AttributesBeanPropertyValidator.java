@@ -82,6 +82,10 @@ final class AttributesBeanPropertyValidator<BEAN_TYPE> implements IBeanPropertyV
 		return builder.build();
 	}
 
+	boolean hasValidators() {
+		return validators.size() > 0;
+	}
+
 	@Override
 	public Set<String> getPropertyDependencies() {
 		return validators.keySet();

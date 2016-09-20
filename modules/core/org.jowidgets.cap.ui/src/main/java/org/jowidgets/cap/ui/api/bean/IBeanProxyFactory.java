@@ -38,6 +38,13 @@ import org.jowidgets.cap.ui.api.attribute.IAttributeSet;
 public interface IBeanProxyFactory<BEAN_TYPE> {
 
 	/**
+	 * Adds a IBeanPropertyValidatorto the factory
+	 * 
+	 * @param validator The validator to add, must not be null
+	 */
+	void addBeanPropertyValidator(IBeanPropertyValidator<BEAN_TYPE> validator);
+
+	/**
 	 * Creates a list of bean proxies from bean dtos
 	 * 
 	 * @param beanDtos The bean dto's to crate the bean proxies for

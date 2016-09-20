@@ -51,7 +51,7 @@ final class BeanProxyFactoryImpl<BEAN_TYPE> implements IBeanProxyFactory<BEAN_TY
 	private final Object beanTypeId;
 	private final Class<? extends BEAN_TYPE> beanType;
 	private final IAttributeSet attributeSet;
-	private final Collection<IBeanPropertyValidator<BEAN_TYPE>> validators;
+	private final ArrayList<IBeanPropertyValidator<BEAN_TYPE>> validators;
 	private final Map<String, Object> defaultValues;
 	private final boolean validateUnmodified;
 
@@ -67,7 +67,15 @@ final class BeanProxyFactoryImpl<BEAN_TYPE> implements IBeanProxyFactory<BEAN_TY
 	}
 
 	@Override
-	public List<IBeanProxy<BEAN_TYPE>> createProxies(final Collection<? extends IBeanDto> beanDtos, final IAttributeSet attributes) {
+	public void addBeanPropertyValidator(final IBeanPropertyValidator<BEAN_TYPE> validator) {
+		validators.add(validator);
+		validators.trimToSize();
+	}
+
+	@Override
+	public List<IBeanProxy<BEAN_TYPE>> createProxies(
+		final Collection<? extends IBeanDto> beanDtos,
+		final IAttributeSet attributes) {
 		Assert.paramNotNull(beanDtos, "beanDtos");
 		Assert.paramNotNull(attributes, "attributes");
 		final List<IBeanProxy<BEAN_TYPE>> result = new LinkedList<IBeanProxy<BEAN_TYPE>>();
@@ -119,7 +127,7 @@ final class BeanProxyFactoryImpl<BEAN_TYPE> implements IBeanProxyFactory<BEAN_TY
 		return create(new DummyBeanDto(), beanTypeId, beanType, attributes, true, false, false, validateUnmodified);
 	}
 
-	IBeanProxy<BEAN_TYPE> create(
+	private IBeanProxy<BEAN_TYPE> create(
 		final IBeanDto beanDto,
 		final Object beanTypeId,
 		final Class<? extends BEAN_TYPE> beanType,
@@ -136,8 +144,8 @@ final class BeanProxyFactoryImpl<BEAN_TYPE> implements IBeanProxyFactory<BEAN_TY
 			isDummy,
 			isTransient,
 			isLastRowDummy,
+			validators,
 			validateUnmodified);
-		result.addBeanPropertyValidators(validators);
 		return result;
 	}
 

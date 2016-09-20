@@ -94,6 +94,7 @@ import org.jowidgets.cap.ui.api.attribute.IAttributeSet;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
 import org.jowidgets.cap.ui.api.attribute.IControlPanelProvider;
 import org.jowidgets.cap.ui.api.bean.BeanMessageType;
+import org.jowidgets.cap.ui.api.bean.BeanProxyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanKeyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeanMessage;
@@ -220,8 +221,6 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	private final IBeanSelectionProvider<Object> parent;
 	private final LinkType linkType;
 
-	private final boolean validateUnmodifiedBeans;
-
 	private final boolean clearOnEmptyFilter;
 	private final boolean clearOnEmptyParentBeans;
 	private final boolean autoRefreshSelection;
@@ -317,7 +316,6 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 		this.parent = parent;
 		this.entityId = entityId;
-		this.validateUnmodifiedBeans = validateUnmodifiedBeans;
 		this.autoRowCount = autoRowCount;
 		this.clearOnEmptyFilter = clearOnEmptyFilter;
 		this.clearOnEmptyParentBeans = clearOnEmptyParentBeans;
@@ -395,19 +393,21 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		this.maxPageIndex = 0;
 		this.beanProxyContext = beanProxyContext;
 		this.beansStateTracker = CapUiToolkit.beansStateTracker(beanProxyContext, validateUnmodifiedBeans);
-		this.beanProxyFactory = CapUiToolkit.beanProxyFactory(beanTypeId, beanType, attributeSet);
 		this.beanListModelObservable = new BeanListModelObservable<BEAN_TYPE>();
 		this.beanSelectionObservable = new BeanSelectionObservable<BEAN_TYPE>();
 		this.disposeObservable = new DisposeObservable();
 		this.filterChangeObservable = new ChangeObservable();
 		this.programmaticPageLoader = new HashMap<Integer, PageLoader>();
 
-		this.beanPropertyValidators = new LinkedList<IBeanPropertyValidator<BEAN_TYPE>>();
-		this.beanPropertyValidatorsView = Collections.unmodifiableList(beanPropertyValidators);
-		beanPropertyValidators.add(new AttributesBeanPropertyValidator<BEAN_TYPE>(modifiedAttributes));
+		this.beanPropertyValidators = createBeanPropertyValidators(modifiedAttributes);
 		for (final IBeanValidator<BEAN_TYPE> beanValidator : beanValidators) {
-			addBeanValidator(beanValidator);
+			beanPropertyValidators.add(new BeanPropertyValidatorAdapter<BEAN_TYPE>(beanValidator));
 		}
+		this.beanPropertyValidatorsView = Collections.unmodifiableList(beanPropertyValidators);
+
+		this.beanProxyFactory = BeanProxyFactory.builder(this.beanType).setBeanTypeId(beanTypeId).setAttributes(
+				attributeSet).setValidateUnmodifiedBeans(validateUnmodifiedBeans).setBeanPropertyValidators(
+						beanPropertyValidators).build();
 
 		//configure sort model
 		sortModel.setConfig(sortModelConfig);
@@ -465,6 +465,16 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		this.dataModelContext = dataModelContext != null ? dataModelContext : DataModelContext.create(this);
 	}
 
+	private List<IBeanPropertyValidator<BEAN_TYPE>> createBeanPropertyValidators(
+		final Collection<? extends IAttribute<?>> attributes) {
+		final List<IBeanPropertyValidator<BEAN_TYPE>> result = new LinkedList<IBeanPropertyValidator<BEAN_TYPE>>();
+		final AttributesBeanPropertyValidator<BEAN_TYPE> validator = new AttributesBeanPropertyValidator<BEAN_TYPE>(attributes);
+		if (validator.hasValidators()) {
+			result.add(validator);
+		}
+		return result;
+	}
+
 	@Override
 	public IDataModelContext getDataModelContext() {
 		return dataModelContext;
@@ -512,7 +522,6 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	private void addLastBean() {
 		if (lastBean == null) {
 			lastBean = beanProxyFactory.createLastRowDummyProxy();
-			lastBean.addBeanPropertyValidators(beanPropertyValidators);
 
 			final ValueHolder<PropertyChangeListener> listenerHolder = new ValueHolder<PropertyChangeListener>();
 			final PropertyChangeListener listener = new PropertyChangeListener() {
@@ -1302,20 +1311,12 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	@Override
 	public IBeanProxy<BEAN_TYPE> addTransientBean() {
 		final IBeanProxy<BEAN_TYPE> result = beanProxyFactory.createTransientProxy(defaultValues);
-		if (!EmptyCheck.isEmpty(beanPropertyValidators)) {
-			result.addBeanPropertyValidators(beanPropertyValidators);
-		}
 		addBean(result);
 		return result;
 	}
 
 	private IBeanProxy<BEAN_TYPE> createBeanProxy(final IBeanDto beanDto) {
-		final IBeanProxy<BEAN_TYPE> beanProxy = beanProxyFactory.createProxy(beanDto);
-		beanProxy.setValidateUnmodified(validateUnmodifiedBeans);
-		if (!EmptyCheck.isEmpty(beanPropertyValidators)) {
-			beanProxy.addBeanPropertyValidators(beanPropertyValidators);
-		}
-		return beanProxy;
+		return beanProxyFactory.createProxy(beanDto);
 	}
 
 	@Override
@@ -1537,7 +1538,10 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 	@Override
 	public void addBeanValidator(final IBeanValidator<BEAN_TYPE> beanValidator) {
-		beanPropertyValidators.add(new BeanPropertyValidatorAdapter<BEAN_TYPE>(beanValidator));
+		final BeanPropertyValidatorAdapter<BEAN_TYPE> beanPropertyValidatorAdapter = new BeanPropertyValidatorAdapter<BEAN_TYPE>(
+			beanValidator);
+		beanPropertyValidators.add(beanPropertyValidatorAdapter);
+		beanProxyFactory.addBeanPropertyValidator(beanPropertyValidatorAdapter);
 	}
 
 	@Override

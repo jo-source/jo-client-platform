@@ -68,6 +68,7 @@ import org.jowidgets.cap.ui.api.attribute.AttributeSet;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeSet;
 import org.jowidgets.cap.ui.api.bean.BeanExceptionConverter;
+import org.jowidgets.cap.ui.api.bean.BeanProxyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanMessage;
 import org.jowidgets.cap.ui.api.bean.IBeanPropertyValidator;
@@ -135,7 +136,6 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE>
 	private final ICreatorService creatorService;
 	private final BeanListRefreshDelegate<CHILD_BEAN_TYPE> refreshDelegate;
 	private final ISortModel sortModel;
-	private final boolean validateUnmodifiedBeans;
 	private final List<IBeanPropertyValidator<CHILD_BEAN_TYPE>> beanPropertyValidators;
 	private final IAttributeSet childBeanAttributeSet;
 	private final List<String> propertyNames;
@@ -214,9 +214,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE>
 		this.childBeanAttributeSet = AttributeSet.create(childBeanAttributes);
 		this.exceptionConverter = exceptionConverter;
 
-		this.validateUnmodifiedBeans = validateUnmodifiedBeans;
-		this.beanPropertyValidators = new LinkedList<IBeanPropertyValidator<CHILD_BEAN_TYPE>>();
-		beanPropertyValidators.add(new AttributesBeanPropertyValidator<CHILD_BEAN_TYPE>(childBeanAttributes));
+		this.beanPropertyValidators = createBeanPropertyValidators(childBeanAttributes);
 		for (final IBeanValidator<CHILD_BEAN_TYPE> beanValidator : beanValidators) {
 			beanPropertyValidators.add(new BeanPropertyValidatorAdapter<CHILD_BEAN_TYPE>(beanValidator));
 		}
@@ -228,7 +226,10 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE>
 		this.beanSelectionObservable = new BeanSelectionObservable<CHILD_BEAN_TYPE>();
 		this.beanProxyContext = beanProxyContext;
 		this.beanStateTracker = CapUiToolkit.beansStateTracker(beanProxyContext, validateUnmodifiedBeans);
-		this.beanProxyFactory = CapUiToolkit.beanProxyFactory(childBeanTypeId, childBeanType, childBeanAttributeSet);
+		this.beanProxyFactory = BeanProxyFactory.builder(childBeanType).setBeanTypeId(childBeanTypeId).setAttributes(
+				childBeanAttributeSet).setValidateUnmodifiedBeans(validateUnmodifiedBeans).setBeanPropertyValidators(
+						beanPropertyValidators).build();
+
 		this.filters = new HashMap<String, IUiFilter>();
 
 		this.sortModel = new SortModelImpl();
@@ -262,6 +263,17 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE>
 			refreshService);
 
 		this.hasInitialLoad = false;
+	}
+
+	private List<IBeanPropertyValidator<CHILD_BEAN_TYPE>> createBeanPropertyValidators(
+		final Collection<? extends IAttribute<?>> attributes) {
+		final List<IBeanPropertyValidator<CHILD_BEAN_TYPE>> result = new LinkedList<IBeanPropertyValidator<CHILD_BEAN_TYPE>>();
+		final AttributesBeanPropertyValidator<CHILD_BEAN_TYPE> validator = new AttributesBeanPropertyValidator<CHILD_BEAN_TYPE>(
+			attributes);
+		if (validator.hasValidators()) {
+			result.add(validator);
+		}
+		return result;
 	}
 
 	@SuppressWarnings({"rawtypes", "unchecked"})
@@ -684,20 +696,12 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE>
 	@Override
 	public IBeanProxy<CHILD_BEAN_TYPE> addTransientBean() {
 		final IBeanProxy<CHILD_BEAN_TYPE> result = beanProxyFactory.createTransientProxy(defaultValues);
-		if (!EmptyCheck.isEmpty(beanPropertyValidators)) {
-			result.addBeanPropertyValidators(beanPropertyValidators);
-		}
 		addBean(result);
 		return result;
 	}
 
 	private IBeanProxy<CHILD_BEAN_TYPE> createBeanProxy(final IBeanDto beanDto) {
-		final IBeanProxy<CHILD_BEAN_TYPE> beanProxy = beanProxyFactory.createProxy(beanDto);
-		beanProxy.setValidateUnmodified(validateUnmodifiedBeans);
-		if (!EmptyCheck.isEmpty(beanPropertyValidators)) {
-			beanProxy.addBeanPropertyValidators(beanPropertyValidators);
-		}
-		return beanProxy;
+		return beanProxyFactory.createProxy(beanDto);
 	}
 
 	@Override
