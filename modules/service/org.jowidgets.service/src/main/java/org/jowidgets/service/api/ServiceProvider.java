@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.jowidgets.classloading.api.SharedClassLoader;
 import org.jowidgets.util.Assert;
@@ -50,6 +51,19 @@ public final class ServiceProvider {
 	private static Map<IServiceId<?>, IRedundantServiceResolver<?>> redundantServiceResolvers;
 
 	private ServiceProvider() {}
+
+	/**
+	 * Resets the service provider.
+	 * 
+	 * Use this method with care because this will remove all registered services, decorators and resolvers.
+	 * 
+	 * The method was designed to be used in junit tests only.
+	 */
+	public static synchronized void reset() {
+		compositeServiceProviderHolder = null;
+		serviceProviderDecorators = null;
+		redundantServiceResolvers = null;
+	}
 
 	public static synchronized void registerServiceProviderHolder(final IServiceProviderHolder serviceProviderHolder) {
 		Assert.paramNotNull(serviceProviderHolder, "serviceProviderHolder");
@@ -148,9 +162,8 @@ public final class ServiceProvider {
 						result.put(serviceId, serviceResolver);
 					}
 					else {
-						throw new IllegalStateException("There is already a service resolver registred for the id '"
-							+ serviceId
-							+ "'");
+						throw new IllegalStateException(
+							"There is already a service resolver registred for the id '" + serviceId + "'");
 					}
 				}
 				else {
@@ -184,7 +197,9 @@ public final class ServiceProvider {
 	private static void sortDecorators(final List<IServiceProviderDecoratorHolder> decorators) {
 		Collections.sort(decorators, new Comparator<IServiceProviderDecoratorHolder>() {
 			@Override
-			public int compare(final IServiceProviderDecoratorHolder decorator1, final IServiceProviderDecoratorHolder decorator2) {
+			public int compare(
+				final IServiceProviderDecoratorHolder decorator1,
+				final IServiceProviderDecoratorHolder decorator2) {
 				if (decorator1 != null && decorator2 != null) {
 					return decorator2.getOrder() - decorator1.getOrder();
 				}
@@ -200,7 +215,7 @@ public final class ServiceProvider {
 		private final IServiceProvider serviceProvider;
 
 		CompositeServiceProviderHolder() {
-			this.serviceProviderHolders = new HashSet<IServiceProviderHolder>();
+			this.serviceProviderHolders = new CopyOnWriteArraySet<IServiceProviderHolder>();
 
 			this.serviceProvider = new IServiceProvider() {
 
@@ -235,11 +250,12 @@ public final class ServiceProvider {
 							return (SERVICE_TYPE) resolver.resolve(result);
 						}
 						else {
-							throw new IllegalStateException("There is more than one service registered for the id'"
-								+ id
-								+ "'. Register the '"
-								+ IRedundantServiceResolver.class
-								+ "' do revolve the conflict");
+							throw new IllegalStateException(
+								"There is more than one service registered for the id'"
+									+ id
+									+ "'. Register the '"
+									+ IRedundantServiceResolver.class
+									+ "' do revolve the conflict");
 						}
 					}
 				}
