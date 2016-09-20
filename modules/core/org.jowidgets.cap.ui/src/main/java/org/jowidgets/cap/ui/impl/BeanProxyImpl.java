@@ -886,6 +886,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 		if (!validators.isEmpty()) {
 			beanPropertyValidators.addAll(validators);
 			beanPropertyValidators.trimToSize();
+			calculateInternalObservedProperties();
 			validateAllInternalProperties();
 		}
 	}
@@ -896,6 +897,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 		Assert.paramNotNull(validator, "validator");
 		beanPropertyValidators.add(validator);
 		beanPropertyValidators.trimToSize();
+		calculateInternalObservedProperties();
 		validateAllInternalProperties();
 	}
 
@@ -982,13 +984,21 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 	}
 
 	private void calculateInternalObservedProperties() {
-		final Set<String> result = new LinkedHashSet<String>(attributes.getPropertyNames());
-		for (final IObserverSet<IExternalBeanValidator> externalBeanValidatorsSet : externalValidators.values()) {
-			for (final IExternalBeanValidator externalBeanValidator : externalBeanValidatorsSet) {
-				result.removeAll(externalBeanValidator.getObservedProperties());
-			}
+		if (beanPropertyValidators.isEmpty() && externalValidators.isEmpty()) {
+			internalObservedProperties = new ArrayList<String>(0);
 		}
-		internalObservedProperties = new ArrayList<String>(result);
+		else if (externalValidators.isEmpty()) {
+			internalObservedProperties = new ArrayList<String>(attributes.getPropertyNames());
+		}
+		else {
+			final Set<String> result = new LinkedHashSet<String>(attributes.getPropertyNames());
+			for (final IObserverSet<IExternalBeanValidator> externalBeanValidatorsSet : externalValidators.values()) {
+				for (final IExternalBeanValidator externalBeanValidator : externalBeanValidatorsSet) {
+					result.removeAll(externalBeanValidator.getObservedProperties());
+				}
+			}
+			internalObservedProperties = new ArrayList<String>(result);
+		}
 	}
 
 	@SuppressWarnings("unchecked")
