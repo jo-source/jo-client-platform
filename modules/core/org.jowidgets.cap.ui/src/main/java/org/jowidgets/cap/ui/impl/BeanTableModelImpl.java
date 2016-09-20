@@ -1257,7 +1257,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		beanListModelObservable.fireBeansChanged();
 	}
 
-	public void addBeanDtos(final Collection<IBeanDto> beanDtos, final boolean sorted) {
+	public void addBeanDtos(final Collection<IBeanDto> beanDtos, final boolean sorted, final boolean mightContainUpdates) {
 		final List<IBeanProxy<BEAN_TYPE>> proxies = new ArrayList<IBeanProxy<BEAN_TYPE>>(beanDtos.size());
 
 		for (final IBeanDto beanDto : beanDtos) {
@@ -1265,14 +1265,17 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			proxies.add(beanProxy);
 		}
 
-		addBeans(proxies, sorted);
+		addBeans(proxies, sorted, mightContainUpdates);
 	}
 
-	public void addBeans(final Collection<IBeanProxy<BEAN_TYPE>> beans, final boolean sorted) {
+	public void addBeans(final Collection<IBeanProxy<BEAN_TYPE>> beans, final boolean sorted, final boolean mightContainUpdates) {
 		final List<IBeanProxy<BEAN_TYPE>> selectedBeans = getSelectedBeans();
 		final List<Integer> newSelection = new LinkedList<Integer>();
 
-		removeBeansFromData(new HashSet<IBeanProxy<BEAN_TYPE>>(selectedBeans), newSelection, beans);
+		if (mightContainUpdates) {
+			// TODO removeBeansFromData(new HashSet<IBeanProxy<BEAN_TYPE>>(selectedBeans), newSelection, beans);
+			removeBeansFromAddedData(new HashSet<IBeanProxy<BEAN_TYPE>>(selectedBeans), newSelection, beans);
+		}
 
 		if (sorted) {
 			final Comparator<IBeanDto> comparator = BeanDtoComparator.create(sortModel.getSorting());
@@ -2758,7 +2761,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 				@Override
 				protected void updateUi(final IBeanDtosUpdate update) {
 					if (update instanceof IBeanDtosInsertionUpdate) {
-						addBeanDtos(((IBeanDtosInsertionUpdate) update).getInsertedBeans(), true);
+						addBeanDtos(((IBeanDtosInsertionUpdate) update).getInsertedBeans(), true, false);
 						fireBeansChanged();
 						fireSelectionChanged();
 					}
@@ -2769,7 +2772,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 					}
 					else if (update instanceof IBeanDtosChangeUpdate) {
 						((IBeanDtosChangeUpdate) update).getChangedBeans();
-						addBeanDtos(((IBeanDtosChangeUpdate) update).getChangedBeans(), true);
+						addBeanDtos(((IBeanDtosChangeUpdate) update).getChangedBeans(), true, true);
 						fireBeansChanged();
 						fireSelectionChanged();
 					}
@@ -2779,7 +2782,6 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 						fireBeansChanged();
 						fireSelectionChanged();
 					}
-
 				}
 
 			};

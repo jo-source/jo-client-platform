@@ -81,10 +81,10 @@ public class BeanTableModelImplTest {
 	private final Object entityId = new Object();
 	private final Object beanTypeId = new Object();
 
-	private final TestBean bean1 = new TestBean(1, "foo");
-	private final TestBean bean1a = new TestBean(1, "foobar");
-	private final TestBean bean2 = new TestBean(2, "bar");
-	private final TestBean bean3 = new TestBean(3, "baz");
+	private final TestBean bean1 = new TestBean(1, "1_foo");
+	private final TestBean bean1a = new TestBean(1, "4_foo");
+	private final TestBean bean2 = new TestBean(2, "2_bar");
+	private final TestBean bean3 = new TestBean(3, "3_baz");
 
 	private final Queue<Runnable> scheduledRunnables = new LinkedList<Runnable>();
 
@@ -290,6 +290,18 @@ public class BeanTableModelImplTest {
 
 	@Test
 	public void testBeanChangeUpdate() {
+		tableModel.getSortModel().setCurrentSorting(Arrays.asList(new ISort() {
+			@Override
+			public SortOrder getSortOrder() {
+				return SortOrder.ASC;
+			}
+
+			@Override
+			public String getPropertyName() {
+				return "key";
+			}
+		}));
+
 		tableModel.load();
 
 		triggerPageLoading();
@@ -303,6 +315,36 @@ public class BeanTableModelImplTest {
 				tableModel.getBean(0).getValue("value").equals(bean1a.getValue("value")));
 		assertTrue(
 				"second bean should be unchanged by update",
+				tableModel.getBean(1).getValue("value").equals(bean2.getValue("value")));
+	}
+
+	@Test
+	public void testBeanChangeUpdateWithChangedPositionInSorting() {
+		tableModel.getSortModel().setCurrentSorting(Arrays.asList(new ISort() {
+			@Override
+			public SortOrder getSortOrder() {
+				return SortOrder.DESC;
+			}
+
+			@Override
+			public String getPropertyName() {
+				return "value";
+			}
+		}));
+
+		tableModel.load();
+
+		triggerPageLoading();
+		updateCallback.finished(new BeanDtosInsertionUpdate(new ArrayList<IBeanDto>()));
+		updateCallback.update(new BeanDtosInsertionUpdate(Arrays.asList((IBeanDto) bean2, (IBeanDto) bean1)));
+		updateCallback.update(new BeanDtosChangeUpdate(Arrays.asList((IBeanDto) bean1a)));
+
+		assertTrue("2 beans should be loaded, but was " + tableModel.getSize(), tableModel.getSize() == 2);
+		assertTrue(
+				"the updated bean should be first now",
+				tableModel.getBean(0).getValue("value").equals(bean1a.getValue("value")));
+		assertTrue(
+				"the previously first bean should now be second",
 				tableModel.getBean(1).getValue("value").equals(bean2.getValue("value")));
 	}
 
@@ -384,7 +426,12 @@ public class BeanTableModelImplTest {
 
 		@Override
 		public Object getValue(final String propertyName) {
-			return getValue();
+			if (propertyName.equals("key")) {
+				return key;
+			}
+			else {
+				return value;
+			}
 		}
 
 		@Override
