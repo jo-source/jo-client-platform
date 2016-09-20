@@ -127,5 +127,6 @@ Bugfixes:
 * Fixed issue #54 https://github.com/jo-source/jo-client-platform/issues/54 User Question Dialog has no title
 * Fixes issue #55 https://github.com/jo-source/jo-client-platform/issues/55 BeanMessage in table should be rendered the same way than in detail 
 * Fixes issue #56 https://github.com/jo-source/jo-client-platform/issues/56 BeanMessages should be cleared, when undo will be done
+* Fixes issue #57 https://github.com/jo-source/jo-client-platform/issues/57 BeanMessagePopupDialog clips messages when message will be added after dialog is visible
 
 

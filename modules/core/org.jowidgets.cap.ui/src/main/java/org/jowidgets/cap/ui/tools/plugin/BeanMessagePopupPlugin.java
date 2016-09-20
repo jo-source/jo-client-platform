@@ -43,6 +43,7 @@ import org.jowidgets.cap.ui.api.bean.IBeanMessage;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.plugin.IBeanProxyPlugin;
 import org.jowidgets.common.image.IImageConstant;
+import org.jowidgets.common.types.Dimension;
 import org.jowidgets.common.widgets.controller.IActionListener;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
 import org.jowidgets.tools.widgets.blueprint.BPF;
@@ -109,11 +110,16 @@ public final class BeanMessagePopupPlugin implements IBeanProxyPlugin {
 		}
 
 		private void setMessage(final IBeanMessage message) {
-			dialog.layoutBegin();
+			dialog.pack();
 			dialog.setTitle(message.getShortMessage());
 			icon.setIcon(getIcon(message));
+			final Dimension lastLabelSize = label.getPreferredSize();
 			label.setText(message.getMessage());
-			dialog.layoutEnd();
+			final Dimension newLabelSize = label.getPreferredSize();
+			if (lastLabelSize.getHeight() < newLabelSize.getHeight() || lastLabelSize.getWidth() < newLabelSize.getWidth()) {
+				dialog.pack();
+			}
+			dialog.layout();
 			if (!dialog.isVisible()) {
 				dialog.setVisible(true);
 			}
