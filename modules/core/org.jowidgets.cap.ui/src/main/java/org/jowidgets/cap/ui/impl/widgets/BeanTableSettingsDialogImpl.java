@@ -60,53 +60,58 @@ import org.jowidgets.util.Assert;
 
 final class BeanTableSettingsDialogImpl extends WindowWrapper implements IBeanTableSettingsDialog {
 
+	private static final int MIN_HEIGHT = 400;
+	private static final int SCROLL_BAR_WIDTH_APPROXIMATION = 12;
+
 	private final IBluePrintFactory bpF;
 	private final IBeanTable<?> table;
 	private final IBeanTableModel<?> model;
 	private final IFrame frame;
 
 	private final BeanTableAttributeListImpl beanTableAttributeListImpl;
-	private IBeanTableSettings currentSettings;
-
-	private boolean okPressed;
 
 	private final ICheckBox autoSelection;
 	private final ICheckBox autoUpdate;
 	private final IInputField<Integer> autoUpdateInterval;
 	private final IComboBox<AutoScrollPolicy> autoScrollPolicy;
 
+	private IBeanTableSettings currentSettings;
+	private boolean okPressed;
+	private boolean wasVisible;
+
 	BeanTableSettingsDialogImpl(final IFrame frame, final IBeanTableSettingsDialogBluePrint setup) {
 		super(frame);
-		Assert.paramNotNull(frame, "frame"); //$NON-NLS-1$
-		Assert.paramNotNull(setup, "setup"); //$NON-NLS-1$
-		Assert.paramNotNull(setup.getTable(), "setup.getTable()"); //$NON-NLS-1$
+		Assert.paramNotNull(frame, "frame");
+		Assert.paramNotNull(setup, "setup");
+		Assert.paramNotNull(setup.getTable(), "setup.getTable()");
 
 		this.bpF = Toolkit.getBluePrintFactory();
 		this.frame = frame;
 		this.table = setup.getTable();
 		this.model = table.getModel();
 		this.currentSettings = setup.getTable().getSettings();
+		this.wasVisible = false;
 
-		frame.setLayout(new MigLayoutDescriptor("hidemode 2", "[][grow]", "[][]10[][]10[][]10[grow][pref!]")); //$NON-NLS-1$ //$NON-NLS-2$
+		frame.setLayout(new MigLayoutDescriptor("hidemode 2", "[][grow]", "[][]10[][]10[][]10[grow][pref!]"));
 
-		final String textCommonSettings = Messages.getString("BeanTableSettingsDialogImpl.common_settings"); //$NON-NLS-1$
-		final String textAutoSelection = Messages.getString("BeanTableSettingsDialogImpl.auto_selection"); //$NON-NLS-1$
-		final String textAutoUpdateSettings = Messages.getString("BeanTableSettingsDialogImpl.auto_update_settings");//"Auto update settings"; //$NON-NLS-1$
-		final String textAutoUpdate = Messages.getString("BeanTableSettingsDialogImpl.auto_update");//"Auto update"; //$NON-NLS-1$
-		final String textAutoUpdateInterval = Messages.getString("BeanTableSettingsDialogImpl.interval_sec");//"Interval (sec)"; //$NON-NLS-1$
-		final String textAutoScrollPolicy = Messages.getString("BeanTableSettingsDialogImpl.auto_scroll");//"Auto scroll";
-		final String textColumns = Messages.getString("BeanTableSettingsDialogImpl.columns"); //$NON-NLS-1$
-		final String textSearch = Messages.getString("BeanTableSettingsDialogImpl.search_"); //$NON-NLS-1$
+		final String textCommonSettings = Messages.getString("BeanTableSettingsDialogImpl.common_settings");
+		final String textAutoSelection = Messages.getString("BeanTableSettingsDialogImpl.auto_selection");
+		final String textAutoUpdateSettings = Messages.getString("BeanTableSettingsDialogImpl.auto_update_settings");
+		final String textAutoUpdate = Messages.getString("BeanTableSettingsDialogImpl.auto_update");
+		final String textAutoUpdateInterval = Messages.getString("BeanTableSettingsDialogImpl.interval_sec");
+		final String textAutoScrollPolicy = Messages.getString("BeanTableSettingsDialogImpl.auto_scroll");
+		final String textColumns = Messages.getString("BeanTableSettingsDialogImpl.columns");
+		final String textSearch = Messages.getString("BeanTableSettingsDialogImpl.search_");
 
 		// common settings
-		frame.add(bpF.textSeparator(textCommonSettings), "grow, span"); //$NON-NLS-1$
-		autoSelection = frame.add(bpF.checkBox().setText(textAutoSelection), "grow, span, wrap"); //$NON-NLS-1$ 
+		frame.add(bpF.textSeparator(textCommonSettings), "grow, span");
+		autoSelection = frame.add(bpF.checkBox().setText(textAutoSelection), "grow, span, wrap");
 
-		final ITextLabel autoUpdateSeparator = frame.add(bpF.textSeparator(textAutoUpdateSettings), "grow, span"); //$NON-NLS-1$
-		final IComposite autoUpdateBar = frame.add(bpF.composite(), "grow, span, wrap"); //$NON-NLS-1$ 
+		final ITextLabel autoUpdateSeparator = frame.add(bpF.textSeparator(textAutoUpdateSettings), "grow, span");
+		final IComposite autoUpdateBar = frame.add(bpF.composite(), "grow, span, wrap");
 		autoUpdateBar.setLayout(new MigLayoutDescriptor("0[]20[][]20[][]0", "0[]0"));
 
-		autoUpdate = autoUpdateBar.add(bpF.checkBox().setText(textAutoUpdate), ""); //$NON-NLS-1$ 
+		autoUpdate = autoUpdateBar.add(bpF.checkBox().setText(textAutoUpdate), "");
 		autoUpdate.addInputListener(new IInputListener() {
 			@Override
 			public void inputChanged() {
@@ -132,9 +137,9 @@ final class BeanTableSettingsDialogImpl extends WindowWrapper implements IBeanTa
 			autoUpdateBar.setVisible(false);
 		}
 
-		frame.add(bpF.textSeparator(textColumns), "grow, span, wrap"); //$NON-NLS-1$ 
-		frame.add(bpF.textLabel(textSearch), ""); //$NON-NLS-1$
-		final IInputField<String> filter = frame.add(bpF.inputFieldString(), "wrap, grow"); //$NON-NLS-1$
+		frame.add(bpF.textSeparator(textColumns), "grow, span, wrap");
+		frame.add(bpF.textLabel(textSearch), "");
+		final IInputField<String> filter = frame.add(bpF.inputFieldString(), "wrap, grow");
 		filter.addInputListener(new IInputListener() {
 
 			@Override
@@ -143,11 +148,11 @@ final class BeanTableSettingsDialogImpl extends WindowWrapper implements IBeanTa
 			}
 		});
 
-		beanTableAttributeListImpl = new BeanTableAttributeListImpl(frame.add(
-				bpF.compositeWithBorder(),
-				"grow, wrap, span, w 0::, h 0::"), model); //$NON-NLS-1$
+		beanTableAttributeListImpl = new BeanTableAttributeListImpl(
+			frame.add(bpF.compositeWithBorder(), "grow, wrap, span, w 0::, h 0::"),
+			model);
 
-		createButtonBar(frame.add(bpF.composite(), "alignx right, span, wrap")); //$NON-NLS-1$
+		createButtonBar(frame.add(bpF.composite(), "alignx right, span, wrap"));
 	}
 
 	@Override
@@ -162,6 +167,14 @@ final class BeanTableSettingsDialogImpl extends WindowWrapper implements IBeanTa
 		autoUpdateInterval.setValue(currentSettings.getAutoUpdateInterval());
 		autoScrollPolicy.setValue(currentSettings.getAutoScrollPolicy());
 		beanTableAttributeListImpl.updateValues(modelConfig);
+
+		if (!wasVisible) {
+			frame.setMinSize(0, MIN_HEIGHT);
+			frame.pack();
+			frame.setMinSize(frame.getSize().getWidth() + SCROLL_BAR_WIDTH_APPROXIMATION, MIN_HEIGHT);
+			wasVisible = true;
+		}
+
 		frame.setVisible(true);
 
 		if (okPressed) {
@@ -199,9 +212,10 @@ final class BeanTableSettingsDialogImpl extends WindowWrapper implements IBeanTa
 	}
 
 	private void createButtonBar(final IComposite buttonBar) {
-		buttonBar.setLayout(new MigLayoutDescriptor("0[][]0", "0[]0")); //$NON-NLS-1$ //$NON-NLS-2$
+		buttonBar.setLayout(new MigLayoutDescriptor("0[][]0", "0[]0"));
 		final IButton ok = buttonBar.add(
-				bpF.button(Messages.getString("BeanTableSettingsDialogImpl.ok")), "w 80::, aligny b, sg bg"); //$NON-NLS-1$ //$NON-NLS-2$
+				bpF.button(Messages.getString("BeanTableSettingsDialogImpl.ok")),
+				"w 80::, aligny b, sg bg");
 		ok.addActionListener(new IActionListener() {
 			@Override
 			public void actionPerformed() {
@@ -212,7 +226,8 @@ final class BeanTableSettingsDialogImpl extends WindowWrapper implements IBeanTa
 		frame.setDefaultButton(ok);
 
 		final IButton cancel = buttonBar.add(
-				bpF.button(Messages.getString("BeanTableSettingsDialogImpl.cancel")), "w 80::, aligny b, sg bg"); //$NON-NLS-1$ //$NON-NLS-2$
+				bpF.button(Messages.getString("BeanTableSettingsDialogImpl.cancel")),
+				"w 80::, aligny b, sg bg");
 		cancel.addActionListener(new IActionListener() {
 			@Override
 			public void actionPerformed() {
@@ -223,9 +238,9 @@ final class BeanTableSettingsDialogImpl extends WindowWrapper implements IBeanTa
 
 	private static class AutoScrollPolicyConverter implements IObjectStringConverter<AutoScrollPolicy> {
 
-		private static final IMessage OFF = Messages.getMessage("BeanTableSettingsDialogImpl.auto_scroll_off");//"of"; //$NON-NLS-1$
-		private static final IMessage SELECTION = Messages.getMessage("BeanTableSettingsDialogImpl.auto_scroll_selection");//"Selected"; //$NON-NLS-1$
-		private static final IMessage END = Messages.getMessage("BeanTableSettingsDialogImpl.auto_scroll_end");//"end"; //$NON-NLS-1$
+		private static final IMessage OFF = Messages.getMessage("BeanTableSettingsDialogImpl.auto_scroll_off");
+		private static final IMessage SELECTION = Messages.getMessage("BeanTableSettingsDialogImpl.auto_scroll_selection");
+		private static final IMessage END = Messages.getMessage("BeanTableSettingsDialogImpl.auto_scroll_end");
 
 		@Override
 		public String convertToString(final AutoScrollPolicy value) {
