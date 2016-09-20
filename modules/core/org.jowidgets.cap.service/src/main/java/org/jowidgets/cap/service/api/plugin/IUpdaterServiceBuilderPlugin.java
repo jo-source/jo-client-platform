@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2016, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,28 +26,19 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.bean;
+package org.jowidgets.cap.service.api.plugin;
 
-import java.util.List;
+import org.jowidgets.cap.service.api.updater.IUpdaterServiceBuilder;
+import org.jowidgets.plugin.api.IPluginId;
+import org.jowidgets.util.ITypedKey;
 
-public interface IBeanExceptionConverter {
+public interface IUpdaterServiceBuilderPlugin<BEAN_TYPE> {
 
-	/**
-	 * Converts a throwable into an IBeanMessage
-	 * 
-	 * @param shortErrorMessage The short message that describes what action failed
-	 *            (e.g. 'Creation failed', 'Load failed', 'Save failed'), may be null
-	 * @param processedBeans All beans that was processed by the action
-	 * @param destinationBeanIndex The index of the destination bean
-	 * @param destinationBean The bean to convert the message for
-	 * 
-	 * @return The bean message created from the throwable
-	 */
-	IBeanMessage convert(
-		String shortErrorMessage,
-		List<? extends IBeanProxy<?>> processedBeans,
-		int destinationBeanIndex,
-		IBeanProxy<?> destinationBean,
-		Throwable throwable);
+	IPluginId<IUpdaterServiceBuilderPlugin<?>> ID = new IPluginId<IUpdaterServiceBuilderPlugin<?>>() {};
+
+	ITypedKey<Class<?>> BEAN_TYPE_PROPERTY_KEY = new ITypedKey<Class<?>>() {};
+	ITypedKey<Object> BEAN_TYPE_ID_PROPERTY_KEY = new ITypedKey<Object>() {};
+
+	void modify(IUpdaterServiceBuilder<BEAN_TYPE> builder);
 
 }

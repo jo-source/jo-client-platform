@@ -32,10 +32,13 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.jowidgets.cap.common.api.exception.AuthorizationFailedException;
 import org.jowidgets.cap.common.api.exception.BeanException;
 import org.jowidgets.cap.common.api.exception.BeanValidationException;
+import org.jowidgets.cap.common.api.exception.BeansValidationException;
+import org.jowidgets.cap.common.api.exception.BeansValidationException.KeyType;
 import org.jowidgets.cap.common.api.exception.DeletedBeanException;
 import org.jowidgets.cap.common.api.exception.ExecutableCheckException;
 import org.jowidgets.cap.common.api.exception.ForeignKeyConstraintViolationException;
@@ -54,6 +57,7 @@ import org.jowidgets.logging.api.ILogger;
 import org.jowidgets.logging.api.LoggerProvider;
 import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.util.StringUtils;
+import org.jowidgets.validation.IValidationMessage;
 
 final class BeanExceptionConverterImpl implements IBeanExceptionConverter {
 
@@ -66,23 +70,69 @@ final class BeanExceptionConverterImpl implements IBeanExceptionConverter {
 	private static final IMessage DELETED_DATA_BEAN = Messages.getMessage("BeanExceptionConverterImpl.deletedDataBean");
 	private static final IMessage DELETED_DATA = Messages.getMessage("BeanExceptionConverterImpl.deletedData");
 	private static final IMessage FK_CONSTRAINT = Messages.getMessage("BeanExceptionConverterImpl.fkConstraint");
-	private static final IMessage UNIQUE_CONSTRAINT_NO_PROP = Messages.getMessage("BeanExceptionConverterImpl.uniqueConstraintNoProp");
-	private static final IMessage UNIQUE_CONSTRAINT_SINGLE_PROP = Messages.getMessage("BeanExceptionConverterImpl.uniqueConstraintSingleProp");
-	private static final IMessage UNIQUE_CONSTRAINT_PLURAL_PROP = Messages.getMessage("BeanExceptionConverterImpl.uniqueConstraintPluralProp");
+	private static final IMessage UNIQUE_CONSTRAINT_NO_PROP = Messages.getMessage(
+			"BeanExceptionConverterImpl.uniqueConstraintNoProp");
+	private static final IMessage UNIQUE_CONSTRAINT_SINGLE_PROP = Messages.getMessage(
+			"BeanExceptionConverterImpl.uniqueConstraintSingleProp");
+	private static final IMessage UNIQUE_CONSTRAINT_PLURAL_PROP = Messages.getMessage(
+			"BeanExceptionConverterImpl.uniqueConstraintPluralProp");
 	private static final IMessage AUTHORIZATION_FAILED = Messages.getMessage("BeanExceptionConverterImpl.authorizationFailed");
-	private static final IMessage UNDEFINED_RUNTIME_EXCEPTION = Messages.getMessage("BeanExceptionConverterImpl.undefinedRuntimeException");
+	private static final IMessage UNDEFINED_RUNTIME_EXCEPTION = Messages.getMessage(
+			"BeanExceptionConverterImpl.undefinedRuntimeException");
+	private static final IMessage VALIDATION_OF_OTHER_DATASETS_FAILED = Messages.getMessage(
+			"BeanExceptionConverterImpl.validationOfOtherDatasetsFailed");
 
 	@Override
 	public IBeanMessage convert(
 		final String shortMessage,
 		final List<? extends IBeanProxy<?>> processedBeans,
+		final int destinationBeanIndex,
 		final IBeanProxy<?> destinationBean,
 		final Throwable throwable) {
-		if (throwable instanceof ServiceException) {
+		if (throwable instanceof BeansValidationException) {
+			return convertBeansValidationException(
+					shortMessage,
+					processedBeans,
+					destinationBeanIndex,
+					destinationBean,
+					(BeansValidationException) throwable);
+		}
+		else if (throwable instanceof ServiceException) {
 			return convertServiceException(shortMessage, destinationBean, (ServiceException) throwable);
 		}
 		else {
 			return convertUndefinedException(shortMessage, throwable);
+		}
+	}
+
+	private IBeanMessage convertBeansValidationException(
+		final String shortMessage,
+		final List<? extends IBeanProxy<?>> processedBeans,
+		final int destinationBeanIndex,
+		final IBeanProxy<?> destinationBean,
+		final BeansValidationException exception) {
+		final Map<Object, IBeanValidationResult> validationResults = exception.getValidationResults();
+
+		final IBeanValidationResult validationResult;
+		if (KeyType.INDEX.equals(exception.getKeyType())) {
+			validationResult = validationResults.get(Integer.valueOf(destinationBeanIndex));
+		}
+		else {
+			validationResult = validationResults.get(destinationBean.getId());
+		}
+
+		if (validationResult != null) {
+			return convertBeanValidationException(
+					shortMessage,
+					destinationBean,
+					new BeanValidationException(destinationBean.getId(), validationResult));
+		}
+		else {
+			return new BeanMessageImpl(
+				BeanMessageType.WARNING,
+				shortMessage,
+				VALIDATION_OF_OTHER_DATASETS_FAILED.get(),
+				exception);
 		}
 	}
 
@@ -107,7 +157,10 @@ final class BeanExceptionConverterImpl implements IBeanExceptionConverter {
 		}
 	}
 
-	private IBeanMessage convertBeanException(final String shortMessage, final IBeanProxy<?> bean, final BeanException exception) {
+	private IBeanMessage convertBeanException(
+		final String shortMessage,
+		final IBeanProxy<?> bean,
+		final BeanException exception) {
 		if (exception instanceof BeanValidationException) {
 			return convertBeanValidationException(shortMessage, bean, (BeanValidationException) exception);
 		}
@@ -133,7 +186,8 @@ final class BeanExceptionConverterImpl implements IBeanExceptionConverter {
 		final String propertyName = firstWorstBeanResult.getPropertyName();
 		final Collection<String> propertyLabel = getPropertyLabels(bean, Collections.singleton(propertyName));
 		final String labels = StringUtils.concatElementsSeparatedBy(propertyLabel, ',');
-		final String message = labels + " - " + firstWorstBeanResult.getValidationResult().getWorstFirst().getText();
+		final IValidationMessage worstFirst = firstWorstBeanResult.getValidationResult().getWorstFirst();
+		final String message = labels + " - " + worstFirst.getText();
 		return new BeanMessageImpl(BeanMessageType.WARNING, shortMessage, message, exception);
 	}
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2016, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,28 +26,25 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.bean;
+package org.jowidgets.cap.service.tools.validation;
 
-import java.util.List;
+import org.jowidgets.i18n.api.IMessage;
+import org.jowidgets.i18n.api.IMessageProvider;
+import org.jowidgets.i18n.api.MessageProvider;
 
-public interface IBeanExceptionConverter {
+final class Messages {
 
-	/**
-	 * Converts a throwable into an IBeanMessage
-	 * 
-	 * @param shortErrorMessage The short message that describes what action failed
-	 *            (e.g. 'Creation failed', 'Load failed', 'Save failed'), may be null
-	 * @param processedBeans All beans that was processed by the action
-	 * @param destinationBeanIndex The index of the destination bean
-	 * @param destinationBean The bean to convert the message for
-	 * 
-	 * @return The bean message created from the throwable
-	 */
-	IBeanMessage convert(
-		String shortErrorMessage,
-		List<? extends IBeanProxy<?>> processedBeans,
-		int destinationBeanIndex,
-		IBeanProxy<?> destinationBean,
-		Throwable throwable);
+	private static final IMessageProvider MESSAGE_PROVIDER = MessageProvider.create(
+			"org.jowidgets.cap.service.tools.validation.messages",
+			Messages.class);
 
+	private Messages() {}
+
+	public static String getString(final String key) {
+		return MESSAGE_PROVIDER.getString(key);
+	}
+
+	public static IMessage getMessage(final String key) {
+		return MESSAGE_PROVIDER.getMessage(key);
+	}
 }

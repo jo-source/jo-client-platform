@@ -330,10 +330,11 @@ final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 		@Override
 		protected void exceptionUi(final Throwable exception) {
 
+			int beanIndex = 0;
 			for (final IBeanProxy<BEAN_TYPE> bean : beans) {
 				bean.setExecutionTask(null);
 				if (!(exception instanceof ServiceCanceledException)) {
-					bean.addMessage(exceptionConverter.convert(DELETION_FAILED.get(), beans, bean, exception));
+					bean.addMessage(exceptionConverter.convert(DELETION_FAILED.get(), beans, beanIndex++, bean, exception));
 				}
 			}
 

@@ -49,7 +49,12 @@ import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.api.bean.IBeanIdentityResolver;
 import org.jowidgets.cap.service.api.bean.IBeanInitializer;
 import org.jowidgets.cap.service.api.creator.ICreatorServiceBuilder;
+import org.jowidgets.cap.service.api.plugin.ICreatorServiceBuilderPlugin;
 import org.jowidgets.cap.service.tools.bean.DefaultBeanIdentityResolver;
+import org.jowidgets.plugin.api.IPluginProperties;
+import org.jowidgets.plugin.api.IPluginPropertiesBuilder;
+import org.jowidgets.plugin.api.PluginProperties;
+import org.jowidgets.plugin.api.PluginProvider;
 import org.jowidgets.util.Assert;
 import org.jowidgets.validation.IValidator;
 
@@ -64,6 +69,7 @@ public abstract class AbstractCreatorServiceBuilder<BEAN_TYPE> implements ICreat
 
 	private IBeanDtoFactory<BEAN_TYPE> beanDtoFactory;
 	private IBeanInitializer<BEAN_TYPE> beanInitializer;
+	private boolean confirmValidationWarnings;
 
 	public AbstractCreatorServiceBuilder(final Class<? extends IBean> beanType) {
 		this(beanType, beanType);
@@ -83,8 +89,8 @@ public abstract class AbstractCreatorServiceBuilder<BEAN_TYPE> implements ICreat
 		this.executableCheckers = new LinkedList<IExecutableChecker<? extends BEAN_TYPE>>();
 		this.beanValidators = new LinkedList<IBeanValidator<BEAN_TYPE>>();
 		this.propertyValidators = new HashMap<String, List<IValidator<? extends Object>>>();
-
 		beanValidators.addAll(ValidatorAnnotationUtil.getBeanValidators(beanType));
+		this.confirmValidationWarnings = false;
 
 		final Map validatorsMap = ValidatorAnnotationCache.getPropertyValidators(beanType);
 		propertyValidators.putAll(validatorsMap);
@@ -134,6 +140,12 @@ public abstract class AbstractCreatorServiceBuilder<BEAN_TYPE> implements ICreat
 	}
 
 	@Override
+	public ICreatorServiceBuilder<BEAN_TYPE> setConfirmValidationWarnings(final boolean confirmValidationWarnings) {
+		this.confirmValidationWarnings = confirmValidationWarnings;
+		return this;
+	}
+
+	@Override
 	public final ICreatorServiceBuilder<BEAN_TYPE> setBeanDtoFactory(final IBeanDtoFactory<BEAN_TYPE> beanDtoFactory) {
 		Assert.paramNotNull(beanDtoFactory, "beanDtoFactory");
 		this.beanDtoFactory = beanDtoFactory;
@@ -170,6 +182,10 @@ public abstract class AbstractCreatorServiceBuilder<BEAN_TYPE> implements ICreat
 		return beanInitializer;
 	}
 
+	protected boolean isConfirmValidationWarnings() {
+		return confirmValidationWarnings;
+	}
+
 	@SuppressWarnings("unchecked")
 	protected final IExecutableChecker<BEAN_TYPE> getExecutableChecker() {
 		if (executableCheckers.size() == 1) {
@@ -196,6 +212,22 @@ public abstract class AbstractCreatorServiceBuilder<BEAN_TYPE> implements ICreat
 		else {
 			return null;
 		}
+	}
+
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	protected void applyPlugins() {
+		PluginProperties.builder();
+		final IPluginProperties properties = createPluginProperties();
+		for (final ICreatorServiceBuilderPlugin plugin : PluginProvider.getPlugins(ICreatorServiceBuilderPlugin.ID, properties)) {
+			plugin.modify(this);
+		}
+	}
+
+	private IPluginProperties createPluginProperties() {
+		final IPluginPropertiesBuilder builder = PluginProperties.builder();
+		builder.add(ICreatorServiceBuilderPlugin.BEAN_TYPE_PROPERTY_KEY, beanType);
+		builder.add(ICreatorServiceBuilderPlugin.BEAN_TYPE_ID_PROPERTY_KEY, beanTypeId);
+		return builder.build();
 	}
 
 	private Collection<IBeanValidator<BEAN_TYPE>> getBeanValidators() {

@@ -47,6 +47,17 @@ public interface IUpdaterServiceBuilder<BEAN_TYPE> {
 
 	IUpdaterServiceBuilder<BEAN_TYPE> addPropertyValidator(String propertyName, IValidator<? extends Object> validator);
 
+	/**
+	 * If set to true, validation warnings must be confirmed by the user.
+	 * 
+	 * The default is false.
+	 * 
+	 * @param confirm true if warnings should be confirmed, false otherwise
+	 * 
+	 * @return This builder
+	 */
+	IUpdaterServiceBuilder<BEAN_TYPE> setConfirmValidationWarnings(boolean confirm);
+
 	IUpdaterServiceBuilder<BEAN_TYPE> addExecutableChecker(IExecutableChecker<? extends BEAN_TYPE> executableChecker);
 
 	IUpdaterServiceBuilder<BEAN_TYPE> setExecutableChecker(IExecutableChecker<? extends BEAN_TYPE> executableChecker);

@@ -71,6 +71,7 @@ final class ExecutorServiceBuilderImpl<BEAN_TYPE, PARAM_TYPE> implements IExecut
 	private IBeanDtoFactory<BEAN_TYPE> beanDtoFactory;
 	private boolean allowDeletedBeans;
 	private boolean allowStaleBeans;
+	private boolean confirmValidationWarnings;
 
 	@SuppressWarnings({"rawtypes", "unchecked"})
 	ExecutorServiceBuilderImpl(final IBeanAccess<? extends BEAN_TYPE> beanAccess) {
@@ -87,6 +88,7 @@ final class ExecutorServiceBuilderImpl<BEAN_TYPE, PARAM_TYPE> implements IExecut
 
 		this.allowDeletedBeans = false;
 		this.allowStaleBeans = false;
+		this.confirmValidationWarnings = false;
 
 		beanValidators.addAll(ValidatorAnnotationCache.getBeanValidators(beanType));
 
@@ -137,6 +139,12 @@ final class ExecutorServiceBuilderImpl<BEAN_TYPE, PARAM_TYPE> implements IExecut
 			propertyValidators.put(propertyName, validators);
 		}
 		validators.add(validator);
+		return this;
+	}
+
+	@Override
+	public IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> setConfirmValidationWarnings(final boolean confirmValidationWarnings) {
+		this.confirmValidationWarnings = confirmValidationWarnings;
 		return this;
 	}
 
@@ -251,7 +259,10 @@ final class ExecutorServiceBuilderImpl<BEAN_TYPE, PARAM_TYPE> implements IExecut
 		if (executor == null) {
 			executor = new IBeanExecutor<BEAN_TYPE, Object>() {
 				@Override
-				public BEAN_TYPE execute(final BEAN_TYPE data, final Object parameter, final IExecutionCallback executionCallback) {
+				public BEAN_TYPE execute(
+					final BEAN_TYPE data,
+					final Object parameter,
+					final IExecutionCallback executionCallback) {
 					return data;
 				}
 			};
@@ -265,6 +276,7 @@ final class ExecutorServiceBuilderImpl<BEAN_TYPE, PARAM_TYPE> implements IExecut
 			getBeanDtoFactory(),
 			allowDeletedBeans,
 			allowStaleBeans,
+			confirmValidationWarnings,
 			updateInterceptors);
 	}
 }

@@ -307,9 +307,11 @@ final class BeanLinkDeleterCommand<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> implement
 		}
 
 		private void onError(final Throwable exception) {
+			int beanIndex = 0;
 			for (final IBeanProxy<?> bean : linkedSelection) {
 				if (!(exception instanceof ServiceCanceledException)) {
-					bean.addMessage(exceptionConverter.convert(getShortErrorMessage(), linkedSelection, bean, exception));
+					bean.addMessage(
+							exceptionConverter.convert(getShortErrorMessage(), linkedSelection, beanIndex++, bean, exception));
 				}
 				bean.setExecutionTask(null);
 			}

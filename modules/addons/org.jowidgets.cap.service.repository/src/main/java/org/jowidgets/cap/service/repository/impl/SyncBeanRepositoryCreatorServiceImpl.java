@@ -48,8 +48,9 @@ final class SyncBeanRepositoryCreatorServiceImpl<BEAN_TYPE> extends AbstractSync
 		final IBeanDtoFactory<BEAN_TYPE> dtoFactory,
 		final IBeanInitializer<BEAN_TYPE> beanInitializer,
 		final IExecutableChecker<BEAN_TYPE> executableChecker,
-		final IBeanValidator<BEAN_TYPE> beanValidator) {
-		super(repository, dtoFactory, beanInitializer, executableChecker, beanValidator);
+		final IBeanValidator<BEAN_TYPE> beanValidator,
+		final boolean confirmValidationWarnings) {
+		super(repository, dtoFactory, beanInitializer, executableChecker, beanValidator, confirmValidationWarnings);
 		this.repository = repository;
 	}
 

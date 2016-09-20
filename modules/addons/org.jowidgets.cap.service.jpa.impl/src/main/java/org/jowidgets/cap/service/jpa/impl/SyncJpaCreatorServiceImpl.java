@@ -52,9 +52,10 @@ final class SyncJpaCreatorServiceImpl<BEAN_TYPE extends IBean> extends AbstractS
 		final IBeanDtoFactory<BEAN_TYPE> dtoFactory,
 		final IBeanInitializer<BEAN_TYPE> beanInitializer,
 		final IExecutableChecker<BEAN_TYPE> executableChecker,
-		final IBeanValidator<BEAN_TYPE> beanValidator) {
+		final IBeanValidator<BEAN_TYPE> beanValidator,
+		final boolean confirmValidationWarnings) {
 
-		super(beanType, dtoFactory, beanInitializer, executableChecker, beanValidator);
+		super(beanType, dtoFactory, beanInitializer, executableChecker, beanValidator, confirmValidationWarnings);
 		Assert.paramNotNull(beanType, "beanType");
 		this.beanType = beanType;
 	}

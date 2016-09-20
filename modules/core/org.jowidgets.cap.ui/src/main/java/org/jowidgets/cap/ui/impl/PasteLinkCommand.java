@@ -269,10 +269,12 @@ final class PasteLinkCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYP
 
 			@Override
 			protected void exceptionUi(final Throwable exception) {
+				int beanIndex = 0;
 				for (final IBeanProxy<SOURCE_BEAN_TYPE> bean : selection) {
 					bean.setExecutionTask(null);
 					if (!(exception instanceof ServiceCanceledException)) {
-						bean.addMessage(exceptionConverter.convert(getShortErrorMessage(), selection, bean, exception));
+						bean.addMessage(
+								exceptionConverter.convert(getShortErrorMessage(), selection, beanIndex++, bean, exception));
 					}
 				}
 				executionObservable.fireAfterExecutionError(executionContext, exception);

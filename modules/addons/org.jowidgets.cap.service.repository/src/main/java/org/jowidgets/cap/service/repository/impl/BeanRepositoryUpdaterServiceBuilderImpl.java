@@ -94,13 +94,21 @@ final class BeanRepositoryUpdaterServiceBuilderImpl<BEAN_TYPE> implements IUpdat
 	}
 
 	@Override
-	public IUpdaterServiceBuilder<BEAN_TYPE> addExecutableChecker(final IExecutableChecker<? extends BEAN_TYPE> executableChecker) {
+	public IUpdaterServiceBuilder<BEAN_TYPE> setConfirmValidationWarnings(final boolean confirm) {
+		builder.setConfirmValidationWarnings(confirm);
+		return this;
+	}
+
+	@Override
+	public IUpdaterServiceBuilder<BEAN_TYPE> addExecutableChecker(
+		final IExecutableChecker<? extends BEAN_TYPE> executableChecker) {
 		builder.addExecutableChecker(executableChecker);
 		return this;
 	}
 
 	@Override
-	public IUpdaterServiceBuilder<BEAN_TYPE> setExecutableChecker(final IExecutableChecker<? extends BEAN_TYPE> executableChecker) {
+	public IUpdaterServiceBuilder<BEAN_TYPE> setExecutableChecker(
+		final IExecutableChecker<? extends BEAN_TYPE> executableChecker) {
 		builder.setExecutableChecker(executableChecker);
 		return this;
 	}

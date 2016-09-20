@@ -31,6 +31,7 @@ package org.jowidgets.cap.service.impl;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.jowidgets.cap.common.api.bean.IBeanModification;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
@@ -43,21 +44,26 @@ import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.api.bean.IBeanModifier;
 import org.jowidgets.cap.service.api.bean.IBeanUpdateInterceptor;
+import org.jowidgets.cap.service.api.plugin.IUpdaterServiceBuilderPlugin;
 import org.jowidgets.cap.service.api.updater.IUpdaterServiceBuilder;
+import org.jowidgets.plugin.api.IPluginProperties;
+import org.jowidgets.plugin.api.IPluginPropertiesBuilder;
+import org.jowidgets.plugin.api.PluginProperties;
+import org.jowidgets.plugin.api.PluginProvider;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.IAdapterFactory;
 import org.jowidgets.validation.IValidator;
 
 final class UpdaterServiceBuilderImpl<BEAN_TYPE> implements IUpdaterServiceBuilder<BEAN_TYPE> {
 
-	private final ExecutorServiceBuilderImpl<BEAN_TYPE, Collection<? extends IBeanModification>> dataExecutorServiceBuilder;
+	private final ExecutorServiceBuilderImpl<BEAN_TYPE, Map<Object, Collection<IBeanModification>>> dataExecutorServiceBuilder;
 	private final IBeanAccess<? extends BEAN_TYPE> beanAccess;
 
 	private IBeanModifier<BEAN_TYPE> beanModifier;
 
 	UpdaterServiceBuilderImpl(final IBeanAccess<? extends BEAN_TYPE> beanAccess) {
 		this.beanAccess = beanAccess;
-		this.dataExecutorServiceBuilder = new ExecutorServiceBuilderImpl<BEAN_TYPE, Collection<? extends IBeanModification>>(
+		this.dataExecutorServiceBuilder = new ExecutorServiceBuilderImpl<BEAN_TYPE, Map<Object, Collection<IBeanModification>>>(
 			beanAccess);
 	}
 
@@ -76,19 +82,27 @@ final class UpdaterServiceBuilderImpl<BEAN_TYPE> implements IUpdaterServiceBuild
 	}
 
 	@Override
+	public IUpdaterServiceBuilder<BEAN_TYPE> setConfirmValidationWarnings(final boolean confirm) {
+		dataExecutorServiceBuilder.setConfirmValidationWarnings(confirm);
+		return this;
+	}
+
+	@Override
 	public IUpdaterServiceBuilder<BEAN_TYPE> addUpdaterInterceptor(final IBeanUpdateInterceptor<BEAN_TYPE> interceptor) {
 		dataExecutorServiceBuilder.addUpdaterInterceptor(interceptor);
 		return this;
 	}
 
 	@Override
-	public IUpdaterServiceBuilder<BEAN_TYPE> addExecutableChecker(final IExecutableChecker<? extends BEAN_TYPE> executableChecker) {
+	public IUpdaterServiceBuilder<BEAN_TYPE> addExecutableChecker(
+		final IExecutableChecker<? extends BEAN_TYPE> executableChecker) {
 		dataExecutorServiceBuilder.addExecutableChecker(executableChecker);
 		return this;
 	}
 
 	@Override
-	public IUpdaterServiceBuilder<BEAN_TYPE> setExecutableChecker(final IExecutableChecker<? extends BEAN_TYPE> executableChecker) {
+	public IUpdaterServiceBuilder<BEAN_TYPE> setExecutableChecker(
+		final IExecutableChecker<? extends BEAN_TYPE> executableChecker) {
 		dataExecutorServiceBuilder.setExecutableChecker(executableChecker);
 		return this;
 	}
@@ -137,6 +151,7 @@ final class UpdaterServiceBuilderImpl<BEAN_TYPE> implements IUpdaterServiceBuild
 
 	@Override
 	public ISyncUpdaterService buildSyncService() {
+		applyPlugins();
 		return new SyncUpdaterServiceImpl<BEAN_TYPE>(beanAccess, getBeanModifier(), dataExecutorServiceBuilder);
 	}
 
@@ -145,5 +160,21 @@ final class UpdaterServiceBuilderImpl<BEAN_TYPE> implements IUpdaterServiceBuild
 		final IAdapterFactoryProvider afp = CapServiceToolkit.adapterFactoryProvider();
 		final IAdapterFactory<IUpdaterService, ISyncUpdaterService> adapterFactory = afp.updater();
 		return adapterFactory.createAdapter(buildSyncService());
+	}
+
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	private void applyPlugins() {
+		PluginProperties.builder();
+		final IPluginProperties properties = createPluginProperties();
+		for (final IUpdaterServiceBuilderPlugin plugin : PluginProvider.getPlugins(IUpdaterServiceBuilderPlugin.ID, properties)) {
+			plugin.modify(this);
+		}
+	}
+
+	private IPluginProperties createPluginProperties() {
+		final IPluginPropertiesBuilder builder = PluginProperties.builder();
+		builder.add(IUpdaterServiceBuilderPlugin.BEAN_TYPE_PROPERTY_KEY, beanAccess.getBeanType());
+		builder.add(IUpdaterServiceBuilderPlugin.BEAN_TYPE_ID_PROPERTY_KEY, beanAccess.getBeanTypeId());
+		return builder.build();
 	}
 }

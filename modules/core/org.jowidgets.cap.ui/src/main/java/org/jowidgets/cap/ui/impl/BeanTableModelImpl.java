@@ -1002,7 +1002,8 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			for (final Integer pageIndexW : new ArrayList<Integer>(data.keySet())) {
 				final int pageIndex = pageIndexW.intValue();
 
-				if (!selectedPages.contains(pageIndexW) && (pageIndex < visiblePageIndex - 1 || pageIndex > visiblePageIndex + 1)) {
+				if (!selectedPages.contains(pageIndexW)
+					&& (pageIndex < visiblePageIndex - 1 || pageIndex > visiblePageIndex + 1)) {
 
 					removePage(pageIndex);
 				}
@@ -2767,7 +2768,8 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			dummyBeanProxy.setExecutionTask(null);
 			final List<IBeanProxy<BEAN_TYPE>> dummyBeanList = Collections.singletonList(dummyBeanProxy);
 			if (!(exception instanceof ServiceCanceledException)) {
-				dummyBeanProxy.addMessage(exceptionConverter.convert(LOAD_ERROR.get(), dummyBeanList, dummyBeanProxy, exception));
+				dummyBeanProxy.addMessage(
+						exceptionConverter.convert(LOAD_ERROR.get(), dummyBeanList, 0, dummyBeanProxy, exception));
 			}
 			programmaticPageLoader.remove(pageIndex);
 			finished = true;

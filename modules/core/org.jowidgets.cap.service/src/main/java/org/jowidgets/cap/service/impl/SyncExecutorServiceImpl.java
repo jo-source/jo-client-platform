@@ -37,16 +37,13 @@ import java.util.Map;
 
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
-import org.jowidgets.cap.common.api.exception.BeanValidationException;
 import org.jowidgets.cap.common.api.exception.DeletedBeanException;
 import org.jowidgets.cap.common.api.exception.ExecutableCheckException;
 import org.jowidgets.cap.common.api.exception.StaleBeanException;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.execution.IExecutableState;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.cap.common.api.validation.IBeanValidationResult;
 import org.jowidgets.cap.common.api.validation.IBeanValidator;
-import org.jowidgets.cap.common.tools.validation.BeanValidationResultUtil;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.adapter.ISyncExecutorService;
 import org.jowidgets.cap.service.api.bean.BeanUpdateInterceptor;
@@ -57,6 +54,7 @@ import org.jowidgets.cap.service.api.executor.IBeanExecutor;
 import org.jowidgets.cap.service.api.executor.IBeanListExecutor;
 import org.jowidgets.cap.service.api.plugin.IBeanUpdateInterceptorPlugin;
 import org.jowidgets.cap.service.tools.bean.BeanDtoFactoryHelper;
+import org.jowidgets.cap.service.tools.validation.ServiceBeanValidationHelper;
 import org.jowidgets.plugin.api.IPluginPropertiesBuilder;
 import org.jowidgets.plugin.api.PluginProvider;
 import org.jowidgets.plugin.api.PluginToolkit;
@@ -72,6 +70,7 @@ public final class SyncExecutorServiceImpl<BEAN_TYPE, PARAM_TYPE> implements ISy
 	private final IBeanValidator<BEAN_TYPE> beanValidator;
 	private final boolean allowDeletedBeans;
 	private final boolean allowStaleBeans;
+	private final boolean confirmValidationWarnings;
 
 	private final IBeanDtoFactory<BEAN_TYPE> dtoFactory;
 	private final List<IBeanUpdateInterceptor<BEAN_TYPE>> updateInterceptors;
@@ -87,6 +86,7 @@ public final class SyncExecutorServiceImpl<BEAN_TYPE, PARAM_TYPE> implements ISy
 		final IBeanDtoFactory<BEAN_TYPE> dtoFactory,
 		final boolean allowDeletedBeans,
 		final boolean allowStaleBeans,
+		final boolean confirmValidationWarnings,
 		final List<IBeanUpdateInterceptor<BEAN_TYPE>> updateInterceptors) {
 
 		Assert.paramNotNull(beanAccess, "beanAccess");
@@ -101,6 +101,7 @@ public final class SyncExecutorServiceImpl<BEAN_TYPE, PARAM_TYPE> implements ISy
 		this.beanValidator = (IBeanValidator<BEAN_TYPE>) beanValidator;
 		this.allowDeletedBeans = allowDeletedBeans;
 		this.allowStaleBeans = allowStaleBeans;
+		this.confirmValidationWarnings = confirmValidationWarnings;
 		this.updateInterceptors = new LinkedList<IBeanUpdateInterceptor<BEAN_TYPE>>(updateInterceptors);
 
 		this.dtoFactory = dtoFactory;
@@ -216,7 +217,7 @@ public final class SyncExecutorServiceImpl<BEAN_TYPE, PARAM_TYPE> implements ISy
 		final IBeanListExecutor<BEAN_TYPE, PARAM_TYPE> listExecutor = (IBeanListExecutor<BEAN_TYPE, PARAM_TYPE>) executor;
 		final List<? extends BEAN_TYPE> executionResult = listExecutor.execute(beans, parameter, executionCallback);
 		CapServiceToolkit.checkCanceled(executionCallback);
-		validate(beans);
+		validate(beans, executionCallback);
 		beanAccess.flush();
 		afterUpdate(executionResult);
 		return BeanDtoFactoryHelper.createDtos(dtoFactory, executionResult);
@@ -259,7 +260,7 @@ public final class SyncExecutorServiceImpl<BEAN_TYPE, PARAM_TYPE> implements ISy
 			}
 		}
 
-		validate(beans);
+		validate(beans, executionCallback);
 		beanAccess.flush();
 		afterUpdate(executionResultList);
 		return BeanDtoFactoryHelper.createDtos(dtoFactory, executionResultList);
@@ -301,15 +302,9 @@ public final class SyncExecutorServiceImpl<BEAN_TYPE, PARAM_TYPE> implements ISy
 		}
 	}
 
-	private void validate(final Collection<BEAN_TYPE> beans) {
+	private void validate(final Collection<BEAN_TYPE> beans, final IExecutionCallback executionCallback) {
 		if (beanValidator != null) {
-			for (final BEAN_TYPE bean : beans) {
-				final Collection<IBeanValidationResult> validationResults = beanValidator.validate(bean);
-				final IBeanValidationResult worstFirst = BeanValidationResultUtil.getWorstFirst(validationResults);
-				if (worstFirst != null && !worstFirst.getValidationResult().isValid()) {
-					throw new BeanValidationException(getId(bean), worstFirst);
-				}
-			}
+			ServiceBeanValidationHelper.validate(beanValidator, confirmValidationWarnings, beans, beanAccess, executionCallback);
 		}
 	}
 
@@ -317,9 +312,10 @@ public final class SyncExecutorServiceImpl<BEAN_TYPE, PARAM_TYPE> implements ISy
 		for (final BEAN_TYPE bean : beans) {
 			final IExecutableState executableState = executableChecker.getExecutableState(bean);
 			if (!executableState.isExecutable()) {
-				throw new ExecutableCheckException(getId(bean), "Executable check could not pass on service execution for bean '"
-					+ bean
-					+ "'", executableState.getReason());
+				throw new ExecutableCheckException(
+					getId(bean),
+					"Executable check could not pass on service execution for bean '" + bean + "'",
+					executableState.getReason());
 			}
 			CapServiceToolkit.checkCanceled(executionCallback);
 		}
@@ -328,9 +324,10 @@ public final class SyncExecutorServiceImpl<BEAN_TYPE, PARAM_TYPE> implements ISy
 	private void checkExecutableState(final BEAN_TYPE bean, final IExecutionCallback executionCallback) {
 		final IExecutableState executableState = executableChecker.getExecutableState(bean);
 		if (!executableState.isExecutable()) {
-			throw new ExecutableCheckException(getId(bean), "Executable check could not pass on service execution for bean '"
-				+ bean
-				+ "'", executableState.getReason());
+			throw new ExecutableCheckException(
+				getId(bean),
+				"Executable check could not pass on service execution for bean '" + bean + "'",
+				executableState.getReason());
 		}
 	}
 

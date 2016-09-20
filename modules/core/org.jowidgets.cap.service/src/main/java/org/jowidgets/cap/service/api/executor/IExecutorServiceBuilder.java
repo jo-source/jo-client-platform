@@ -67,11 +67,24 @@ public interface IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> {
 		String propertyName,
 		IValidator<? extends Object> validator);
 
+	/**
+	 * If set to true, validation warnings must be confirmed by the user.
+	 * 
+	 * The default is false.
+	 * 
+	 * @param confirm true if warnings should be confirmed, false otherwise
+	 * 
+	 * @return This builder
+	 */
+	IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> setConfirmValidationWarnings(boolean confirm);
+
 	IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> addUpdaterInterceptor(IBeanUpdateInterceptor<BEAN_TYPE> interceptor);
 
-	IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> setExecutableChecker(IExecutableChecker<? extends BEAN_TYPE> executableChecker);
+	IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> setExecutableChecker(
+		IExecutableChecker<? extends BEAN_TYPE> executableChecker);
 
-	IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> addExecutableChecker(IExecutableChecker<? extends BEAN_TYPE> executableChecker);
+	IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> addExecutableChecker(
+		IExecutableChecker<? extends BEAN_TYPE> executableChecker);
 
 	IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> setBeanDtoFactory(IBeanDtoFactory<BEAN_TYPE> beanDtoFactory);
 

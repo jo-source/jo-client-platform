@@ -111,8 +111,8 @@ import org.jowidgets.util.IProvider;
 import org.jowidgets.validation.IValidationConditionListener;
 import org.jowidgets.validation.IValidationResult;
 
-public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implements
-		IBeanRelationNodeModel<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> {
+public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE>
+		implements IBeanRelationNodeModel<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> {
 
 	private static final IMessage LOAD_ERROR_MESSAGE = Messages.getMessage("BeanRelationNodeModelImpl.load_error");
 	private static final IMessage LOADING_DATA_LABEL = Messages.getMessage("BeanRelationNodeModelImpl.load_data");
@@ -274,7 +274,9 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 		propertiesBuilder.add(IBeanProxyLabelRendererPlugin.BEAN_TYPE_PROPERTY_KEY, entityType);
 		final IPluginProperties properties = propertiesBuilder.build();
 		IBeanProxyLabelRenderer result = renderer;
-		for (final IBeanProxyLabelRendererPlugin plugin : PluginProvider.getPlugins(IBeanProxyLabelRendererPlugin.ID, properties)) {
+		for (final IBeanProxyLabelRendererPlugin plugin : PluginProvider.getPlugins(
+				IBeanProxyLabelRendererPlugin.ID,
+				properties)) {
 			final IDecorator<IBeanProxyLabelRenderer<?>> decorator = plugin.getRendererDecorator(properties);
 			if (decorator != null) {
 				result = decorator.decorate(result);
@@ -1026,7 +1028,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 
 		private void setException(final Throwable exception) {
 			final List<IBeanProxy<CHILD_BEAN_TYPE>> beans = Collections.singletonList(dummyBean);
-			final IBeanMessage message = exceptionConverter.convert(LOAD_ERROR_MESSAGE.get(), beans, dummyBean, exception);
+			final IBeanMessage message = exceptionConverter.convert(LOAD_ERROR_MESSAGE.get(), beans, 0, dummyBean, exception);
 
 			if (dummyBean != null) {
 				dummyBean.setExecutionTask(null);

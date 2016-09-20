@@ -204,12 +204,13 @@ final class BeanListExecutionHelper<BEAN_TYPE> {
 	}
 
 	void onExecption(final List<IBeanProxy<BEAN_TYPE>> executedBeans, final Throwable exception) {
+		int beanIndex = 0;
 		for (final IBeanProxy<BEAN_TYPE> bean : executedBeans) {
 			final IExecutionTask executionTask = bean.getExecutionTask();
 			final boolean canceled = (exception instanceof ServiceCanceledException)
 				|| (executionTask != null && executionTask.isCanceled());
 			if (!canceled) {
-				bean.addMessage(exceptionConverter.convert(shortErrorMessage, executedBeans, bean, exception));
+				bean.addMessage(exceptionConverter.convert(shortErrorMessage, executedBeans, beanIndex++, bean, exception));
 			}
 			bean.setExecutionTask(null);
 		}

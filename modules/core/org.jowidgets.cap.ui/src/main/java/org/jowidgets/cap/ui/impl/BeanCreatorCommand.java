@@ -271,10 +271,9 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 		protected void exceptionUi(final Throwable exception) {
 			if (exception != null) {
 				if (!(exception instanceof ServiceCanceledException)) {
-					final List<IBeanProxy<BEAN_TYPE>> beans = new LinkedList<IBeanProxy<BEAN_TYPE>>();
-					beans.add(bean);
+					final List<IBeanProxy<BEAN_TYPE>> beans = Collections.singletonList(bean);
 					final String shortMessage = Messages.getString("BeanCreatorCommand.creation_failed");
-					bean.addMessage(exceptionConverter.convert(shortMessage, beans, bean, exception));
+					bean.addMessage(exceptionConverter.convert(shortMessage, beans, 0, bean, exception));
 				}
 			}
 			else {
