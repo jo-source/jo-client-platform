@@ -52,7 +52,7 @@ import org.jowidgets.cap.ui.api.execution.BeanExecutionPolicy;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.i18n.api.IMessage;
-import org.jowidgets.impl.command.ExecutionContext;
+import org.jowidgets.tools.command.ExecutionContext;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.util.IProvider;
