@@ -156,7 +156,7 @@ final class ExecutorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 			false,
 			true);
 
-		final List<List<IBeanProxy<?>>> preparedExecutions = executionHelper.prepareExecutions(false);
+		final List<List<IBeanProxy<?>>> preparedExecutions = executionHelper.prepareExecutions(false, executionContext);
 		executionObservable.fireAfterExecutionPrepared(executionContext);
 
 		for (final List<IBeanProxy<?>> preparedBeans : preparedExecutions) {
@@ -192,7 +192,7 @@ final class ExecutorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 				executionTask = beans.get(0).getExecutionTask();
 			}
 			else {
-				executionTask = executionHelper.createExecutionTask();
+				executionTask = executionHelper.createExecutionTask(executionContext);
 			}
 
 			executionTask.addExecutionCallbackListener(new IExecutionCallbackListener() {
@@ -284,7 +284,10 @@ final class ExecutorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 			return result;
 		}
 
-		private IMaybe getParameter(final Object parameterProvider, final Object defaultParameter, final List<IBeanProxy<?>> beans) {
+		private IMaybe getParameter(
+			final Object parameterProvider,
+			final Object defaultParameter,
+			final List<IBeanProxy<?>> beans) {
 			if (parameterProvider instanceof IParameterProvider) {
 				final IParameterProvider theParameterProvider = (IParameterProvider) parameterProvider;
 				final ValueHolder<IMaybe> result = new ValueHolder<IMaybe>(Nothing.getInstance());

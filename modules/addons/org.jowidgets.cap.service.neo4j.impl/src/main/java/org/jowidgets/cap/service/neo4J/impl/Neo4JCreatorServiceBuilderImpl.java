@@ -42,13 +42,15 @@ final class Neo4JCreatorServiceBuilderImpl<BEAN_TYPE extends IBean> extends Abst
 
 	@Override
 	public ICreatorService build() {
+		applyPlugins();
 		final ISyncCreatorService result = new SyncNeo4JCreatorServiceImpl<BEAN_TYPE>(
 			getBeanType(),
 			getBeanTypeId(),
 			getBeanDtoFactory(),
 			getBeanInitializer(),
 			getExecutableChecker(),
-			getBeanValidator());
+			getBeanValidator(),
+			isConfirmValidationWarnings());
 		return CapServiceToolkit.adapterFactoryProvider().creator().createAdapter(result);
 	}
 

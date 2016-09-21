@@ -28,8 +28,12 @@
 
 package org.jowidgets.cap.ui.api.execution;
 
+import org.jowidgets.api.command.IExecutionContext;
+
 public interface IExecutionTaskFactory {
 
 	IExecutionTask create();
+
+	IExecutionTask create(final IExecutionContext executionContext);
 
 }

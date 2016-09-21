@@ -75,9 +75,12 @@ import org.jowidgets.util.IDecorator;
 
 final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor {
 
-	private static final IMessage SINGLE_DELETION_CONFIRM = Messages.getMessage("BeanDeleterCommand.single_deletion_confirm_message");
-	private static final IMessage SINGLE_DELETION_PATTERN_CONFIRM = Messages.getMessage("BeanDeleterCommand.single_deletion_pattern_confirm_message");
-	private static final IMessage MULTI_DELETION_CONFIRM = Messages.getMessage("BeanDeleterCommand.multi_deletion_confirm_message");
+	private static final IMessage SINGLE_DELETION_CONFIRM = Messages.getMessage(
+			"BeanDeleterCommand.single_deletion_confirm_message");
+	private static final IMessage SINGLE_DELETION_PATTERN_CONFIRM = Messages.getMessage(
+			"BeanDeleterCommand.single_deletion_pattern_confirm_message");
+	private static final IMessage MULTI_DELETION_CONFIRM = Messages.getMessage(
+			"BeanDeleterCommand.multi_deletion_confirm_message");
 	private static final IMessage CAN_NOT_BE_UNDONE = Messages.getMessage("BeanDeleterCommand.can_not_be_undone");
 	private static final IMessage NOTHING_SELECTED = Messages.getMessage("BeanDeleterCommand.nothing_selected");
 	private static final IMessage DELETION_FAILED = Messages.getMessage("BeanDeleterCommand.deletion_failed");
@@ -162,7 +165,7 @@ final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 		}
 
 		final IBeanKeyFactory beanKeyFactory = CapUiToolkit.beanKeyFactory();
-		final IExecutionTask executionTask = CapUiToolkit.executionTaskFactory().create();
+		final IExecutionTask executionTask = CapUiToolkit.executionTaskFactory().create(executionContext);
 
 		final List<IBeanKey> beanKeys = new LinkedList<IBeanKey>();
 		final List<IBeanProxy<BEAN_TYPE>> beans = new LinkedList<IBeanProxy<BEAN_TYPE>>();
@@ -215,7 +218,9 @@ final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 		}
 	}
 
-	private boolean showDeletionConfirmDialog(final IExecutionContext executionContext, final IBeanSelection<BEAN_TYPE> selection) {
+	private boolean showDeletionConfirmDialog(
+		final IExecutionContext executionContext,
+		final IBeanSelection<BEAN_TYPE> selection) {
 		final QuestionResult questionResult = Toolkit.getQuestionPane().askYesNoQuestion(
 				executionContext,
 				getConfirmationMessage(selection),
@@ -291,7 +296,9 @@ final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 		propertiesBuilder.add(IBeanProxyLabelRendererPlugin.BEAN_TYPE_PROPERTY_KEY, beanType);
 		final IPluginProperties properties = propertiesBuilder.build();
 		IBeanProxyLabelRenderer result = renderer;
-		for (final IBeanProxyLabelRendererPlugin plugin : PluginProvider.getPlugins(IBeanProxyLabelRendererPlugin.ID, properties)) {
+		for (final IBeanProxyLabelRendererPlugin plugin : PluginProvider.getPlugins(
+				IBeanProxyLabelRendererPlugin.ID,
+				properties)) {
 			final IDecorator<IBeanProxyLabelRenderer<?>> decorator = plugin.getRendererDecorator(properties);
 			if (decorator != null) {
 				result = decorator.decorate(result);
@@ -323,10 +330,11 @@ final class BeanDeleterCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 		@Override
 		protected void exceptionUi(final Throwable exception) {
 
+			int beanIndex = 0;
 			for (final IBeanProxy<BEAN_TYPE> bean : beans) {
 				bean.setExecutionTask(null);
 				if (!(exception instanceof ServiceCanceledException)) {
-					bean.addMessage(exceptionConverter.convert(DELETION_FAILED.get(), beans, bean, exception));
+					bean.addMessage(exceptionConverter.convert(DELETION_FAILED.get(), beans, beanIndex++, bean, exception));
 				}
 			}
 

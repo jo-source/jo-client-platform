@@ -33,6 +33,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanData;
@@ -46,10 +47,12 @@ import org.jowidgets.cap.common.api.service.IUpdaterService;
 import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeansStateTracker;
+import org.jowidgets.cap.ui.api.command.SaveAction;
 import org.jowidgets.cap.ui.api.execution.BeanExecutionPolicy;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.i18n.api.IMessage;
+import org.jowidgets.impl.command.ExecutionContext;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.util.IProvider;
@@ -70,6 +73,7 @@ final class BeanListSaveDelegate<BEAN_TYPE> {
 	private final Collection<String> propertyNames;
 	private final IProvider<List<IBeanKey>> parentBeansProvider;
 	private final boolean fireBeansChanged;
+	private final IExecutionContext executionContext;
 
 	BeanListSaveDelegate(
 		final IBeanListModel<BEAN_TYPE> listModel,
@@ -118,6 +122,7 @@ final class BeanListSaveDelegate<BEAN_TYPE> {
 		this.propertyNames = new LinkedList<String>(propertyNames);
 		this.parentBeansProvider = parentBeansProvider;
 		this.fireBeansChanged = fireBeansChanged;
+		this.executionContext = new ExecutionContext(SaveAction.create(), null);
 	}
 
 	void save() {
@@ -141,7 +146,7 @@ final class BeanListSaveDelegate<BEAN_TYPE> {
 				true,
 				fireBeansChanged);
 
-			for (final List<IBeanProxy<BEAN_TYPE>> preparedBeans : executionHelper.prepareExecutions(true)) {
+			for (final List<IBeanProxy<BEAN_TYPE>> preparedBeans : executionHelper.prepareExecutions(true, executionContext)) {
 				if (preparedBeans.size() > 0) {
 					final IExecutionTask executionTask = preparedBeans.get(0).getExecutionTask();
 					if (executionTask != null) {
@@ -151,7 +156,8 @@ final class BeanListSaveDelegate<BEAN_TYPE> {
 						for (final IBeanProxy<BEAN_TYPE> bean : preparedBeans) {
 							beansData.add(createBeanData(bean));
 						}
-						final IResultCallback<List<IBeanDto>> helperCallback = executionHelper.createResultCallback(preparedBeans);
+						final IResultCallback<List<IBeanDto>> helperCallback = executionHelper.createResultCallback(
+								preparedBeans);
 						creatorService.create(helperCallback, parentBeansProvider.get(), beansData, executionTask);
 					}
 				}
@@ -185,7 +191,7 @@ final class BeanListSaveDelegate<BEAN_TYPE> {
 				false,
 				fireBeansChanged);
 
-			for (final List<IBeanProxy<BEAN_TYPE>> preparedBeans : executionHelper.prepareExecutions(false)) {
+			for (final List<IBeanProxy<BEAN_TYPE>> preparedBeans : executionHelper.prepareExecutions(false, executionContext)) {
 				if (preparedBeans.size() > 0) {
 					final IExecutionTask executionTask = preparedBeans.get(0).getExecutionTask();
 					if (executionTask != null) {
@@ -194,7 +200,8 @@ final class BeanListSaveDelegate<BEAN_TYPE> {
 						for (final IBeanProxy<?> bean : preparedBeans) {
 							modifications.addAll(bean.getModifications());
 						}
-						final IResultCallback<List<IBeanDto>> helperCallback = executionHelper.createResultCallback(preparedBeans);
+						final IResultCallback<List<IBeanDto>> helperCallback = executionHelper.createResultCallback(
+								preparedBeans);
 						updaterService.update(helperCallback, modifications, executionTask);
 					}
 				}

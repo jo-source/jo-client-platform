@@ -35,6 +35,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.exception.ServiceCanceledException;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
@@ -75,10 +76,14 @@ final class BeanListExecutionHelper<BEAN_TYPE> {
 	}
 
 	List<List<IBeanProxy<BEAN_TYPE>>> prepareExecutions(final boolean allowTransient) {
+		return prepareExecutions(allowTransient, null);
+	}
+
+	List<List<IBeanProxy<BEAN_TYPE>>> prepareExecutions(final boolean allowTransient, final IExecutionContext executionContext) {
 		final List<List<IBeanProxy<BEAN_TYPE>>> result = new LinkedList<List<IBeanProxy<BEAN_TYPE>>>();
 
 		if (BeanExecutionPolicy.BATCH == beanExecutionPolicy) {
-			final IExecutionTask executionTask = createExecutionTask();
+			final IExecutionTask executionTask = createExecutionTask(executionContext);
 			final List<IBeanProxy<BEAN_TYPE>> subList = new LinkedList<IBeanProxy<BEAN_TYPE>>();
 			result.add(subList);
 			for (final IBeanProxy<BEAN_TYPE> bean : beans) {
@@ -96,7 +101,7 @@ final class BeanListExecutionHelper<BEAN_TYPE> {
 				final List<IBeanProxy<BEAN_TYPE>> subList = new LinkedList<IBeanProxy<BEAN_TYPE>>();
 				result.add(subList);
 				if (bean.getExecutionTask() == null && !bean.isDummy() && (allowTransient || !bean.isTransient())) {
-					final IExecutionTask executionTask = createExecutionTask();
+					final IExecutionTask executionTask = createExecutionTask(executionContext);
 					bean.setExecutionTask(executionTask);
 					subList.add(bean);
 				}
@@ -199,12 +204,13 @@ final class BeanListExecutionHelper<BEAN_TYPE> {
 	}
 
 	void onExecption(final List<IBeanProxy<BEAN_TYPE>> executedBeans, final Throwable exception) {
+		int beanIndex = 0;
 		for (final IBeanProxy<BEAN_TYPE> bean : executedBeans) {
 			final IExecutionTask executionTask = bean.getExecutionTask();
 			final boolean canceled = (exception instanceof ServiceCanceledException)
 				|| (executionTask != null && executionTask.isCanceled());
 			if (!canceled) {
-				bean.addMessage(exceptionConverter.convert(shortErrorMessage, executedBeans, bean, exception));
+				bean.addMessage(exceptionConverter.convert(shortErrorMessage, executedBeans, beanIndex++, bean, exception));
 			}
 			bean.setExecutionTask(null);
 		}
@@ -213,8 +219,8 @@ final class BeanListExecutionHelper<BEAN_TYPE> {
 		}
 	}
 
-	IExecutionTask createExecutionTask() {
-		return CapUiToolkit.executionTaskFactory().create();
+	IExecutionTask createExecutionTask(final IExecutionContext executionContext) {
+		return CapUiToolkit.executionTaskFactory().create(executionContext);
 	}
 
 }

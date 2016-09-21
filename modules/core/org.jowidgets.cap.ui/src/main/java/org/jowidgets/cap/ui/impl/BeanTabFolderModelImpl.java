@@ -65,6 +65,7 @@ import org.jowidgets.cap.ui.api.attribute.IAttributeCollectionModifierBuilder;
 import org.jowidgets.cap.ui.api.attribute.IAttributeSet;
 import org.jowidgets.cap.ui.api.attribute.IAttributeToolkit;
 import org.jowidgets.cap.ui.api.bean.BeanMessageType;
+import org.jowidgets.cap.ui.api.bean.BeanProxyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanMessage;
 import org.jowidgets.cap.ui.api.bean.IBeanMessageBuilder;
@@ -133,7 +134,6 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 	private final IBeanProxyFactory<BEAN_TYPE> beanProxyFactory;
 	private final IBeansStateTracker<BEAN_TYPE> beansStateTracker;
 
-	private final boolean validateUnmodifiedBeans;
 	private final List<IBeanPropertyValidator<BEAN_TYPE>> beanPropertyValidators;
 	private final List<IBeanPropertyValidator<BEAN_TYPE>> beanPropertyValidatorsView;
 
@@ -254,18 +254,19 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 		this.sortModelChangeListener = new SortModelChangeListener();
 		this.disposed = false;
 		this.beansStateTracker = CapUiToolkit.beansStateTracker(beanProxyContext, validateUnmodifiedBeans);
-		this.beanProxyFactory = CapUiToolkit.beanProxyFactory(beanTypeId, beanType, attributeSet);
 		this.beanListModelObservable = new BeanListModelObservable<BEAN_TYPE>();
 		this.beanSelectionObservable = new BeanSelectionObservable<BEAN_TYPE>();
 		this.disposeObservable = new DisposeObservable();
 		this.filterChangeObservable = new ChangeObservable();
-		this.validateUnmodifiedBeans = validateUnmodifiedBeans;
-		this.beanPropertyValidators = new LinkedList<IBeanPropertyValidator<BEAN_TYPE>>();
+		this.beanPropertyValidators = createBeanPropertyValidators(attributes);
 		this.beanPropertyValidatorsView = Collections.unmodifiableList(this.beanPropertyValidators);
-		beanPropertyValidators.add(new AttributesBeanPropertyValidator<BEAN_TYPE>(attributes));
 		for (final IBeanValidator<BEAN_TYPE> beanValidator : beanValidators) {
 			addBeanValidator(beanValidator);
 		}
+
+		this.beanProxyFactory = BeanProxyFactory.builder(this.beanType).setBeanTypeId(beanTypeId).setAttributes(
+				attributeSet).setValidateUnmodifiedBeans(validateUnmodifiedBeans).setBeanPropertyValidators(
+						beanPropertyValidators).build();
 
 		//configure sort model
 		sortModel.setConfig(sortModelConfig);
@@ -295,6 +296,16 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 			refreshService);
 
 		this.dataModelContext = dataModelContext != null ? dataModelContext : DataModelContext.create(this);
+	}
+
+	private List<IBeanPropertyValidator<BEAN_TYPE>> createBeanPropertyValidators(
+		final Collection<? extends IAttribute<?>> attributes) {
+		final List<IBeanPropertyValidator<BEAN_TYPE>> result = new LinkedList<IBeanPropertyValidator<BEAN_TYPE>>();
+		final AttributesBeanPropertyValidator<BEAN_TYPE> validator = new AttributesBeanPropertyValidator<BEAN_TYPE>(attributes);
+		if (validator.hasValidators()) {
+			result.add(validator);
+		}
+		return result;
 	}
 
 	@Override
@@ -603,19 +614,12 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 	@Override
 	public IBeanProxy<BEAN_TYPE> addTransientBean() {
 		final IBeanProxy<BEAN_TYPE> result = beanProxyFactory.createTransientProxy(defaultValues);
-		if (!EmptyCheck.isEmpty(beanPropertyValidators)) {
-			result.addBeanPropertyValidators(beanPropertyValidators);
-		}
 		addBean(result);
 		return result;
 	}
 
 	private IBeanProxy<BEAN_TYPE> createBeanProxy(final IBeanDto beanDto) {
-		final IBeanProxy<BEAN_TYPE> beanProxy = beanProxyFactory.createProxy(beanDto);
-		if (!EmptyCheck.isEmpty(beanPropertyValidators)) {
-			beanProxy.addBeanPropertyValidators(beanPropertyValidators);
-		}
-		return beanProxy;
+		return beanProxyFactory.createProxy(beanDto);
 	}
 
 	@Override
@@ -748,10 +752,8 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 					selectedTab = newSelection;
 				}
 				else {
-					throw new IndexOutOfBoundsException("Index must be between '0' and '"
-						+ (data.size() - 1)
-						+ "' but is: "
-						+ newSelection.intValue());
+					throw new IndexOutOfBoundsException(
+						"Index must be between '0' and '" + (data.size() - 1) + "' but is: " + newSelection.intValue());
 				}
 			}
 			else {
@@ -1038,7 +1040,6 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 			List<IBeanProxy<BEAN_TYPE>> newData = new LinkedList<IBeanProxy<BEAN_TYPE>>();
 			for (final IBeanDto beanDto : beanDtos) {
 				final IBeanProxy<BEAN_TYPE> beanProxy = beanProxyFactory.createProxy(beanDto);
-				beanProxy.setValidateUnmodified(validateUnmodifiedBeans);
 				newData.add(beanProxy);
 			}
 
@@ -1047,9 +1048,6 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 			}
 
 			for (final IBeanProxy<BEAN_TYPE> bean : newData) {
-				if (!EmptyCheck.isEmpty(beanPropertyValidators)) {
-					bean.addBeanPropertyValidators(beanPropertyValidators);
-				}
 				data.add(bean);
 			}
 			beansStateTracker.register(newData);

@@ -82,7 +82,6 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 
 	private final IBeanListModel<BEAN_TYPE> model;
 	private final IBeanFormBluePrint<BEAN_TYPE> beanFormBp;
-	private final List<IBeanPropertyValidator<BEAN_TYPE>> beanPropertyValidators;
 	private final ICreatorService creatorService;
 	private final IProvider<List<IBeanKey>> parentBeanKeysProvider;
 	private final IBeanExceptionConverter exceptionConverter;
@@ -95,6 +94,7 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 
 	private Rectangle dialogBounds;
 
+	@SuppressWarnings("unchecked")
 	BeanCreatorCommand(
 		final Object beanTypeId,
 		final Class<? extends BEAN_TYPE> beanType,
@@ -143,9 +143,9 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 		this.parentBeanKeysProvider = parentBeanKeysProvider;
 		this.exceptionConverter = exceptionConverter;
 		this.attributeSet = AttributeSet.create(attributes);
-		this.beanFactory = BeanProxyFactory.create(beanTypeId, beanType, attributeSet);
+		this.beanFactory = BeanProxyFactory.builder((Class<BEAN_TYPE>) beanType).setBeanTypeId(beanTypeId).setAttributes(
+				attributeSet).setBeanPropertyValidators(beanPropertyValidators).build();
 		this.defaultValuesProvider = defaultValuesProvider;
-		this.beanPropertyValidators = new LinkedList<IBeanPropertyValidator<BEAN_TYPE>>(beanPropertyValidators);
 	}
 
 	@Override
@@ -177,10 +177,6 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 			bean = bean.createUnmodifiedCopy();
 		}
 
-		if (!EmptyCheck.isEmpty(beanPropertyValidators)) {
-			bean.addBeanPropertyValidators(beanPropertyValidators);
-		}
-
 		final IBeanDialogBluePrint<BEAN_TYPE> beanDialogBp = CapUiToolkit.bluePrintFactory().beanDialog(beanFormBp);
 		beanDialogBp.autoPackOff();
 		if (dialogBounds != null) {
@@ -206,7 +202,7 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 	}
 
 	private void createBean(final IExecutionContext executionContext, final IBeanProxy<BEAN_TYPE> bean) {
-		final IExecutionTask executionTask = CapUiToolkit.executionTaskFactory().create();
+		final IExecutionTask executionTask = CapUiToolkit.executionTaskFactory().create(executionContext);
 		bean.setExecutionTask(executionTask);
 		final IUiThreadAccess uiThreadAccess = Toolkit.getUiThreadAccess();
 		executionTask.addExecutionCallbackListener(new IExecutionCallbackListener() {
@@ -271,10 +267,9 @@ final class BeanCreatorCommand<BEAN_TYPE> implements ICommand, ICommandExecutor 
 		protected void exceptionUi(final Throwable exception) {
 			if (exception != null) {
 				if (!(exception instanceof ServiceCanceledException)) {
-					final List<IBeanProxy<BEAN_TYPE>> beans = new LinkedList<IBeanProxy<BEAN_TYPE>>();
-					beans.add(bean);
+					final List<IBeanProxy<BEAN_TYPE>> beans = Collections.singletonList(bean);
 					final String shortMessage = Messages.getString("BeanCreatorCommand.creation_failed");
-					bean.addMessage(exceptionConverter.convert(shortMessage, beans, bean, exception));
+					bean.addMessage(exceptionConverter.convert(shortMessage, beans, 0, bean, exception));
 				}
 			}
 			else {

@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.ui.impl;
 
+import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.api.threads.IUiThreadAccess;
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.types.QuestionResult;
@@ -41,17 +42,27 @@ final class ExecutionTaskFactory implements IExecutionTaskFactory {
 
 	@Override
 	public IExecutionTask create() {
+		return create(null);
+	}
+
+	@Override
+	public IExecutionTask create(final IExecutionContext executionContext) {
 		final ExecutionTask result = new ExecutionTask();
-		result.addExecutionTaskListener(new ExecutionTaskMonitor(result, Toolkit.getUiThreadAccess()));
+		result.addExecutionTaskListener(new ExecutionTaskMonitor(result, executionContext, Toolkit.getUiThreadAccess()));
 		return result;
 	}
 
-	//TODO MG enhance this , maybe a monitoring context could be given by the create method
+	//TODO MG enhance this, maybe a monitoring context could be given by the create method
 	private class ExecutionTaskMonitor implements IExecutionTaskListener {
 
 		private final IUiThreadAccess uiThreadAccess;
+		private final IExecutionContext executionContext;
 
-		ExecutionTaskMonitor(final IExecutionTask executionTask, final IUiThreadAccess uiThreadAccess) {
+		ExecutionTaskMonitor(
+			final IExecutionTask executionTask,
+			final IExecutionContext executionContext,
+			final IUiThreadAccess uiThreadAccess) {
+			this.executionContext = executionContext;
 			this.uiThreadAccess = uiThreadAccess;
 		}
 
@@ -63,7 +74,14 @@ final class ExecutionTaskFactory implements IExecutionTaskFactory {
 			uiThreadAccess.invokeLater(new Runnable() {
 				@Override
 				public void run() {
-					final QuestionResult result = Toolkit.getQuestionPane().askYesNoQuestion(question);
+
+					final QuestionResult result;
+					if (executionContext != null) {
+						result = Toolkit.getQuestionPane().askYesNoQuestion(executionContext, question, QuestionResult.NO);
+					}
+					else {
+						result = Toolkit.getQuestionPane().askYesNoQuestion(question);
+					}
 
 					if (QuestionResult.YES == result) {
 						callback.setQuestionResult(UserQuestionResult.YES);
@@ -80,7 +98,7 @@ final class ExecutionTaskFactory implements IExecutionTaskFactory {
 
 		@Override
 		public void subExecutionAdded(final IExecutionTask executionTask) {
-			executionTask.addExecutionTaskListener(new ExecutionTaskMonitor(executionTask, uiThreadAccess));
+			executionTask.addExecutionTaskListener(new ExecutionTaskMonitor(executionTask, executionContext, uiThreadAccess));
 		}
 
 		@Override

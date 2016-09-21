@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.service.tools.creator;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -36,14 +37,11 @@ import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanData;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
-import org.jowidgets.cap.common.api.exception.BeanValidationException;
 import org.jowidgets.cap.common.api.exception.ExecutableCheckException;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.execution.IExecutableState;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.cap.common.api.validation.IBeanValidationResult;
 import org.jowidgets.cap.common.api.validation.IBeanValidator;
-import org.jowidgets.cap.common.tools.validation.BeanValidationResultUtil;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.adapter.ISyncCreatorService;
 import org.jowidgets.cap.service.api.bean.BeanCreateInterceptor;
@@ -53,6 +51,7 @@ import org.jowidgets.cap.service.api.bean.IBeanIdentityResolver;
 import org.jowidgets.cap.service.api.bean.IBeanInitializer;
 import org.jowidgets.cap.service.api.plugin.IBeanCreateInterceptorPlugin;
 import org.jowidgets.cap.service.tools.bean.DefaultBeanIdentityResolver;
+import org.jowidgets.cap.service.tools.validation.ServiceBeanValidationHelper;
 import org.jowidgets.plugin.api.IPluginPropertiesBuilder;
 import org.jowidgets.plugin.api.PluginProvider;
 import org.jowidgets.plugin.api.PluginToolkit;
@@ -67,15 +66,16 @@ public abstract class AbstractSyncCreatorServiceImpl<BEAN_TYPE> implements ISync
 	private final IBeanInitializer<BEAN_TYPE> beanInitializer;
 	private final IExecutableChecker<BEAN_TYPE> executableChecker;
 	private final IBeanValidator<BEAN_TYPE> beanValidator;
-
+	private final boolean confirmValidationWarnings;
 	private final IBeanCreateInterceptor<BEAN_TYPE> interceptor;
 	private final Collection<IBeanCreateInterceptorPlugin<BEAN_TYPE>> interceptorPlugins;
 
 	protected AbstractSyncCreatorServiceImpl(
 		final Class<? extends IBean> beanType,
 		final IBeanDtoFactory<BEAN_TYPE> dtoFactory,
-		final IBeanInitializer<BEAN_TYPE> beanInitializer) {
-		this(beanType, dtoFactory, beanInitializer, null, null);
+		final IBeanInitializer<BEAN_TYPE> beanInitializer,
+		final boolean confirmValidationWarnings) {
+		this(beanType, dtoFactory, beanInitializer, null, null, confirmValidationWarnings);
 	}
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
@@ -84,8 +84,15 @@ public abstract class AbstractSyncCreatorServiceImpl<BEAN_TYPE> implements ISync
 		final IBeanDtoFactory<BEAN_TYPE> dtoFactory,
 		final IBeanInitializer<BEAN_TYPE> beanInitializer,
 		final IExecutableChecker<BEAN_TYPE> executableChecker,
-		final IBeanValidator<BEAN_TYPE> beanValidator) {
-		this(new DefaultBeanIdentityResolver(beanType), dtoFactory, beanInitializer, executableChecker, beanValidator);
+		final IBeanValidator<BEAN_TYPE> beanValidator,
+		final boolean confirmValidationWarnings) {
+		this(
+			new DefaultBeanIdentityResolver(beanType),
+			dtoFactory,
+			beanInitializer,
+			executableChecker,
+			beanValidator,
+			confirmValidationWarnings);
 	}
 
 	protected AbstractSyncCreatorServiceImpl(
@@ -93,7 +100,8 @@ public abstract class AbstractSyncCreatorServiceImpl<BEAN_TYPE> implements ISync
 		final IBeanDtoFactory<BEAN_TYPE> dtoFactory,
 		final IBeanInitializer<BEAN_TYPE> beanInitializer,
 		final IExecutableChecker<BEAN_TYPE> executableChecker,
-		final IBeanValidator<BEAN_TYPE> beanValidator) {
+		final IBeanValidator<BEAN_TYPE> beanValidator,
+		final boolean confirmValidationWarnings) {
 
 		Assert.paramNotNull(beanIdentityResolver, "beanIdentityResolver");
 		Assert.paramNotNull(dtoFactory, "dtoFactory");
@@ -105,11 +113,14 @@ public abstract class AbstractSyncCreatorServiceImpl<BEAN_TYPE> implements ISync
 		this.beanInitializer = beanInitializer;
 		this.executableChecker = executableChecker;
 		this.beanValidator = beanValidator;
+		this.confirmValidationWarnings = confirmValidationWarnings;
 		this.interceptor = createInterceptor(beanType);
 		this.interceptorPlugins = createUpdateInterceptorPlugins(beanType);
 	}
 
-	protected abstract BEAN_TYPE createBean(final Collection<IBeanKey> parentBeanKeys, final IExecutionCallback executionCallback);
+	protected abstract BEAN_TYPE createBean(
+		final Collection<IBeanKey> parentBeanKeys,
+		final IExecutionCallback executionCallback);
 
 	protected abstract void persistBean(
 		Collection<IBeanKey> parentBeanKeys,
@@ -155,8 +166,11 @@ public abstract class AbstractSyncCreatorServiceImpl<BEAN_TYPE> implements ISync
 		final IExecutionCallback executionCallback) {
 		final List<IBeanDto> result = new LinkedList<IBeanDto>();
 
+		final List<BEAN_TYPE> beans = new ArrayList<BEAN_TYPE>(beansData.size());
+
 		for (final IBeanData beanData : beansData) {
 			final BEAN_TYPE bean = createBean((Collection<IBeanKey>) parentBeanKeys, executionCallback);
+			beans.add(bean);
 			CapServiceToolkit.checkCanceled(executionCallback);
 
 			beforeInitialize(bean);
@@ -167,10 +181,11 @@ public abstract class AbstractSyncCreatorServiceImpl<BEAN_TYPE> implements ISync
 
 			checkExecutableStates(bean);
 			CapServiceToolkit.checkCanceled(executionCallback);
+		}
 
-			validate(bean);
-			CapServiceToolkit.checkCanceled(executionCallback);
+		validate(beans, executionCallback);
 
+		for (final BEAN_TYPE bean : beans) {
 			persistBean((Collection<IBeanKey>) parentBeanKeys, bean, executionCallback);
 			CapServiceToolkit.checkCanceled(executionCallback);
 
@@ -180,6 +195,7 @@ public abstract class AbstractSyncCreatorServiceImpl<BEAN_TYPE> implements ISync
 			result.add(dtoFactory.createDto(bean));
 			CapServiceToolkit.checkCanceled(executionCallback);
 		}
+
 		CapServiceToolkit.checkCanceled(executionCallback);
 		return result;
 	}
@@ -211,13 +227,14 @@ public abstract class AbstractSyncCreatorServiceImpl<BEAN_TYPE> implements ISync
 		}
 	}
 
-	private void validate(final BEAN_TYPE bean) {
+	private void validate(final List<BEAN_TYPE> beans, final IExecutionCallback executionCallback) {
 		if (beanValidator != null) {
-			final Collection<IBeanValidationResult> validationResults = beanValidator.validate(bean);
-			final IBeanValidationResult worstFirst = BeanValidationResultUtil.getWorstFirst(validationResults);
-			if (worstFirst != null && !worstFirst.getValidationResult().isValid()) {
-				throw new BeanValidationException(beanIdentityResolver.getId(bean), worstFirst);
-			}
+			ServiceBeanValidationHelper.validate(
+					beanValidator,
+					confirmValidationWarnings,
+					beans,
+					beanIdentityResolver,
+					executionCallback);
 		}
 	}
 

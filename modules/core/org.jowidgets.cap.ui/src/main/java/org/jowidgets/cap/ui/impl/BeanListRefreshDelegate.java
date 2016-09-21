@@ -89,7 +89,8 @@ final class BeanListRefreshDelegate<BEAN_TYPE> {
 						executionTask.setDescription(REFRESH.get());
 						final IBeanKeyFactory beanKeyFactory = CapUiToolkit.beanKeyFactory();
 						final List<IBeanKey> beanKeys = beanKeyFactory.createKeys(preparedBeans);
-						final IResultCallback<List<IBeanDto>> helperCallback = executionHelper.createResultCallback(preparedBeans);
+						final IResultCallback<List<IBeanDto>> helperCallback = executionHelper.createResultCallback(
+								preparedBeans);
 						refreshService.refresh(helperCallback, beanKeys, executionTask);
 					}
 				}

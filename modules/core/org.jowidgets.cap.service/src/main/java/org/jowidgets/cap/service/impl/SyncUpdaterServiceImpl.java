@@ -29,8 +29,7 @@
 package org.jowidgets.cap.service.impl;
 
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -44,18 +43,19 @@ import org.jowidgets.cap.service.api.adapter.ISyncExecutorService;
 import org.jowidgets.cap.service.api.adapter.ISyncUpdaterService;
 import org.jowidgets.cap.service.api.bean.IBeanIdentityResolver;
 import org.jowidgets.cap.service.api.bean.IBeanModifier;
-import org.jowidgets.cap.service.api.executor.IBeanExecutor;
+import org.jowidgets.cap.service.api.executor.IBeanListExecutor;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.EmptyCheck;
 
 public final class SyncUpdaterServiceImpl<BEAN_TYPE> implements ISyncUpdaterService {
 
-	private final ISyncExecutorService<Collection<? extends IBeanModification>> executorService;
+	private final ISyncExecutorService<Map<Object, Collection<IBeanModification>>> executorService;
 
 	@SuppressWarnings("rawtypes")
 	SyncUpdaterServiceImpl(
 		final IBeanIdentityResolver beanIdentityResolver,
 		final IBeanModifier<BEAN_TYPE> beanModifier,
-		final ExecutorServiceBuilderImpl<BEAN_TYPE, Collection<? extends IBeanModification>> executorServiceBuilder) {
+		final ExecutorServiceBuilderImpl<BEAN_TYPE, Map<Object, Collection<IBeanModification>>> executorServiceBuilder) {
 
 		Assert.paramNotNull(beanIdentityResolver, "beanIdentityResolver");
 		Assert.paramNotNull(beanModifier, "beanModifier");
@@ -63,20 +63,32 @@ public final class SyncUpdaterServiceImpl<BEAN_TYPE> implements ISyncUpdaterServ
 
 		final boolean allowStaleBeans = executorServiceBuilder.isAllowStaleBeans();
 
-		executorServiceBuilder.setExecutor(new IBeanExecutor<BEAN_TYPE, Collection<? extends IBeanModification>>() {
-			@SuppressWarnings("unchecked")
+		executorServiceBuilder.setExecutor(new IBeanListExecutor<BEAN_TYPE, Map<Object, Collection<IBeanModification>>>() {
+
 			@Override
-			public BEAN_TYPE execute(
+			@SuppressWarnings("unchecked")
+			public List<BEAN_TYPE> execute(
+				final List<BEAN_TYPE> beans,
+				final Map<Object, Collection<IBeanModification>> modificationsMap,
+				final IExecutionCallback executionCallback) {
+				for (final BEAN_TYPE bean : beans) {
+					final Collection<IBeanModification> modifications = modificationsMap.get(beanIdentityResolver.getId(bean));
+					executeBean(bean, modifications, executionCallback);
+				}
+				return beans;
+			}
+
+			@SuppressWarnings("unchecked")
+			private BEAN_TYPE executeBean(
 				final BEAN_TYPE bean,
 				final Collection<? extends IBeanModification> modifications,
 				final IExecutionCallback executionCallback) {
-
 				if (!allowStaleBeans) {
 					for (final IBeanModification modification : modifications) {
 						if (!allowStaleBeans && beanModifier.isPropertyStale(bean, modification)) {
-							throw new StaleBeanException(beanIdentityResolver.getId(bean), "The bean property '"
-								+ modification.getPropertyName()
-								+ "' is stale");
+							throw new StaleBeanException(
+								beanIdentityResolver.getId(bean),
+								"The bean property '" + modification.getPropertyName() + "' is stale");
 						}
 					}
 				}
@@ -85,6 +97,7 @@ public final class SyncUpdaterServiceImpl<BEAN_TYPE> implements ISyncUpdaterServ
 				}
 				return bean;
 			}
+
 		});
 
 		this.executorService = executorServiceBuilder.buildSyncService();
@@ -95,21 +108,25 @@ public final class SyncUpdaterServiceImpl<BEAN_TYPE> implements ISyncUpdaterServ
 		final Collection<? extends IBeanModification> modifications,
 		final IExecutionCallback executionCallback) {
 
-		final Map<Object, List<IBeanModification>> keyMap = createKeyMap(modifications);
+		final Map<Object, Collection<IBeanModification>> modificationsMap = createModificationsMap(modifications);
 
 		final List<IBeanDto> result = new LinkedList<IBeanDto>();
-		for (final List<IBeanModification> modificationList : keyMap.values()) {
-			final List<? extends IBeanKey> keysList = Collections.singletonList(modificationList.iterator().next());
-			result.addAll(executorService.execute(keysList, modificationList, executionCallback));
-		}
 
+		final List<IBeanKey> keysList = new LinkedList<IBeanKey>();
+		for (final Collection<IBeanModification> modificationList : modificationsMap.values()) {
+			if (!EmptyCheck.isEmpty(modificationList)) {
+				keysList.add(modificationList.iterator().next());
+			}
+		}
+		result.addAll(executorService.execute(keysList, modificationsMap, executionCallback));
 		return result;
 	}
 
-	private Map<Object, List<IBeanModification>> createKeyMap(final Collection<? extends IBeanModification> modifications) {
-		final Map<Object, List<IBeanModification>> result = new HashMap<Object, List<IBeanModification>>();
+	private Map<Object, Collection<IBeanModification>> createModificationsMap(
+		final Collection<? extends IBeanModification> modifications) {
+		final Map<Object, Collection<IBeanModification>> result = new LinkedHashMap<Object, Collection<IBeanModification>>();
 		for (final IBeanModification beanModification : modifications) {
-			List<IBeanModification> modificationList = result.get(beanModification.getId());
+			Collection<IBeanModification> modificationList = result.get(beanModification.getId());
 			if (modificationList == null) {
 				modificationList = new LinkedList<IBeanModification>();
 				result.put(beanModification.getId(), modificationList);

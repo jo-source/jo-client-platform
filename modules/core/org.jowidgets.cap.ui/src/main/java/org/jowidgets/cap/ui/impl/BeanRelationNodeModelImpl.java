@@ -70,6 +70,7 @@ import org.jowidgets.cap.ui.api.attribute.AttributeSet;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeSet;
 import org.jowidgets.cap.ui.api.bean.BeanExceptionConverter;
+import org.jowidgets.cap.ui.api.bean.BeanProxyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanMessage;
 import org.jowidgets.cap.ui.api.bean.IBeanPropertyValidator;
@@ -113,8 +114,8 @@ import org.jowidgets.util.IProvider;
 import org.jowidgets.validation.IValidationConditionListener;
 import org.jowidgets.validation.IValidationResult;
 
-public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implements
-		IBeanRelationNodeModel<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> {
+public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE>
+		implements IBeanRelationNodeModel<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> {
 
 	private static final IMessage LOAD_ERROR_MESSAGE = Messages.getMessage("BeanRelationNodeModelImpl.load_error");
 	private static final IMessage LOADING_DATA_LABEL = Messages.getMessage("BeanRelationNodeModelImpl.load_data");
@@ -137,7 +138,6 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 	private final ICreatorService creatorService;
 	private final BeanListRefreshDelegate<CHILD_BEAN_TYPE> refreshDelegate;
 	private final ISortModel sortModel;
-	private final boolean validateUnmodifiedBeans;
 	private final List<IBeanPropertyValidator<CHILD_BEAN_TYPE>> beanPropertyValidators;
 	private final IAttributeSet childBeanAttributeSet;
 	private final List<String> propertyNames;
@@ -216,9 +216,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 		this.childBeanAttributeSet = AttributeSet.create(childBeanAttributes);
 		this.exceptionConverter = exceptionConverter;
 
-		this.validateUnmodifiedBeans = validateUnmodifiedBeans;
-		this.beanPropertyValidators = new LinkedList<IBeanPropertyValidator<CHILD_BEAN_TYPE>>();
-		beanPropertyValidators.add(new AttributesBeanPropertyValidator<CHILD_BEAN_TYPE>(childBeanAttributes));
+		this.beanPropertyValidators = createBeanPropertyValidators(childBeanAttributes);
 		for (final IBeanValidator<CHILD_BEAN_TYPE> beanValidator : beanValidators) {
 			beanPropertyValidators.add(new BeanPropertyValidatorAdapter<CHILD_BEAN_TYPE>(beanValidator));
 		}
@@ -230,7 +228,10 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 		this.beanSelectionObservable = new BeanSelectionObservable<CHILD_BEAN_TYPE>();
 		this.beanProxyContext = beanProxyContext;
 		this.beanStateTracker = CapUiToolkit.beansStateTracker(beanProxyContext, validateUnmodifiedBeans);
-		this.beanProxyFactory = CapUiToolkit.beanProxyFactory(childBeanTypeId, childBeanType, childBeanAttributeSet);
+		this.beanProxyFactory = BeanProxyFactory.builder(childBeanType).setBeanTypeId(childBeanTypeId).setAttributes(
+				childBeanAttributeSet).setValidateUnmodifiedBeans(validateUnmodifiedBeans).setBeanPropertyValidators(
+						beanPropertyValidators).build();
+
 		this.filters = new HashMap<String, IUiFilter>();
 
 		this.sortModel = new SortModelImpl();
@@ -266,6 +267,17 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 		this.hasInitialLoad = false;
 	}
 
+	private List<IBeanPropertyValidator<CHILD_BEAN_TYPE>> createBeanPropertyValidators(
+		final Collection<? extends IAttribute<?>> attributes) {
+		final List<IBeanPropertyValidator<CHILD_BEAN_TYPE>> result = new LinkedList<IBeanPropertyValidator<CHILD_BEAN_TYPE>>();
+		final AttributesBeanPropertyValidator<CHILD_BEAN_TYPE> validator = new AttributesBeanPropertyValidator<CHILD_BEAN_TYPE>(
+			attributes);
+		if (validator.hasValidators()) {
+			result.add(validator);
+		}
+		return result;
+	}
+
 	@SuppressWarnings({"rawtypes", "unchecked"})
 	private static IBeanProxyLabelRenderer getPluginDecoratedRenderer(
 		final Object entityId,
@@ -276,7 +288,9 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 		propertiesBuilder.add(IBeanProxyLabelRendererPlugin.BEAN_TYPE_PROPERTY_KEY, entityType);
 		final IPluginProperties properties = propertiesBuilder.build();
 		IBeanProxyLabelRenderer result = renderer;
-		for (final IBeanProxyLabelRendererPlugin plugin : PluginProvider.getPlugins(IBeanProxyLabelRendererPlugin.ID, properties)) {
+		for (final IBeanProxyLabelRendererPlugin plugin : PluginProvider.getPlugins(
+				IBeanProxyLabelRendererPlugin.ID,
+				properties)) {
 			final IDecorator<IBeanProxyLabelRenderer<?>> decorator = plugin.getRendererDecorator(properties);
 			if (decorator != null) {
 				result = decorator.decorate(result);
@@ -684,20 +698,12 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 	@Override
 	public IBeanProxy<CHILD_BEAN_TYPE> addTransientBean() {
 		final IBeanProxy<CHILD_BEAN_TYPE> result = beanProxyFactory.createTransientProxy(defaultValues);
-		if (!EmptyCheck.isEmpty(beanPropertyValidators)) {
-			result.addBeanPropertyValidators(beanPropertyValidators);
-		}
 		addBean(result);
 		return result;
 	}
 
 	private IBeanProxy<CHILD_BEAN_TYPE> createBeanProxy(final IBeanDto beanDto) {
-		final IBeanProxy<CHILD_BEAN_TYPE> beanProxy = beanProxyFactory.createProxy(beanDto);
-		beanProxy.setValidateUnmodified(validateUnmodifiedBeans);
-		if (!EmptyCheck.isEmpty(beanPropertyValidators)) {
-			beanProxy.addBeanPropertyValidators(beanPropertyValidators);
-		}
-		return beanProxy;
+		return beanProxyFactory.createProxy(beanDto);
 	}
 
 	@Override
@@ -1028,7 +1034,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> implem
 
 		private void setException(final Throwable exception) {
 			final List<IBeanProxy<CHILD_BEAN_TYPE>> beans = Collections.singletonList(dummyBean);
-			final IBeanMessage message = exceptionConverter.convert(LOAD_ERROR_MESSAGE.get(), beans, dummyBean, exception);
+			final IBeanMessage message = exceptionConverter.convert(LOAD_ERROR_MESSAGE.get(), beans, 0, dummyBean, exception);
 
 			if (dummyBean != null) {
 				dummyBean.setExecutionTask(null);

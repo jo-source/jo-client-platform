@@ -26,28 +26,63 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.bean;
+package org.jowidgets.cap.common.api.exception;
 
-import java.util.List;
+import java.util.Map;
 
-public interface IBeanExceptionConverter {
+import org.jowidgets.cap.common.api.validation.IBeanValidationResult;
+import org.jowidgets.util.Assert;
+
+public class BeansValidationException extends ServiceException {
+
+	private static final long serialVersionUID = -7579908469741974763L;
+
+	public enum KeyType {
+
+		/**
+		 * The key type of the result map is the id of the bean, e.g. for update
+		 */
+		ID,
+
+		/**
+		 * The key type of the result map is the index of the bean in the collection of processed beans. This will be used, if ids
+		 * are not available, e.g. when beans will be created
+		 */
+		INDEX;
+	}
+
+	private final Map<Object, IBeanValidationResult> validationResultMap;
+	private final KeyType keyType;
 
 	/**
-	 * Converts a throwable into an IBeanMessage
+	 * Creates a new instance
 	 * 
-	 * @param shortErrorMessage The short message that describes what action failed
-	 *            (e.g. 'Creation failed', 'Load failed', 'Save failed'), may be null
-	 * @param processedBeans All beans that was processed by the action
-	 * @param destinationBeanIndex The index of the destination bean
-	 * @param destinationBean The bean to convert the message for
-	 * 
-	 * @return The bean message created from the throwable
+	 * @param validationResultMap The validation results
+	 * @param keyType The type of the keys in the map
 	 */
-	IBeanMessage convert(
-		String shortErrorMessage,
-		List<? extends IBeanProxy<?>> processedBeans,
-		int destinationBeanIndex,
-		IBeanProxy<?> destinationBean,
-		Throwable throwable);
+	public BeansValidationException(final Map<Object, IBeanValidationResult> validationResultMap, final KeyType keyType) {
+		Assert.paramNotEmpty(validationResultMap, "validationResultMap");
+		Assert.paramNotNull(keyType, "keyType");
+		this.validationResultMap = validationResultMap;
+		this.keyType = keyType;
+	}
+
+	/**
+	 * Gets the validation results
+	 * 
+	 * @return The validation results, never null
+	 */
+	public Map<Object, IBeanValidationResult> getValidationResults() {
+		return validationResultMap;
+	}
+
+	/**
+	 * Gets the key type of the result map
+	 * 
+	 * @return The key type, never null
+	 */
+	public KeyType getKeyType() {
+		return keyType;
+	}
 
 }

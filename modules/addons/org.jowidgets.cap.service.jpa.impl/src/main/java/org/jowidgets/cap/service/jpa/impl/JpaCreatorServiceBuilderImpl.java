@@ -42,12 +42,14 @@ final class JpaCreatorServiceBuilderImpl<BEAN_TYPE extends IBean> extends Abstra
 
 	@Override
 	public ICreatorService build() {
+		applyPlugins();
 		final ISyncCreatorService result = new SyncJpaCreatorServiceImpl<BEAN_TYPE>(
 			getBeanType(),
 			getBeanDtoFactory(),
 			getBeanInitializer(),
 			getExecutableChecker(),
-			getBeanValidator());
+			getBeanValidator(),
+			isConfirmValidationWarnings());
 		return CapServiceToolkit.adapterFactoryProvider().creator().createAdapter(result);
 	}
 

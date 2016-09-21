@@ -47,7 +47,7 @@ final class SyncCreatorService<BEAN_TYPE extends IBean> extends AbstractSyncCrea
 		final IEntityData<? extends BEAN_TYPE> data,
 		final IBeanDtoFactory<BEAN_TYPE> beanDtoFactory,
 		final IBeanInitializer<BEAN_TYPE> beanInitializer) {
-		super(getBeanType(data), beanDtoFactory, beanInitializer);
+		super(getBeanType(data), beanDtoFactory, beanInitializer, false);
 		this.data = data;
 	}
 

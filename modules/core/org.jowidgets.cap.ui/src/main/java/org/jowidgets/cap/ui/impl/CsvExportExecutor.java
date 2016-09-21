@@ -75,7 +75,7 @@ class CsvExportExecutor<BEAN_TYPE> implements IExecutor<BEAN_TYPE, ICsvExportPar
 		final List<IBeanProxy<BEAN_TYPE>> beans,
 		final ICsvExportParameter parameter) throws Exception {
 
-		final IExecutionTask executionTask = CapUiToolkit.executionTaskFactory().create();
+		final IExecutionTask executionTask = CapUiToolkit.executionTaskFactory().create(executionContext);
 		final IExecutionTaskDialog executionTaskDialog = createExecutionTaskDialog(executionContext, executionTask);
 		final IResultCallback<String> resultCallback = new ResultCallback(executionTaskDialog);
 

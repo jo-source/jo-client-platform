@@ -120,8 +120,20 @@ Bugfixes:
 
 Features:
 
+* Fixed issue #59 https://github.com/jo-source/jo-client-platform/issues/59 Allow to configure user confirmation for service layer validation warnings 
+
+
 
 Bugfixes:
 
-* Fixed issue #52 https://github.com/jo-source/jo-client-platform/issues/53 Shortcut(CTRL+E) not working for edit in Beantable when popup was not visible before
+* Fixed issue #53 https://github.com/jo-source/jo-client-platform/issues/53 Shortcut(CTRL+E) not working for edit in Beantable when popup was not visible before
+* Fixed issue #54 https://github.com/jo-source/jo-client-platform/issues/54 User Question Dialog has no title
+* Fixes issue #55 https://github.com/jo-source/jo-client-platform/issues/55 BeanMessage in table should be rendered the same way than in detail 
+* Fixes issue #56 https://github.com/jo-source/jo-client-platform/issues/56 BeanMessages should be cleared, when undo will be done
+* Fixes issue #57 https://github.com/jo-source/jo-client-platform/issues/57 BeanMessagePopupDialog clips messages when message will be added after dialog is visible
+* Fixes issue #58 https://github.com/jo-source/jo-client-platform/issues/58 Allow multiple bean validations in service layer 
+* Fixes issue #60 https://github.com/jo-source/jo-client-platform/issues/60 ServiceProvider throws ConcurrentModificationException when IServiceProviderHolder is registered 
+* Fixes issue #61 https://github.com/jo-source/jo-client-platform/issues/61 ScrollBar in settings dialog of bean table disapear when window will be resized
+* Fixes issue #62 https://github.com/jo-source/jo-client-platform/issues/62 Only validate BeanProxy objects if validators are set 
+
 

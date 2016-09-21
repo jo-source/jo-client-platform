@@ -31,6 +31,7 @@ package org.jowidgets.cap.service.tools.exception;
 import org.jowidgets.cap.common.api.exception.AuthorizationFailedException;
 import org.jowidgets.cap.common.api.exception.BeanException;
 import org.jowidgets.cap.common.api.exception.BeanValidationException;
+import org.jowidgets.cap.common.api.exception.BeansValidationException;
 import org.jowidgets.cap.common.api.exception.DeletedBeanException;
 import org.jowidgets.cap.common.api.exception.ExecutableCheckException;
 import org.jowidgets.cap.common.api.exception.ForeignKeyConstraintViolationException;
@@ -77,6 +78,7 @@ public class DefaultServiceExceptionLogger implements IServiceExceptionLogger {
 			if (logServiceCanceledException(serviceType, original, serviceException)
 				|| logAuthorizationFailedException(serviceType, original, serviceException)
 				|| logBeanException(serviceType, original, serviceException)
+				|| logBeansValidationException(serviceType, original, serviceException)
 				|| logForeignKeyConstraintViolationException(serviceType, original, serviceException)) {
 				return true;
 			}
@@ -152,10 +154,11 @@ public class DefaultServiceExceptionLogger implements IServiceExceptionLogger {
 				final BeanValidationException beanValidationException = (BeanValidationException) beanException;
 				final IBeanValidationResult validationResult = beanValidationException.getValidationResult();
 				if (validationResult != null && validationResult.getValidationResult() != null) {
-					logger.info("Bean validation failed: "
-						+ validationResult.getValidationResult().getAll()
-						+ " for bean: "
-						+ beanValidationException.getBeanId());
+					logger.info(
+							"Bean validation failed: "
+								+ validationResult.getValidationResult().getAll()
+								+ " for bean: "
+								+ beanValidationException.getBeanId());
 				}
 				else {
 					logger.info("Bean validation failed for bean: " + beanValidationException.getBeanId());
@@ -189,10 +192,8 @@ public class DefaultServiceExceptionLogger implements IServiceExceptionLogger {
 		final BeanException beanException) {
 		if (beanException instanceof ExecutableCheckException) {
 			if (logger.isInfoEnabled()) {
-				logger.info("Executable check failed for bean: "
-					+ beanException.getBeanId()
-					+ " "
-					+ beanException.getUserMessage());
+				logger.info(
+						"Executable check failed for bean: " + beanException.getBeanId() + " " + beanException.getUserMessage());
 			}
 			return true;
 		}
@@ -208,6 +209,22 @@ public class DefaultServiceExceptionLogger implements IServiceExceptionLogger {
 		if (beanException instanceof StaleBeanException) {
 			if (logger.isInfoEnabled()) {
 				logger.info("Bean is stale: " + beanException.getBeanId());
+			}
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
+	protected boolean logBeansValidationException(
+		final Class<?> serviceType,
+		final Throwable original,
+		final ServiceException beanException) {
+		if (beanException instanceof BeansValidationException) {
+			if (logger.isInfoEnabled()) {
+				final BeansValidationException beanValidationException = (BeansValidationException) beanException;
+				logger.info("Bean validation failed: " + beanValidationException.getValidationResults());
 			}
 			return true;
 		}

@@ -55,6 +55,7 @@ import org.jowidgets.cap.ui.api.attribute.AttributeSet;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeSet;
 import org.jowidgets.cap.ui.api.bean.BeanExceptionConverter;
+import org.jowidgets.cap.ui.api.bean.BeanProxyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanPropertyValidator;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
@@ -88,9 +89,9 @@ import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.util.IFactory;
 
-final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> extends
-		AbstractCapActionBuilderImpl<ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE>> implements
-		ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> {
+final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE>
+		extends AbstractCapActionBuilderImpl<ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE>>
+		implements ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> {
 
 	private final Cardinality linkedCardinality;
 
@@ -119,7 +120,9 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 	private IBeanExceptionConverter exceptionConverter;
 
 	@SuppressWarnings({"rawtypes", "unchecked"})
-	LinkCreatorActionBuilderImpl(final IBeanSelectionProvider<SOURCE_BEAN_TYPE> source, final IEntityLinkDescriptor linkDescriptor) {
+	LinkCreatorActionBuilderImpl(
+		final IBeanSelectionProvider<SOURCE_BEAN_TYPE> source,
+		final IEntityLinkDescriptor linkDescriptor) {
 		this(linkDescriptor.getLinkedCardinality());
 		Assert.paramNotNull(source, "source");
 		Assert.paramNotNull(linkDescriptor, "linkDescriptor");
@@ -160,23 +163,23 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 									defaultValues.put(propertyName, defaultValue);
 								}
 							}
-							final IBeanProxyFactory<LINK_BEAN_TYPE> proxyFactory = CapUiToolkit.beanProxyFactory(
-									linkBeanTypeId,
-									linkBeanType,
-									attributeSet);
 
-							final IBeanProxy<LINK_BEAN_TYPE> result = proxyFactory.createTransientProxy(defaultValues);
-							result.addBeanPropertyValidator(new AttributesBeanPropertyValidator<LINK_BEAN_TYPE>(attributes));
+							final List<IBeanPropertyValidator<LINK_BEAN_TYPE>> propertyValidators = createBeanPropertyValidators(
+									attributes);
 							for (final IBeanValidator beanValidator : descriptor.getValidators()) {
-								result.addBeanPropertyValidator(new BeanPropertyValidatorAdapter<LINK_BEAN_TYPE>(beanValidator));
+								propertyValidators.add(new BeanPropertyValidatorAdapter<LINK_BEAN_TYPE>(beanValidator));
 							}
 
-							return result;
+							final IBeanProxyFactory<LINK_BEAN_TYPE> proxyFactory = BeanProxyFactory.builder(
+									(Class<LINK_BEAN_TYPE>) linkBeanType).setBeanTypeId(linkBeanType).setAttributes(
+											attributeSet).setBeanPropertyValidators(propertyValidators).build();
+
+							return proxyFactory.createTransientProxy(defaultValues);
 						}
 					});
 
 					if (hasAdditionalProperties(descriptor, linkDescriptor)
-					//is not direct link or has no linkable entity id
+						//is not direct link or has no linkable entity id
 						&& (!directLink || linkDescriptor.getLinkableEntityId() == null)) {
 
 						List<IAttribute<Object>> filteredAttributes = attributes;
@@ -295,6 +298,16 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 		setIcon(CapIcons.ADD_LINK);
 	}
 
+	private static <BEAN_TYPE> List<IBeanPropertyValidator<BEAN_TYPE>> createBeanPropertyValidators(
+		final Collection<? extends IAttribute<?>> attributes) {
+		final List<IBeanPropertyValidator<BEAN_TYPE>> result = new LinkedList<IBeanPropertyValidator<BEAN_TYPE>>();
+		final AttributesBeanPropertyValidator<BEAN_TYPE> validator = new AttributesBeanPropertyValidator<BEAN_TYPE>(attributes);
+		if (validator.hasValidators()) {
+			result.add(validator);
+		}
+		return result;
+	}
+
 	private static List<IAttribute<Object>> createAttributes(final IBeanDtoDescriptor descriptor) {
 		return CapUiToolkit.attributeToolkit().createAttributes(descriptor.getProperties());
 	}
@@ -311,7 +324,9 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 		return result;
 	}
 
-	private static boolean hasAdditionalProperties(final IBeanDtoDescriptor descriptor, final IEntityLinkDescriptor linkDescriptor) {
+	private static boolean hasAdditionalProperties(
+		final IBeanDtoDescriptor descriptor,
+		final IEntityLinkDescriptor linkDescriptor) {
 		final Set<String> ignoreProperties = new HashSet<String>();
 		ignoreProperties.add(IBean.ID_PROPERTY);
 		ignoreProperties.add(IBean.VERSION_PROPERTY);
@@ -382,7 +397,8 @@ final class LinkCreatorActionBuilderImpl<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKA
 	}
 
 	@Override
-	public ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setLinkedEntityLabel(final String label) {
+	public ILinkCreatorActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> setLinkedEntityLabel(
+		final String label) {
 		checkExhausted();
 		this.linkedEntityLabel = label;
 		return this;

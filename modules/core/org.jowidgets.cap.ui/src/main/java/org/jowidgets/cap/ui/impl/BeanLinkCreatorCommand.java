@@ -56,6 +56,7 @@ import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.AttributeSet;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeSet;
+import org.jowidgets.cap.ui.api.bean.BeanProxyFactory;
 import org.jowidgets.cap.ui.api.bean.IBeanExceptionConverter;
 import org.jowidgets.cap.ui.api.bean.IBeanPropertyValidator;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
@@ -218,7 +219,7 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 		final List<IBeanProxy<SOURCE_BEAN_TYPE>> selection,
 		final IBeanLink<LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> beanLink) {
 
-		final IExecutionTask executionTask = CapUiToolkit.executionTaskFactory().create();
+		final IExecutionTask executionTask = CapUiToolkit.executionTaskFactory().create(executionContext);
 		final IUiThreadAccess uiThreadAccess = Toolkit.getUiThreadAccess();
 		executionTask.addExecutionCallbackListener(new IExecutionCallbackListener() {
 			@Override
@@ -294,10 +295,12 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 			@Override
 			protected void exceptionUi(final Throwable exception) {
 
+				int beanIndex = 0;
 				for (final IBeanProxy<SOURCE_BEAN_TYPE> bean : selection) {
 					bean.setExecutionTask(null);
 					if (!(exception instanceof ServiceCanceledException)) {
-						bean.addMessage(exceptionConverter.convert(getShortErrorMessage(), selection, bean, exception));
+						bean.addMessage(
+								exceptionConverter.convert(getShortErrorMessage(), selection, beanIndex++, bean, exception));
 					}
 				}
 				executionObservable.fireAfterExecutionError(executionContext, exception);
@@ -341,11 +344,8 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 
 		final List<IBeanProxy<LINKABLE_BEAN_TYPE>> defaultLinkedBeans;
 		if (linkableBeanForm != null) {
-			defaultLinkedBeans = Collections.singletonList(createDefaultBean(
-					linkableBeanForm,
-					linkableBeanTypeId,
-					linkableBeanType,
-					linkableBeanPropertyValidators));
+			defaultLinkedBeans = Collections.singletonList(
+					createDefaultBean(linkableBeanForm, linkableBeanTypeId, linkableBeanType, linkableBeanPropertyValidators));
 		}
 		else {
 			defaultLinkedBeans = Collections.emptyList();
@@ -409,16 +409,30 @@ final class BeanLinkCreatorCommand<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BE
 					defaultValues.put(propertyName, defaultValue);
 				}
 			}
-			final IBeanProxyFactory<BEAN_TYPE> proxyFactory = CapUiToolkit.beanProxyFactory(beanTypeId, beanType, attributeSet);
-			final IBeanProxy<BEAN_TYPE> result = proxyFactory.createTransientProxy(defaultValues);
-			result.addBeanPropertyValidator(new AttributesBeanPropertyValidator<BEAN_TYPE>(attributes));
+
+			final List<IBeanPropertyValidator<BEAN_TYPE>> propertyValidators = createBeanPropertyValidators(attributes);
 			if (!EmptyCheck.isEmpty(validators)) {
-				result.addBeanPropertyValidators(validators);
+				propertyValidators.addAll(validators);
 			}
-			return result;
+
+			@SuppressWarnings("unchecked")
+			final IBeanProxyFactory<BEAN_TYPE> proxyFactory = BeanProxyFactory.builder((Class<BEAN_TYPE>) beanType).setBeanTypeId(
+					beanTypeId).setAttributes(attributeSet).setBeanPropertyValidators(propertyValidators).build();
+
+			return proxyFactory.createTransientProxy(defaultValues);
 		}
 		else {
 			return null;
 		}
+	}
+
+	private <BEAN_TYPE> List<IBeanPropertyValidator<BEAN_TYPE>> createBeanPropertyValidators(
+		final Collection<? extends IAttribute<?>> attributes) {
+		final List<IBeanPropertyValidator<BEAN_TYPE>> result = new LinkedList<IBeanPropertyValidator<BEAN_TYPE>>();
+		final AttributesBeanPropertyValidator<BEAN_TYPE> validator = new AttributesBeanPropertyValidator<BEAN_TYPE>(attributes);
+		if (validator.hasValidators()) {
+			result.add(validator);
+		}
+		return result;
 	}
 }
