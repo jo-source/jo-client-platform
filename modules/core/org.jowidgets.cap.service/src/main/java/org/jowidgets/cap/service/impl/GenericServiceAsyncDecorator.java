@@ -36,7 +36,7 @@ import java.util.concurrent.ScheduledExecutorService;
 
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
-import org.jowidgets.cap.common.api.execution.IUpdateCallback;
+import org.jowidgets.cap.common.api.execution.IUpdatableResultCallback;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.decorator.IExecutionInterceptor;
 import org.jowidgets.util.Assert;
@@ -160,14 +160,15 @@ final class GenericServiceAsyncDecorator implements IDecorator<Object> {
 			});
 		}
 
+		@SuppressWarnings("unchecked")
 		private IResultCallback<Object> getDecoratedResultCallback(
 			final IResultCallback<Object> original,
 			final IExecutionCallback executionCallback) {
 			if (executionCallback == null) {
 				return original;
 			}
-			else if (original instanceof IUpdateCallback<?>) {
-				return new DecoratedUpdateCallback((IUpdateCallback<Object>) original, executionCallback);
+			else if (original instanceof IUpdatableResultCallback<?, ?>) {
+				return new DecoratedUpdatableCallback((IUpdatableResultCallback<Object, Object>) original, executionCallback);
 			}
 			else {
 				return new DecoratedResultCallback(original, executionCallback);
@@ -219,11 +220,14 @@ final class GenericServiceAsyncDecorator implements IDecorator<Object> {
 
 	}
 
-	private final class DecoratedUpdateCallback extends DecoratedResultCallback implements IUpdateCallback<Object> {
+	private final class DecoratedUpdatableCallback extends DecoratedResultCallback
+			implements IUpdatableResultCallback<Object, Object> {
 
-		private final IUpdateCallback<Object> original;
+		private final IUpdatableResultCallback<Object, Object> original;
 
-		DecoratedUpdateCallback(final IUpdateCallback<Object> original, final IExecutionCallback executionCallback) {
+		DecoratedUpdatableCallback(
+			final IUpdatableResultCallback<Object, Object> original,
+			final IExecutionCallback executionCallback) {
 			super(original, executionCallback);
 			this.original = original;
 		}

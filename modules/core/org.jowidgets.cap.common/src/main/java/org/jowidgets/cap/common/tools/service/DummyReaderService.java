@@ -32,20 +32,18 @@ import java.util.Collections;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBeanDto;
-import org.jowidgets.cap.common.api.bean.IBeanDtosUpdate;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.cap.common.api.execution.IUpdateCallback;
+import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.sort.ISort;
-import org.jowidgets.cap.common.tools.bean.BeanDtosInsertionUpdate;
 
 public class DummyReaderService<PARAM_TYPE> implements IReaderService<PARAM_TYPE> {
 
 	@Override
 	public void read(
-		final IUpdateCallback<IBeanDtosUpdate> result,
+		final IResultCallback<List<IBeanDto>> result,
 		final List<? extends IBeanKey> parentBeanKeys,
 		final IFilter filter,
 		final List<? extends ISort> sorting,
@@ -54,12 +52,12 @@ public class DummyReaderService<PARAM_TYPE> implements IReaderService<PARAM_TYPE
 		final PARAM_TYPE parameter,
 		final IExecutionCallback executionCallback) {
 		final List<IBeanDto> emptyList = Collections.emptyList();
-		result.finished(new BeanDtosInsertionUpdate(emptyList));
+		result.finished(emptyList);
 	}
 
 	@Override
 	public void count(
-		final IUpdateCallback<Integer> result,
+		final IResultCallback<Integer> result,
 		final List<? extends IBeanKey> parentBeanKeys,
 		final IFilter filter,
 		final PARAM_TYPE parameter,

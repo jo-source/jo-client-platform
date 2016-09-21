@@ -31,6 +31,7 @@ package org.jowidgets.cap.ui.impl;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -51,7 +52,8 @@ import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanDtosUpdate;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.cap.common.api.execution.IUpdateCallback;
+import org.jowidgets.cap.common.api.execution.IResultCallback;
+import org.jowidgets.cap.common.api.execution.IUpdatableResultCallback;
 import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.sort.ISort;
@@ -88,9 +90,9 @@ public class BeanTableModelImplTest {
 
 	private final Queue<Runnable> scheduledRunnables = new LinkedList<Runnable>();
 
-	private IUpdateCallback<IBeanDtosUpdate> updateCallback;
+	private IResultCallback<List<IBeanDto>> resultCallback;
 	private final List<IExecutionCallback> updateExecutionCallbacks = new LinkedList<IExecutionCallback>();
-	private IUpdateCallback<Integer> countCallback;
+	private IResultCallback<Integer> countCallback;
 	private List<? extends ISort> mostRecentSorting;
 
 	@SuppressWarnings("unchecked")
@@ -119,12 +121,10 @@ public class BeanTableModelImplTest {
 		countCallback.finished(Integer.valueOf(3));
 
 		if (!mostRecentSorting.isEmpty() && mostRecentSorting.get(0).getSortOrder().equals(SortOrder.DESC)) {
-			updateCallback.finished(
-					new BeanDtosInsertionUpdate(Arrays.asList((IBeanDto) bean3, (IBeanDto) bean2, (IBeanDto) bean1)));
+			resultCallback.finished(Arrays.asList((IBeanDto) bean3, (IBeanDto) bean2, (IBeanDto) bean1));
 		}
 		else {
-			updateCallback.finished(
-					new BeanDtosInsertionUpdate(Arrays.asList((IBeanDto) bean1, (IBeanDto) bean2, (IBeanDto) bean3)));
+			resultCallback.finished(Arrays.asList((IBeanDto) bean1, (IBeanDto) bean2, (IBeanDto) bean3));
 		}
 	}
 
@@ -132,7 +132,7 @@ public class BeanTableModelImplTest {
 		return new IReaderService<Void>() {
 			@Override
 			public void read(
-				final IUpdateCallback<IBeanDtosUpdate> result,
+				final IResultCallback<List<IBeanDto>> result,
 				final List<? extends IBeanKey> parentBeanKeys,
 				final IFilter filter,
 				final List<? extends ISort> sorting,
@@ -141,14 +141,15 @@ public class BeanTableModelImplTest {
 				final Void parameter,
 				final IExecutionCallback executionCallback) {
 
-				setUpdateCallback(result);
+				setResultCallback(result);
+
 				setMostRecentSorting(sorting);
 				addUpdateExecutionCallback(executionCallback);
 			}
 
 			@Override
 			public void count(
-				final IUpdateCallback<Integer> result,
+				final IResultCallback<Integer> result,
 				final List<? extends IBeanKey> parentBeanKeys,
 				final IFilter filter,
 				final Void parameter,
@@ -159,11 +160,11 @@ public class BeanTableModelImplTest {
 		};
 	}
 
-	private void setUpdateCallback(final IUpdateCallback<IBeanDtosUpdate> updateCallback) {
-		this.updateCallback = updateCallback;
+	private void setResultCallback(final IResultCallback<List<IBeanDto>> resultCallback) {
+		this.resultCallback = resultCallback;
 	}
 
-	private void setCountCallback(final IUpdateCallback<Integer> countCallback) {
+	private void setCountCallback(final IResultCallback<Integer> countCallback) {
 		this.countCallback = countCallback;
 	}
 
@@ -268,8 +269,10 @@ public class BeanTableModelImplTest {
 		tableModel.load();
 
 		triggerPageLoading();
-		updateCallback.finished(new BeanDtosInsertionUpdate(new ArrayList<IBeanDto>()));
-		updateCallback.update(new BeanDtosInsertionUpdate(Arrays.asList((IBeanDto) bean1, (IBeanDto) bean2)));
+		final IUpdatableResultCallback<IBeanDtosUpdate, List<IBeanDto>> updatableCallback = assertUpdatableResultCallback(
+				resultCallback);
+		updatableCallback.finished(new ArrayList<IBeanDto>());
+		updatableCallback.update(new BeanDtosInsertionUpdate(Arrays.asList((IBeanDto) bean1, (IBeanDto) bean2)));
 
 		final int size = tableModel.getSize();
 		assertTrue("2 beans should be loaded, but was " + size, size == 2);
@@ -280,9 +283,11 @@ public class BeanTableModelImplTest {
 		tableModel.load();
 
 		triggerPageLoading();
-		updateCallback.finished(new BeanDtosInsertionUpdate(new ArrayList<IBeanDto>()));
-		updateCallback.update(new BeanDtosInsertionUpdate(Arrays.asList((IBeanDto) bean1, (IBeanDto) bean2)));
-		updateCallback.update(new BeanDtosDeletionUpdate(Arrays.asList(bean1.getId())));
+		final IUpdatableResultCallback<IBeanDtosUpdate, List<IBeanDto>> updatableCallback = assertUpdatableResultCallback(
+				resultCallback);
+		updatableCallback.finished(new ArrayList<IBeanDto>());
+		updatableCallback.update(new BeanDtosInsertionUpdate(Arrays.asList((IBeanDto) bean1, (IBeanDto) bean2)));
+		updatableCallback.update(new BeanDtosDeletionUpdate(Arrays.asList(bean1.getId())));
 
 		final int size = tableModel.getSize();
 		assertTrue("Exactly one bean should be remaining after deletion update, but was " + size, size == 1);
@@ -305,9 +310,11 @@ public class BeanTableModelImplTest {
 		tableModel.load();
 
 		triggerPageLoading();
-		updateCallback.finished(new BeanDtosInsertionUpdate(new ArrayList<IBeanDto>()));
-		updateCallback.update(new BeanDtosInsertionUpdate(Arrays.asList((IBeanDto) bean1, (IBeanDto) bean2)));
-		updateCallback.update(new BeanDtosChangeUpdate(Arrays.asList((IBeanDto) bean1a)));
+		final IUpdatableResultCallback<IBeanDtosUpdate, List<IBeanDto>> updatableCallback = assertUpdatableResultCallback(
+				resultCallback);
+		updatableCallback.finished(new ArrayList<IBeanDto>());
+		updatableCallback.update(new BeanDtosInsertionUpdate(Arrays.asList((IBeanDto) bean1, (IBeanDto) bean2)));
+		updatableCallback.update(new BeanDtosChangeUpdate(Arrays.asList((IBeanDto) bean1a)));
 
 		assertTrue("2 beans should be loaded", tableModel.getSize() == 2);
 		assertTrue(
@@ -335,9 +342,11 @@ public class BeanTableModelImplTest {
 		tableModel.load();
 
 		triggerPageLoading();
-		updateCallback.finished(new BeanDtosInsertionUpdate(new ArrayList<IBeanDto>()));
-		updateCallback.update(new BeanDtosInsertionUpdate(Arrays.asList((IBeanDto) bean2, (IBeanDto) bean1)));
-		updateCallback.update(new BeanDtosChangeUpdate(Arrays.asList((IBeanDto) bean1a)));
+		final IUpdatableResultCallback<IBeanDtosUpdate, List<IBeanDto>> updatableCallback = assertUpdatableResultCallback(
+				resultCallback);
+		updatableCallback.finished(new ArrayList<IBeanDto>());
+		updatableCallback.update(new BeanDtosInsertionUpdate(Arrays.asList((IBeanDto) bean2, (IBeanDto) bean1)));
+		updatableCallback.update(new BeanDtosChangeUpdate(Arrays.asList((IBeanDto) bean1a)));
 
 		assertTrue("2 beans should be loaded, but was " + tableModel.getSize(), tableModel.getSize() == 2);
 		assertTrue(
@@ -353,9 +362,11 @@ public class BeanTableModelImplTest {
 		tableModel.load();
 
 		triggerPageLoading();
-		updateCallback.finished(new BeanDtosInsertionUpdate(new ArrayList<IBeanDto>()));
-		updateCallback.update(new BeanDtosInsertionUpdate(Arrays.asList((IBeanDto) bean1, (IBeanDto) bean2)));
-		updateCallback.update(new BeanDtosClearUpdate());
+		final IUpdatableResultCallback<IBeanDtosUpdate, List<IBeanDto>> updatableCallback = assertUpdatableResultCallback(
+				resultCallback);
+		updatableCallback.finished(new ArrayList<IBeanDto>());
+		updatableCallback.update(new BeanDtosInsertionUpdate(Arrays.asList((IBeanDto) bean1, (IBeanDto) bean2)));
+		updatableCallback.update(new BeanDtosClearUpdate());
 
 		final int size = tableModel.getSize();
 		assertTrue("table should be clear but " + size + " bean(s) remained", size == 0);
@@ -376,6 +387,20 @@ public class BeanTableModelImplTest {
 
 	private void triggerPageLoading() {
 		tableModel.getTableModel().getCell(0, 0);
+	}
+
+	@SuppressWarnings("unchecked")
+	private IUpdatableResultCallback<IBeanDtosUpdate, List<IBeanDto>> assertUpdatableResultCallback(
+		final IResultCallback<List<IBeanDto>> resultCallback) {
+
+		if (resultCallback instanceof IUpdatableResultCallback<?, ?>) {
+			return (IUpdatableResultCallback<IBeanDtosUpdate, List<IBeanDto>>) resultCallback;
+		}
+		else {
+			fail("Expected an updatable result callback");
+			return null;
+		}
+
 	}
 
 	private static interface ITestBean extends IBeanDto {

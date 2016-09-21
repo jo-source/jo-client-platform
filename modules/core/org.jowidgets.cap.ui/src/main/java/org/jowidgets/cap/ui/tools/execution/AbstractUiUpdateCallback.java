@@ -30,9 +30,10 @@ package org.jowidgets.cap.ui.tools.execution;
 
 import org.jowidgets.api.threads.IUiThreadAccess;
 import org.jowidgets.api.toolkit.Toolkit;
-import org.jowidgets.cap.common.api.execution.IUpdateCallback;
+import org.jowidgets.cap.common.api.execution.IUpdatableResultCallback;
 
-public abstract class AbstractUiUpdateCallback<RESULT_TYPE> implements IUpdateCallback<RESULT_TYPE> {
+public abstract class AbstractUiUpdateCallback<UPDATE_TYPE, RESULT_TYPE>
+		implements IUpdatableResultCallback<UPDATE_TYPE, RESULT_TYPE> {
 
 	private final IUiThreadAccess uiThreadAccess;
 
@@ -52,7 +53,7 @@ public abstract class AbstractUiUpdateCallback<RESULT_TYPE> implements IUpdateCa
 	 * 
 	 * @param result The result of the service
 	 */
-	protected abstract void updateUi(RESULT_TYPE result);
+	protected abstract void updateUi(UPDATE_TYPE result);
 
 	/**
 	 * The exception method that will be invoked in the UI thread
@@ -72,7 +73,7 @@ public abstract class AbstractUiUpdateCallback<RESULT_TYPE> implements IUpdateCa
 	}
 
 	@Override
-	public void update(final RESULT_TYPE result) {
+	public void update(final UPDATE_TYPE result) {
 		uiThreadAccess.invokeLater(new Runnable() {
 			@Override
 			public void run() {

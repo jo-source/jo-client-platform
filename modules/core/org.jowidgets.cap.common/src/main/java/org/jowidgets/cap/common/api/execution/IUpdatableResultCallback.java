@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, grossmann
+ * Copyright (c) 2016, grossmann, beuck
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,43 +26,25 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.common.tools.service;
+package org.jowidgets.cap.common.api.execution;
 
-import java.util.Collections;
-import java.util.List;
+/**
+ * Extends {@link IResultCallback} with the possibility
+ * to push updates for the initial result.
+ *
+ * @param <RESULT_TYPE> type of the result
+ * @param <UPDATE_TYPE> type of updates
+ */
+public interface IUpdatableResultCallback<UPDATE_TYPE, RESULT_TYPE> extends IResultCallback<RESULT_TYPE> {
 
-import org.jowidgets.cap.common.api.bean.IBeanDto;
-import org.jowidgets.cap.common.api.bean.IBeanKey;
-import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.cap.common.api.execution.IResultCallback;
-import org.jowidgets.cap.common.api.filter.IFilter;
-import org.jowidgets.cap.common.api.service.ILegacyReaderService;
-import org.jowidgets.cap.common.api.sort.ISort;
-
-public class LegacyDummyReaderService<PARAM_TYPE> implements ILegacyReaderService<PARAM_TYPE> {
-
-	@Override
-	public void read(
-		final IResultCallback<List<IBeanDto>> result,
-		final List<? extends IBeanKey> parentBeanKeys,
-		final IFilter filter,
-		final List<? extends ISort> sorting,
-		final int firstRow,
-		final int maxRows,
-		final PARAM_TYPE parameter,
-		final IExecutionCallback executionCallback) {
-		final List<IBeanDto> emptyList = Collections.emptyList();
-		result.finished(emptyList);
-	}
-
-	@Override
-	public void count(
-		final IResultCallback<Integer> result,
-		final List<? extends IBeanKey> parentBeanKeys,
-		final IFilter filter,
-		final PARAM_TYPE parameter,
-		final IExecutionCallback executionCallback) {
-		result.finished(Integer.valueOf(0));
-	}
+	/**
+	 * Allows to update results already finished results.
+	 * 
+	 * Updates must not occur before finished.
+	 * Updates must not occur after exceptions.
+	 * 
+	 * @param update the updated result
+	 */
+	void update(UPDATE_TYPE update);
 
 }

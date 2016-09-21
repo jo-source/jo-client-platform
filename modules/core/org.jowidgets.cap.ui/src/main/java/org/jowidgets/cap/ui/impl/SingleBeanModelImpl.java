@@ -53,7 +53,6 @@ import org.jowidgets.cap.common.api.service.IUpdaterService;
 import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.common.api.validation.IBeanValidator;
 import org.jowidgets.cap.common.tools.bean.BeanKey;
-import org.jowidgets.cap.common.tools.execution.BeanDtoListUpdateCallbackAdapter;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.AttributeSet;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
@@ -682,7 +681,7 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 
 			final List<ISort> emptySort = Collections.emptyList();
 			readerService.read(
-					new BeanDtoListUpdateCallbackAdapter(createResultCallback()),
+					createResultCallback(),
 					getParentBeanKeys(),
 					null,
 					emptySort,

@@ -57,7 +57,6 @@ import org.jowidgets.cap.common.api.service.IRefreshService;
 import org.jowidgets.cap.common.api.service.IUpdaterService;
 import org.jowidgets.cap.common.api.validation.IBeanValidator;
 import org.jowidgets.cap.common.tools.bean.BeanKey;
-import org.jowidgets.cap.common.tools.execution.BeanDtoListUpdateCallbackAdapter;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.AttributeSet;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
@@ -973,7 +972,7 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 
 			if (isLoadNeeded()) {
 				readerService.read(
-						new BeanDtoListUpdateCallbackAdapter(createResultCallback()),
+						createResultCallback(),
 						getParentBeanKeys(),
 						filter,
 						sortModel.getSorting(),

@@ -31,17 +31,15 @@ package org.jowidgets.cap.service.impl;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBeanDto;
-import org.jowidgets.cap.common.api.bean.IBeanDtosUpdate;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.cap.common.api.execution.IUpdateCallback;
+import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.sort.ISort;
-import org.jowidgets.cap.common.tools.bean.BeanDtosInsertionUpdate;
 import org.jowidgets.cap.service.api.adapter.ISyncReaderService;
 
-public final class ReaderServiceAdapter<PARAM_TYPE> implements IReaderService<PARAM_TYPE> {
+final class ReaderServiceAdapter<PARAM_TYPE> implements IReaderService<PARAM_TYPE> {
 
 	private final ISyncReaderService<PARAM_TYPE> syncReaderService;
 
@@ -51,7 +49,7 @@ public final class ReaderServiceAdapter<PARAM_TYPE> implements IReaderService<PA
 
 	@Override
 	public void read(
-		final IUpdateCallback<IBeanDtosUpdate> resultCallback,
+		final IResultCallback<List<IBeanDto>> resultCallback,
 		final List<? extends IBeanKey> parentBeanKeys,
 		final IFilter filter,
 		final List<? extends ISort> sorting,
@@ -59,6 +57,7 @@ public final class ReaderServiceAdapter<PARAM_TYPE> implements IReaderService<PA
 		final int maxRows,
 		final PARAM_TYPE parameter,
 		final IExecutionCallback executionCallback) {
+
 		try {
 			final List<IBeanDto> result = syncReaderService.read(
 					parentBeanKeys,
@@ -68,7 +67,7 @@ public final class ReaderServiceAdapter<PARAM_TYPE> implements IReaderService<PA
 					maxRows,
 					parameter,
 					executionCallback);
-			resultCallback.finished(new BeanDtosInsertionUpdate(result));
+			resultCallback.finished(result);
 		}
 		catch (final Exception exception) {
 			resultCallback.exception(exception);
@@ -77,11 +76,12 @@ public final class ReaderServiceAdapter<PARAM_TYPE> implements IReaderService<PA
 
 	@Override
 	public void count(
-		final IUpdateCallback<Integer> resultCallback,
+		final IResultCallback<Integer> resultCallback,
 		final List<? extends IBeanKey> parentBeanKeys,
 		final IFilter filter,
 		final PARAM_TYPE parameter,
 		final IExecutionCallback executionCallback) {
+
 		try {
 			final Integer result = syncReaderService.count(parentBeanKeys, filter, parameter, executionCallback);
 			resultCallback.finished(result);

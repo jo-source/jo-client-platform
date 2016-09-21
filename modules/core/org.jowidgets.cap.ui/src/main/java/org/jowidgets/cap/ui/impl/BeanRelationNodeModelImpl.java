@@ -62,7 +62,6 @@ import org.jowidgets.cap.common.api.service.IUpdaterService;
 import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.common.api.validation.IBeanValidator;
 import org.jowidgets.cap.common.tools.bean.BeanKey;
-import org.jowidgets.cap.common.tools.execution.BeanDtoListUpdateCallbackAdapter;
 import org.jowidgets.cap.common.tools.execution.ResultCallbackAdapter;
 import org.jowidgets.cap.common.tools.service.DummyReaderService;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
@@ -957,7 +956,7 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE>
 			addedData.add(dummyBean);
 
 			readerService.read(
-					new BeanDtoListUpdateCallbackAdapter(createResultCallback()),
+					createResultCallback(),
 					getParentBeanKeys(),
 					filter,
 					sortModel.getSorting(),

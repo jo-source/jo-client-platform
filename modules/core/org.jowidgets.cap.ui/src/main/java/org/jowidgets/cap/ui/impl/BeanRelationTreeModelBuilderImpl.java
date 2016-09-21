@@ -35,16 +35,14 @@ import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
-import org.jowidgets.cap.common.api.bean.IBeanDtosUpdate;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.cap.common.api.execution.IUpdateCallback;
+import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.sort.ISort;
-import org.jowidgets.cap.common.tools.bean.BeanDtosInsertionUpdate;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.model.LinkType;
@@ -64,9 +62,9 @@ import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.ITypedKey;
 
-final class BeanRelationTreeModelBuilderImpl<CHILD_BEAN_TYPE> extends
-		BeanRelationNodeModelBluePrint<CHILD_BEAN_TYPE, IBeanRelationTreeModelBuilder<CHILD_BEAN_TYPE>> implements
-		IBeanRelationTreeModelBuilder<CHILD_BEAN_TYPE> {
+final class BeanRelationTreeModelBuilderImpl<CHILD_BEAN_TYPE>
+		extends BeanRelationNodeModelBluePrint<CHILD_BEAN_TYPE, IBeanRelationTreeModelBuilder<CHILD_BEAN_TYPE>>
+		implements IBeanRelationTreeModelBuilder<CHILD_BEAN_TYPE> {
 
 	private final List<IBeanRelationNodeModelConfigurator> nodeConfigurators;
 
@@ -238,7 +236,7 @@ final class BeanRelationTreeModelBuilderImpl<CHILD_BEAN_TYPE> extends
 
 		@Override
 		public void read(
-			final IUpdateCallback<IBeanDtosUpdate> resultCallback,
+			final IResultCallback<List<IBeanDto>> resultCallback,
 			final List<? extends IBeanKey> parentBeanKeys,
 			final IFilter filter,
 			final List<? extends ISort> sorting,
@@ -260,7 +258,7 @@ final class BeanRelationTreeModelBuilderImpl<CHILD_BEAN_TYPE> extends
 					}
 				}
 
-				resultCallback.finished(new BeanDtosInsertionUpdate(result));
+				resultCallback.finished(result);
 			}
 			catch (final Exception e) {
 				resultCallback.exception(e);
@@ -282,7 +280,7 @@ final class BeanRelationTreeModelBuilderImpl<CHILD_BEAN_TYPE> extends
 
 		@Override
 		public void count(
-			final IUpdateCallback<Integer> resultCallback,
+			final IResultCallback<Integer> resultCallback,
 			final List<? extends IBeanKey> parentBeanKeys,
 			final IFilter filter,
 			final Void parameter,

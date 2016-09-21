@@ -42,7 +42,6 @@ import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.tools.execution.SyncResultCallback;
-import org.jowidgets.cap.common.tools.execution.UpdateCallbackAdapter;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.bean.IUniqueConstraintChecker;
 import org.jowidgets.cap.service.api.factory.IBeanServiceFactory;
@@ -75,12 +74,7 @@ final class UniqueConstraintCheckerImpl implements IUniqueConstraintChecker {
 		final IFilter filter = createFilter(beansData);
 		final SyncResultCallback<Integer> resultCallback = new SyncResultCallback<Integer>();
 		final List<IBeanKey> parentBeanKeys = Collections.emptyList();
-		this.readerService.count(
-				new UpdateCallbackAdapter<Integer>(resultCallback),
-				parentBeanKeys,
-				filter,
-				null,
-				executionCallback);
+		this.readerService.count(resultCallback, parentBeanKeys, filter, null, executionCallback);
 		final Integer result = resultCallback.getResultSynchronious();
 		if (result != null && result.intValue() > 0) {
 			throw new UniqueConstraintViolationException(propertyNames);
