@@ -2749,8 +2749,9 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 				@Override
 				public void finishedUi(final IBeanDtosUpdate result) {
 					if (!canceled && !executionTask.isCanceled()) {
-						if (result instanceof IBeanDtosInsertionUpdate)
+						if (result instanceof IBeanDtosInsertionUpdate) {
 							setResult(((IBeanDtosInsertionUpdate) result).getInsertedBeans());
+						}
 						else {
 							throw new UnsupportedOperationException("Only insertion updates are allowed on finish!");
 						}
