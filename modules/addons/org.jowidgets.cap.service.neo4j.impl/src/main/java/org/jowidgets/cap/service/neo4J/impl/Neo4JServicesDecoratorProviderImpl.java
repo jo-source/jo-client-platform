@@ -38,7 +38,7 @@ import java.util.Set;
 
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
-import org.jowidgets.cap.common.api.execution.IUpdateCallback;
+import org.jowidgets.cap.common.api.execution.IUpdatableResultCallback;
 import org.jowidgets.cap.common.tools.proxy.AbstractCapServiceInvocationHandler;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.exception.IServiceExceptionLogger;
@@ -176,12 +176,16 @@ final class Neo4JServicesDecoratorProviderImpl implements IServicesDecoratorProv
 			}
 		}
 
+		@SuppressWarnings("unchecked")
 		private IResultCallback<Object> createDecoratedResultCallback(
 			final IResultCallback<Object> original,
 			final IExecutionCallback executionCallback,
 			final Transaction tx) {
-			if (original instanceof IUpdateCallback<?>) {
-				return new DecoratedUpdateCallback((IUpdateCallback<Object>) original, executionCallback, tx);
+			if (original instanceof IUpdatableResultCallback<?, ?>) {
+				return new DecoratedUpdatableResultCallback(
+					(IUpdatableResultCallback<Object, Object>) original,
+					executionCallback,
+					tx);
 			}
 			else {
 				return new DecoratedResultCallback(original, executionCallback, tx);
@@ -256,12 +260,13 @@ final class Neo4JServicesDecoratorProviderImpl implements IServicesDecoratorProv
 
 		}
 
-		private final class DecoratedUpdateCallback extends DecoratedResultCallback implements IUpdateCallback<Object> {
+		private final class DecoratedUpdatableResultCallback extends DecoratedResultCallback implements
+				IUpdatableResultCallback<Object, Object> {
 
-			private final IUpdateCallback<Object> original;
+			private final IUpdatableResultCallback<Object, Object> original;
 
-			DecoratedUpdateCallback(
-				final IUpdateCallback<Object> original,
+			DecoratedUpdatableResultCallback(
+				final IUpdatableResultCallback<Object, Object> original,
 				final IExecutionCallback executionCallback,
 				final Transaction tx) {
 				super(original, executionCallback, tx);

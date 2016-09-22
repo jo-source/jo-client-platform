@@ -47,7 +47,7 @@ import org.jowidgets.cap.common.api.exception.ServiceCanceledException;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IExecutionCallbackListener;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
-import org.jowidgets.cap.common.api.execution.IUpdateCallback;
+import org.jowidgets.cap.common.api.execution.IUpdatableResultCallback;
 import org.jowidgets.cap.common.tools.proxy.AbstractCapServiceInvocationHandler;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.jpa.api.EntityManagerFactoryProvider;
@@ -187,7 +187,7 @@ final class CancelServicesDecoratorProviderImpl implements IServicesDecoratorPro
 		}
 
 		private IResultCallback<Object> createDecoratedResultCallback() {
-			if (resultCallback instanceof IUpdateCallback<?>) {
+			if (resultCallback instanceof IUpdatableResultCallback<?, ?>) {
 				return new DecoratedUpdateCallback();
 			}
 			else {
@@ -262,12 +262,13 @@ final class CancelServicesDecoratorProviderImpl implements IServicesDecoratorPro
 			}
 		}
 
-		private class DecoratedUpdateCallback extends DecoratedResultCallback implements IUpdateCallback<Object> {
+		private class DecoratedUpdateCallback extends DecoratedResultCallback implements IUpdatableResultCallback<Object, Object> {
 
+			@SuppressWarnings("unchecked")
 			@Override
 			public void update(final Object result) {
 				checkCanceled();
-				((IUpdateCallback<Object>) resultCallback).update(result);
+				((IUpdatableResultCallback<Object, Object>) resultCallback).update(result);
 			}
 
 		}

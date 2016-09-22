@@ -42,7 +42,7 @@ import javax.persistence.EntityTransaction;
 
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
-import org.jowidgets.cap.common.api.execution.IUpdateCallback;
+import org.jowidgets.cap.common.api.execution.IUpdatableResultCallback;
 import org.jowidgets.cap.common.tools.proxy.AbstractCapServiceInvocationHandler;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.exception.IServiceExceptionLogger;
@@ -204,15 +204,16 @@ final class JpaServicesDecoratorProviderImpl implements IServicesDecoratorProvid
 			}
 		}
 
+		@SuppressWarnings("unchecked")
 		private IResultCallback<Object> getDecoratedResultcCallback(
 			final IResultCallback<Object> resultCallback,
 			final IExecutionCallback executionCallback,
 			final Tuple<EntityManager, Boolean> entityManagerTuple,
 			final Tuple<EntityTransaction, Boolean> transactionTuple) {
 
-			if (resultCallback instanceof IUpdateCallback<?>) {
-				return new DecoratedUpdateCallback(
-					(IUpdateCallback<Object>) resultCallback,
+			if (resultCallback instanceof IUpdatableResultCallback<?, ?>) {
+				return new DecoratedUpdatableResultCallback(
+					(IUpdatableResultCallback<Object, Object>) resultCallback,
 					executionCallback,
 					entityManagerTuple,
 					transactionTuple);
@@ -366,17 +367,18 @@ final class JpaServicesDecoratorProviderImpl implements IServicesDecoratorProvid
 
 		}
 
-		private class DecoratedUpdateCallback extends DecoratedResultCallback implements IUpdateCallback<Object> {
+		private class DecoratedUpdatableResultCallback extends DecoratedResultCallback implements
+				IUpdatableResultCallback<Object, Object> {
 
-			private final IUpdateCallback<Object> updateCallback;
+			private final IUpdatableResultCallback<Object, Object> original;
 
-			DecoratedUpdateCallback(
-				final IUpdateCallback<Object> updateCallback,
+			DecoratedUpdatableResultCallback(
+				final IUpdatableResultCallback<Object, Object> original,
 				final IExecutionCallback executionCallback,
 				final Tuple<EntityManager, Boolean> entityManagerTuple,
 				final Tuple<EntityTransaction, Boolean> transactionTuple) {
-				super(updateCallback, executionCallback, entityManagerTuple, transactionTuple);
-				this.updateCallback = updateCallback;
+				super(original, executionCallback, entityManagerTuple, transactionTuple);
+				this.original = original;
 			}
 
 			@Override
@@ -408,7 +410,7 @@ final class JpaServicesDecoratorProviderImpl implements IServicesDecoratorProvid
 					exception(e);
 					return;
 				}
-				updateCallback.update(update);
+				original.update(update);
 			}
 
 		}

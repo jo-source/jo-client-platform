@@ -156,8 +156,7 @@ final class BeanListSaveDelegate<BEAN_TYPE> {
 						for (final IBeanProxy<BEAN_TYPE> bean : preparedBeans) {
 							beansData.add(createBeanData(bean));
 						}
-						final IResultCallback<List<IBeanDto>> helperCallback = executionHelper.createResultCallback(
-								preparedBeans);
+						final IResultCallback<List<IBeanDto>> helperCallback = executionHelper.createResultCallback(preparedBeans);
 						creatorService.create(helperCallback, parentBeansProvider.get(), beansData, executionTask);
 					}
 				}
@@ -200,8 +199,7 @@ final class BeanListSaveDelegate<BEAN_TYPE> {
 						for (final IBeanProxy<?> bean : preparedBeans) {
 							modifications.addAll(bean.getModifications());
 						}
-						final IResultCallback<List<IBeanDto>> helperCallback = executionHelper.createResultCallback(
-								preparedBeans);
+						final IResultCallback<List<IBeanDto>> helperCallback = executionHelper.createResultCallback(preparedBeans);
 						updaterService.update(helperCallback, modifications, executionTask);
 					}
 				}

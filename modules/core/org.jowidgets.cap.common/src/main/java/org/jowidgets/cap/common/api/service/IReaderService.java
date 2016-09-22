@@ -34,7 +34,6 @@ import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
-import org.jowidgets.cap.common.api.execution.IUpdatableResultCallback;
 import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.common.api.sort.ISort;
 
@@ -45,8 +44,8 @@ public interface IReaderService<PARAM_TYPE> {
 	 * 
 	 * This method returns directly and provides the result with help of the given
 	 * result callback. In case of success, a list of IBeanDto objects will be
-	 * returned to the callback with the {@link IUpdatableResultCallback#finished(Object)} method,
-	 * in case of an exception, the {@link IUpdatableResultCallback#exception(Throwable)} will be
+	 * returned to the callback with the {@link IResultCallback#finished(Object)} method,
+	 * in case of an exception, the {@link IResultCallback#exception(Throwable)} will be
 	 * invoked with the given exception.
 	 * 
 	 * @param result The result callback that will be invoked on success or error
