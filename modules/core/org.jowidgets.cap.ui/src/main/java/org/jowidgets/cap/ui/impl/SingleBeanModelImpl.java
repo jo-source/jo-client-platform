@@ -795,4 +795,27 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 
 	}
 
+	@Override
+	public void clearAddedData() {
+		// TODO implement
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void addBeans(final Collection<IBeanProxy<BEAN_TYPE>> beansToAdd) {
+		// TODO implement
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public List<IBeanProxy<BEAN_TYPE>> addBeanDtos(final Collection<? extends IBeanDto> beanDtos) {
+		// TODO implement
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public List<IBeanProxy<BEAN_TYPE>> updateBeans(final Collection<IBeanDto> beansToAdd) {
+		// TODO implement
+		throw new UnsupportedOperationException();
+	}
 }

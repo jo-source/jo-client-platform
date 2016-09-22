@@ -70,9 +70,8 @@ final class CancelServicesDecoratorProviderImpl implements IServicesDecoratorPro
 
 		this.entityManagerFactory = EntityManagerFactoryProvider.get(persistenceUnitName);
 		if (entityManagerFactory == null && !services.isEmpty()) {
-			throw new IllegalArgumentException("Could not create an EntityManagerFactory for persistence unit name '"
-				+ persistenceUnitName
-				+ "'.");
+			throw new IllegalArgumentException(
+				"Could not create an EntityManagerFactory for persistence unit name '" + persistenceUnitName + "'.");
 		}
 
 		this.services = new HashSet<Class<?>>(services);
@@ -115,7 +114,8 @@ final class CancelServicesDecoratorProviderImpl implements IServicesDecoratorPro
 		}
 
 		@Override
-		protected Object invokeSyncSignature(final Method method, final Object[] args, final IExecutionCallback executionCallback) throws Throwable {
+		protected Object invokeSyncSignature(final Method method, final Object[] args, final IExecutionCallback executionCallback)
+				throws Throwable {
 			try {
 				return method.invoke(original, args);
 			}
@@ -262,13 +262,25 @@ final class CancelServicesDecoratorProviderImpl implements IServicesDecoratorPro
 			}
 		}
 
-		private class DecoratedUpdateCallback extends DecoratedResultCallback implements IUpdatableResultCallback<Object, Object> {
+		private class DecoratedUpdateCallback extends DecoratedResultCallback
+				implements IUpdatableResultCallback<Object, Object> {
 
 			@SuppressWarnings("unchecked")
 			@Override
 			public void update(final Object result) {
 				checkCanceled();
 				((IUpdatableResultCallback<Object, Object>) resultCallback).update(result);
+			}
+
+			@Override
+			public void updatesFinished() {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void exceptionOnUpdate(final Throwable exception) {
+				// TODO Auto-generated method stub
 			}
 
 		}

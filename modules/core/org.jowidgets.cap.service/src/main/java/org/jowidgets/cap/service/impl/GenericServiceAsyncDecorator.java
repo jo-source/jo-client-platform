@@ -239,5 +239,16 @@ final class GenericServiceAsyncDecorator implements IDecorator<Object> {
 			}
 		}
 
+		@Override
+		public void updatesFinished() {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void exceptionOnUpdate(final Throwable exception) {
+			// TODO Auto-generated method stub
+		}
+
 	}
 }

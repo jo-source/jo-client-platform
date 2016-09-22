@@ -56,7 +56,7 @@ import org.jowidgets.util.IProvider;
 
 @SuppressWarnings("deprecation")
 final class BeanTableModelBuilderImpl<BEAN_TYPE> extends
-		AbstractBeanModelBuilderImpl<BEAN_TYPE, IBeanTableModelBuilder<BEAN_TYPE>> implements IBeanTableModelBuilder<BEAN_TYPE> {
+		AbstractBeanModelBuilderImpl<BEAN_TYPE, IBeanTableModelBuilder<BEAN_TYPE>>implements IBeanTableModelBuilder<BEAN_TYPE> {
 
 	private static final int DEFAULT_PAGE_SIZE = 1000;
 
@@ -71,6 +71,7 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> extends
 	private boolean autoSelection;
 	private boolean clearOnEmptyFilter;
 	private boolean lastBeanEnabled;
+	private boolean useSortedUpdates;
 	private boolean useLastModificationAsDefault;
 	private Boolean clearOnEmptyParentBeans;
 	private int pageSize;
@@ -218,6 +219,12 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> extends
 	}
 
 	@Override
+	public IBeanTableModelBuilder<BEAN_TYPE> setUseSortedUpdates(final boolean useSortedUpdates) {
+		this.useSortedUpdates = useSortedUpdates;
+		return this;
+	}
+
+	@Override
 	public IBeanTableModelBuilder<BEAN_TYPE> setUseLastModificationForDefault(final boolean useLastModificationForDefault) {
 		this.useLastModificationAsDefault = useLastModificationForDefault;
 		return this;
@@ -310,6 +317,7 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> extends
 			clearOnEmptyFilter,
 			getClearOnEmptyParentBeans(),
 			lastBeanEnabled,
+			useSortedUpdates,
 			useLastModificationAsDefault,
 			saveExecutionPolicy,
 			pageSize,

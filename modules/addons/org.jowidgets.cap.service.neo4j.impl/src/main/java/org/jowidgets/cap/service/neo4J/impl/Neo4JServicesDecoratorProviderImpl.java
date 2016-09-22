@@ -112,7 +112,8 @@ final class Neo4JServicesDecoratorProviderImpl implements IServicesDecoratorProv
 		}
 
 		@Override
-		protected Object invokeSyncSignature(final Method method, final Object[] args, final IExecutionCallback executionCallback) throws Throwable {
+		protected Object invokeSyncSignature(final Method method, final Object[] args, final IExecutionCallback executionCallback)
+				throws Throwable {
 			if (transactionalService) {
 				final Transaction tx = GraphDBConfig.getGraphDbService().beginTx();
 				try {
@@ -260,8 +261,8 @@ final class Neo4JServicesDecoratorProviderImpl implements IServicesDecoratorProv
 
 		}
 
-		private final class DecoratedUpdatableResultCallback extends DecoratedResultCallback implements
-				IUpdatableResultCallback<Object, Object> {
+		private final class DecoratedUpdatableResultCallback extends DecoratedResultCallback
+				implements IUpdatableResultCallback<Object, Object> {
 
 			private final IUpdatableResultCallback<Object, Object> original;
 
@@ -276,6 +277,17 @@ final class Neo4JServicesDecoratorProviderImpl implements IServicesDecoratorProv
 			@Override
 			public void update(final Object result) {
 				original.update(result);
+			}
+
+			@Override
+			public void updatesFinished() {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void exceptionOnUpdate(final Throwable exception) {
+				// TODO Auto-generated method stub
 			}
 
 		}

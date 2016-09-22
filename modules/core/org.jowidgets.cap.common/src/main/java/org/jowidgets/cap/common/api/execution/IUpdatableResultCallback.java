@@ -47,4 +47,8 @@ public interface IUpdatableResultCallback<UPDATE_TYPE, RESULT_TYPE> extends IRes
 	 */
 	void update(UPDATE_TYPE update);
 
+	void updatesFinished();
+
+	void exceptionOnUpdate(Throwable exception);
+
 }

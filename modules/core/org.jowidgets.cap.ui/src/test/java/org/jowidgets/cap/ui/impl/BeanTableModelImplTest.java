@@ -49,6 +49,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.common.api.bean.IBeanDtosClearUpdate;
 import org.jowidgets.cap.common.api.bean.IBeanDtosUpdate;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
@@ -59,8 +60,6 @@ import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.common.api.sort.SortOrder;
 import org.jowidgets.cap.common.tools.bean.BeanDtosChangeUpdate;
-import org.jowidgets.cap.common.tools.bean.BeanDtosClearUpdate;
-import org.jowidgets.cap.common.tools.bean.BeanDtosDeletionUpdate;
 import org.jowidgets.cap.common.tools.bean.BeanDtosInsertionUpdate;
 import org.jowidgets.cap.common.tools.sort.Sort;
 import org.jowidgets.cap.ui.api.attribute.Attribute;
@@ -106,7 +105,8 @@ public class BeanTableModelImplTest {
 		tableModel = ((BeanTableModelImpl<BeanTableModelImplTest.ITestBean>) new BeanTableModelBuilderImpl<BeanTableModelImplTest.ITestBean>(
 			entityId,
 			beanTypeId,
-			ITestBean.class).setReaderService(readerService).setAttributes(Arrays.asList(attribute)).build());
+			ITestBean.class).setReaderService(readerService).setUseSortedUpdates(true).setAttributes(
+					Arrays.asList(attribute)).build());
 	}
 
 	private IAttribute<?> createAttribute() {
@@ -279,21 +279,6 @@ public class BeanTableModelImplTest {
 	}
 
 	@Test
-	public void testBeanDeletionUpdate() {
-		tableModel.load();
-
-		triggerPageLoading();
-		final IUpdatableResultCallback<IBeanDtosUpdate, List<IBeanDto>> updatableCallback = assertUpdatableResultCallback(
-				resultCallback);
-		updatableCallback.finished(new ArrayList<IBeanDto>());
-		updatableCallback.update(new BeanDtosInsertionUpdate(Arrays.asList((IBeanDto) bean1, (IBeanDto) bean2)));
-		updatableCallback.update(new BeanDtosDeletionUpdate(Arrays.asList(bean1.getId())));
-
-		final int size = tableModel.getSize();
-		assertTrue("Exactly one bean should be remaining after deletion update, but was " + size, size == 1);
-	}
-
-	@Test
 	public void testBeanChangeUpdate() {
 		tableModel.getSortModel().setCurrentSorting(Arrays.asList(new ISort() {
 			@Override
@@ -366,7 +351,7 @@ public class BeanTableModelImplTest {
 				resultCallback);
 		updatableCallback.finished(new ArrayList<IBeanDto>());
 		updatableCallback.update(new BeanDtosInsertionUpdate(Arrays.asList((IBeanDto) bean1, (IBeanDto) bean2)));
-		updatableCallback.update(new BeanDtosClearUpdate());
+		updatableCallback.update(new IBeanDtosClearUpdate() {});
 
 		final int size = tableModel.getSize();
 		assertTrue("table should be clear but " + size + " bean(s) remained", size == 0);

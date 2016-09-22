@@ -30,16 +30,15 @@ package org.jowidgets.cap.ui.api.model;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.jowidgets.api.command.IEnabledChecker;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
 
-public interface IBeanListModel<BEAN_TYPE> extends
-		IBeanListModelObservable<BEAN_TYPE>,
-		IBeanListModelBeansObservable<BEAN_TYPE>,
-		IBeanSelectionProvider<BEAN_TYPE> {
+public interface IBeanListModel<BEAN_TYPE>
+		extends IBeanListModelObservable<BEAN_TYPE>, IBeanListModelBeansObservable<BEAN_TYPE>, IBeanSelectionProvider<BEAN_TYPE> {
 
 	int getSize();
 
@@ -49,9 +48,17 @@ public interface IBeanListModel<BEAN_TYPE> extends
 
 	void removeAllBeans();
 
+	void clearAddedData();
+
 	void addBean(IBeanProxy<BEAN_TYPE> bean);
 
+	void addBeans(final Collection<IBeanProxy<BEAN_TYPE>> beansToAdd);
+
 	IBeanProxy<BEAN_TYPE> addBeanDto(IBeanDto beanDto);
+
+	List<IBeanProxy<BEAN_TYPE>> addBeanDtos(final Collection<? extends IBeanDto> beanDtos);
+
+	List<IBeanProxy<BEAN_TYPE>> updateBeans(final Collection<IBeanDto> beansToAdd);
 
 	IBeanProxy<BEAN_TYPE> addTransientBean();
 

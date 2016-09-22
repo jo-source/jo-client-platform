@@ -1073,4 +1073,28 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE>
 
 	}
 
+	@Override
+	public void clearAddedData() {
+		// TODO test
+		addedData.clear();
+	}
+
+	@Override
+	public void addBeans(final Collection<IBeanProxy<CHILD_BEAN_TYPE>> beansToAdd) {
+		// TODO implement
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public List<IBeanProxy<CHILD_BEAN_TYPE>> addBeanDtos(final Collection<? extends IBeanDto> beanDtos) {
+		// TODO implement
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public List<IBeanProxy<CHILD_BEAN_TYPE>> updateBeans(final Collection<IBeanDto> beansToAdd) {
+		// TODO implement
+		throw new UnsupportedOperationException();
+	}
+
 }

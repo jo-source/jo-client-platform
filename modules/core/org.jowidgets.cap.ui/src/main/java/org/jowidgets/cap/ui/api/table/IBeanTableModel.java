@@ -57,11 +57,8 @@ import org.jowidgets.cap.ui.api.sort.ISortModel;
 import org.jowidgets.util.Interval;
 import org.jowidgets.util.event.IChangeListener;
 
-public interface IBeanTableModel<BEAN_TYPE> extends
-		IDataModel,
-		IDataModelContextProvider,
-		IBeanListModel<BEAN_TYPE>,
-		IDisposeObservable {
+public interface IBeanTableModel<BEAN_TYPE>
+		extends IDataModel, IDataModelContextProvider, IBeanListModel<BEAN_TYPE>, IDisposeObservable {
 
 	String UI_FILTER_ID = IBeanTableModel.class.getName() + ".UI_FILTER_ID";
 	String UI_SEARCH_FILTER_ID = IBeanTableModel.class.getName() + ".UI_SEARCH_FILTER_ID";
@@ -134,6 +131,10 @@ public interface IBeanTableModel<BEAN_TYPE> extends
 	IUpdaterService getUpdaterService();
 
 	IReaderService<Object> getReaderService();
+
+	boolean isUpdateRunning();
+
+	void cancelUpdates();
 
 	/**
 	 * Creates a reader that could be used to read the beans from a table externally.

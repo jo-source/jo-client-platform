@@ -31,6 +31,7 @@ package org.jowidgets.cap.ui.impl;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -67,7 +68,6 @@ import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanDtosChangeUpdate;
 import org.jowidgets.cap.common.api.bean.IBeanDtosClearUpdate;
-import org.jowidgets.cap.common.api.bean.IBeanDtosDeletionUpdate;
 import org.jowidgets.cap.common.api.bean.IBeanDtosInsertionUpdate;
 import org.jowidgets.cap.common.api.bean.IBeanDtosUpdate;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
@@ -276,6 +276,9 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	private Integer scheduledLoadDelay;
 	private boolean disposed;
 	private boolean lastBeanEnabled;
+	private boolean useSortedUpdates;
+
+	private IExecutionTask currentUpdateTask = null;
 
 	@SuppressWarnings("unchecked")
 	BeanTableModelImpl(
@@ -305,6 +308,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		final boolean clearOnEmptyFilter,
 		final boolean clearOnEmptyParentBeans,
 		final boolean lastBeanEnabled,
+		final boolean useSortedUpdates,
 		final boolean useLastModificationAsDefault,
 		final BeanExecutionPolicy saveExecutionPolicy,
 		final int pageSize,
@@ -388,6 +392,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		this.onSetConfig = false;
 		this.exceptionConverter = exceptionConverter;
 		this.useLastModificationAsDefault = useLastModificationAsDefault;
+		this.useSortedUpdates = useSortedUpdates;
 
 		this.filters = new HashMap<String, IUiFilter>();
 		this.data = new HashMap<Integer, ArrayList<IBeanProxy<BEAN_TYPE>>>();
@@ -548,7 +553,9 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 						}
 						final IBeanProxy<BEAN_TYPE> beanToAdd = lastBean;
 						beanToAdd.clearLastRowDummyState();
-						addBeanImpl(beanToAdd, false);
+						@SuppressWarnings("unchecked")
+						final List<IBeanProxy<BEAN_TYPE>> beanAsList = Arrays.asList(beanToAdd);
+						unsortedAddBeans(beanAsList);
 						lastBean = null;
 						addLastBean();
 					}
@@ -927,6 +934,19 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		return loadingPageLoader != null && !loadingPageLoader.isDisposed();
 	}
 
+	@Override
+	public boolean isUpdateRunning() {
+		return currentUpdateTask != null;
+	}
+
+	@Override
+	public void cancelUpdates() {
+		if (currentUpdateTask != null) {
+			currentUpdateTask.cancel();
+			currentUpdateTask = null;
+		}
+	}
+
 	private PageLoader getLoadingPageLoader(final int pageIndex) {
 		final boolean even = pageIndex % 2 == 0;
 		if (even && evenPageLoader != null && !evenPageLoader.isDisposed()) {
@@ -1259,12 +1279,20 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	@Override
 	public void addBean(final IBeanProxy<BEAN_TYPE> bean) {
 		Assert.paramNotNull(bean, "bean");
-		addBeanImpl(bean, true);
+
+		@SuppressWarnings("unchecked")
+		final List<IBeanProxy<BEAN_TYPE>> beanAsList = Arrays.asList(bean);
+
+		addBeans(beanAsList);
+
 		beanListModelObservable.fireBeansAdded(bean);
 		beanListModelObservable.fireBeansChanged();
 	}
 
-	public void addBeanDtos(final Collection<IBeanDto> beanDtos, final boolean sorted, final boolean mightContainUpdates) {
+	@Override
+	public List<IBeanProxy<BEAN_TYPE>> addBeanDtos(final Collection<? extends IBeanDto> beanDtos) {
+		Assert.paramNotNull(beanDtos, "beanDtos");
+
 		final List<IBeanProxy<BEAN_TYPE>> proxies = new ArrayList<IBeanProxy<BEAN_TYPE>>(beanDtos.size());
 
 		for (final IBeanDto beanDto : beanDtos) {
@@ -1272,108 +1300,121 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			proxies.add(beanProxy);
 		}
 
-		addBeans(proxies, sorted, mightContainUpdates);
+		addBeans(proxies);
+
+		return proxies;
 	}
 
-	public void addBeans(
-		final Collection<IBeanProxy<BEAN_TYPE>> beansToAdd,
-		final boolean sorted,
-		final boolean mightContainUpdates) {
-		final List<IBeanProxy<BEAN_TYPE>> selectedBeans = getSelectedBeans();
-		final List<Integer> newSelection = new LinkedList<Integer>();
-
-		if (mightContainUpdates) {
-			// TODO removeBeansFromData(new HashSet<IBeanProxy<BEAN_TYPE>>(selectedBeans), newSelection, beans);
-			removeBeansFromAddedData(new HashSet<IBeanProxy<BEAN_TYPE>>(selectedBeans), newSelection, beansToAdd);
-		}
-
-		if (sorted) {
-			final Comparator<IBeanDto> comparator = BeanDtoComparator.create(sortModel.getSorting());
-			final List<IBeanProxy<BEAN_TYPE>> beansToDeregister = new LinkedList<IBeanProxy<BEAN_TYPE>>();
-			final ListIterator<IBeanProxy<BEAN_TYPE>> addedDataIterator = addedData.listIterator();
-			for (final IBeanProxy<BEAN_TYPE> bean : beansToAdd) {
-				boolean doAdd = true;
-				while (addedDataIterator.hasNext()) {
-					final IBeanProxy<BEAN_TYPE> nextBean = addedDataIterator.next();
-					final int compare = comparator.compare(bean, nextBean);
-					if (compare < 0) {
-						addedDataIterator.previous();
-						break;
-					}
-					else if (compare == 0 && bean.getId().equals(nextBean.getId())) {
-						beansToDeregister.add(nextBean);
-						addedDataIterator.set(bean);
-						doAdd = false;
-						break;
-					}
-				}
-				if (doAdd) {
-					addedDataIterator.add(bean);
-				}
-			}
-			beansStateTracker.unregister(beansToDeregister);
+	@Override
+	public void addBeans(final Collection<IBeanProxy<BEAN_TYPE>> beansToAdd) {
+		if (useSortedUpdates) {
+			sortedAddBeans(beansToAdd);
 		}
 		else {
-			for (final IBeanProxy<BEAN_TYPE> bean : beansToAdd) {
-				addedData.add(bean);
-				final int index = dataModel.getRowCount() - dataModel.getLastBeanCount() - 1;
-				bean.addPropertyChangeListener(new BeanPropertyChangeListener(index));
-			}
+			unsortedAddBeans(beansToAdd);
 		}
 
+		fireBeansChanged();
+
+		beanListModelObservable.fireBeansAdded(beansToAdd);
+		beanListModelObservable.fireBeansChanged();
+	}
+
+	private void unsortedAddBeans(final Collection<IBeanProxy<BEAN_TYPE>> beansToAdd) {
+		for (final IBeanProxy<BEAN_TYPE> bean : beansToAdd) {
+			addedData.add(bean);
+			final int index = dataModel.getRowCount() - dataModel.getLastBeanCount() - 1;
+			bean.addPropertyChangeListener(new BeanPropertyChangeListener(index));
+		}
+		beansStateTracker.register(beansToAdd);
+		cachedReaderService.addBeans(getParentBeanKeys(), new HashSet<IBeanProxy<BEAN_TYPE>>(beansToAdd));
+	}
+
+	private void sortedAddBeans(final Collection<IBeanProxy<BEAN_TYPE>> beansToAdd) {
+		final List<IBeanProxy<BEAN_TYPE>> selectedBeans = getSelectedBeans();
+		final Comparator<IBeanDto> comparator = BeanDtoComparator.create(sortModel.getSorting());
+
+		final ListIterator<IBeanProxy<BEAN_TYPE>> addedDataIterator = addedData.listIterator();
+		for (final IBeanProxy<BEAN_TYPE> bean : beansToAdd) {
+			while (addedDataIterator.hasNext()) {
+				final IBeanProxy<BEAN_TYPE> nextBean = addedDataIterator.next();
+
+				final int compare = comparator.compare(bean, nextBean);
+				if (compare < 0) {
+					addedDataIterator.previous();
+					break;
+				}
+			}
+			addedDataIterator.add(bean);
+			final int rowIndex = dataModel.getRowCount() + addedDataIterator.previousIndex();
+			bean.addPropertyChangeListener(new BeanPropertyChangeListener(rowIndex));
+		}
 		beansStateTracker.register(beansToAdd);
 		cachedReaderService.addBeans(getParentBeanKeys(), new HashSet<IBeanProxy<BEAN_TYPE>>(beansToAdd));
 		setSelectedBeans(selectedBeans);
 	}
 
+	@Override
 	public void clearAddedData() {
 		for (final IBeanProxy<BEAN_TYPE> bean : addedData) {
 			beansStateTracker.unregister(bean);
 		}
+
+		final Set<IBeanProxy<BEAN_TYPE>> removedBeans = new HashSet<IBeanProxy<BEAN_TYPE>>(addedData);
+		final List<IBeanProxy<BEAN_TYPE>> selectedBeans = new ArrayList<IBeanProxy<BEAN_TYPE>>(getSelectedBeans());
+		selectedBeans.removeAll(removedBeans);
+
 		lastSelectedBeans.removeAll(addedData);
 		addedData.clear();
-	}
 
-	public void removeBeansByKey(final List<Object> idsToRemove) {
-		final List<IBeanProxy<BEAN_TYPE>> selectedBeans = new ArrayList<IBeanProxy<BEAN_TYPE>>(getSelectedBeans());
-
-		final ListIterator<IBeanProxy<BEAN_TYPE>> listIterator = addedData.listIterator();
-		while (listIterator.hasNext()) {
-			final IBeanProxy<BEAN_TYPE> next = listIterator.next();
-			if (idsToRemove.contains(next.getBeanKey().getId())) {
-				listIterator.remove();
-				beansStateTracker.unregister(next);
-				selectedBeans.remove(next);
-			}
-		}
-
+		cachedReaderService.removeBeans(getParentBeanKeys(), removedBeans);
 		setSelectedBeans(selectedBeans);
-	}
 
-	private void addBeanImpl(final IBeanProxy<BEAN_TYPE> bean, final boolean fireBeansChanged) {
-		addedData.add(bean);
-		final int index = dataModel.getRowCount() - dataModel.getLastBeanCount() - 1;
-		bean.addPropertyChangeListener(new BeanPropertyChangeListener(index));
-		beansStateTracker.register(bean);
-		cachedReaderService.addBean(getParentBeanKeys(), bean);
-		if (fireBeansChanged) {
-			fireBeansChanged();
-		}
+		fireBeansChanged();
+
+		beanListModelObservable.fireBeansRemoved(removedBeans);
+		beanListModelObservable.fireBeansChanged();
 	}
 
 	@Override
 	public IBeanProxy<BEAN_TYPE> addBeanDto(final IBeanDto beanDto) {
 		Assert.paramNotNull(beanDto, "beanDto");
-		final IBeanProxy<BEAN_TYPE> addedBeanProxy = addBeanDtoImpl(beanDto, true);
-		beanListModelObservable.fireBeansAdded(addedBeanProxy);
-		beanListModelObservable.fireBeansChanged();
+		final IBeanProxy<BEAN_TYPE> addedBeanProxy = addBeanDtos(Arrays.asList(beanDto)).get(0);
 		return addedBeanProxy;
 	}
 
-	private IBeanProxy<BEAN_TYPE> addBeanDtoImpl(final IBeanDto beanDto, final boolean fireBeansChanged) {
-		final IBeanProxy<BEAN_TYPE> result = createBeanProxy(beanDto);
-		addBeanImpl(result, fireBeansChanged);
-		return result;
+	@Override
+	public List<IBeanProxy<BEAN_TYPE>> updateBeans(final Collection<IBeanDto> beansToAdd) {
+
+		final List<IBeanProxy<BEAN_TYPE>> updatedProxies = new ArrayList<IBeanProxy<BEAN_TYPE>>();
+
+		final Map<Object, IBeanDto> updatesById = new HashMap<Object, IBeanDto>();
+		for (final IBeanDto beanUpdate : beansToAdd) {
+			updatesById.put(beanUpdate.getId(), beanUpdate);
+		}
+
+		// TODO update beans in dataModel
+
+		// update added data
+		for (final IBeanProxy<BEAN_TYPE> beanProxy : addedData) {
+			final IBeanDto update = updatesById.get(beanProxy.getId());
+			if (update != null) {
+				beanProxy.update(update);
+				updatedProxies.add(beanProxy);
+			}
+		}
+
+		if (useSortedUpdates) {
+			final List<IBeanProxy<BEAN_TYPE>> selectedBeans = getSelectedBeans();
+			Collections.sort(addedData, BeanDtoComparator.create(sortModel.getSorting()));
+			setSelectedBeans(selectedBeans);
+		}
+
+		fireBeansChanged();
+
+		beanListModelObservable.fireBeansChanged();
+
+		return updatedProxies;
 	}
 
 	@Override
@@ -1384,10 +1425,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 		final List<IBeanProxy<BEAN_TYPE>> removedBeans = removeBeansImpl(beansToRemove, false);
 
-		final List<IBeanProxy<BEAN_TYPE>> addedBeans = new LinkedList<IBeanProxy<BEAN_TYPE>>();
-		for (final IBeanDto bean : beansToAdd) {
-			addedBeans.add(addBeanDtoImpl(bean, false));
-		}
+		final List<IBeanProxy<BEAN_TYPE>> addedBeans = addBeanDtos(beansToAdd);
 
 		boolean changed = false;
 		if (removedBeans.size() > 0) {
@@ -2640,7 +2678,6 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		}
 
 		void startPageLoading() {
-
 			dummyBeanProxy = beanProxyFactory.createDummyProxy();
 			executionTask = CapUiToolkit.executionTaskFactory().create();
 			executionTask.setDescription(LOADING_DATA.get());
@@ -2713,6 +2750,9 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		}
 
 		void readDataFromService() {
+			cancelUpdates();
+			currentUpdateTask = executionTask;
+
 			cachedReaderService.read(
 					createUpdateCallback(),
 					getParentBeanKeys(),
@@ -2760,14 +2800,10 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 				@Override
 				protected void updateUi(final IBeanDtosUpdate update) {
 					if (update instanceof IBeanDtosInsertionUpdate) {
-						addBeanDtos(((IBeanDtosInsertionUpdate) update).getInsertedBeans(), true, false);
-					}
-					else if (update instanceof IBeanDtosDeletionUpdate) {
-						removeBeansByKey(((IBeanDtosDeletionUpdate) update).getDeletedBeanIds());
+						addBeanDtos(((IBeanDtosInsertionUpdate) update).getInsertedBeans());
 					}
 					else if (update instanceof IBeanDtosChangeUpdate) {
-						((IBeanDtosChangeUpdate) update).getChangedBeans();
-						addBeanDtos(((IBeanDtosChangeUpdate) update).getChangedBeans(), true, true);
+						updateBeans(((IBeanDtosChangeUpdate) update).getChangedBeans());
 					}
 					else if (update instanceof IBeanDtosClearUpdate) {
 						clearAddedData();
@@ -2781,6 +2817,15 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 					fireSelectionChanged();
 				}
 
+				@Override
+				public void updatesFinished() {
+					currentUpdateTask = null;
+				}
+
+				@Override
+				public void exceptionOnUpdate(final Throwable exception) {
+					// TODO Auto-generated method stub
+				}
 			};
 		}
 
