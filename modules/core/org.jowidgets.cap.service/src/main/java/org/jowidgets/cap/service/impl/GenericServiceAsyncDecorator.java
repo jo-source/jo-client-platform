@@ -241,13 +241,16 @@ final class GenericServiceAsyncDecorator implements IDecorator<Object> {
 
 		@Override
 		public void updatesFinished() {
-			// TODO Auto-generated method stub
-
+			if (!getExecutionCallback().isCanceled()) {
+				original.updatesFinished();
+			}
 		}
 
 		@Override
 		public void exceptionOnUpdate(final Throwable exception) {
-			// TODO Auto-generated method stub
+			if (!getExecutionCallback().isCanceled()) {
+				original.exceptionOnUpdate(exception);
+			}
 		}
 
 	}

@@ -272,15 +272,18 @@ final class CancelServicesDecoratorProviderImpl implements IServicesDecoratorPro
 				((IUpdatableResultCallback<Object, Object>) resultCallback).update(result);
 			}
 
+			@SuppressWarnings("unchecked")
 			@Override
 			public void updatesFinished() {
-				// TODO Auto-generated method stub
-
+				checkCanceled();
+				((IUpdatableResultCallback<Object, Object>) resultCallback).updatesFinished();
 			}
 
+			@SuppressWarnings("unchecked")
 			@Override
 			public void exceptionOnUpdate(final Throwable exception) {
-				// TODO Auto-generated method stub
+				checkCanceled();
+				((IUpdatableResultCallback<Object, Object>) resultCallback).exceptionOnUpdate(exception);
 			}
 
 		}

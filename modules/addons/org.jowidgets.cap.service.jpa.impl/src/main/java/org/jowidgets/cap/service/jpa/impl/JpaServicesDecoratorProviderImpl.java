@@ -417,13 +417,12 @@ final class JpaServicesDecoratorProviderImpl implements IServicesDecoratorProvid
 
 			@Override
 			public void updatesFinished() {
-				// TODO Auto-generated method stub
-
+				original.updatesFinished();
 			}
 
 			@Override
 			public void exceptionOnUpdate(final Throwable exception) {
-				// TODO Auto-generated method stub
+				original.exceptionOnUpdate(exception);
 			}
 
 		}
