@@ -2799,6 +2799,10 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 				@Override
 				protected void updateUi(final IBeanDtosUpdate update) {
+					if (canceled || currentUpdateTask != executionTask) {
+						return;
+					}
+
 					if (update instanceof IBeanDtosInsertionUpdate) {
 						addBeanDtos(((IBeanDtosInsertionUpdate) update).getInsertedBeans());
 					}
