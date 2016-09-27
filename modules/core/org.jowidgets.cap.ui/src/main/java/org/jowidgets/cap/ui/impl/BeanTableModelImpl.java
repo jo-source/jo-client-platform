@@ -2828,7 +2828,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 				@Override
 				public void exceptionOnUpdate(final Throwable exception) {
-					// TODO Auto-generated method stub
+					LOGGER.warn("Exception on update: ", exception);
 				}
 			};
 		}
@@ -2970,14 +2970,21 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 				schedule.cancel(false);
 				schedule = null;
 			}
-			dummyBeanProxy.setExecutionTask(null);
-			final IBeanMessageBuilder beanMessageBuilder = CapUiToolkit.beanMessageBuilder(BeanMessageType.WARNING);
-			beanMessageBuilder.setShortMessage(LOADING_DATA.get());
-			beanMessageBuilder.setMessage(USER_CANCELED.get());
-			dummyBeanProxy.addMessage(beanMessageBuilder.build());
-			programmaticPageLoader.remove(pageIndex);
-			finished = true;
-			dataModel.fireDataChanged();
+
+			if (!finished) {
+				dummyBeanProxy.setExecutionTask(null);
+				final IBeanMessageBuilder beanMessageBuilder = CapUiToolkit.beanMessageBuilder(BeanMessageType.WARNING);
+				beanMessageBuilder.setShortMessage(LOADING_DATA.get());
+				beanMessageBuilder.setMessage(USER_CANCELED.get());
+				dummyBeanProxy.addMessage(beanMessageBuilder.build());
+				programmaticPageLoader.remove(pageIndex);
+				finished = true;
+				dataModel.fireDataChanged();
+			}
+			else {
+				// Nothing to do here, because the dummy bean proxy is long gone. 
+				// The only thing being canceled here are potential updates.
+			}
 		}
 
 		void doCallbackSuccess() {
