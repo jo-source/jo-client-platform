@@ -118,7 +118,8 @@ public class BeanTableModelImplTest {
 	}
 
 	private void loadAllBeansAtOnce() {
-		countCallback.finished(Integer.valueOf(3));
+		// countCallback.finished(Integer.valueOf(3));
+		countCallback.finished(null);
 
 		if (!mostRecentSorting.isEmpty() && mostRecentSorting.get(0).getSortOrder().equals(SortOrder.DESC)) {
 			resultCallback.finished(Arrays.asList((IBeanDto) bean3, (IBeanDto) bean2, (IBeanDto) bean1));
@@ -189,7 +190,8 @@ public class BeanTableModelImplTest {
 		triggerPageLoading();
 		loadAllBeansAtOnce();
 
-		assertTrue("3 beans should be loaded", tableModel.getSize() == 3);
+		final int size = tableModel.getSize();
+		assertTrue("3 beans should be loaded but table model size is " + size, size == 3);
 	}
 
 	@Test
@@ -213,7 +215,7 @@ public class BeanTableModelImplTest {
 		tableModel.setSelection(Arrays.asList(0, 2));
 		final List<IBeanProxy<ITestBean>> selectedBeans = tableModel.getSelectedBeans();
 
-		assertTrue("2 beans should be selected", selectedBeans.size() == 2);
+		assertTrue("2 beans should be selected, but selection size is " + selectedBeans.size(), selectedBeans.size() == 2);
 		assertEquals("Bean1 should be selected!", bean1, selectedBeans.get(0).getBean());
 		assertEquals("Bean3 should be selected!", bean3, selectedBeans.get(1).getBean());
 	}
