@@ -65,13 +65,14 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> extends
 	private String entityLabelSingular;
 	private String entityLabelPlural;
 
+	private boolean addUpdatesSorted;
 	private boolean autoRefreshSelection;
 	private boolean autoDisposeInvisiblePages;
 	private boolean autoRowCount;
 	private boolean autoSelection;
 	private boolean clearOnEmptyFilter;
 	private boolean lastBeanEnabled;
-	private boolean useSortedUpdates;
+	private boolean pagingEnabled;
 	private boolean useLastModificationAsDefault;
 	private Boolean clearOnEmptyParentBeans;
 	private int pageSize;
@@ -84,6 +85,7 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> extends
 
 		this.cellRenderers = new LinkedList<IBeanTableCellRenderer<BEAN_TYPE>>();
 
+		this.addUpdatesSorted = false;
 		this.autoRefreshSelection = false;
 		this.autoDisposeInvisiblePages = false;
 		this.autoRowCount = true;
@@ -94,6 +96,7 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> extends
 		this.saveExecutionPolicy = BeanExecutionPolicy.BATCH;
 		this.sortModelConfig = new SortModelConfigImpl();
 		this.pageSize = DEFAULT_PAGE_SIZE;
+		this.pagingEnabled = true;
 
 		final IEntityService entityService = ServiceProvider.getService(IEntityService.ID);
 		if (entityService != null) {
@@ -161,6 +164,12 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> extends
 	}
 
 	@Override
+	public IBeanTableModelBuilder<BEAN_TYPE> setAddUpdatesSorted(final boolean addUpdatesSorted) {
+		this.addUpdatesSorted = addUpdatesSorted;
+		return this;
+	}
+
+	@Override
 	public IBeanTableModelBuilder<BEAN_TYPE> setAutoRefreshSelection(final boolean autoRefresh) {
 		this.autoRefreshSelection = autoRefresh;
 		return this;
@@ -219,8 +228,8 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> extends
 	}
 
 	@Override
-	public IBeanTableModelBuilder<BEAN_TYPE> setUseSortedUpdates(final boolean useSortedUpdates) {
-		this.useSortedUpdates = useSortedUpdates;
+	public IBeanTableModelBuilder<BEAN_TYPE> setPagingEnabled(final boolean pagingEnabled) {
+		this.pagingEnabled = pagingEnabled;
 		return this;
 	}
 
@@ -310,6 +319,7 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> extends
 			getParent(),
 			getLinkType(),
 			getListenerDelay(),
+			addUpdatesSorted,
 			autoRowCount,
 			autoSelection,
 			autoRefreshSelection,
@@ -317,7 +327,7 @@ final class BeanTableModelBuilderImpl<BEAN_TYPE> extends
 			clearOnEmptyFilter,
 			getClearOnEmptyParentBeans(),
 			lastBeanEnabled,
-			useSortedUpdates,
+			pagingEnabled,
 			useLastModificationAsDefault,
 			saveExecutionPolicy,
 			pageSize,

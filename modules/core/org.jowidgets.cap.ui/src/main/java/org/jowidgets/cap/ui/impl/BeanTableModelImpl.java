@@ -31,7 +31,6 @@ package org.jowidgets.cap.ui.impl;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -49,6 +48,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.jowidgets.api.color.Colors;
 import org.jowidgets.api.command.IEnabledChecker;
@@ -276,9 +277,11 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	private Integer scheduledLoadDelay;
 	private boolean disposed;
 	private boolean lastBeanEnabled;
-	private boolean useSortedUpdates;
+	private boolean addUpdatesSorted;
+	private boolean pagingEnabled;
 
-	private IExecutionTask currentUpdateTask = null;
+	private final AtomicReference<IExecutionTask> currentUpdateTask = new AtomicReference<IExecutionTask>();
+	private final AtomicInteger currentUpdateCallbackVersion = new AtomicInteger(0);
 
 	@SuppressWarnings("unchecked")
 	BeanTableModelImpl(
@@ -301,6 +304,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		final IBeanSelectionProvider<Object> parent,
 		final LinkType linkType,
 		final Long listenerDelay,
+		final boolean addUpdatesSorted,
 		final boolean autoRowCount,
 		final boolean autoSelect,
 		final boolean autoRefreshSelection,
@@ -308,7 +312,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		final boolean clearOnEmptyFilter,
 		final boolean clearOnEmptyParentBeans,
 		final boolean lastBeanEnabled,
-		final boolean useSortedUpdates,
+		final boolean pagingEnabled,
 		final boolean useLastModificationAsDefault,
 		final BeanExecutionPolicy saveExecutionPolicy,
 		final int pageSize,
@@ -392,7 +396,8 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		this.onSetConfig = false;
 		this.exceptionConverter = exceptionConverter;
 		this.useLastModificationAsDefault = useLastModificationAsDefault;
-		this.useSortedUpdates = useSortedUpdates;
+		this.addUpdatesSorted = addUpdatesSorted;
+		this.pagingEnabled = pagingEnabled;
 
 		this.filters = new HashMap<String, IUiFilter>();
 		this.data = new HashMap<Integer, ArrayList<IBeanProxy<BEAN_TYPE>>>();
@@ -553,8 +558,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 						}
 						final IBeanProxy<BEAN_TYPE> beanToAdd = lastBean;
 						beanToAdd.clearLastRowDummyState();
-						@SuppressWarnings("unchecked")
-						final List<IBeanProxy<BEAN_TYPE>> beanAsList = Arrays.asList(beanToAdd);
+						final List<IBeanProxy<BEAN_TYPE>> beanAsList = Collections.singletonList(beanToAdd);
 						unsortedAddBeans(beanAsList);
 						lastBean = null;
 						addLastBean();
@@ -936,14 +940,14 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 	@Override
 	public boolean isUpdateRunning() {
-		return currentUpdateTask != null;
+		return currentUpdateTask.get() != null;
 	}
 
 	@Override
 	public void cancelUpdates() {
-		if (currentUpdateTask != null) {
-			currentUpdateTask.cancel();
-			currentUpdateTask = null;
+		final IExecutionTask executionTask = currentUpdateTask.getAndSet(null);
+		if (executionTask != null) {
+			executionTask.cancel();
 		}
 	}
 
@@ -1279,9 +1283,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	public void addBean(final IBeanProxy<BEAN_TYPE> bean) {
 		Assert.paramNotNull(bean, "bean");
 
-		@SuppressWarnings("unchecked")
-		final List<IBeanProxy<BEAN_TYPE>> beanAsList = Arrays.asList(bean);
-
+		final List<IBeanProxy<BEAN_TYPE>> beanAsList = Collections.singletonList(bean);
 		addBeans(beanAsList);
 
 		beanListModelObservable.fireBeansAdded(bean);
@@ -1289,7 +1291,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	}
 
 	@Override
-	public List<IBeanProxy<BEAN_TYPE>> addBeanDtos(final Collection<? extends IBeanDto> beanDtos) {
+	public List<IBeanProxy<BEAN_TYPE>> addBeanDtos(final List<? extends IBeanDto> beanDtos, final boolean sorted) {
 		Assert.paramNotNull(beanDtos, "beanDtos");
 
 		final List<IBeanProxy<BEAN_TYPE>> proxies = new ArrayList<IBeanProxy<BEAN_TYPE>>(beanDtos.size());
@@ -1299,15 +1301,20 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			proxies.add(beanProxy);
 		}
 
-		addBeans(proxies);
+		addBeans(proxies, sorted);
 
 		return proxies;
 	}
 
 	@Override
-	public void addBeans(final Collection<IBeanProxy<BEAN_TYPE>> beansToAdd) {
+	public void addBeans(final List<IBeanProxy<BEAN_TYPE>> beansToAdd) {
+		addBeans(beansToAdd, false);
+	}
+
+	@Override
+	public void addBeans(final List<IBeanProxy<BEAN_TYPE>> beansToAdd, final boolean sorted) {
 		final List<IBeanProxy<BEAN_TYPE>> selectedBeans = getSelectedBeans();
-		if (useSortedUpdates) {
+		if (sorted) {
 			sortedAddBeans(beansToAdd);
 		}
 		else {
@@ -1387,13 +1394,26 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 	@Override
 	public IBeanProxy<BEAN_TYPE> addBeanDto(final IBeanDto beanDto) {
+		return addBeanDto(beanDto, false);
+	}
+
+	@Override
+	public IBeanProxy<BEAN_TYPE> addBeanDto(final IBeanDto beanDto, final boolean sorted) {
 		Assert.paramNotNull(beanDto, "beanDto");
-		final IBeanProxy<BEAN_TYPE> addedBeanProxy = addBeanDtos(Arrays.asList(beanDto)).get(0);
+		final IBeanProxy<BEAN_TYPE> addedBeanProxy = addBeanDtos(Collections.singletonList(beanDto), sorted).get(0);
 		return addedBeanProxy;
 	}
 
 	@Override
 	public List<IBeanProxy<BEAN_TYPE>> updateBeans(final Collection<IBeanDto> beansToAdd) {
+		return updateBeans(beansToAdd, false);
+	}
+
+	@Override
+	public List<IBeanProxy<BEAN_TYPE>> updateBeans(final Collection<IBeanDto> beansToAdd, final boolean sorted) {
+		if (pagingEnabled) {
+			throw new UnsupportedOperationException("Updates are not supported when paging is enabled!");
+		}
 
 		final List<IBeanProxy<BEAN_TYPE>> updatedProxies = new ArrayList<IBeanProxy<BEAN_TYPE>>();
 
@@ -1411,9 +1431,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			}
 		}
 
-		// TODO update beans in dataModel, too
-
-		if (useSortedUpdates) {
+		if (sorted) {
 			final List<IBeanProxy<BEAN_TYPE>> selectedBeans = getSelectedBeans();
 			Collections.sort(addedData, BeanDtoComparator.create(sortModel.getSorting()));
 			setSelectedBeans(selectedBeans);
@@ -1434,7 +1452,8 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 		final List<IBeanProxy<BEAN_TYPE>> removedBeans = removeBeansImpl(beansToRemove, false);
 
-		final List<IBeanProxy<BEAN_TYPE>> addedBeans = addBeanDtos(beansToAdd);
+		// TODO to add beans sorted, the list itself has to be sorted, which is not guaranteed here 
+		final List<IBeanProxy<BEAN_TYPE>> addedBeans = addBeanDtos(new ArrayList<IBeanDto>(beansToAdd), false);
 
 		boolean changed = false;
 		if (removedBeans.size() > 0) {
@@ -2760,7 +2779,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 		void readDataFromService() {
 			cancelUpdates();
-			currentUpdateTask = executionTask;
+			currentUpdateTask.set(executionTask);
 
 			cachedReaderService.read(
 					createUpdateCallback(),
@@ -2792,31 +2811,35 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		}
 
 		private IUpdatableResultCallback<IBeanDtosUpdate, List<IBeanDto>> createUpdateCallback() {
-			return new AbstractUiUpdateCallback<IBeanDtosUpdate, List<IBeanDto>>() {
 
+			final int callbackVersion = currentUpdateCallbackVersion.incrementAndGet();
+
+			return new AbstractUiUpdateCallback<IBeanDtosUpdate, List<IBeanDto>>() {
 				@Override
 				public void finishedUi(final List<IBeanDto> result) {
-					if (!canceled && !executionTask.isCanceled()) {
+					if (!isCallbackCanceled()) {
 						setResult(result);
 					}
 				}
 
 				@Override
 				public void exceptionUi(final Throwable exception) {
-					setException(exception);
+					if (!isCallbackCanceled()) {
+						setException(exception);
+					}
 				}
 
 				@Override
 				protected void updateUi(final IBeanDtosUpdate update) {
-					if (canceled || currentUpdateTask != executionTask) {
+					if (isCallbackCanceled()) {
 						return;
 					}
 
 					if (update instanceof IBeanDtosInsertionUpdate) {
-						addBeanDtos(((IBeanDtosInsertionUpdate) update).getInsertedBeans());
+						addBeanDtos(((IBeanDtosInsertionUpdate) update).getInsertedBeans(), addUpdatesSorted);
 					}
 					else if (update instanceof IBeanDtosChangeUpdate) {
-						updateBeans(((IBeanDtosChangeUpdate) update).getChangedBeans());
+						updateBeans(((IBeanDtosChangeUpdate) update).getChangedBeans(), addUpdatesSorted);
 					}
 					else if (update instanceof IBeanDtosClearUpdate) {
 						clearAddedData();
@@ -2832,40 +2855,51 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 				@Override
 				public void updatesFinished() {
-					currentUpdateTask = null;
+					if (!isCallbackCanceled()) {
+						currentUpdateTask.compareAndSet(executionTask, null);
+					}
 				}
 
 				@Override
 				public void exceptionOnUpdate(final Throwable exception) {
+					// TODO somehow show the exception in the table
 					LOGGER.warn("Exception on update: ", exception);
+				}
+
+				private boolean isCallbackCanceled() {
+					return executionTask.isCanceled() || canceled || currentUpdateCallbackVersion.get() != callbackVersion;
 				}
 			};
 		}
 
 		@SuppressWarnings("unchecked")
 		private void setResult(final List<IBeanDto> loadedBeans) {
-			//if the result is empty and the page is not the first page, reload the whole table
-			if (loadedBeans.size() == 0 && pageIndex > 0) {
-				rowCount = 0;
-				countedRowCount = null;
-				load();
-				return;
-			}
-			//if the page is the last page, adapt the row count and maxPage index
-			else if (pageIndex >= maxPageIndex && !useSortedUpdates) {
-				rowCount = pageIndex * pageSize + loadedBeans.size();
-				maxPageIndex = pageIndex;
-				//if the counted row count is potentially wrong, reset it (and recount on autoRowcount)
-				if (countedRowCount != null && countedRowCount.intValue() > rowCount && loadedBeans.size() <= pageSize) {
+
+			if (pagingEnabled) {
+				//if the result is empty and the page is not the first page, reload the whole table
+				if (loadedBeans.size() == 0 && pageIndex > 0) {
+					rowCount = 0;
 					countedRowCount = null;
-					if (autoRowCount) {
-						tryToCancelCountLoader();
-						countLoader = new CountLoader();
-						countLoader.loadCount();
+					load();
+					return;
+				}
+				//if the page is the last page, adapt the row count and maxPage index
+				else if (pageIndex >= maxPageIndex) {
+					rowCount = pageIndex * pageSize + loadedBeans.size();
+					maxPageIndex = pageIndex;
+					//if the counted row count is potentially wrong, reset it (and recount on autoRowcount)
+					if (countedRowCount != null && countedRowCount.intValue() > rowCount && loadedBeans.size() <= pageSize) {
+						countedRowCount = null;
+						if (autoRowCount) {
+							tryToCancelCountLoader();
+							countLoader = new CountLoader();
+							countLoader.loadCount();
+						}
 					}
 				}
 			}
-			else if (useSortedUpdates) {
+
+			else {
 				rowCount = 0;
 			}
 
@@ -2886,7 +2920,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			final List<IBeanProxy<BEAN_TYPE>> beansToRegister = new LinkedList<IBeanProxy<BEAN_TYPE>>();
 
 			for (final IBeanDto beanDto : loadedBeans) {
-				if (index < pageSize || useSortedUpdates) {
+				if (index < pageSize || addUpdatesSorted) {
 					final IBeanProxy<BEAN_TYPE> beanProxy;
 					if (beanDto instanceof IBeanProxy<?>) {
 						beanProxy = (IBeanProxy<BEAN_TYPE>) beanDto;
@@ -2895,7 +2929,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 						beanProxy = createBeanProxy(beanDto);
 					}
 
-					if (useSortedUpdates) {
+					if (addUpdatesSorted) {
 						addedData.add(beanProxy);
 					}
 					else {
@@ -3092,6 +3126,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		}
 
 		void loadInBackground() {
+			cancelUpdates();
 			started = true;
 
 			executionTask = CapUiToolkit.executionTaskFactory().create();
@@ -3130,18 +3165,25 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		}
 
 		private IResultCallback<List<IBeanDto>> createResultCallback() {
+			// TODO support updates or, if incompatible, make sure it cannot be used in combination with updates
+
+			final int callbackVersion = currentUpdateCallbackVersion.incrementAndGet();
+
 			return new AbstractUiResultCallback<List<IBeanDto>>() {
 
 				@Override
 				public void finishedUi(final List<IBeanDto> beanDtos) {
-					if (!canceled && !executionTask.isCanceled()) {
+					if (!canceled && !executionTask.isCanceled() && callbackVersion == currentUpdateCallbackVersion.get()) {
 						setResult(beanDtos);
+						currentUpdateTask.compareAndSet(executionTask, null);
 					}
 				}
 
 				@Override
 				public void exceptionUi(final Throwable exception) {
-					setException(exception);
+					if (callbackVersion == currentUpdateCallbackVersion.get()) {
+						setException(exception);
+					}
 				}
 
 			};

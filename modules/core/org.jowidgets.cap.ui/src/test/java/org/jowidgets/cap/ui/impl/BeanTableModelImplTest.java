@@ -105,7 +105,7 @@ public class BeanTableModelImplTest {
 		tableModel = ((BeanTableModelImpl<BeanTableModelImplTest.ITestBean>) new BeanTableModelBuilderImpl<BeanTableModelImplTest.ITestBean>(
 			entityId,
 			beanTypeId,
-			ITestBean.class).setReaderService(readerService).setUseSortedUpdates(true).setAttributes(
+			ITestBean.class).setReaderService(readerService).setAddUpdatesSorted(true).setPagingEnabled(false).setAttributes(
 					Arrays.asList(attribute)).build());
 	}
 
@@ -118,7 +118,6 @@ public class BeanTableModelImplTest {
 	}
 
 	private void loadAllBeansAtOnce() {
-		// countCallback.finished(Integer.valueOf(3));
 		countCallback.finished(null);
 
 		if (!mostRecentSorting.isEmpty() && mostRecentSorting.get(0).getSortOrder().equals(SortOrder.DESC)) {

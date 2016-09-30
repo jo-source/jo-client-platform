@@ -132,8 +132,18 @@ public interface IBeanTableModel<BEAN_TYPE>
 
 	IReaderService<Object> getReaderService();
 
+	/**
+	 * TODO make this observable and move it to the {@link IDataModel} interface
+	 * 
+	 * @return whether there was a call to {@link IReaderService.#read()} that could still result in updates.
+	 */
 	boolean isUpdateRunning();
 
+	/**
+	 * Cancel all updates coming from the {@link IReaderService}.
+	 * 
+	 * TODO move it to the {@link IDataModel} interface
+	 */
 	void cancelUpdates();
 
 	/**
@@ -200,6 +210,11 @@ public interface IBeanTableModel<BEAN_TYPE>
 	ISortModel getSortModel();
 
 	/**
+	 * remove all beans previously added via methods like {@link #addBean(IBeanProxy)}, {@link #addBeanDto(IBeanDto)}
+	 */
+	void clearAddedData();
+
+	/**
 	 * If last bean is enabled, the table has a transient bean at the end of the table that can be used
 	 * to create new data. If the last been will be modified, a new last bean will be added to the table, so
 	 * data can be created by clicking into the last row or navigation with help of cell editors into the last
@@ -232,6 +247,67 @@ public interface IBeanTableModel<BEAN_TYPE>
 	void setConfig(IBeanTableModelConfig config);
 
 	IBeanTableModelConfig getConfig();
+
+	/**
+	 * Variant of {@link #addBean(IBeanProxy)} but for several beans at once.
+	 * 
+	 * Beans are added at the end.
+	 * 
+	 * @param beansToAdd
+	 */
+	void addBeans(List<IBeanProxy<BEAN_TYPE>> beansToAdd);
+
+	/**
+	 * Variant of {@link #addBean(IBeanProxy)} but for several beans at once.
+	 * 
+	 * Depending on the sorted flag, beans are added at the end or according to the current sorting.
+	 * If true, the given list is expected to be sorted to the current sorting of the table.
+	 * 
+	 * @param beansToAdd
+	 * @param sorted
+	 */
+	void addBeans(List<IBeanProxy<BEAN_TYPE>> beansToAdd, boolean sorted);
+
+	/**
+	 * Update existing {@link IBeanProxy}s that match the id of one of the given {@link IBeanDto}s
+	 * 
+	 * @param beanUpdates
+	 * @return the updated bean proxies
+	 */
+	List<IBeanProxy<BEAN_TYPE>> updateBeans(Collection<IBeanDto> beanUpdates);
+
+	/**
+	 * Update existing {@link IBeanProxy}s that match the id of one of the given {@link IBeanDto}s.
+	 * If the sorted flag is set, the sorting is refreshed afterwards.
+	 * 
+	 * @param beanUpdates
+	 * @param sorted
+	 * @return the updated bean proxies
+	 */
+	List<IBeanProxy<BEAN_TYPE>> updateBeans(Collection<IBeanDto> beanUpdates, boolean sorted);
+
+	/**
+	 * Variant of {@link #addBeanDto(IBeanDto)} but for several beans at once.
+	 * 
+	 * Depending on the sorted flag, beans are added at the end or according to the current sorting.
+	 * If true, the given collection is expected to be sorted to the current sorting of the table.
+	 * 
+	 * @param beanDtos
+	 * @param sorted
+	 * @return the new proxies for the given {@link IBeanDto}s
+	 */
+	List<IBeanProxy<BEAN_TYPE>> addBeanDtos(List<? extends IBeanDto> beanDtos, boolean sorted);
+
+	/**
+	 * Variant of {@link #addBeanDto(IBeanDto)} with an additional sorted flag.
+	 * 
+	 * Depending on the sorted flag, the bean is added at the end or according to the current sorting.
+	 * 
+	 * @param beanDtos
+	 * @param sorted
+	 * @return the new proxy for the given {@link IBeanDto}
+	 */
+	IBeanProxy<BEAN_TYPE> addBeanDto(IBeanDto beanDto, boolean sorted);
 
 	void dispose();
 

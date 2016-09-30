@@ -47,8 +47,14 @@ public interface IUpdatableResultCallback<UPDATE_TYPE, RESULT_TYPE> extends IRes
 	 */
 	void update(UPDATE_TYPE update);
 
+	/**
+	 * after this method is called, there are no more calls to {@link #update(Object)}
+	 */
 	void updatesFinished();
 
+	/**
+	 * @param exception an exception that occurred when preparing an update
+	 */
 	void exceptionOnUpdate(Throwable exception);
 
 }

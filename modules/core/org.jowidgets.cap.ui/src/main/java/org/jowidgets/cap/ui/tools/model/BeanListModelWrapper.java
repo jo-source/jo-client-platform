@@ -30,7 +30,6 @@ package org.jowidgets.cap.ui.tools.model;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import org.jowidgets.api.command.IEnabledChecker;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
@@ -137,26 +136,6 @@ public class BeanListModelWrapper<BEAN_TYPE> implements IBeanListModel<BEAN_TYPE
 	@Override
 	public IEnabledChecker getDataAddableChecker() {
 		return beanListModel.getDataAddableChecker();
-	}
-
-	@Override
-	public void clearAddedData() {
-		beanListModel.clearAddedData();
-	}
-
-	@Override
-	public void addBeans(final Collection<IBeanProxy<BEAN_TYPE>> beansToAdd) {
-		beanListModel.addBeans(beansToAdd);
-	}
-
-	@Override
-	public List<IBeanProxy<BEAN_TYPE>> addBeanDtos(final Collection<? extends IBeanDto> beanDtos) {
-		return beanListModel.addBeanDtos(beanDtos);
-	}
-
-	@Override
-	public List<IBeanProxy<BEAN_TYPE>> updateBeans(final Collection<IBeanDto> beansToAdd) {
-		return beanListModel.updateBeans(beansToAdd);
 	}
 
 }
