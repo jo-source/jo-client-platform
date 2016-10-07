@@ -302,7 +302,8 @@ public class BeanTableModelImplTest {
 		updatableCallback.update(new BeanDtosInsertionUpdate(Arrays.asList((IBeanDto) bean1, (IBeanDto) bean2)));
 		updatableCallback.update(new BeanDtosChangeUpdate(Arrays.asList((IBeanDto) bean1a)));
 
-		assertTrue("2 beans should be loaded", tableModel.getSize() == 2);
+		final int size = tableModel.getSize();
+		assertTrue("2 beans should be loaded, but was " + size, size == 2);
 		assertTrue(
 				"first bean should be changed by update",
 				tableModel.getBean(0).getValue("value").equals(bean1a.getValue("value")));
