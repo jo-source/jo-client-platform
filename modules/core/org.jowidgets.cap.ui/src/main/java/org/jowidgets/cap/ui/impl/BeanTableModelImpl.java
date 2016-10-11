@@ -971,6 +971,11 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		final IResultCallback<Void> resultCallback,
 		final int pageIndex,
 		final IExecutionCallback executionCallback) {
+
+		if (!pagingEnabled && pageIndex > 0) {
+			throw new IllegalArgumentException("Only page 0 is supported when paging is disabled!");
+		}
+
 		tryToCancelProgrammaticPageLoader(pageIndex);
 		final PageLoader pageLoader = new PageLoader(pageIndex, resultCallback);
 		programmaticPageLoader.put(Integer.valueOf(pageIndex), pageLoader);
@@ -1425,7 +1430,8 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		final Map<Object, IBeanDto> beansToUpateById,
 		final boolean sorted,
 		final Comparator<IBeanDto> comparator) {
-		throw new UnsupportedOperationException("Updates are not supported when paging is enabled!");
+		throw new UnsupportedOperationException(
+			"Updates are not supported when paging is enabled! Feel free to implement this feature if needed.");
 	}
 
 	private void updateBeansInAddedData(
@@ -2192,7 +2198,8 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 				}
 				else {
 					final ITableCellBuilder cellBuilder = createAddedBeanCellBuilder(rowIndex, columnIndex, bean);
-					return applyRenderers(cellBuilder, bean, attribute, rowIndex, columnIndex, true);
+					final boolean isAddedBean = pagingEnabled; // only treat this bean as added when paging is enabled
+					return applyRenderers(cellBuilder, bean, attribute, rowIndex, columnIndex, isAddedBean);
 				}
 			}
 			else if (page == null) {
@@ -2815,6 +2822,8 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 		void readDataFromService() {
 			if (!pagingEnabled) {
+				// The current execution task can be canceled, 
+				// because without paging there is no even/odd page loading.
 				cancelUpdates();
 				currentUpdateTask = executionTask;
 			}
@@ -2943,7 +2952,6 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 					}
 				}
 			}
-
 			else {
 				rowCountOfPages = 0;
 			}
