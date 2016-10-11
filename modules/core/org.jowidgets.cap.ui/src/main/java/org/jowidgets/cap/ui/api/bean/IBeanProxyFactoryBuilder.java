@@ -31,10 +31,25 @@ package org.jowidgets.cap.ui.api.bean;
 import java.util.Collection;
 import java.util.Map;
 
+import org.jowidgets.api.threads.IUiThreadAccess;
 import org.jowidgets.cap.common.api.validation.IBeanValidator;
 import org.jowidgets.cap.ui.api.attribute.IAttributeSet;
 
 public interface IBeanProxyFactoryBuilder<BEAN_TYPE> {
+
+	/**
+	 * Sets the ui thread access. If set, this ui thread access will be used when creating beans.
+	 * 
+	 * If no ui thread access is set here, the ui thread access for the bean will be set on
+	 * bean creation from Toolkit.getUiThreadAccess(), so the beans must be created in the ui thread.
+	 * 
+	 * So this can be used, to create bean proxies outside the ui thread access, if the ui thread access will be set here.
+	 * 
+	 * @param uiThreadAccess The ui threda access to set, max be null
+	 * 
+	 * @return This builder
+	 */
+	IBeanProxyFactoryBuilder<BEAN_TYPE> setUiThreadAccess(IUiThreadAccess uiThreadAccess);
 
 	/**
 	 * Sets the bean type id to use for the created beans.

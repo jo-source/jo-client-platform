@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.jowidgets.api.threads.IUiThreadAccess;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.ui.api.attribute.IAttributeSet;
 import org.jowidgets.cap.ui.api.bean.IBeanPropertyValidator;
@@ -55,6 +56,7 @@ final class BeanProxyFactoryImpl<BEAN_TYPE> implements IBeanProxyFactory<BEAN_TY
 	private final ArrayList<IBeanPropertyValidator<BEAN_TYPE>> validators;
 	private final Map<String, Object> defaultValues;
 	private final boolean validateUnmodified;
+	private final IUiThreadAccess uiThreadAccess;
 
 	BeanProxyFactoryImpl(final BeanProxyFactoryBuilderImpl<BEAN_TYPE> builder) {
 		Assert.paramNotNull(builder.getBeanTypeId(), "builder.getBeanTypeId()");
@@ -65,6 +67,7 @@ final class BeanProxyFactoryImpl<BEAN_TYPE> implements IBeanProxyFactory<BEAN_TY
 		this.validators = new ArrayList<IBeanPropertyValidator<BEAN_TYPE>>(builder.getValidators());
 		this.defaultValues = new HashMap<String, Object>(builder.getDefaultValues());
 		this.validateUnmodified = builder.isValidateUnmodified();
+		this.uiThreadAccess = builder.getUiThreadAccess();
 	}
 
 	@Override
@@ -155,7 +158,8 @@ final class BeanProxyFactoryImpl<BEAN_TYPE> implements IBeanProxyFactory<BEAN_TY
 			isTransient,
 			isLastRowDummy,
 			validatorsToUse,
-			validateUnmodified);
+			validateUnmodified,
+			uiThreadAccess);
 		return result;
 	}
 
