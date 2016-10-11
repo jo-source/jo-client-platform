@@ -31,6 +31,7 @@ package org.jowidgets.cap.ui.impl;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -136,6 +137,15 @@ final class BeanProxyFactoryImpl<BEAN_TYPE> implements IBeanProxyFactory<BEAN_TY
 		final boolean isTransient,
 		final boolean isLastRowDummy,
 		final boolean validateUnmodified) {
+
+		final Collection<IBeanPropertyValidator<BEAN_TYPE>> validatorsToUse;
+		if (isDummy) {
+			validatorsToUse = Collections.emptySet();
+		}
+		else {
+			validatorsToUse = validators;
+		}
+
 		final BeanProxyImpl<BEAN_TYPE> result = new BeanProxyImpl<BEAN_TYPE>(
 			beanDto,
 			beanTypeId,
@@ -144,7 +154,7 @@ final class BeanProxyFactoryImpl<BEAN_TYPE> implements IBeanProxyFactory<BEAN_TY
 			isDummy,
 			isTransient,
 			isLastRowDummy,
-			validators,
+			validatorsToUse,
 			validateUnmodified);
 		return result;
 	}
