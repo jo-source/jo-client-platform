@@ -91,7 +91,6 @@ public class BeanTableModelImplTest {
 
 	private IResultCallback<List<IBeanDto>> resultCallback;
 	private final List<IExecutionCallback> updateExecutionCallbacks = new LinkedList<IExecutionCallback>();
-	private IResultCallback<Integer> countCallback;
 	private List<? extends ISort> mostRecentSorting;
 
 	@SuppressWarnings("unchecked")
@@ -118,8 +117,6 @@ public class BeanTableModelImplTest {
 	}
 
 	private void loadAllBeansAtOnce() {
-		countCallback.finished(null);
-
 		if (!mostRecentSorting.isEmpty() && mostRecentSorting.get(0).getSortOrder().equals(SortOrder.DESC)) {
 			resultCallback.finished(Arrays.asList((IBeanDto) bean3, (IBeanDto) bean2, (IBeanDto) bean1));
 		}
@@ -155,17 +152,13 @@ public class BeanTableModelImplTest {
 				final Void parameter,
 				final IExecutionCallback executionCallback) {
 
-				setCountCallback(result);
+				// setCountCallback(result);
 			}
 		};
 	}
 
 	private void setResultCallback(final IResultCallback<List<IBeanDto>> resultCallback) {
 		this.resultCallback = resultCallback;
-	}
-
-	private void setCountCallback(final IResultCallback<Integer> countCallback) {
-		this.countCallback = countCallback;
 	}
 
 	public void setMostRecentSorting(final List<? extends ISort> mostRecentSorting) {

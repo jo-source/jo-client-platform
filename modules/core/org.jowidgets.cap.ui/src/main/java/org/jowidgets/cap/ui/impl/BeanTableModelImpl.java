@@ -885,7 +885,9 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			addedData.clear();
 			this.scheduledLoadDelay = scheduledLoadDelay;
 			countedRowCount = null;
-			countLoader = new CountLoader();
+			if (pagingEnabled) {
+				countLoader = new CountLoader();
+			}
 
 			dataModel.fireDataChanged();
 		}
@@ -1014,7 +1016,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	}
 
 	private void startCountLoaderIfNotRunning() {
-		if (countLoader == null || !countLoader.started || countLoader.isDisposed()) {
+		if (pagingEnabled && (countLoader == null || !countLoader.started || countLoader.isDisposed())) {
 			countLoader = new CountLoader();
 			countLoader.loadCount();
 		}
@@ -1444,6 +1446,10 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		IBeanProxy<BEAN_TYPE> lastUpdatedBean = null;
 
 		for (final IBeanProxy<BEAN_TYPE> beanProxy : addedData) {
+			if (beansToUpateById.isEmpty()) {
+				break;
+			}
+
 			final IBeanDto beanToUpdate = beansToUpateById.get(beanProxy.getId());
 
 			if (beanToUpdate != null) {
@@ -1466,6 +1472,10 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			}
 
 			lastBean = beanProxy;
+		}
+
+		if (!beansToUpateById.isEmpty()) {
+			LOGGER.warn("Cannot find beans for the following updates:" + beansToUpateById.values().toString());
 		}
 
 		if (sorted && sortingChanged) {
@@ -2197,9 +2207,14 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 					return new TableCellBuilder().build();
 				}
 				else {
-					final ITableCellBuilder cellBuilder = createAddedBeanCellBuilder(rowIndex, columnIndex, bean);
-					final boolean isAddedBean = pagingEnabled; // only treat this bean as added when paging is enabled
-					return applyRenderers(cellBuilder, bean, attribute, rowIndex, columnIndex, isAddedBean);
+					if (pagingEnabled) {
+						final ITableCellBuilder cellBuilder = createAddedBeanCellBuilder(rowIndex, columnIndex, bean);
+						return applyRenderers(cellBuilder, bean, attribute, rowIndex, columnIndex, true);
+					}
+					else {
+						final ITableCellBuilder cellBuilder = createCellBuilder(rowIndex, columnIndex, bean);
+						return applyRenderers(cellBuilder, bean, attribute, rowIndex, columnIndex, false);
+					}
 				}
 			}
 			else if (page == null) {
@@ -2944,7 +2959,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 						&& countedRowCount.intValue() > rowCountOfPages
 						&& loadedBeans.size() <= pageSize) {
 						countedRowCount = null;
-						if (autoRowCount) {
+						if (autoRowCount && pagingEnabled) {
 							tryToCancelCountLoader();
 							countLoader = new CountLoader();
 							countLoader.loadCount();
@@ -3311,7 +3326,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 						&& countedRowCount.intValue() > rowCountOfPages
 						&& resultBeanDtos.size() <= (pageSize * pageCount)) {
 						countedRowCount = null;
-						if (autoRowCount) {
+						if (autoRowCount && pagingEnabled) {
 							tryToCancelCountLoader();
 							countLoader = new CountLoader();
 							countLoader.loadCount();
