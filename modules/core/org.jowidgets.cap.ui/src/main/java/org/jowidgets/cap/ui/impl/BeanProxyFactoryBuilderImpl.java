@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.jowidgets.api.threads.IUiThreadAccess;
 import org.jowidgets.cap.common.api.bean.IBeanDtoDescriptor;
 import org.jowidgets.cap.common.api.validation.IBeanValidator;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
@@ -55,6 +56,7 @@ final class BeanProxyFactoryBuilderImpl<BEAN_TYPE> implements IBeanProxyFactoryB
 	private IAttributeSet attributes;
 	private Map<String, Object> defaultValues;
 	private boolean validateUnmodified;
+	private IUiThreadAccess uiThreadAccess;
 
 	@SuppressWarnings("unchecked")
 	BeanProxyFactoryBuilderImpl(final Class<? extends BEAN_TYPE> beanType) {
@@ -64,6 +66,12 @@ final class BeanProxyFactoryBuilderImpl<BEAN_TYPE> implements IBeanProxyFactoryB
 		this.validateUnmodified = true;
 		this.defaultValues = new HashMap<String, Object>();
 		this.validators = new LinkedList<IBeanPropertyValidator<BEAN_TYPE>>();
+	}
+
+	@Override
+	public IBeanProxyFactoryBuilder<BEAN_TYPE> setUiThreadAccess(final IUiThreadAccess uiThreadAccess) {
+		this.uiThreadAccess = uiThreadAccess;
+		return this;
 	}
 
 	@Override
@@ -192,6 +200,10 @@ final class BeanProxyFactoryBuilderImpl<BEAN_TYPE> implements IBeanProxyFactoryB
 			}
 		}
 		return result;
+	}
+
+	IUiThreadAccess getUiThreadAccess() {
+		return uiThreadAccess;
 	}
 
 	Class<BEAN_TYPE> getBeanType() {

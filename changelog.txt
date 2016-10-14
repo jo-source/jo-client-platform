@@ -121,7 +121,7 @@ Bugfixes:
 Features:
 
 * Fixed issue #59 https://github.com/jo-source/jo-client-platform/issues/59 Allow to configure user confirmation for service layer validation warnings 
-
+* Fixed issue #63 https://github.com/jo-source/jo-client-platform/issues/63 Allow to create IBeanProxy instances outside the ui thread 
 
 
 Bugfixes:

@@ -152,7 +152,8 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 		final boolean isTransient,
 		final boolean isLastRowDummy,
 		final Collection<IBeanPropertyValidator<BEAN_TYPE>> validators,
-		final boolean validateUnmodified) {
+		final boolean validateUnmodified,
+		final IUiThreadAccess uiThreadAccess) {
 		Assert.paramNotNull(beanDto, "beanDto");
 		Assert.paramNotNull(beanTypeId, "beanTypeId");
 		Assert.paramNotNull(beanType, "beanType");
@@ -191,7 +192,12 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 		this.errorMessagesList = new ArrayList<IBeanMessage>(0);
 		this.messagesList = new ArrayList<IBeanMessage>(0);
 
-		this.uiThreadAccess = Toolkit.getUiThreadAccess();
+		if (uiThreadAccess != null) {
+			this.uiThreadAccess = uiThreadAccess;
+		}
+		else {
+			this.uiThreadAccess = Toolkit.getUiThreadAccess();
+		}
 
 		this.executionTaskListener = new ExecutionTaskAdapter() {
 
@@ -227,7 +233,8 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 			isTransient,
 			isLastRowDummy,
 			beanPropertyValidators,
-			validateUnmodified);
+			validateUnmodified,
+			uiThreadAccess);
 		for (final IBeanModification modification : modifications.values()) {
 			result.setValue(modification.getPropertyName(), modification.getNewValue());
 		}
@@ -257,7 +264,8 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 			isTransient,
 			isLastRowDummy,
 			beanPropertyValidators,
-			validateUnmodified);
+			validateUnmodified,
+			uiThreadAccess);
 
 		return result;
 	}
