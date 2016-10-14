@@ -42,7 +42,7 @@ public interface IBeanTableModelBuilder<BEAN_TYPE> extends IBeanModelBuilder<BEA
 
 	@Deprecated
 	/**
-	 * @deprecated 
+	 * @deprecated
 	 * @param readerService
 	 * @param paramProvider
 	 * @return
@@ -53,7 +53,7 @@ public interface IBeanTableModelBuilder<BEAN_TYPE> extends IBeanModelBuilder<BEA
 
 	@Deprecated
 	/**
-	 * @deprecated 
+	 * @deprecated
 	 * @param readerService
 	 * @param paramProvider
 	 * @return
@@ -98,6 +98,23 @@ public interface IBeanTableModelBuilder<BEAN_TYPE> extends IBeanModelBuilder<BEA
 	IBeanTableModelBuilder<BEAN_TYPE> setLastBeanEnabled(boolean lastBeanEnabled);
 
 	/**
+	 * If sorted updates are used, added beans will be kept sorted.
+	 * 
+	 * Firstly this means beans inserted by updates from the reader service will
+	 * be inserted by the current sort order, otherwise new beans will be added at the end.
+	 * 
+	 * In addition, updated beans will update their position.
+	 * 
+	 * Also the order between beans in the same update are expected to already respect the sorting order.
+	 * 
+	 * Independent of how this flag is set, added Data will always appear after the last page!
+	 * 
+	 * @param addUpdatesSorted
+	 * @return this builder
+	 */
+	IBeanTableModelBuilder<BEAN_TYPE> setAddUpdatesSorted(final boolean addUpdatesSorted);
+
+	/**
 	 * If set to true, the default values of the attributes changes each time a property will be modified
 	 * 
 	 * @param useLastModificationForDefault
@@ -105,6 +122,15 @@ public interface IBeanTableModelBuilder<BEAN_TYPE> extends IBeanModelBuilder<BEA
 	 * @return This builder
 	 */
 	IBeanTableModelBuilder<BEAN_TYPE> setUseLastModificationForDefault(boolean useLastModificationForDefault);
+
+	/**
+	 * If true, the table will only load data for the page or pages currently visible.
+	 * Otherwise, all beans will all be loaded at once and be treaded like added data.
+	 * 
+	 * @param pagingEnabled
+	 * @return This builder
+	 */
+	IBeanTableModelBuilder<BEAN_TYPE> setPagingEnabled(boolean pagingEnabled);
 
 	IBeanTableModelBuilder<BEAN_TYPE> addCellRenderer(IBeanTableCellRenderer<BEAN_TYPE> renderer);
 

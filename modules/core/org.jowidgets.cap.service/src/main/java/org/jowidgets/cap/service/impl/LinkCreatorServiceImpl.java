@@ -66,9 +66,11 @@ import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.util.reflection.BeanUtils;
 
-final class LinkCreatorServiceImpl<SOURCE_BEAN_TYPE extends IBean, LINKED_BEAN_TYPE extends IBean> implements ILinkCreatorService {
+final class LinkCreatorServiceImpl<SOURCE_BEAN_TYPE extends IBean, LINKED_BEAN_TYPE extends IBean>
+		implements ILinkCreatorService {
 
-	private static final IMessage DATASETS_CAN_NOT_BE_LINKED = Messages.getMessage("LinkCreatorServiceImpl.datasetsCanNotBeLinked");
+	private static final IMessage DATASETS_CAN_NOT_BE_LINKED = Messages.getMessage(
+			"LinkCreatorServiceImpl.datasetsCanNotBeLinked");
 
 	private final IBeanAccess<SOURCE_BEAN_TYPE> sourceBeanAccess;
 	private final IBeanDtoFactory<SOURCE_BEAN_TYPE> sourceDtoFactory;
@@ -261,11 +263,12 @@ final class LinkCreatorServiceImpl<SOURCE_BEAN_TYPE extends IBean, LINKED_BEAN_T
 					sourceBeanAccess,
 					sourceDtoFactory,
 					executionCallback);
-			result.addAll(createInverseDirectLinkBeans(
-					linkedBean,
-					link.getTransientSourceBeans(),
-					sourceCreatorService,
-					executionCallback));
+			result.addAll(
+					createInverseDirectLinkBeans(
+							linkedBean,
+							link.getTransientSourceBeans(),
+							sourceCreatorService,
+							executionCallback));
 			return result;
 		}
 		else {
@@ -288,11 +291,12 @@ final class LinkCreatorServiceImpl<SOURCE_BEAN_TYPE extends IBean, LINKED_BEAN_T
 					linkedBeanAccess,
 					linkedDtoFactory,
 					executionCallback);
-			result.addAll(createDirectLinkBeans(
-					sourceBean,
-					link.getTransientLinkableBeans(),
-					linkableCreatorService,
-					executionCallback));
+			result.addAll(
+					createDirectLinkBeans(
+							sourceBean,
+							link.getTransientLinkableBeans(),
+							linkableCreatorService,
+							executionCallback));
 			return result;
 		}
 		else {
@@ -470,7 +474,10 @@ final class LinkCreatorServiceImpl<SOURCE_BEAN_TYPE extends IBean, LINKED_BEAN_T
 		private final IBeanDto sourceBean;
 		private final IBeanDto linkedBean;
 
-		private DecoratedLinkBeanData(final IBeanData original, final IBeanDto createdLinkedBean, final IBeanDto createdSourceBean) {
+		private DecoratedLinkBeanData(
+			final IBeanData original,
+			final IBeanDto createdLinkedBean,
+			final IBeanDto createdSourceBean) {
 			this.original = original;
 			this.linkedBean = createdLinkedBean;
 			this.sourceBean = createdSourceBean;

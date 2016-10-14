@@ -1101,7 +1101,5 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 				beanListModelObservable.fireBeansChanged();
 			}
 		}
-
 	}
-
 }

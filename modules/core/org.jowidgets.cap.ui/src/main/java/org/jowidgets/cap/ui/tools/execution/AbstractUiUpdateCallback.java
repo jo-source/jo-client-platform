@@ -26,43 +26,70 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.impl;
+package org.jowidgets.cap.ui.tools.execution;
 
-import java.util.Collections;
-import java.util.List;
+import org.jowidgets.api.threads.IUiThreadAccess;
+import org.jowidgets.api.toolkit.Toolkit;
+import org.jowidgets.cap.common.api.execution.IUpdatableResultCallback;
 
-import org.jowidgets.cap.common.api.bean.IBeanDto;
-import org.jowidgets.cap.common.api.bean.IBeanKey;
-import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.cap.common.api.execution.IResultCallback;
-import org.jowidgets.cap.common.api.filter.IFilter;
-import org.jowidgets.cap.common.api.service.IReaderService;
-import org.jowidgets.cap.common.api.sort.ISort;
+public abstract class AbstractUiUpdateCallback<UPDATE_TYPE, RESULT_TYPE>
+		implements IUpdatableResultCallback<UPDATE_TYPE, RESULT_TYPE> {
 
-final class NullReaderService<PARAM_TYPE> implements IReaderService<PARAM_TYPE> {
+	private final IUiThreadAccess uiThreadAccess;
+
+	public AbstractUiUpdateCallback() {
+		this.uiThreadAccess = Toolkit.getUiThreadAccess();
+	}
+
+	/**
+	 * The finished method that will be invoked in the UI thread
+	 * 
+	 * @param result The result of the service
+	 */
+	protected abstract void finishedUi(RESULT_TYPE result);
+
+	/**
+	 * The update method that will be invoked in the UI thread
+	 * 
+	 * @param result The result of the service
+	 */
+	protected abstract void updateUi(UPDATE_TYPE result);
+
+	/**
+	 * The exception method that will be invoked in the UI thread
+	 * 
+	 * @param exception The exception that occurred
+	 */
+	protected abstract void exceptionUi(Throwable exception);
 
 	@Override
-	public void read(
-		final IResultCallback<List<IBeanDto>> result,
-		final List<? extends IBeanKey> parentBeanKeys,
-		final IFilter filter,
-		final List<? extends ISort> sorting,
-		final int firstRow,
-		final int maxRows,
-		final PARAM_TYPE parameter,
-		final IExecutionCallback executionCallback) {
-		final List<IBeanDto> emptyList = Collections.emptyList();
-		result.finished(emptyList);
+	public final void finished(final RESULT_TYPE result) {
+		uiThreadAccess.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				finishedUi(result);
+			}
+		});
 	}
 
 	@Override
-	public void count(
-		final IResultCallback<Integer> result,
-		final List<? extends IBeanKey> parentBeanKeys,
-		final IFilter filter,
-		final PARAM_TYPE parameter,
-		final IExecutionCallback executionCallback) {
-		result.finished(0);
+	public void update(final UPDATE_TYPE result) {
+		uiThreadAccess.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				updateUi(result);
+			}
+		});
+	}
+
+	@Override
+	public final void exception(final Throwable exception) {
+		uiThreadAccess.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				exceptionUi(exception);
+			}
+		});
 	}
 
 }

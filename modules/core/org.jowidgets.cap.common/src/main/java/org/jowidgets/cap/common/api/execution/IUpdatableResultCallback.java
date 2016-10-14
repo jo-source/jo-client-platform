@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2016, grossmann, beuck
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,47 +26,35 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.model;
+package org.jowidgets.cap.common.api.execution;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
-import org.jowidgets.api.command.IEnabledChecker;
-import org.jowidgets.cap.common.api.bean.IBeanDto;
-import org.jowidgets.cap.ui.api.bean.IBeanProxy;
-import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
-
-public interface IBeanListModel<BEAN_TYPE>
-		extends IBeanListModelObservable<BEAN_TYPE>, IBeanListModelBeansObservable<BEAN_TYPE>, IBeanSelectionProvider<BEAN_TYPE> {
-
-	int getSize();
-
-	IBeanProxy<BEAN_TYPE> getBean(int index);
-
-	void removeBeans(Iterable<? extends IBeanProxy<BEAN_TYPE>> beans);
-
-	void removeAllBeans();
-
-	void addBean(IBeanProxy<BEAN_TYPE> bean);
-
-	IBeanProxy<BEAN_TYPE> addBeanDto(IBeanDto beanDto);
-
-	IBeanProxy<BEAN_TYPE> addTransientBean();
-
-	ArrayList<Integer> getSelection();
-
-	void setSelection(Collection<Integer> selection);
-
-	void fireBeansChanged();
+/**
+ * Extends {@link IResultCallback} with the possibility
+ * to push updates for the initial result.
+ *
+ * @param <RESULT_TYPE> type of the result
+ * @param <UPDATE_TYPE> type of updates
+ */
+public interface IUpdatableResultCallback<UPDATE_TYPE, RESULT_TYPE> extends IResultCallback<RESULT_TYPE> {
 
 	/**
-	 * Provides a checker that checks if data can be added to the model. E.g. if the model is a child and
-	 * the parent selection is empty. so data should be added.
+	 * Allows to update results already finished results.
 	 * 
-	 * Implementors may return null if this feature should not be supported
+	 * Updates must not occur before finished.
+	 * Updates must not occur after exceptions.
 	 * 
-	 * @return The enabled checker or null
+	 * @param update the updated result
 	 */
-	IEnabledChecker getDataAddableChecker();
+	void update(UPDATE_TYPE update);
+
+	/**
+	 * after this method is called, there are no more calls to {@link #update(Object)}
+	 */
+	void updatesFinished();
+
+	/**
+	 * @param exception an exception that occurred when preparing an update
+	 */
+	void exceptionOnUpdate(Throwable exception);
 
 }

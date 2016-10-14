@@ -57,11 +57,8 @@ import org.jowidgets.cap.ui.api.sort.ISortModel;
 import org.jowidgets.util.Interval;
 import org.jowidgets.util.event.IChangeListener;
 
-public interface IBeanTableModel<BEAN_TYPE> extends
-		IDataModel,
-		IDataModelContextProvider,
-		IBeanListModel<BEAN_TYPE>,
-		IDisposeObservable {
+public interface IBeanTableModel<BEAN_TYPE>
+		extends IDataModel, IDataModelContextProvider, IBeanListModel<BEAN_TYPE>, IDisposeObservable {
 
 	String UI_FILTER_ID = IBeanTableModel.class.getName() + ".UI_FILTER_ID";
 	String UI_SEARCH_FILTER_ID = IBeanTableModel.class.getName() + ".UI_SEARCH_FILTER_ID";
@@ -136,7 +133,7 @@ public interface IBeanTableModel<BEAN_TYPE> extends
 	IReaderService<Object> getReaderService();
 
 	/**
-	 * Creates a reader that could be used to read the beans from a table external.
+	 * Creates a reader that could be used to read the beans from a table externally.
 	 * The read beans will not be associated with this model.
 	 * This could be used e.g. to export beans of this table.
 	 * 
@@ -199,6 +196,11 @@ public interface IBeanTableModel<BEAN_TYPE> extends
 	ISortModel getSortModel();
 
 	/**
+	 * Remove all beans that were previously added via methods like {@link #addBean(IBeanProxy)} or {@link #addBeanDto(IBeanDto)}
+	 */
+	void clearAddedData();
+
+	/**
 	 * If last bean is enabled, the table has a transient bean at the end of the table that can be used
 	 * to create new data. If the last been will be modified, a new last bean will be added to the table, so
 	 * data can be created by clicking into the last row or navigation with help of cell editors into the last
@@ -231,6 +233,68 @@ public interface IBeanTableModel<BEAN_TYPE> extends
 	void setConfig(IBeanTableModelConfig config);
 
 	IBeanTableModelConfig getConfig();
+
+	/**
+	 * Adds the given beans to the added data.
+	 * 
+	 * Beans are added at the end.
+	 * 
+	 * @param beansToAdd
+	 */
+	void addBeans(Collection<IBeanProxy<BEAN_TYPE>> beansToAdd);
+
+	/**
+	 * Adds the given beans to the added data.
+	 * 
+	 * @param beanDtos If sorted is true, this collection is expected to be sorted.
+	 * @param sorted If set, the sorting will be maintained, otherwise the beans will be appended.
+	 */
+	void addBeans(Collection<IBeanProxy<BEAN_TYPE>> beansToAdd, boolean sorted);
+
+	/**
+	 * Update existing {@link IBeanProxy}s that match the id of one of the given {@link IBeanDto}s.
+	 * 
+	 * @param beanUpdates
+	 * 
+	 * @return whether any bean was updated
+	 */
+	void updateBeans(Collection<IBeanDto> beanUpdates);
+
+	/**
+	 * Update existing {@link IBeanProxy}s that match the id of one of the given {@link IBeanDto}s.
+	 * 
+	 * @param beanUpdates
+	 * @param sorted If set, the sorting will be maintained.
+	 * 
+	 * @return whether any bean was updated
+	 */
+	void updateBeans(Collection<IBeanDto> beanUpdates, boolean sorted);
+
+	/**
+	 * Creates {@link IBeanProxy}s for the given {@link IBeanDto}s and adds them to the added data.
+	 * The created proxies will be returned.
+	 * 
+	 * Depending on the sorted flag, beans are added at the end or according to the current sorting.
+	 * 
+	 * @param beanDtos If sorted is true, this collection is expected to be sorted.
+	 * @param sorted If set, the sorting will be maintained, otherwise the beans will be appended.
+	 * 
+	 * @return The new proxies for the given {@link IBeanDto}s.
+	 */
+	List<IBeanProxy<BEAN_TYPE>> addBeanDtos(Collection<? extends IBeanDto> beanDtos, boolean sorted);
+
+	/**
+	 * Creates a {@link IBeanProxy} for the given {@link IBeanDto} and adds it to the added data.
+	 * The created proxy will be returned.
+	 * 
+	 * Depending on the sorted flag, the bean is added at the end or according to the current sorting.
+	 * 
+	 * @param beanDto The bean to add
+	 * @param sorted If set, the sorting will be maintained, otherwise the beans will be appended.
+	 * 
+	 * @return The new proxy for the given {@link IBeanDto}
+	 */
+	IBeanProxy<BEAN_TYPE> addBeanDto(IBeanDto beanDto, boolean sorted);
 
 	void dispose();
 

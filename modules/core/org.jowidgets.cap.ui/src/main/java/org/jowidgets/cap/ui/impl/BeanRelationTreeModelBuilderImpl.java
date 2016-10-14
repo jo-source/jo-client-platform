@@ -62,9 +62,9 @@ import org.jowidgets.service.api.ServiceProvider;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.ITypedKey;
 
-final class BeanRelationTreeModelBuilderImpl<CHILD_BEAN_TYPE> extends
-		BeanRelationNodeModelBluePrint<CHILD_BEAN_TYPE, IBeanRelationTreeModelBuilder<CHILD_BEAN_TYPE>> implements
-		IBeanRelationTreeModelBuilder<CHILD_BEAN_TYPE> {
+final class BeanRelationTreeModelBuilderImpl<CHILD_BEAN_TYPE>
+		extends BeanRelationNodeModelBluePrint<CHILD_BEAN_TYPE, IBeanRelationTreeModelBuilder<CHILD_BEAN_TYPE>>
+		implements IBeanRelationTreeModelBuilder<CHILD_BEAN_TYPE> {
 
 	private final List<IBeanRelationNodeModelConfigurator> nodeConfigurators;
 

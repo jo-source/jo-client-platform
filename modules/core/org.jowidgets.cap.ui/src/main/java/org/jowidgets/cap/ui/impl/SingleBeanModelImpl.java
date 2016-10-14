@@ -792,7 +792,5 @@ final class SingleBeanModelImpl<BEAN_TYPE> implements ISingleBeanModel<BEAN_TYPE
 				beanListModelObservable.fireBeansChanged();
 			}
 		}
-
 	}
-
 }

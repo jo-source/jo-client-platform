@@ -57,6 +57,7 @@ public final class ReaderServiceAdapter<PARAM_TYPE> implements IReaderService<PA
 		final int maxRows,
 		final PARAM_TYPE parameter,
 		final IExecutionCallback executionCallback) {
+
 		try {
 			final List<IBeanDto> result = syncReaderService.read(
 					parentBeanKeys,
@@ -80,6 +81,7 @@ public final class ReaderServiceAdapter<PARAM_TYPE> implements IReaderService<PA
 		final IFilter filter,
 		final PARAM_TYPE parameter,
 		final IExecutionCallback executionCallback) {
+
 		try {
 			final Integer result = syncReaderService.count(parentBeanKeys, filter, parameter, executionCallback);
 			resultCallback.finished(result);

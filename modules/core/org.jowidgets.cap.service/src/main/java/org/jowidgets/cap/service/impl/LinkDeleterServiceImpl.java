@@ -62,7 +62,8 @@ import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.util.reflection.BeanUtils;
 
-final class LinkDeleterServiceImpl<SOURCE_BEAN_TYPE extends IBean, LINKED_BEAN_TYPE extends IBean> implements ILinkDeleterService {
+final class LinkDeleterServiceImpl<SOURCE_BEAN_TYPE extends IBean, LINKED_BEAN_TYPE extends IBean>
+		implements ILinkDeleterService {
 
 	private final IBeanAccess<SOURCE_BEAN_TYPE> sourceBeanAccess;
 	private final IBeanAccess<LINKED_BEAN_TYPE> linkedBeanAccess;

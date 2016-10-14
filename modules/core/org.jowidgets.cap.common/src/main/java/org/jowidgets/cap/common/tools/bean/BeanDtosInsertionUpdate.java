@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2016, MGrossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,47 +26,30 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.model;
+package org.jowidgets.cap.common.tools.bean;
 
+import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 
-import org.jowidgets.api.command.IEnabledChecker;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
-import org.jowidgets.cap.ui.api.bean.IBeanProxy;
-import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
+import org.jowidgets.cap.common.api.bean.IBeanDtosInsertionUpdate;
+import org.jowidgets.util.Assert;
 
-public interface IBeanListModel<BEAN_TYPE>
-		extends IBeanListModelObservable<BEAN_TYPE>, IBeanListModelBeansObservable<BEAN_TYPE>, IBeanSelectionProvider<BEAN_TYPE> {
+public final class BeanDtosInsertionUpdate implements IBeanDtosInsertionUpdate, Serializable {
 
-	int getSize();
+	private static final long serialVersionUID = 1L;
 
-	IBeanProxy<BEAN_TYPE> getBean(int index);
+	private final List<IBeanDto> insertedBeans;
 
-	void removeBeans(Iterable<? extends IBeanProxy<BEAN_TYPE>> beans);
+	public BeanDtosInsertionUpdate(final List<IBeanDto> insertedBeans) {
+		Assert.paramNotNull(insertedBeans, "insertedBeans");
+		this.insertedBeans = new ArrayList<IBeanDto>(insertedBeans);
+	}
 
-	void removeAllBeans();
-
-	void addBean(IBeanProxy<BEAN_TYPE> bean);
-
-	IBeanProxy<BEAN_TYPE> addBeanDto(IBeanDto beanDto);
-
-	IBeanProxy<BEAN_TYPE> addTransientBean();
-
-	ArrayList<Integer> getSelection();
-
-	void setSelection(Collection<Integer> selection);
-
-	void fireBeansChanged();
-
-	/**
-	 * Provides a checker that checks if data can be added to the model. E.g. if the model is a child and
-	 * the parent selection is empty. so data should be added.
-	 * 
-	 * Implementors may return null if this feature should not be supported
-	 * 
-	 * @return The enabled checker or null
-	 */
-	IEnabledChecker getDataAddableChecker();
+	@Override
+	public List<IBeanDto> getInsertedBeans() {
+		return insertedBeans;
+	}
 
 }
