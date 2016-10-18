@@ -1442,7 +1442,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		final Comparator<IBeanDto> comparator) {
 
 		boolean sortingChanged = false;
-		IBeanProxy<BEAN_TYPE> lastBean = null;
+		IBeanProxy<BEAN_TYPE> previousBean = null;
 		IBeanProxy<BEAN_TYPE> lastUpdatedBean = null;
 
 		for (final IBeanProxy<BEAN_TYPE> beanProxy : addedData) {
@@ -1455,7 +1455,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			if (beanToUpdate != null) {
 				beanProxy.update(beanToUpdate);
 				beansToUpateById.remove(beanProxy.getId());
-				if (sorted && !sortingChanged && lastBean != null && comparator.compare(lastBean, beanProxy) > 0) {
+				if (sorted && !sortingChanged && previousBean != null && comparator.compare(previousBean, beanProxy) > 0) {
 					sortingChanged = true;
 				}
 			}
@@ -1471,7 +1471,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 				lastUpdatedBean = null;
 			}
 
-			lastBean = beanProxy;
+			previousBean = beanProxy;
 		}
 
 		if (!beansToUpateById.isEmpty()) {
@@ -3104,10 +3104,10 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 				finished = true;
 				dataModel.fireDataChanged();
 			}
-			else {
-				// Nothing to do here, because the dummy bean proxy is long gone. 
-				// The only thing being canceled here are potential updates.
-			}
+			//else {
+			// Nothing to do here, because the dummy bean proxy is long gone. 
+			// The only thing being canceled here are potential updates.
+			//}
 		}
 
 		void doCallbackSuccess() {
