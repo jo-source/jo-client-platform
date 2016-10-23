@@ -7,6 +7,7 @@ Bundle-Vendor: jowidgets.org
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
 Require-Bundle: 
+ org.eclipse.osgi;bundle-version="3.6.2",
  org.jowidgets.util.bundle,
  org.jowidgets.api.bundle,
  org.jowidgets.common.bundle,
@@ -15,8 +16,6 @@ Require-Bundle:
  org.jowidgets.cap.ui.bundle,
  org.jowidgets.cap.tools.starter.client.login.bundle,
  org.jowidgets.cap.tools.starter.client.remoting.bundle,
- org.jowidgets.tools.starter.classloading.plugin,
  org.jowidgets.workbench.api.bundle,
- org.jowidgets.workbench.impl.bundle,
- org.eclipse.osgi;bundle-version="3.6.2"
+ org.jowidgets.workbench.impl.bundle
 Export-Package: org.jowidgets.cap.tools.starter.client.osgi
