@@ -122,6 +122,7 @@ Features:
 
 * Fixed issue #59 https://github.com/jo-source/jo-client-platform/issues/59 Allow to configure user confirmation for service layer validation warnings 
 * Fixed issue #63 https://github.com/jo-source/jo-client-platform/issues/63 Allow to create IBeanProxy instances outside the ui thread 
+* Fixes issue #49 https://github.com/jo-source/jo-client-platform/issues/49 Allow to update the result of a reader service
 
 
 Bugfixes:
@@ -135,5 +136,18 @@ Bugfixes:
 * Fixes issue #60 https://github.com/jo-source/jo-client-platform/issues/60 ServiceProvider throws ConcurrentModificationException when IServiceProviderHolder is registered 
 * Fixes issue #61 https://github.com/jo-source/jo-client-platform/issues/61 ScrollBar in settings dialog of bean table disapear when window will be resized
 * Fixes issue #62 https://github.com/jo-source/jo-client-platform/issues/62 Only validate BeanProxy objects if validators are set 
+
+
+----------------------------------------------------------------------------------------------------------------------------
+
+0.60.0 
+
+
+Features:
+
+
+Bugfixes:
+
+
 
 
