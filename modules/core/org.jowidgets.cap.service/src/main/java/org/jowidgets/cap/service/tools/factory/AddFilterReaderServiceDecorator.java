@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, grossmann
+ * Copyright (c) 2016, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,51 +26,71 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.neo4J.impl;
+package org.jowidgets.cap.service.tools.factory;
 
-import java.util.Collection;
 import java.util.List;
 
-import org.jowidgets.cap.common.api.bean.IBean;
+import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
+import org.jowidgets.cap.common.api.execution.IResultCallback;
+import org.jowidgets.cap.common.api.filter.BooleanFilter;
 import org.jowidgets.cap.common.api.filter.IFilter;
-import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
-import org.jowidgets.cap.service.tools.reader.AbstractSimpleReaderService;
+import org.jowidgets.cap.common.api.service.IReaderService;
+import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.util.Assert;
 
-//TODO MG this implementation is not made for production use
-final class SyncNeo4JSimpleReaderServiceImpl<BEAN_TYPE extends IBean, PARAM_TYPE>
-		extends AbstractSimpleReaderService<BEAN_TYPE, PARAM_TYPE> {
+final class AddFilterReaderServiceDecorator<PARAM_TYPE> implements IReaderService<PARAM_TYPE> {
 
-	private final Neo4JAllBeansProvider<BEAN_TYPE, PARAM_TYPE> beansProvider;
+	private final IReaderService<PARAM_TYPE> original;
+	private final IFilter filter;
 
-	SyncNeo4JSimpleReaderServiceImpl(
-		final Class<? extends BEAN_TYPE> beanType,
-		final Object beanTypeId,
-		final IBeanDtoFactory<BEAN_TYPE> beanFactory) {
-		this(beanType, beanTypeId, beanFactory, null);
-	}
-
-	SyncNeo4JSimpleReaderServiceImpl(
-		final Class<? extends BEAN_TYPE> beanType,
-		final Object beanTypeId,
-		final IBeanDtoFactory<BEAN_TYPE> beanFactory,
-		final Collection<IFilter> additionalFilters) {
-		super(beanType, beanFactory, additionalFilters);
-
-		Assert.paramNotNull(beanType, "beanType");
-		Assert.paramNotNull(beanTypeId, "beanTypeId");
-		Assert.paramNotNull(beanFactory, "beanFactory");
-
-		this.beansProvider = new Neo4JAllBeansProvider<BEAN_TYPE, PARAM_TYPE>(beanType, beanTypeId);
+	AddFilterReaderServiceDecorator(final IReaderService<PARAM_TYPE> original, final IFilter filter) {
+		Assert.paramNotNull(original, "original");
+		this.original = original;
+		this.filter = filter;
 	}
 
 	@Override
-	protected List<? extends BEAN_TYPE> getAllBeans(
-		final List<? extends IBeanKey> parentBeans,
+	public void read(
+		final IResultCallback<List<IBeanDto>> result,
+		final List<? extends IBeanKey> parentBeanKeys,
+		final IFilter filter,
+		final List<? extends ISort> sorting,
+		final int firstRow,
+		final int maxRows,
 		final PARAM_TYPE parameter,
 		final IExecutionCallback executionCallback) {
-		return beansProvider.getAllBeans(parentBeans, parameter, executionCallback);
+		original.read(
+				result,
+				parentBeanKeys,
+				getDecoratedFilter(filter),
+				sorting,
+				firstRow,
+				maxRows,
+				parameter,
+				executionCallback);
+	}
+
+	@Override
+	public void count(
+		final IResultCallback<Integer> result,
+		final List<? extends IBeanKey> parentBeanKeys,
+		final IFilter filter,
+		final PARAM_TYPE parameter,
+		final IExecutionCallback executionCallback) {
+		original.count(result, parentBeanKeys, getDecoratedFilter(filter), parameter, executionCallback);
+	}
+
+	private IFilter getDecoratedFilter(final IFilter filterToDecorate) {
+		if (filterToDecorate == null) {
+			return filter;
+		}
+		else if (filter == null) {
+			return filterToDecorate;
+		}
+		else {
+			return BooleanFilter.builder().addFilter(filter).addFilter(filterToDecorate).build();
+		}
 	}
 }

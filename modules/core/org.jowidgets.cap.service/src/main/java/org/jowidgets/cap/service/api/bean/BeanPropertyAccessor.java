@@ -28,25 +28,20 @@
 
 package org.jowidgets.cap.service.api.bean;
 
-import java.util.Collection;
-
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 
-public final class BeanDtoFactory {
+public final class BeanPropertyAccessor {
 
-	private BeanDtoFactory() {}
+	private BeanPropertyAccessor() {}
 
-	public static <BEAN_TYPE extends IBean> IBeanDtoFactory<BEAN_TYPE> create(
-		final Class<? extends BEAN_TYPE> beanType,
-		final Collection<String> propertyNames) {
-		return CapServiceToolkit.dtoFactory(beanType, propertyNames);
+	public static <BEAN_TYPE extends IBean> IBeanPropertyAccessor<BEAN_TYPE> create(final Class<? extends BEAN_TYPE> beanType) {
+		return CapServiceToolkit.beanPropertyAccessor(beanType);
 	}
 
-	public static <BEAN_TYPE> IBeanDtoFactory<BEAN_TYPE> create(
-		final IBeanIdentityResolver<? extends BEAN_TYPE> identityResolver,
-		final Collection<String> propertyNames) {
-		return CapServiceToolkit.dtoFactory(identityResolver, propertyNames);
+	public static <BEAN_TYPE> IBeanPropertyAccessor<BEAN_TYPE> create(
+		final IBeanIdentityResolver<? extends BEAN_TYPE> identityResolver) {
+		return CapServiceToolkit.beanPropertyAccessor(identityResolver);
 	}
 
 }

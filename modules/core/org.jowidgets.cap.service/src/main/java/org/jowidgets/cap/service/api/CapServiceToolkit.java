@@ -43,6 +43,7 @@ import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.api.bean.IBeanIdentityResolver;
 import org.jowidgets.cap.service.api.bean.IBeanInitializer;
 import org.jowidgets.cap.service.api.bean.IBeanModifier;
+import org.jowidgets.cap.service.api.bean.IBeanPropertyAccessor;
 import org.jowidgets.cap.service.api.bean.IBeanPropertyMap;
 import org.jowidgets.cap.service.api.bean.IUniqueConstraintChecker;
 import org.jowidgets.cap.service.api.bean.IUniqueConstraintCheckerBuilder;
@@ -121,6 +122,16 @@ public final class CapServiceToolkit {
 		final IBeanIdentityResolver<? extends BEAN_TYPE> identityResolver,
 		final Collection<String> propertyNames) {
 		return getInstance().dtoFactory(identityResolver, propertyNames);
+	}
+
+	public static <BEAN_TYPE> IBeanPropertyAccessor<BEAN_TYPE> beanPropertyAccessor(
+		final IBeanIdentityResolver<? extends BEAN_TYPE> identityResolver) {
+		return getInstance().beanPropertyAccessor(identityResolver);
+	}
+
+	public static <BEAN_TYPE extends IBean> IBeanPropertyAccessor<BEAN_TYPE> beanPropertyAccessor(
+		final Class<? extends BEAN_TYPE> beanType) {
+		return getInstance().beanPropertyAccessor(beanType);
 	}
 
 	public static IBeanDtoCollectionSorter beanDtoCollectionSorter() {

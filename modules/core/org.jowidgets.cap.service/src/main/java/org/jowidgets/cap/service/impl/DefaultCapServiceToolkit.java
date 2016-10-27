@@ -47,6 +47,7 @@ import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.api.bean.IBeanIdentityResolver;
 import org.jowidgets.cap.service.api.bean.IBeanInitializer;
 import org.jowidgets.cap.service.api.bean.IBeanModifier;
+import org.jowidgets.cap.service.api.bean.IBeanPropertyAccessor;
 import org.jowidgets.cap.service.api.bean.IBeanPropertyMap;
 import org.jowidgets.cap.service.api.bean.IUniqueConstraintChecker;
 import org.jowidgets.cap.service.api.bean.IUniqueConstraintCheckerBuilder;
@@ -158,6 +159,31 @@ public final class DefaultCapServiceToolkit implements ICapServiceToolkit {
 		}
 		else {
 			return new BeanDtoFactoryImpl<BEAN_TYPE>(identityResolver, propertyNames);
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <BEAN_TYPE> IBeanPropertyAccessor<BEAN_TYPE> beanPropertyAccessor(
+		final IBeanIdentityResolver<? extends BEAN_TYPE> identityResolver) {
+		final Class<? extends BEAN_TYPE> beanType = identityResolver.getBeanType();
+		if (IBeanPropertyMap.class == beanType) {
+			return (IBeanPropertyAccessor<BEAN_TYPE>) new BeanPropertyMapPropertyAccessor();
+		}
+		else {
+			return new BeanPropertyAccessorImpl<BEAN_TYPE>(identityResolver);
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <BEAN_TYPE extends IBean> IBeanPropertyAccessor<BEAN_TYPE> beanPropertyAccessor(
+		final Class<? extends BEAN_TYPE> beanType) {
+		if (IBeanPropertyMap.class == beanType) {
+			return (IBeanPropertyAccessor<BEAN_TYPE>) new BeanPropertyMapPropertyAccessor();
+		}
+		else {
+			return new BeanPropertyAccessorImpl<BEAN_TYPE>(beanType);
 		}
 	}
 
@@ -294,12 +320,14 @@ public final class DefaultCapServiceToolkit implements ICapServiceToolkit {
 	}
 
 	@Override
-	public <BEAN_TYPE> IUpdaterServiceBuilder<BEAN_TYPE> updaterServiceBuilder(final IBeanAccess<? extends BEAN_TYPE> beanAccess) {
+	public <BEAN_TYPE> IUpdaterServiceBuilder<BEAN_TYPE> updaterServiceBuilder(
+		final IBeanAccess<? extends BEAN_TYPE> beanAccess) {
 		return new UpdaterServiceBuilderImpl<BEAN_TYPE>(beanAccess);
 	}
 
 	@Override
-	public <BEAN_TYPE> IRefreshServiceBuilder<BEAN_TYPE> refreshServiceBuilder(final IBeanAccess<? extends BEAN_TYPE> beanAccess) {
+	public <BEAN_TYPE> IRefreshServiceBuilder<BEAN_TYPE> refreshServiceBuilder(
+		final IBeanAccess<? extends BEAN_TYPE> beanAccess) {
 		return new RefreshServiceBuilderImpl<BEAN_TYPE>(beanAccess);
 	}
 

@@ -43,6 +43,7 @@ import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.api.bean.IBeanIdentityResolver;
 import org.jowidgets.cap.service.api.bean.IBeanInitializer;
 import org.jowidgets.cap.service.api.bean.IBeanModifier;
+import org.jowidgets.cap.service.api.bean.IBeanPropertyAccessor;
 import org.jowidgets.cap.service.api.bean.IBeanPropertyMap;
 import org.jowidgets.cap.service.api.bean.IUniqueConstraintChecker;
 import org.jowidgets.cap.service.api.bean.IUniqueConstraintCheckerBuilder;
@@ -83,6 +84,11 @@ public interface ICapServiceToolkit {
 		IBeanIdentityResolver<? extends BEAN_TYPE> identityResolver,
 		Collection<String> propertyNames);
 
+	<BEAN_TYPE> IBeanPropertyAccessor<BEAN_TYPE> beanPropertyAccessor(
+		IBeanIdentityResolver<? extends BEAN_TYPE> identityResolver);
+
+	<BEAN_TYPE extends IBean> IBeanPropertyAccessor<BEAN_TYPE> beanPropertyAccessor(Class<? extends BEAN_TYPE> beanType);
+
 	IBeanDtoCollectionSorter beanDtoCollectionSorter();
 
 	IBeanDtoCollectionSorter beanDtoCollectionSorter(Class<?> beanType);
@@ -91,7 +97,9 @@ public interface ICapServiceToolkit {
 
 	IBeanDtoCollectionFilter beanDtoCollectionFilter();
 
-	<BEAN_TYPE> IBeanInitializer<BEAN_TYPE> beanInitializer(Class<? extends BEAN_TYPE> beanType, Collection<String> propertyNames);
+	<BEAN_TYPE> IBeanInitializer<BEAN_TYPE> beanInitializer(
+		Class<? extends BEAN_TYPE> beanType,
+		Collection<String> propertyNames);
 
 	<BEAN_TYPE> IBeanModifier<BEAN_TYPE> beanModifier(Class<? extends BEAN_TYPE> beanType, Collection<String> propertyNames);
 

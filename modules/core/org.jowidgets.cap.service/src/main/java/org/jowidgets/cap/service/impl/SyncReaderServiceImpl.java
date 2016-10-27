@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2016, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,12 +26,10 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.jpa.impl;
+package org.jowidgets.cap.service.impl;
 
 import java.util.Collections;
 import java.util.List;
-
-import javax.persistence.Query;
 
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
@@ -42,20 +40,20 @@ import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.adapter.ISyncReaderService;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
-import org.jowidgets.cap.service.jpa.api.query.IQueryCreator;
+import org.jowidgets.cap.service.api.bean.IBeanReader;
 import org.jowidgets.cap.service.tools.bean.BeanDtoFactoryHelper;
 import org.jowidgets.util.Assert;
 
-final class SyncJpaReaderServiceImpl<PARAM_TYPE> implements ISyncReaderService<PARAM_TYPE> {
+public final class SyncReaderServiceImpl<PARAM_TYPE> implements ISyncReaderService<PARAM_TYPE> {
 
-	private final IQueryCreator<PARAM_TYPE> queryCreator;
+	private final IBeanReader<IBean, PARAM_TYPE> beanReader;
 	private final IBeanDtoFactory<IBean> beanFactory;
 
 	@SuppressWarnings({"rawtypes", "unchecked"})
-	SyncJpaReaderServiceImpl(final IQueryCreator<PARAM_TYPE> queryCreator, final IBeanDtoFactory beanFactory) {
-		Assert.paramNotNull(queryCreator, "queryCreator");
+	public SyncReaderServiceImpl(final IBeanReader<? extends IBean, PARAM_TYPE> beanReader, final IBeanDtoFactory beanFactory) {
+		Assert.paramNotNull(beanReader, "beanReader");
 		Assert.paramNotNull(beanFactory, "beanFactory");
-		this.queryCreator = queryCreator;
+		this.beanReader = (IBeanReader<IBean, PARAM_TYPE>) beanReader;
 		this.beanFactory = beanFactory;
 	}
 
@@ -69,13 +67,15 @@ final class SyncJpaReaderServiceImpl<PARAM_TYPE> implements ISyncReaderService<P
 		final PARAM_TYPE parameter,
 		final IExecutionCallback executionCallback) {
 
-		final Query query = queryCreator.createReadQuery(EntityManagerProvider.get(), parentBeanKeys, filter, sorting, parameter);
-		query.setFirstResult(firstRow);
-		query.setMaxResults(maxRows);
-
 		CapServiceToolkit.checkCanceled(executionCallback);
-		@SuppressWarnings("unchecked")
-		final List<IBean> result = query.getResultList();
+		final List<IBean> result = beanReader.read(
+				parentBeanKeys,
+				filter,
+				sorting,
+				firstRow,
+				maxRows,
+				parameter,
+				executionCallback);
 		CapServiceToolkit.checkCanceled(executionCallback);
 		if (result != null) {
 			return BeanDtoFactoryHelper.createDtos(beanFactory, result);
@@ -90,16 +90,7 @@ final class SyncJpaReaderServiceImpl<PARAM_TYPE> implements ISyncReaderService<P
 		final PARAM_TYPE parameter,
 		final IExecutionCallback executionCallback) {
 
-		final Query query = queryCreator.createCountQuery(EntityManagerProvider.get(), parentBeanKeys, filter, parameter);
-		CapServiceToolkit.checkCanceled(executionCallback);
-		final Object singleResult = query.getSingleResult();
-		CapServiceToolkit.checkCanceled(executionCallback);
-		if (singleResult != null) {
-			return ((Number) singleResult).intValue();
-		}
-		else {
-			return null;
-		}
+		return beanReader.count(parentBeanKeys, filter, parameter, executionCallback);
 	}
 
 }

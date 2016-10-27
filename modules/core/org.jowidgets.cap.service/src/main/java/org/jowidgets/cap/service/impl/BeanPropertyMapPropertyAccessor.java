@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, grossmann
+ * Copyright (c) 2016, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,27 +26,32 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.api.bean;
+package org.jowidgets.cap.service.impl;
 
-import java.util.Collection;
+import org.jowidgets.cap.service.api.bean.IBeanPropertyAccessor;
+import org.jowidgets.cap.service.api.bean.IBeanPropertyMap;
+import org.jowidgets.util.Assert;
 
-import org.jowidgets.cap.common.api.bean.IBean;
-import org.jowidgets.cap.service.api.CapServiceToolkit;
+final class BeanPropertyMapPropertyAccessor implements IBeanPropertyAccessor<IBeanPropertyMap> {
 
-public final class BeanDtoFactory {
+	BeanPropertyMapPropertyAccessor() {}
 
-	private BeanDtoFactory() {}
-
-	public static <BEAN_TYPE extends IBean> IBeanDtoFactory<BEAN_TYPE> create(
-		final Class<? extends BEAN_TYPE> beanType,
-		final Collection<String> propertyNames) {
-		return CapServiceToolkit.dtoFactory(beanType, propertyNames);
+	@Override
+	public Object getId(final IBeanPropertyMap bean) {
+		Assert.paramNotNull(bean, "bean");
+		return bean.getId();
 	}
 
-	public static <BEAN_TYPE> IBeanDtoFactory<BEAN_TYPE> create(
-		final IBeanIdentityResolver<? extends BEAN_TYPE> identityResolver,
-		final Collection<String> propertyNames) {
-		return CapServiceToolkit.dtoFactory(identityResolver, propertyNames);
+	@Override
+	public long getVersion(final IBeanPropertyMap bean) {
+		Assert.paramNotNull(bean, "bean");
+		return bean.getVersion();
+	}
+
+	@Override
+	public Object getValue(final IBeanPropertyMap bean, final String propertyName) {
+		Assert.paramNotNull(bean, "bean");
+		return bean.getValue(propertyName);
 	}
 
 }

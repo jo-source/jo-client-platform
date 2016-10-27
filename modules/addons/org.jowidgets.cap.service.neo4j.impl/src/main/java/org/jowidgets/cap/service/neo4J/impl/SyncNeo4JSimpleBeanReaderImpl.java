@@ -26,27 +26,50 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.api.bean;
+package org.jowidgets.cap.service.neo4J.impl;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBean;
-import org.jowidgets.cap.service.api.CapServiceToolkit;
+import org.jowidgets.cap.common.api.bean.IBeanKey;
+import org.jowidgets.cap.common.api.execution.IExecutionCallback;
+import org.jowidgets.cap.common.api.filter.IFilter;
+import org.jowidgets.cap.service.api.bean.IBeanPropertyAccessor;
+import org.jowidgets.cap.service.tools.reader.AbstractSimpleBeanReader;
+import org.jowidgets.util.Assert;
 
-public final class BeanDtoFactory {
+//TODO MG this implementation is not made for production use
+final class SyncNeo4JSimpleBeanReaderImpl<BEAN_TYPE extends IBean, PARAM_TYPE>
+		extends AbstractSimpleBeanReader<BEAN_TYPE, PARAM_TYPE> {
 
-	private BeanDtoFactory() {}
+	private final Neo4JAllBeansProvider<BEAN_TYPE, PARAM_TYPE> beansProvider;
 
-	public static <BEAN_TYPE extends IBean> IBeanDtoFactory<BEAN_TYPE> create(
+	SyncNeo4JSimpleBeanReaderImpl(
 		final Class<? extends BEAN_TYPE> beanType,
-		final Collection<String> propertyNames) {
-		return CapServiceToolkit.dtoFactory(beanType, propertyNames);
+		final Object beanTypeId,
+		final IBeanPropertyAccessor<BEAN_TYPE> propertyAccessor) {
+		this(beanType, beanTypeId, propertyAccessor, null);
 	}
 
-	public static <BEAN_TYPE> IBeanDtoFactory<BEAN_TYPE> create(
-		final IBeanIdentityResolver<? extends BEAN_TYPE> identityResolver,
-		final Collection<String> propertyNames) {
-		return CapServiceToolkit.dtoFactory(identityResolver, propertyNames);
+	SyncNeo4JSimpleBeanReaderImpl(
+		final Class<? extends BEAN_TYPE> beanType,
+		final Object beanTypeId,
+		final IBeanPropertyAccessor<BEAN_TYPE> propertyAccessor,
+		final Collection<IFilter> additionalFilters) {
+		super(beanType, propertyAccessor, additionalFilters);
+		Assert.paramNotNull(beanType, "beanType");
+		Assert.paramNotNull(beanTypeId, "beanTypeId");
+		Assert.paramNotNull(propertyAccessor, "propertyAccessor");
+
+		this.beansProvider = new Neo4JAllBeansProvider<BEAN_TYPE, PARAM_TYPE>(beanType, beanTypeId);
 	}
 
+	@Override
+	protected List<BEAN_TYPE> getAllBeans(
+		final List<? extends IBeanKey> parentBeans,
+		final PARAM_TYPE parameter,
+		final IExecutionCallback executionCallback) {
+		return beansProvider.getAllBeans(parentBeans, parameter, executionCallback);
+	}
 }

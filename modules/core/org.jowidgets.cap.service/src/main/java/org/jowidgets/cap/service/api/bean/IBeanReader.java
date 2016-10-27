@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, grossmann
+ * Copyright (c) 2016, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -28,25 +28,28 @@
 
 package org.jowidgets.cap.service.api.bean;
 
-import java.util.Collection;
+import java.util.List;
 
-import org.jowidgets.cap.common.api.bean.IBean;
-import org.jowidgets.cap.service.api.CapServiceToolkit;
+import org.jowidgets.cap.common.api.bean.IBeanKey;
+import org.jowidgets.cap.common.api.execution.IExecutionCallback;
+import org.jowidgets.cap.common.api.filter.IFilter;
+import org.jowidgets.cap.common.api.sort.ISort;
 
-public final class BeanDtoFactory {
+public interface IBeanReader<BEAN_TYPE, PARAM_TYPE> {
 
-	private BeanDtoFactory() {}
+	List<BEAN_TYPE> read(
+		List<? extends IBeanKey> parentBeanKeys,
+		IFilter filter,
+		List<? extends ISort> sorting,
+		int firstRow,
+		int maxRows,
+		PARAM_TYPE parameter,
+		IExecutionCallback executionCallback);
 
-	public static <BEAN_TYPE extends IBean> IBeanDtoFactory<BEAN_TYPE> create(
-		final Class<? extends BEAN_TYPE> beanType,
-		final Collection<String> propertyNames) {
-		return CapServiceToolkit.dtoFactory(beanType, propertyNames);
-	}
-
-	public static <BEAN_TYPE> IBeanDtoFactory<BEAN_TYPE> create(
-		final IBeanIdentityResolver<? extends BEAN_TYPE> identityResolver,
-		final Collection<String> propertyNames) {
-		return CapServiceToolkit.dtoFactory(identityResolver, propertyNames);
-	}
+	Integer count(
+		List<? extends IBeanKey> parentBeanKeys,
+		IFilter filter,
+		PARAM_TYPE parameter,
+		IExecutionCallback executionCallback);
 
 }

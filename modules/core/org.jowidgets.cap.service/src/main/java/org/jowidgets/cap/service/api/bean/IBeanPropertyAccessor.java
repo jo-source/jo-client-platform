@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, grossmann
+ * Copyright (c) 2016, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -28,25 +28,34 @@
 
 package org.jowidgets.cap.service.api.bean;
 
-import java.util.Collection;
+public interface IBeanPropertyAccessor<BEAN_TYPE> {
 
-import org.jowidgets.cap.common.api.bean.IBean;
-import org.jowidgets.cap.service.api.CapServiceToolkit;
+	/**
+	 * Gets the id from an bean
+	 * 
+	 * @param bean The bean to get the id for
+	 * 
+	 * @return The id for the bean, never null
+	 */
+	Object getId(BEAN_TYPE bean);
 
-public final class BeanDtoFactory {
+	/**
+	 * Gets the version for a bean.
+	 * 
+	 * @param bean The bean to get the version for
+	 * 
+	 * @return The version of the bean
+	 */
+	long getVersion(BEAN_TYPE bean);
 
-	private BeanDtoFactory() {}
-
-	public static <BEAN_TYPE extends IBean> IBeanDtoFactory<BEAN_TYPE> create(
-		final Class<? extends BEAN_TYPE> beanType,
-		final Collection<String> propertyNames) {
-		return CapServiceToolkit.dtoFactory(beanType, propertyNames);
-	}
-
-	public static <BEAN_TYPE> IBeanDtoFactory<BEAN_TYPE> create(
-		final IBeanIdentityResolver<? extends BEAN_TYPE> identityResolver,
-		final Collection<String> propertyNames) {
-		return CapServiceToolkit.dtoFactory(identityResolver, propertyNames);
-	}
+	/**
+	 * Get the value of a bean property for an bean
+	 * 
+	 * @param bean The bean to get the value from
+	 * @param propertyName The name of the property to get the value for
+	 * 
+	 * @return The value for the property, may be null
+	 */
+	Object getValue(BEAN_TYPE bean, String propertyName);
 
 }

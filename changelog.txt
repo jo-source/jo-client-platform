@@ -145,6 +145,8 @@ Bugfixes:
 
 Features:
 
+* Implements issue #65 https://github.com/jo-source/jo-client-platform/issues/65 Allow the use of reader in the service layer 
+
 
 Bugfixes:
 

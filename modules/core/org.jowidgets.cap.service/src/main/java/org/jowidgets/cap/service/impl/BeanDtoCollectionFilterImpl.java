@@ -28,9 +28,8 @@
 
 package org.jowidgets.cap.service.impl;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
 
 import org.jowidgets.cap.common.api.CapCommonToolkit;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
@@ -43,14 +42,14 @@ import org.jowidgets.cap.service.api.bean.IBeanDtoCollectionFilter;
 final class BeanDtoCollectionFilterImpl implements IBeanDtoCollectionFilter {
 
 	@Override
-	public List<IBeanDto> filter(
+	public ArrayList<IBeanDto> filter(
 		final Collection<? extends IBeanDto> beanDtos,
 		final IFilter filter,
 		final IExecutionCallback executionCallback) {
 
 		final IBeanDtoFilter beanDtoFilter = CapCommonToolkit.beanDtoFilter();
 
-		final LinkedList<IBeanDto> result = new LinkedList<IBeanDto>();
+		final ArrayList<IBeanDto> result = new ArrayList<IBeanDto>();
 		for (final IBeanDto beanDto : beanDtos) {
 			CapServiceToolkit.checkCanceled(executionCallback);
 			if (beanDtoFilter.accept(beanDto, filter)) {

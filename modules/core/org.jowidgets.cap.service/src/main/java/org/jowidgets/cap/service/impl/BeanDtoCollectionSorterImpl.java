@@ -28,10 +28,10 @@
 
 package org.jowidgets.cap.service.impl;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBeanDto;
@@ -60,11 +60,11 @@ final class BeanDtoCollectionSorterImpl implements IBeanDtoCollectionSorter {
 	}
 
 	@Override
-	public List<IBeanDto> sort(
+	public ArrayList<IBeanDto> sort(
 		final Collection<? extends IBeanDto> beanDtos,
 		final List<? extends ISort> sorting,
 		final IExecutionCallback executionCallback) {
-		final List<IBeanDto> result = new LinkedList<IBeanDto>(beanDtos);
+		final ArrayList<IBeanDto> result = new ArrayList<IBeanDto>(beanDtos);
 		Collections.sort(result, new BeanDtoComparatorDecorator(sorting, executionCallback));
 		return result;
 	}

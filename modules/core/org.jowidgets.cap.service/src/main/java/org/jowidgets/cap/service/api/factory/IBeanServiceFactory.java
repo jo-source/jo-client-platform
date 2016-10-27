@@ -31,6 +31,7 @@ package org.jowidgets.cap.service.api.factory;
 import java.util.Collection;
 
 import org.jowidgets.cap.common.api.bean.IBean;
+import org.jowidgets.cap.common.api.filter.IFilter;
 import org.jowidgets.cap.common.api.service.IBeanServicesProvider;
 import org.jowidgets.cap.common.api.service.ICreatorService;
 import org.jowidgets.cap.common.api.service.IDeleterService;
@@ -41,6 +42,8 @@ import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.api.bean.IBeanInitializer;
 import org.jowidgets.cap.service.api.bean.IBeanModifier;
+import org.jowidgets.cap.service.api.bean.IBeanPropertyAccessor;
+import org.jowidgets.cap.service.api.bean.IBeanReader;
 import org.jowidgets.cap.service.api.creator.ICreatorServiceBuilder;
 import org.jowidgets.cap.service.api.deleter.IDeleterServiceBuilder;
 import org.jowidgets.cap.service.api.entity.IBeanServicesProviderBuilder;
@@ -52,14 +55,14 @@ public interface IBeanServiceFactory {
 
 	<BEAN_TYPE extends IBean> IBeanAccess<BEAN_TYPE> beanAccess(Class<? extends BEAN_TYPE> beanType, Object beanTypeId);
 
+	<BEAN_TYPE extends IBean, PARAM_TYPE> IBeanReader<BEAN_TYPE, PARAM_TYPE> beanReader(
+		Class<? extends BEAN_TYPE> beanType,
+		Object beanTypeId,
+		IBeanPropertyAccessor<BEAN_TYPE> propertyAccessor);
+
 	<BEAN_TYPE extends IBean> ICreatorServiceBuilder<BEAN_TYPE> creatorServiceBuilder(
 		Class<? extends BEAN_TYPE> beanType,
 		Object beanTypeId);
-
-	<BEAN_TYPE extends IBean, PARAM_TYPE> IReaderService<PARAM_TYPE> readerService(
-		Class<? extends BEAN_TYPE> beanType,
-		Object beanTypeId,
-		IBeanDtoFactory<BEAN_TYPE> beanDtoFactory);
 
 	<BEAN_TYPE extends IBean> IDeleterServiceBuilder<BEAN_TYPE> deleterServiceBuilder(
 		Class<? extends BEAN_TYPE> beanType,
@@ -80,8 +83,38 @@ public interface IBeanServiceFactory {
 		Class<? extends BEAN_TYPE> beanType,
 		Object beanTypeId);
 
+	<BEAN_TYPE extends IBean, PARAM_TYPE> IBeanReader<BEAN_TYPE, PARAM_TYPE> beanReader(
+		Class<? extends BEAN_TYPE> beanType,
+		Object beanTypeId);
+
+	<BEAN_TYPE extends IBean, PARAM_TYPE> IReaderService<PARAM_TYPE> readerService(
+		Class<? extends BEAN_TYPE> beanType,
+		Object beanTypeId,
+		IBeanDtoFactory<BEAN_TYPE> beanDtoFactory);
+
+	<BEAN_TYPE extends IBean, PARAM_TYPE> IReaderService<PARAM_TYPE> readerService(
+		IBeanReader<BEAN_TYPE, PARAM_TYPE> beanReader,
+		IBeanDtoFactory<BEAN_TYPE> beanDtoFactory);
+
+	<BEAN_TYPE extends IBean, PARAM_TYPE> IReaderService<PARAM_TYPE> readerService(
+		Class<? extends BEAN_TYPE> beanType,
+		Object beanTypeId,
+		IBeanDtoFactory<BEAN_TYPE> beanDtoFactory,
+		IFilter filter);
+
 	//************************************************Convenience methods starts here*******************************************
 	//Use AbstractBeanServiceFactory for implementation
+
+	<BEAN_TYPE extends IBean, PARAM_TYPE> IBeanReader<BEAN_TYPE, PARAM_TYPE> beanReader(Class<? extends BEAN_TYPE> beanType);
+
+	<BEAN_TYPE extends IBean, PARAM_TYPE> IBeanReader<BEAN_TYPE, PARAM_TYPE> beanReader(
+		Class<? extends BEAN_TYPE> beanType,
+		Object beanTypeId,
+		IFilter filter);
+
+	<BEAN_TYPE extends IBean, PARAM_TYPE> IBeanReader<BEAN_TYPE, PARAM_TYPE> beanReader(
+		Class<? extends BEAN_TYPE> beanType,
+		IFilter filter);
 
 	<BEAN_TYPE extends IBean> IBeanServicesProviderBuilder beanServicesBuilder(
 		IServiceRegistry registry,
@@ -107,6 +140,11 @@ public interface IBeanServiceFactory {
 	<BEAN_TYPE extends IBean, PARAM_TYPE> IReaderService<PARAM_TYPE> readerService(
 		Class<? extends BEAN_TYPE> beanType,
 		IBeanDtoFactory<BEAN_TYPE> beanDtoFactory);
+
+	<BEAN_TYPE extends IBean, PARAM_TYPE> IReaderService<PARAM_TYPE> readerService(
+		final Class<? extends BEAN_TYPE> beanType,
+		final IBeanDtoFactory<BEAN_TYPE> beanDtoFactory,
+		IFilter filter);
 
 	<BEAN_TYPE extends IBean> IDeleterServiceBuilder<BEAN_TYPE> deleterServiceBuilder(Class<? extends BEAN_TYPE> beanType);
 
@@ -134,6 +172,11 @@ public interface IBeanServiceFactory {
 
 	<PARAM_TYPE> IReaderService<PARAM_TYPE> readerService(Class<? extends IBean> beanType, Collection<String> propertyNames);
 
+	<PARAM_TYPE> IReaderService<PARAM_TYPE> readerService(
+		Class<? extends IBean> beanType,
+		Collection<String> propertyNames,
+		IFilter filter);
+
 	IRefreshService refreshService(Class<? extends IBean> beanType, Collection<String> propertyNames);
 
 	IUpdaterService updaterService(Class<? extends IBean> beanType, Collection<String> propertyNames);
@@ -146,6 +189,12 @@ public interface IBeanServiceFactory {
 		Class<? extends IBean> beanType,
 		Object beanTypeId,
 		Collection<String> propertyNames);
+
+	<PARAM_TYPE> IReaderService<PARAM_TYPE> readerService(
+		Class<? extends IBean> beanType,
+		Object beanTypeId,
+		Collection<String> propertyNames,
+		IFilter filter);
 
 	IRefreshService refreshService(Class<? extends IBean> beanType, Object beanTypeId, Collection<String> propertyNames);
 

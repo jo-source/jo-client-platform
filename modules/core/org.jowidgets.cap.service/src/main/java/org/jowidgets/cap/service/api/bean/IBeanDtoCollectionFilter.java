@@ -28,8 +28,8 @@
 
 package org.jowidgets.cap.service.api.bean;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
@@ -37,6 +37,6 @@ import org.jowidgets.cap.common.api.filter.IFilter;
 
 public interface IBeanDtoCollectionFilter {
 
-	List<IBeanDto> filter(Collection<? extends IBeanDto> beanDtos, IFilter filter, IExecutionCallback executionCallback);
+	ArrayList<IBeanDto> filter(Collection<? extends IBeanDto> beanDtos, IFilter filter, IExecutionCallback executionCallback);
 
 }

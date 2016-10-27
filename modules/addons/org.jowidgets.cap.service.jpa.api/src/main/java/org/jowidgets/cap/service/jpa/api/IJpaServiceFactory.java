@@ -33,10 +33,13 @@ import java.util.Collection;
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
+import org.jowidgets.cap.service.api.bean.IBeanReader;
 import org.jowidgets.cap.service.api.factory.IBeanServiceFactory;
 import org.jowidgets.cap.service.jpa.api.query.IQueryCreator;
 
 public interface IJpaServiceFactory extends IBeanServiceFactory {
+
+	<BEAN_TYPE extends IBean, PARAM_TYPE> IBeanReader<BEAN_TYPE, PARAM_TYPE> beanReader(IQueryCreator<PARAM_TYPE> queryCreator);
 
 	<BEAN_TYPE extends IBean, PARAM_TYPE> IReaderService<PARAM_TYPE> readerService(
 		IQueryCreator<PARAM_TYPE> queryCreator,

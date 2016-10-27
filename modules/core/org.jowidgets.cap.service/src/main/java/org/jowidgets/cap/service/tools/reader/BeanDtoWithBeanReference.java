@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, grossmann
+ * Copyright (c) 2016, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,27 +26,41 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.api.bean;
+package org.jowidgets.cap.service.tools.reader;
 
-import java.util.Collection;
+import org.jowidgets.cap.common.api.bean.IBeanDto;
+import org.jowidgets.cap.service.api.bean.IBeanPropertyAccessor;
+import org.jowidgets.util.Assert;
 
-import org.jowidgets.cap.common.api.bean.IBean;
-import org.jowidgets.cap.service.api.CapServiceToolkit;
+final class BeanDtoWithBeanReference<BEAN_TYPE> implements IBeanDto {
 
-public final class BeanDtoFactory {
+	private final BEAN_TYPE beanReference;
+	private final IBeanPropertyAccessor<BEAN_TYPE> propertyAccessor;
 
-	private BeanDtoFactory() {}
-
-	public static <BEAN_TYPE extends IBean> IBeanDtoFactory<BEAN_TYPE> create(
-		final Class<? extends BEAN_TYPE> beanType,
-		final Collection<String> propertyNames) {
-		return CapServiceToolkit.dtoFactory(beanType, propertyNames);
+	BeanDtoWithBeanReference(final BEAN_TYPE beanReference, final IBeanPropertyAccessor<BEAN_TYPE> propertyAccessor) {
+		Assert.paramNotNull(beanReference, "beanReference");
+		Assert.paramNotNull(propertyAccessor, "propertyAccessor");
+		this.beanReference = beanReference;
+		this.propertyAccessor = propertyAccessor;
 	}
 
-	public static <BEAN_TYPE> IBeanDtoFactory<BEAN_TYPE> create(
-		final IBeanIdentityResolver<? extends BEAN_TYPE> identityResolver,
-		final Collection<String> propertyNames) {
-		return CapServiceToolkit.dtoFactory(identityResolver, propertyNames);
+	public BEAN_TYPE getBeanReference() {
+		return beanReference;
+	}
+
+	@Override
+	public Object getValue(final String propertyName) {
+		return propertyAccessor.getValue(beanReference, propertyName);
+	}
+
+	@Override
+	public Object getId() {
+		return propertyAccessor.getId(beanReference);
+	}
+
+	@Override
+	public long getVersion() {
+		return propertyAccessor.getVersion(beanReference);
 	}
 
 }

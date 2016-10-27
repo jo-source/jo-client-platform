@@ -33,9 +33,10 @@ import java.util.Collection;
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
-import org.jowidgets.cap.service.api.adapter.ISyncReaderService;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
+import org.jowidgets.cap.service.api.bean.IBeanPropertyAccessor;
+import org.jowidgets.cap.service.api.bean.IBeanReader;
 import org.jowidgets.cap.service.api.creator.ICreatorServiceBuilder;
 import org.jowidgets.cap.service.api.deleter.IDeleterServiceBuilder;
 import org.jowidgets.cap.service.jpa.api.IJpaServiceFactory;
@@ -44,7 +45,6 @@ import org.jowidgets.cap.service.jpa.api.query.IQueryCreator;
 import org.jowidgets.cap.service.jpa.api.query.JpaQueryToolkit;
 import org.jowidgets.cap.service.tools.factory.AbstractBeanServiceFactory;
 import org.jowidgets.util.Assert;
-import org.jowidgets.util.IAdapterFactory;
 
 public class JpaServiceFactoryImpl extends AbstractBeanServiceFactory implements IJpaServiceFactory {
 
@@ -53,6 +53,22 @@ public class JpaServiceFactoryImpl extends AbstractBeanServiceFactory implements
 		final Class<? extends BEAN_TYPE> beanType,
 		final Object beanTypeId) {
 		return new JpaBeanAccessImpl<BEAN_TYPE>(beanType, beanTypeId);
+	}
+
+	@Override
+	public <BEAN_TYPE extends IBean, PARAM_TYPE> IBeanReader<BEAN_TYPE, PARAM_TYPE> beanReader(
+		final Class<? extends BEAN_TYPE> beanType,
+		final Object beanTypeId,
+		final IBeanPropertyAccessor<BEAN_TYPE> propertyAccessor) {
+		final ICriteriaQueryCreatorBuilder<PARAM_TYPE> queryCreatorBuilder;
+		queryCreatorBuilder = JpaQueryToolkit.criteriaQueryCreatorBuilder(beanType);
+		return beanReader(queryCreatorBuilder.build());
+	}
+
+	@Override
+	public <BEAN_TYPE extends IBean, PARAM_TYPE> IBeanReader<BEAN_TYPE, PARAM_TYPE> beanReader(
+		final IQueryCreator<PARAM_TYPE> queryCreator) {
+		return new JpaBeanReader<BEAN_TYPE, PARAM_TYPE>(queryCreator);
 	}
 
 	@Override
@@ -67,10 +83,8 @@ public class JpaServiceFactoryImpl extends AbstractBeanServiceFactory implements
 	public <BEAN_TYPE extends IBean, PARAM_TYPE> IReaderService<PARAM_TYPE> readerService(
 		final IQueryCreator<PARAM_TYPE> queryCreator,
 		final IBeanDtoFactory<BEAN_TYPE> beanDtoFactory) {
-		final ISyncReaderService<PARAM_TYPE> result = new SyncJpaReaderServiceImpl<PARAM_TYPE>(queryCreator, beanDtoFactory);
-		final IAdapterFactory<IReaderService<PARAM_TYPE>, ISyncReaderService<PARAM_TYPE>> adapterFactory;
-		adapterFactory = CapServiceToolkit.adapterFactoryProvider().reader();
-		return adapterFactory.createAdapter(result);
+		final IBeanReader<BEAN_TYPE, PARAM_TYPE> reader = beanReader(queryCreator);
+		return readerService(reader, beanDtoFactory);
 	}
 
 	@Override
@@ -78,15 +92,6 @@ public class JpaServiceFactoryImpl extends AbstractBeanServiceFactory implements
 		final Class<? extends BEAN_TYPE> beanType,
 		final Object beanTypeId) {
 		return new JpaDeleterServiceBuilderImpl<BEAN_TYPE>(beanAccess(beanType));
-	}
-
-	@Override
-	public <BEAN_TYPE extends IBean, PARAM_TYPE> IReaderService<PARAM_TYPE> readerService(
-		final Class<? extends BEAN_TYPE> beanType,
-		final Object beanTypeId,
-		final IBeanDtoFactory<BEAN_TYPE> beanDtoFactory) {
-		final ICriteriaQueryCreatorBuilder<PARAM_TYPE> queryCreatorBuilder = JpaQueryToolkit.criteriaQueryCreatorBuilder(beanType);
-		return readerService(queryCreatorBuilder.build(), beanDtoFactory);
 	}
 
 	@Override

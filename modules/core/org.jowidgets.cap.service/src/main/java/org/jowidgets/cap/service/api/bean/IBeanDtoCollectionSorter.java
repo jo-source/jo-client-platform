@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.service.api.bean;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -37,7 +38,7 @@ import org.jowidgets.cap.common.api.sort.ISort;
 
 public interface IBeanDtoCollectionSorter {
 
-	List<IBeanDto> sort(
+	ArrayList<IBeanDto> sort(
 		Collection<? extends IBeanDto> beanDtos,
 		List<? extends ISort> sorting,
 		IExecutionCallback executionCallback);
