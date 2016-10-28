@@ -1364,18 +1364,26 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 		final Comparator<IBeanDto> comparator = BeanDtoComparator.create(sortModel.getSorting());
 		final ListIterator<IBeanProxy<BEAN_TYPE>> addedDataIterator = addedData.listIterator();
+
+		boolean beanListenerIndicesStale = false;
 		for (final IBeanProxy<BEAN_TYPE> bean : beansToAdd) {
+
 			while (addedDataIterator.hasNext()) {
 				final IBeanProxy<BEAN_TYPE> nextBean = addedDataIterator.next();
-
 				final int compare = comparator.compare(bean, nextBean);
 				if (compare < 0) {
 					addedDataIterator.previous();
 					break;
 				}
+				else if (beanListenerIndicesStale) {
+					updateRowIndexOfBean(bean, rowCountOfPages + addedDataIterator.previousIndex());
+				}
 			}
+
 			addedDataIterator.add(bean);
-			final int rowIndex = dataModel.getRowCount() + addedDataIterator.previousIndex();
+			beanListenerIndicesStale = true;
+			final int rowIndex = rowCountOfPages + addedDataIterator.previousIndex();
+
 			bean.addPropertyChangeListener(new BeanPropertyChangeListener(rowIndex));
 		}
 
@@ -1383,6 +1391,17 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		cachedReaderService.addBeans(getParentBeanKeys(), new HashSet<IBeanProxy<BEAN_TYPE>>(beansToAdd));
 
 		setSelectedBeans(selectedBeans);
+	}
+
+	private void updateRowIndexOfBean(final IBeanProxy<BEAN_TYPE> bean, final int rowIndex) {
+		final BeanPropertyChangeListener listener = new BeanPropertyChangeListener(rowIndex);
+
+		// All BeanPropertyChangeListeners are equal. 
+		// We can, thereby, remove the old listener without a reference to it,
+		// just by "removing" the new listener.
+		bean.removePropertyChangeListener(listener);
+
+		bean.addPropertyChangeListener(listener);
 	}
 
 	@Override
@@ -1492,6 +1511,11 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		if (sorted && sortingChanged) {
 			final List<IBeanProxy<BEAN_TYPE>> selectedBeans = getSelectedBeans();
 			Collections.sort(addedData, comparator);
+			int rowIndex = rowCountOfPages;
+			for (final IBeanProxy<BEAN_TYPE> bean : addedData) {
+				updateRowIndexOfBean(bean, rowIndex);
+				rowIndex += 1;
+			}
 			setSelectedBeans(selectedBeans);
 		}
 	}
@@ -3151,16 +3175,15 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		public void propertyChange(final PropertyChangeEvent evt) {
 			@SuppressWarnings("unchecked")
 			final IBeanProxy<BEAN_TYPE> source = (IBeanProxy<BEAN_TYPE>) evt.getSource();
-			final IBeanProxy<BEAN_TYPE> beanAtIndex = getBean(rowIndex);
-			if (beanAtIndex == null || !NullCompatibleEquivalence.equals(source, beanAtIndex)) {
-				rowIndex = getBeanIndex(source);
-			}
-			if (rowIndex != -1) {
+
+			final int currentRowIndex = getCurrentRowIndex(source);
+
+			if (currentRowIndex != -1) {
 				try {
 					//sometimes this leads to an index out of bound exception
 					//but because everything runs in the ui thread i do not
 					//understand why
-					dataModel.fireRowsChanged(new int[] {rowIndex});
+					dataModel.fireRowsChanged(new int[] {currentRowIndex});
 				}
 				catch (final Exception e) {
 					dataModel.fireDataChanged();
@@ -3177,6 +3200,23 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 			}
 		}
 
+		private int getCurrentRowIndex(final IBeanProxy<BEAN_TYPE> bean) {
+			final IBeanProxy<BEAN_TYPE> beanAtIndex = getBean(rowIndex);
+			if (beanAtIndex == null || !NullCompatibleEquivalence.equals(bean, beanAtIndex)) {
+				rowIndex = getBeanIndex(bean);
+			}
+			return rowIndex;
+		}
+
+		@Override
+		public int hashCode() {
+			return 0;
+		}
+
+		@Override
+		public boolean equals(final Object other) {
+			return (other instanceof BeanTableModelImpl.BeanPropertyChangeListener);
+		}
 	}
 
 	private class BackgroundPageLoader {
