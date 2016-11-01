@@ -36,6 +36,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.exception.ServiceCanceledException;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
+import org.jowidgets.cap.common.api.ordered.IOrderedBean;
 import org.jowidgets.cap.common.api.service.IEntityService;
 import org.jowidgets.cap.common.api.sort.ISortConverterMap;
 import org.jowidgets.cap.service.api.ICapServiceToolkit;
@@ -59,6 +60,7 @@ import org.jowidgets.cap.service.api.entity.IEntityServiceBuilder;
 import org.jowidgets.cap.service.api.executor.IExecutorServiceBuilder;
 import org.jowidgets.cap.service.api.factory.IBeanServiceFactory;
 import org.jowidgets.cap.service.api.link.ILinkServicesBuilder;
+import org.jowidgets.cap.service.api.ordered.IOrderedBeanCrudServiceInterceptorBuilder;
 import org.jowidgets.cap.service.api.plugin.IBeanDtoConversionProviderPlugin;
 import org.jowidgets.cap.service.api.refresh.IRefreshServiceBuilder;
 import org.jowidgets.cap.service.api.updater.IUpdaterServiceBuilder;
@@ -384,6 +386,11 @@ public final class DefaultCapServiceToolkit implements ICapServiceToolkit {
 		final Class<? extends IBean> beanType,
 		final String... propertyNames) {
 		return uniqueConstraintChecker(serviceFactory, beanType, beanType, propertyNames);
+	}
+
+	@Override
+	public <BEAN_TYPE extends IOrderedBean, GROUP_TYPE> IOrderedBeanCrudServiceInterceptorBuilder<BEAN_TYPE, GROUP_TYPE> orderedBeanCrudInterceptorBuilder() {
+		return new OrderedBeanCrudInterceptorBuilderImpl<BEAN_TYPE, GROUP_TYPE>();
 	}
 
 }
