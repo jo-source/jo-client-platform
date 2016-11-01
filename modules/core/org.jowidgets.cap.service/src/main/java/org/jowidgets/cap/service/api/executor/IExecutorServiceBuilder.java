@@ -80,6 +80,9 @@ public interface IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> {
 
 	IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> addUpdaterInterceptor(IBeanUpdateInterceptor<BEAN_TYPE> interceptor);
 
+	IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> addExecutorServiceInterceptor(
+		IExecutorServiceInterceptor<BEAN_TYPE, PARAM_TYPE> interceptor);
+
 	IExecutorServiceBuilder<BEAN_TYPE, PARAM_TYPE> setExecutableChecker(
 		IExecutableChecker<? extends BEAN_TYPE> executableChecker);
 

@@ -49,6 +49,7 @@ import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.api.bean.IBeanIdentityResolver;
 import org.jowidgets.cap.service.api.bean.IBeanInitializer;
 import org.jowidgets.cap.service.api.creator.ICreatorServiceBuilder;
+import org.jowidgets.cap.service.api.creator.ICreatorServiceInterceptor;
 import org.jowidgets.cap.service.api.plugin.ICreatorServiceBuilderPlugin;
 import org.jowidgets.cap.service.tools.bean.DefaultBeanIdentityResolver;
 import org.jowidgets.plugin.api.IPluginProperties;
@@ -63,6 +64,7 @@ public abstract class AbstractCreatorServiceBuilder<BEAN_TYPE> implements ICreat
 	private final IBeanIdentityResolver<BEAN_TYPE> beanIdentityResolver;
 	private final Class<? extends BEAN_TYPE> beanType;
 	private final Object beanTypeId;
+	private final List<ICreatorServiceInterceptor<BEAN_TYPE>> creatorServiceInterceptors;
 	private final List<IExecutableChecker<? extends BEAN_TYPE>> executableCheckers;
 	private final List<IBeanValidator<BEAN_TYPE>> beanValidators;
 	private final Map<String, List<IValidator<? extends Object>>> propertyValidators;
@@ -86,6 +88,8 @@ public abstract class AbstractCreatorServiceBuilder<BEAN_TYPE> implements ICreat
 		this.beanIdentityResolver = beanIdentityResolver;
 		this.beanType = beanIdentityResolver.getBeanType();
 		this.beanTypeId = beanIdentityResolver.getBeanTypeId();
+
+		this.creatorServiceInterceptors = new LinkedList<ICreatorServiceInterceptor<BEAN_TYPE>>();
 		this.executableCheckers = new LinkedList<IExecutableChecker<? extends BEAN_TYPE>>();
 		this.beanValidators = new LinkedList<IBeanValidator<BEAN_TYPE>>();
 		this.propertyValidators = new HashMap<String, List<IValidator<? extends Object>>>();
@@ -94,6 +98,14 @@ public abstract class AbstractCreatorServiceBuilder<BEAN_TYPE> implements ICreat
 
 		final Map validatorsMap = ValidatorAnnotationCache.getPropertyValidators(beanType);
 		propertyValidators.putAll(validatorsMap);
+	}
+
+	@Override
+	public ICreatorServiceBuilder<BEAN_TYPE> addCreatorServiceInterceptor(
+		final ICreatorServiceInterceptor<BEAN_TYPE> interceptor) {
+		Assert.paramNotNull(interceptor, "interceptor");
+		creatorServiceInterceptors.add(interceptor);
+		return this;
 	}
 
 	@Override
@@ -166,28 +178,36 @@ public abstract class AbstractCreatorServiceBuilder<BEAN_TYPE> implements ICreat
 		return this;
 	}
 
-	protected final Class<? extends BEAN_TYPE> getBeanType() {
+	public IBeanIdentityResolver<BEAN_TYPE> getBeanIdentityResolver() {
+		return beanIdentityResolver;
+	}
+
+	public final Class<? extends BEAN_TYPE> getBeanType() {
 		return beanType;
 	}
 
-	protected final Object getBeanTypeId() {
+	public final Object getBeanTypeId() {
 		return beanTypeId;
 	}
 
-	protected final IBeanDtoFactory<BEAN_TYPE> getBeanDtoFactory() {
+	public final IBeanDtoFactory<BEAN_TYPE> getBeanDtoFactory() {
 		return beanDtoFactory;
 	}
 
-	protected final IBeanInitializer<BEAN_TYPE> getBeanInitializer() {
+	public final IBeanInitializer<BEAN_TYPE> getBeanInitializer() {
 		return beanInitializer;
 	}
 
-	protected boolean isConfirmValidationWarnings() {
+	public boolean isConfirmValidationWarnings() {
 		return confirmValidationWarnings;
 	}
 
+	public List<ICreatorServiceInterceptor<BEAN_TYPE>> getCreatorServiceInterceptors() {
+		return creatorServiceInterceptors;
+	}
+
 	@SuppressWarnings("unchecked")
-	protected final IExecutableChecker<BEAN_TYPE> getExecutableChecker() {
+	public final IExecutableChecker<BEAN_TYPE> getExecutableChecker() {
 		if (executableCheckers.size() == 1) {
 			return (IExecutableChecker<BEAN_TYPE>) executableCheckers.iterator().next();
 		}
@@ -201,7 +221,7 @@ public abstract class AbstractCreatorServiceBuilder<BEAN_TYPE> implements ICreat
 		}
 	}
 
-	protected final IBeanValidator<BEAN_TYPE> getBeanValidator() {
+	public final IBeanValidator<BEAN_TYPE> getBeanValidator() {
 		final Collection<IBeanValidator<BEAN_TYPE>> validators = getBeanValidators();
 		if (validators.size() == 1) {
 			return validators.iterator().next();

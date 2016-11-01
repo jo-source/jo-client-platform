@@ -41,6 +41,8 @@ public interface ICreatorServiceBuilder<BEAN_TYPE> {
 
 	ICreatorServiceBuilder<BEAN_TYPE> addBeanValidator(IBeanValidator<? extends BEAN_TYPE> validator);
 
+	ICreatorServiceBuilder<BEAN_TYPE> addCreatorServiceInterceptor(ICreatorServiceInterceptor<BEAN_TYPE> interceptor);
+
 	ICreatorServiceBuilder<BEAN_TYPE> addPropertyValidator(String propertyName, IValidator<? extends Object> validator);
 
 	/**

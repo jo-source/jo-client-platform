@@ -29,6 +29,8 @@
 package org.jowidgets.cap.service.jpa.impl;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
@@ -39,7 +41,7 @@ import org.jowidgets.cap.service.api.adapter.ISyncDeleterService;
 import org.jowidgets.cap.service.api.adapter.ISyncExecutorService;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.deleter.IDeleterServiceInterceptor;
-import org.jowidgets.cap.service.api.executor.IBeanExecutor;
+import org.jowidgets.cap.service.api.executor.IBeanListExecutor;
 import org.jowidgets.cap.service.api.executor.IExecutorServiceBuilder;
 
 final class SyncJpaDeleterServiceImpl<BEAN_TYPE extends IBean> implements ISyncDeleterService {
@@ -53,23 +55,31 @@ final class SyncJpaDeleterServiceImpl<BEAN_TYPE extends IBean> implements ISyncD
 		final boolean allowDeletedData,
 		final boolean allowStaleData) {
 
-		final IExecutorServiceBuilder<BEAN_TYPE, Void> executorServiceBuilder = CapServiceToolkit.executorServiceBuilder(beanAccess);
+		final IExecutorServiceBuilder<BEAN_TYPE, Void> executorServiceBuilder = CapServiceToolkit.executorServiceBuilder(
+				beanAccess);
 		if (executableChecker != null) {
 			executorServiceBuilder.setExecutableChecker(executableChecker);
 		}
 		executorServiceBuilder.setAllowDeletedBeans(allowDeletedData).setAllowStaleBeans(allowStaleData);
-		executorServiceBuilder.setExecutor(new IBeanExecutor<BEAN_TYPE, Void>() {
+
+		executorServiceBuilder.setExecutor(new IBeanListExecutor<BEAN_TYPE, Void>() {
 			@Override
-			public BEAN_TYPE execute(final BEAN_TYPE data, final Void parameter, final IExecutionCallback executionCallback) {
-				CapServiceToolkit.checkCanceled(executionCallback);
-				interceptor.beforeDelete(data, executionCallback);
-				if (data != null) {
-					EntityManagerProvider.get().remove(data);
+			public List<BEAN_TYPE> execute(
+				final List<BEAN_TYPE> beans,
+				final Void parameter,
+				final IExecutionCallback executionCallback) {
+				interceptor.beforeDelete(beans, executionCallback);
+				for (final BEAN_TYPE bean : beans) {
+					CapServiceToolkit.checkCanceled(executionCallback);
+					if (bean != null) {
+						EntityManagerProvider.get().remove(bean);
+					}
 				}
-				CapServiceToolkit.checkCanceled(executionCallback);
-				return null;
+				interceptor.afterDelete(beans, executionCallback);
+				return Collections.emptyList();
 			}
 		});
+
 		this.executorService = executorServiceBuilder.buildSyncService();
 	}
 

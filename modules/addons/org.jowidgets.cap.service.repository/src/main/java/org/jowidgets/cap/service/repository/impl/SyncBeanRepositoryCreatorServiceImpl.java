@@ -31,27 +31,19 @@ package org.jowidgets.cap.service.repository.impl;
 import java.util.Collection;
 
 import org.jowidgets.cap.common.api.bean.IBeanKey;
-import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.cap.common.api.validation.IBeanValidator;
-import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
-import org.jowidgets.cap.service.api.bean.IBeanInitializer;
 import org.jowidgets.cap.service.repository.api.ICreateSupportBeanRepository;
 import org.jowidgets.cap.service.tools.creator.AbstractSyncCreatorServiceImpl;
+import org.jowidgets.util.Assert;
 
 final class SyncBeanRepositoryCreatorServiceImpl<BEAN_TYPE> extends AbstractSyncCreatorServiceImpl<BEAN_TYPE> {
 
 	private final ICreateSupportBeanRepository<BEAN_TYPE> repository;
 
-	protected SyncBeanRepositoryCreatorServiceImpl(
-		final ICreateSupportBeanRepository<BEAN_TYPE> repository,
-		final IBeanDtoFactory<BEAN_TYPE> dtoFactory,
-		final IBeanInitializer<BEAN_TYPE> beanInitializer,
-		final IExecutableChecker<BEAN_TYPE> executableChecker,
-		final IBeanValidator<BEAN_TYPE> beanValidator,
-		final boolean confirmValidationWarnings) {
-		super(repository, dtoFactory, beanInitializer, executableChecker, beanValidator, confirmValidationWarnings);
-		this.repository = repository;
+	protected SyncBeanRepositoryCreatorServiceImpl(final BeanRepositoryCreatorServiceBuilderImpl<BEAN_TYPE> builder) {
+		super(builder);
+		Assert.paramNotNull(builder.getRepository(), "builder.getRepository()");
+		this.repository = builder.getRepository();
 	}
 
 	@Override

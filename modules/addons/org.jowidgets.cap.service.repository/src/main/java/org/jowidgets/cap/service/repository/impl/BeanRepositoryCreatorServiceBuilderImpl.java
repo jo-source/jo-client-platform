@@ -55,16 +55,14 @@ class BeanRepositoryCreatorServiceBuilderImpl<BEAN_TYPE> extends AbstractCreator
 		setBeanDtoFactoryAndBeanInitializer(appProperties);
 	}
 
+	protected final ICreateSupportBeanRepository<BEAN_TYPE> getRepository() {
+		return repository;
+	}
+
 	@Override
 	public ICreatorService build() {
 		applyPlugins();
-		final ISyncCreatorService result = new SyncBeanRepositoryCreatorServiceImpl<BEAN_TYPE>(
-			repository,
-			getBeanDtoFactory(),
-			getBeanInitializer(),
-			getExecutableChecker(),
-			getBeanValidator(),
-			isConfirmValidationWarnings());
+		final ISyncCreatorService result = new SyncBeanRepositoryCreatorServiceImpl<BEAN_TYPE>(this);
 		return asyncDecorator.decorate(ADAPTER_FACTORY.createAdapter(result));
 	}
 

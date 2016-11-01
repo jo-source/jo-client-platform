@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, grossmann
+ * Copyright (c) 2016, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,26 +26,15 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.api.deleter;
+package org.jowidgets.cap.service.api.crud;
 
-import org.jowidgets.cap.common.api.execution.IExecutableChecker;
-import org.jowidgets.cap.common.api.service.IDeleterService;
-import org.jowidgets.cap.service.api.bean.IBeanDeleteInterceptor;
+import org.jowidgets.cap.service.api.creator.ICreatorServiceInterceptor;
+import org.jowidgets.cap.service.api.deleter.IDeleterServiceInterceptor;
+import org.jowidgets.cap.service.api.updater.IUpdaterServiceInterceptor;
 
-public interface IDeleterServiceBuilder<BEAN_TYPE> {
-
-	IDeleterServiceBuilder<BEAN_TYPE> addExecutableChecker(IExecutableChecker<? extends BEAN_TYPE> executableChecker);
-
-	IDeleterServiceBuilder<BEAN_TYPE> setExecutableChecker(IExecutableChecker<? extends BEAN_TYPE> executableChecker);
-
-	IDeleterServiceBuilder<BEAN_TYPE> setAllowDeletedBeans(boolean allowDeletedBeans);
-
-	IDeleterServiceBuilder<BEAN_TYPE> setAllowStaleBeans(boolean allowStaleBeans);
-
-	IDeleterServiceBuilder<BEAN_TYPE> addDeleterInterceptor(IBeanDeleteInterceptor<BEAN_TYPE> interceptor);
-
-	IDeleterServiceBuilder<BEAN_TYPE> addDeleterServiceInterceptor(IDeleterServiceInterceptor<BEAN_TYPE> interceptor);
-
-	IDeleterService build();
+public interface ICrudServiceInterceptor<BEAN_TYPE> extends
+		ICreatorServiceInterceptor<BEAN_TYPE>,
+		IUpdaterServiceInterceptor<BEAN_TYPE>,
+		IDeleterServiceInterceptor<BEAN_TYPE> {
 
 }

@@ -32,11 +32,7 @@ import java.util.Collection;
 
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
-import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.cap.common.api.validation.IBeanValidator;
-import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
-import org.jowidgets.cap.service.api.bean.IBeanInitializer;
 import org.jowidgets.cap.service.neo4j.api.GraphDBConfig;
 import org.jowidgets.cap.service.neo4j.api.IBeanFactory;
 import org.jowidgets.cap.service.neo4j.api.NodeAccess;
@@ -50,22 +46,13 @@ final class SyncNeo4JCreatorServiceImpl<BEAN_TYPE extends IBean> extends Abstrac
 	private final Object beanTypeId;
 	private final IBeanFactory beanFactory;
 
-	SyncNeo4JCreatorServiceImpl(
-		final Class<? extends BEAN_TYPE> beanType,
-		final Object beanTypeId,
-		final IBeanDtoFactory<BEAN_TYPE> dtoFactory,
-		final IBeanInitializer<BEAN_TYPE> beanInitializer,
-		final IExecutableChecker<BEAN_TYPE> executableChecker,
-		final IBeanValidator<BEAN_TYPE> beanValidator,
-		final boolean confirmValidationWarnings) {
+	SyncNeo4JCreatorServiceImpl(final Neo4JCreatorServiceBuilderImpl<BEAN_TYPE> builder) {
+		super(builder);
+		Assert.paramNotNull(builder.getBeanType(), "builder.getBeanType()");
+		Assert.paramNotNull(builder.getBeanTypeId(), "builder.getBeanTypeId()");
 
-		super(beanType, dtoFactory, beanInitializer, executableChecker, beanValidator, confirmValidationWarnings);
-
-		Assert.paramNotNull(beanType, "beanType");
-		Assert.paramNotNull(beanTypeId, "beanTypeId");
-
-		this.beanType = beanType;
-		this.beanTypeId = beanTypeId;
+		this.beanType = builder.getBeanType();
+		this.beanTypeId = builder.getBeanTypeId();
 
 		this.beanFactory = GraphDBConfig.getBeanFactory();
 	}

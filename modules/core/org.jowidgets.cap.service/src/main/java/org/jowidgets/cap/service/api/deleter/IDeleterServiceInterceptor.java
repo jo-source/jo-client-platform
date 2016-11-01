@@ -28,10 +28,26 @@
 
 package org.jowidgets.cap.service.api.deleter;
 
+import java.util.Collection;
+
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 
 public interface IDeleterServiceInterceptor<BEAN_TYPE> {
 
-	void beforeDelete(BEAN_TYPE bean, IExecutionCallback executionCallback);
+	/**
+	 * Will be invoked before the beans will be deleted from the data source
+	 * 
+	 * @param beans The beans to delete
+	 * @param executionCallback The execution callback of the service invocation
+	 */
+	void beforeDelete(Collection<BEAN_TYPE> beans, IExecutionCallback executionCallback);
+
+	/**
+	 * Will be invoked after the beans will be deleted from the data source
+	 * 
+	 * @param beans The beans to delete
+	 * @param executionCallback The execution callback of the service invocation
+	 */
+	void afterDelete(Collection<BEAN_TYPE> beans, IExecutionCallback executionCallback);
 
 }

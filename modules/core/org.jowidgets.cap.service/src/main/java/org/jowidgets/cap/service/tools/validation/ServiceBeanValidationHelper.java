@@ -44,6 +44,7 @@ import org.jowidgets.cap.common.api.execution.UserQuestionResult;
 import org.jowidgets.cap.common.api.validation.IBeanValidationResult;
 import org.jowidgets.cap.common.api.validation.IBeanValidator;
 import org.jowidgets.cap.common.tools.validation.BeanValidationResultUtil;
+import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.api.bean.IBeanIdentityResolver;
 import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.logging.api.ILogger;
@@ -75,6 +76,7 @@ public final class ServiceBeanValidationHelper {
 		int beanIndex = 0;
 		BeansValidationException.KeyType keyType = KeyType.ID;
 		for (final BEAN_TYPE bean : beans) {
+			CapServiceToolkit.checkCanceled(executionCallback);
 			final Object id = beanIdentityResolver.getId(bean);
 			final Collection<IBeanValidationResult> validationResults = beanValidator.validate(bean);
 			final IBeanValidationResult worstFirst = BeanValidationResultUtil.getWorstFirst(validationResults);

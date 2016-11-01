@@ -30,6 +30,7 @@ package org.jowidgets.cap.service.impl;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -46,6 +47,7 @@ import org.jowidgets.cap.service.api.bean.IBeanModifier;
 import org.jowidgets.cap.service.api.bean.IBeanUpdateInterceptor;
 import org.jowidgets.cap.service.api.plugin.IUpdaterServiceBuilderPlugin;
 import org.jowidgets.cap.service.api.updater.IUpdaterServiceBuilder;
+import org.jowidgets.cap.service.api.updater.IUpdaterServiceInterceptor;
 import org.jowidgets.plugin.api.IPluginProperties;
 import org.jowidgets.plugin.api.IPluginPropertiesBuilder;
 import org.jowidgets.plugin.api.PluginProperties;
@@ -56,15 +58,18 @@ import org.jowidgets.validation.IValidator;
 
 final class UpdaterServiceBuilderImpl<BEAN_TYPE> implements IUpdaterServiceBuilder<BEAN_TYPE> {
 
-	private final ExecutorServiceBuilderImpl<BEAN_TYPE, Map<Object, Collection<IBeanModification>>> dataExecutorServiceBuilder;
-	private final IBeanAccess<? extends BEAN_TYPE> beanAccess;
+	private final ExecutorServiceBuilderImpl<BEAN_TYPE, Map<Object, List<IBeanModification>>> dataExecutorServiceBuilder;
+	private final IBeanAccess<BEAN_TYPE> beanAccess;
+	private final List<IUpdaterServiceInterceptor<BEAN_TYPE>> updateServiceInterceptors;
 
 	private IBeanModifier<BEAN_TYPE> beanModifier;
 
+	@SuppressWarnings("unchecked")
 	UpdaterServiceBuilderImpl(final IBeanAccess<? extends BEAN_TYPE> beanAccess) {
-		this.beanAccess = beanAccess;
-		this.dataExecutorServiceBuilder = new ExecutorServiceBuilderImpl<BEAN_TYPE, Map<Object, Collection<IBeanModification>>>(
+		this.beanAccess = (IBeanAccess<BEAN_TYPE>) beanAccess;
+		this.dataExecutorServiceBuilder = new ExecutorServiceBuilderImpl<BEAN_TYPE, Map<Object, List<IBeanModification>>>(
 			beanAccess);
+		this.updateServiceInterceptors = new LinkedList<IUpdaterServiceInterceptor<BEAN_TYPE>>();
 	}
 
 	@Override
@@ -90,6 +95,13 @@ final class UpdaterServiceBuilderImpl<BEAN_TYPE> implements IUpdaterServiceBuild
 	@Override
 	public IUpdaterServiceBuilder<BEAN_TYPE> addUpdaterInterceptor(final IBeanUpdateInterceptor<BEAN_TYPE> interceptor) {
 		dataExecutorServiceBuilder.addUpdaterInterceptor(interceptor);
+		return this;
+	}
+
+	@Override
+	public IUpdaterServiceBuilder<BEAN_TYPE> addUpdaterServiceInterceptor(
+		final IUpdaterServiceInterceptor<BEAN_TYPE> interceptor) {
+		updateServiceInterceptors.add(interceptor);
 		return this;
 	}
 
@@ -152,7 +164,11 @@ final class UpdaterServiceBuilderImpl<BEAN_TYPE> implements IUpdaterServiceBuild
 	@Override
 	public ISyncUpdaterService buildSyncService() {
 		applyPlugins();
-		return new SyncUpdaterServiceImpl<BEAN_TYPE>(beanAccess, getBeanModifier(), dataExecutorServiceBuilder);
+		return new SyncUpdaterServiceImpl<BEAN_TYPE>(
+			beanAccess,
+			getBeanModifier(),
+			dataExecutorServiceBuilder,
+			updateServiceInterceptors);
 	}
 
 	@Override

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, grossmann
+ * Copyright (c) 2016, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,26 +26,36 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.api.deleter;
+package org.jowidgets.cap.service.api.updater;
 
-import org.jowidgets.cap.common.api.execution.IExecutableChecker;
-import org.jowidgets.cap.common.api.service.IDeleterService;
-import org.jowidgets.cap.service.api.bean.IBeanDeleteInterceptor;
+import java.util.Collection;
 
-public interface IDeleterServiceBuilder<BEAN_TYPE> {
+import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 
-	IDeleterServiceBuilder<BEAN_TYPE> addExecutableChecker(IExecutableChecker<? extends BEAN_TYPE> executableChecker);
+public interface IUpdaterServiceInterceptor<BEAN_TYPE> {
 
-	IDeleterServiceBuilder<BEAN_TYPE> setExecutableChecker(IExecutableChecker<? extends BEAN_TYPE> executableChecker);
+	/**
+	 * Will be invoked before the modifications will be applied on the beans.
+	 * 
+	 * @param beans The beans that will be modified by the service
+	 * @param modifications Provides the modifications for each bean
+	 * @param executionCallback The execution callback of the service
+	 */
+	void beforeUpdate(
+		Collection<BEAN_TYPE> beans,
+		IBeanModificationsMap<BEAN_TYPE> modifications,
+		IExecutionCallback executionCallback);
 
-	IDeleterServiceBuilder<BEAN_TYPE> setAllowDeletedBeans(boolean allowDeletedBeans);
-
-	IDeleterServiceBuilder<BEAN_TYPE> setAllowStaleBeans(boolean allowStaleBeans);
-
-	IDeleterServiceBuilder<BEAN_TYPE> addDeleterInterceptor(IBeanDeleteInterceptor<BEAN_TYPE> interceptor);
-
-	IDeleterServiceBuilder<BEAN_TYPE> addDeleterServiceInterceptor(IDeleterServiceInterceptor<BEAN_TYPE> interceptor);
-
-	IDeleterService build();
+	/**
+	 * Will be invoked after the modifications will be applied on the beans.
+	 * 
+	 * @param beans The beans that will be modified by the service
+	 * @param modifications Provides the modifications for each bean
+	 * @param executionCallback The execution callback of the service
+	 */
+	void afterUpdate(
+		Collection<BEAN_TYPE> beans,
+		IBeanModificationsMap<BEAN_TYPE> modifications,
+		IExecutionCallback executionCallback);
 
 }

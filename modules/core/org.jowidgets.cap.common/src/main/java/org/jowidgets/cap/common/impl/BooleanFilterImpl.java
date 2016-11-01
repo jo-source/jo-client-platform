@@ -36,6 +36,7 @@ import java.util.Set;
 import org.jowidgets.cap.common.api.filter.BooleanOperator;
 import org.jowidgets.cap.common.api.filter.IBooleanFilter;
 import org.jowidgets.cap.common.api.filter.IFilter;
+import org.jowidgets.util.Assert;
 import org.jowidgets.util.CollectionUtils;
 
 final class BooleanFilterImpl implements IBooleanFilter, Serializable {
@@ -47,6 +48,9 @@ final class BooleanFilterImpl implements IBooleanFilter, Serializable {
 	private final boolean inverted;
 
 	BooleanFilterImpl(final BooleanOperator operator, final List<IFilter> filters, final boolean inverted) {
+		Assert.paramNotNull(operator, "operator");
+		Assert.paramNotNull(filters, "filters");
+
 		this.operator = operator;
 		this.filters = filters;
 		if (filters != null) {

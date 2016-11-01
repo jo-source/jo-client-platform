@@ -78,7 +78,7 @@ public final class SyncReaderServiceImpl<PARAM_TYPE> implements ISyncReaderServi
 				executionCallback);
 		CapServiceToolkit.checkCanceled(executionCallback);
 		if (result != null) {
-			return BeanDtoFactoryHelper.createDtos(beanFactory, result);
+			return BeanDtoFactoryHelper.createDtos(beanFactory, result, executionCallback);
 		}
 		return Collections.emptyList();
 	}

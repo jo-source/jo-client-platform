@@ -63,6 +63,10 @@ import org.jowidgets.cap.service.api.bean.BeanDtoFactory;
 import org.jowidgets.cap.service.api.bean.BeanInitializer;
 import org.jowidgets.cap.service.api.bean.BeanModifier;
 import org.jowidgets.cap.service.api.creator.ICreatorServiceBuilder;
+import org.jowidgets.cap.service.api.creator.ICreatorServiceInterceptor;
+import org.jowidgets.cap.service.api.crud.ICrudServiceInterceptor;
+import org.jowidgets.cap.service.api.deleter.IDeleterServiceBuilder;
+import org.jowidgets.cap.service.api.deleter.IDeleterServiceInterceptor;
 import org.jowidgets.cap.service.api.entity.IBeanEntityBluePrint;
 import org.jowidgets.cap.service.api.entity.IBeanEntityLinkBluePrint;
 import org.jowidgets.cap.service.api.entity.IBeanEntityServiceBuilder;
@@ -72,6 +76,7 @@ import org.jowidgets.cap.service.api.link.ILinkServicesBuilder;
 import org.jowidgets.cap.service.api.link.LinkServicesBuilder;
 import org.jowidgets.cap.service.api.plugin.IServiceIdDecoratorPlugin;
 import org.jowidgets.cap.service.api.updater.IUpdaterServiceBuilder;
+import org.jowidgets.cap.service.api.updater.IUpdaterServiceInterceptor;
 import org.jowidgets.plugin.api.IPluginPropertiesBuilder;
 import org.jowidgets.plugin.api.PluginProperties;
 import org.jowidgets.plugin.api.PluginProvider;
@@ -153,12 +158,16 @@ final class BeanEntityServiceBuilderImpl extends EntityServiceBuilderImpl implem
 	private final class BeanEntityBluePrintImpl implements IBeanEntityBluePrint {
 
 		private final List<BeanEntityLinkBluePrintImpl> linkBps;
+		private final List<ICreatorServiceInterceptor<?>> creatorServiceInterceptors;
+		private final List<IUpdaterServiceInterceptor<?>> updaterServiceInterceptors;
+		private final List<IDeleterServiceInterceptor<?>> deleterServiceInterceptors;
 
 		private Object entityId;
 		private Class<? extends IBean> beanType;
 		private Object beanTypeId;
 		private IBeanDtoDescriptor dtoDescriptor;
 		private Collection<String> properties;
+
 		private IMaybe<IReaderService<Void>> readerService;
 		private IMaybe<ICreatorService> creatorService;
 		private IMaybe<IRefreshService> refreshService;
@@ -167,6 +176,9 @@ final class BeanEntityServiceBuilderImpl extends EntityServiceBuilderImpl implem
 
 		private BeanEntityBluePrintImpl() {
 			this.linkBps = new LinkedList<BeanEntityLinkBluePrintImpl>();
+			this.creatorServiceInterceptors = new LinkedList<ICreatorServiceInterceptor<?>>();
+			this.updaterServiceInterceptors = new LinkedList<IUpdaterServiceInterceptor<?>>();
+			this.deleterServiceInterceptors = new LinkedList<IDeleterServiceInterceptor<?>>();
 		}
 
 		@Override
@@ -323,6 +335,38 @@ final class BeanEntityServiceBuilderImpl extends EntityServiceBuilderImpl implem
 		}
 
 		@Override
+		public IBeanEntityBluePrint addUpdaterServiceInterceptor(final IUpdaterServiceInterceptor<?> interceptor) {
+			checkExhausted();
+			Assert.paramNotNull(interceptor, "interceptor");
+			updaterServiceInterceptors.add(interceptor);
+			return this;
+		}
+
+		@Override
+		public IBeanEntityBluePrint addCreatorServiceInterceptor(final ICreatorServiceInterceptor<?> interceptor) {
+			checkExhausted();
+			Assert.paramNotNull(interceptor, "interceptor");
+			creatorServiceInterceptors.add(interceptor);
+			return this;
+		}
+
+		@Override
+		public IBeanEntityBluePrint addDeleterServiceInterceptor(final IDeleterServiceInterceptor<?> interceptor) {
+			checkExhausted();
+			Assert.paramNotNull(interceptor, "interceptor");
+			deleterServiceInterceptors.add(interceptor);
+			return this;
+		}
+
+		@Override
+		public IBeanEntityBluePrint addCrudServiceInterceptor(final ICrudServiceInterceptor<?> interceptor) {
+			addCreatorServiceInterceptor(interceptor);
+			addUpdaterServiceInterceptor(interceptor);
+			addDeleterServiceInterceptor(interceptor);
+			return this;
+		}
+
+		@Override
 		public IBeanEntityBluePrint setReadonly() {
 			checkExhausted();
 			setUpdaterService((IUpdaterService) null);
@@ -371,7 +415,10 @@ final class BeanEntityServiceBuilderImpl extends EntityServiceBuilderImpl implem
 				creatorService,
 				refreshService,
 				updaterService,
-				deleterService);
+				deleterService,
+				creatorServiceInterceptors,
+				updaterServiceInterceptors,
+				deleterServiceInterceptors);
 		}
 
 		Collection<? extends IEntityLinkDescriptor> getLinkDescriptors(final Map<Object, BeanEntityPreBuild> prebuilds) {
@@ -408,7 +455,10 @@ final class BeanEntityServiceBuilderImpl extends EntityServiceBuilderImpl implem
 			final IMaybe<ICreatorService> creatorServiceMaybe,
 			final IMaybe<IRefreshService> refreshServiceMaybe,
 			final IMaybe<IUpdaterService> updaterServiceMaybe,
-			final IMaybe<IDeleterService> deleterServiceMaybe) {
+			final IMaybe<IDeleterService> deleterServiceMaybe,
+			final List<ICreatorServiceInterceptor<?>> creatorServiceInterceptors,
+			final List<IUpdaterServiceInterceptor<?>> updaterServiceInterceptors,
+			final List<IDeleterServiceInterceptor<?>> deleterServiceInterceptors) {
 
 			this.entityId = entityId;
 			this.beanType = beanType;
@@ -416,10 +466,10 @@ final class BeanEntityServiceBuilderImpl extends EntityServiceBuilderImpl implem
 			this.propertyNames = propertyNames;
 			this.dtoDescriptor = dtoDescriptor;
 			this.readerService = getReaderService(readerServiceMaybe);
-			this.creatorService = getCreatorService(creatorServiceMaybe);
+			this.creatorService = getCreatorService(creatorServiceMaybe, creatorServiceInterceptors);
 			this.refreshService = getRefreshService(refreshServiceMaybe);
-			this.updaterService = getUpdaterService(updaterServiceMaybe);
-			this.deleterService = getDeleterService(deleterServiceMaybe);
+			this.updaterService = getUpdaterService(updaterServiceMaybe, updaterServiceInterceptors);
+			this.deleterService = getDeleterService(deleterServiceMaybe, deleterServiceInterceptors);
 			this.beanServicesProvider = createBeanServicesProvider(
 					readerServiceMaybe,
 					creatorServiceMaybe,
@@ -439,12 +489,22 @@ final class BeanEntityServiceBuilderImpl extends EntityServiceBuilderImpl implem
 				}
 			}
 			else {
-				return beanServiceFactory.readerService(beanType, getBeanTypeId(), BeanDtoFactory.create(beanType, propertyNames));
+				return beanServiceFactory.readerService(
+						beanType,
+						getBeanTypeId(),
+						BeanDtoFactory.create(beanType, propertyNames));
 			}
 		}
 
-		private ICreatorService getCreatorService(final IMaybe<ICreatorService> creatorServiceMaybe) {
+		@SuppressWarnings({"rawtypes", "unchecked"})
+		private ICreatorService getCreatorService(
+			final IMaybe<ICreatorService> creatorServiceMaybe,
+			final List<ICreatorServiceInterceptor<?>> creatorServiceInterceptors) {
 			if (creatorServiceMaybe != null) {
+				if (!creatorServiceInterceptors.isEmpty()) {
+					throw new IllegalArgumentException(
+						"There are creator interceptors set and an creator service is set exlizitely. This combination is not possible");
+				}
 				if (creatorServiceMaybe.isNothing()) {
 					return null;
 				}
@@ -456,6 +516,9 @@ final class BeanEntityServiceBuilderImpl extends EntityServiceBuilderImpl implem
 				final ICreatorServiceBuilder<IBean> creatorServiceBuilder = beanServiceFactory.creatorServiceBuilder(
 						beanType,
 						getBeanTypeId());
+				for (final ICreatorServiceInterceptor interceptor : creatorServiceInterceptors) {
+					creatorServiceBuilder.addCreatorServiceInterceptor(interceptor);
+				}
 				return creatorServiceBuilder.setBeanDtoFactoryAndBeanInitializer(propertyNames).build();
 			}
 		}
@@ -474,8 +537,15 @@ final class BeanEntityServiceBuilderImpl extends EntityServiceBuilderImpl implem
 			}
 		}
 
-		private IUpdaterService getUpdaterService(final IMaybe<IUpdaterService> updaterServiceMaybe) {
+		@SuppressWarnings({"rawtypes", "unchecked"})
+		private IUpdaterService getUpdaterService(
+			final IMaybe<IUpdaterService> updaterServiceMaybe,
+			final List<IUpdaterServiceInterceptor<?>> updaterServiceInterceptors) {
 			if (updaterServiceMaybe != null) {
+				if (!updaterServiceInterceptors.isEmpty()) {
+					throw new IllegalArgumentException(
+						"There are update interceptors set and an updater service is set exlipitely. This combination is not possible");
+				}
 				if (updaterServiceMaybe.isNothing()) {
 					return null;
 				}
@@ -484,15 +554,24 @@ final class BeanEntityServiceBuilderImpl extends EntityServiceBuilderImpl implem
 				}
 			}
 			else {
-				final IUpdaterServiceBuilder<IBean> updaterServiceBuilder = CapServiceToolkit.updaterServiceBuilder(beanServiceFactory.beanAccess(
-						beanType,
-						getBeanTypeId()));
+				final IUpdaterServiceBuilder<IBean> updaterServiceBuilder = CapServiceToolkit.updaterServiceBuilder(
+						beanServiceFactory.beanAccess(beanType, getBeanTypeId()));
+				for (final IUpdaterServiceInterceptor interceptor : updaterServiceInterceptors) {
+					updaterServiceBuilder.addUpdaterServiceInterceptor(interceptor);
+				}
 				return updaterServiceBuilder.setBeanDtoFactoryAndBeanModifier(propertyNames).build();
 			}
 		}
 
-		private IDeleterService getDeleterService(final IMaybe<IDeleterService> deleterServiceMaybe) {
+		@SuppressWarnings({"rawtypes", "unchecked"})
+		private IDeleterService getDeleterService(
+			final IMaybe<IDeleterService> deleterServiceMaybe,
+			final List<IDeleterServiceInterceptor<?>> deleterServiceInterceptors) {
 			if (deleterServiceMaybe != null) {
+				if (!deleterServiceInterceptors.isEmpty()) {
+					throw new IllegalArgumentException(
+						"There are delete interceptors set and an deleter service is set exlipitely. This combination is not possible");
+				}
 				if (deleterServiceMaybe.isNothing()) {
 					return null;
 				}
@@ -501,7 +580,14 @@ final class BeanEntityServiceBuilderImpl extends EntityServiceBuilderImpl implem
 				}
 			}
 			else {
-				return beanServiceFactory.deleterServiceBuilder(beanType, getBeanTypeId()).build();
+
+				final IDeleterServiceBuilder<IBean> deleterServiceBuilder = beanServiceFactory.deleterServiceBuilder(
+						beanType,
+						getBeanTypeId());
+				for (final IDeleterServiceInterceptor interceptor : deleterServiceInterceptors) {
+					deleterServiceBuilder.addDeleterServiceInterceptor(interceptor);
+				}
+				return deleterServiceBuilder.build();
 			}
 		}
 
@@ -563,22 +649,21 @@ final class BeanEntityServiceBuilderImpl extends EntityServiceBuilderImpl implem
 					BeanInitializer.create(beanType, propertyNames),
 					BeanModifier.create(beanType, propertyNames));
 
-			if (creatorServiceMaybe != null) {
+			if (creatorServiceMaybe != null || creatorService != null) {
 				builder.setCreatorService(creatorService);
 			}
-			if (readerServiceMaybe != null) {
+			if (readerServiceMaybe != null || readerService != null) {
 				builder.setReaderService(readerService);
 			}
-			if (refreshServiceMaybe != null) {
+			if (refreshServiceMaybe != null || refreshService != null) {
 				builder.setRefreshService(refreshService);
 			}
-			if (updaterServiceMaybe != null) {
+			if (updaterServiceMaybe != null || updaterService != null) {
 				builder.setUpdaterService(updaterService);
 			}
-			if (deleterServiceMaybe != null) {
+			if (deleterServiceMaybe != null || deleterService != null) {
 				builder.setDeleterService(deleterService);
 			}
-
 			return builder.build();
 		}
 
@@ -683,7 +768,9 @@ final class BeanEntityServiceBuilderImpl extends EntityServiceBuilderImpl implem
 		}
 
 		@Override
-		public IBeanEntityLinkBluePrint setDestinationProperties(final String keyPropertyName, final String foreignKeyPropertyName) {
+		public IBeanEntityLinkBluePrint setDestinationProperties(
+			final String keyPropertyName,
+			final String foreignKeyPropertyName) {
 			checkExhausted();
 			return setDestinationProperties(EntityLinkProperties.create(keyPropertyName, foreignKeyPropertyName));
 		}
@@ -729,11 +816,12 @@ final class BeanEntityServiceBuilderImpl extends EntityServiceBuilderImpl implem
 
 		IEntityLinkDescriptor build(final Map<Object, BeanEntityPreBuild> prebuilds) {
 			if (linkedEntityId == null) {
-				throw new IllegalStateException("Missing mandatory parameters: "
-					+ "linkEntityId = '"
-					+ linkEntityId
-					+ "', linkedEntityId = '"
-					+ linkedEntityId);
+				throw new IllegalStateException(
+					"Missing mandatory parameters: "
+						+ "linkEntityId = '"
+						+ linkEntityId
+						+ "', linkedEntityId = '"
+						+ linkedEntityId);
 			}
 			final IEntityLinkDescriptorBuilder builder = EntityLinkDescriptor.builder();
 
@@ -857,10 +945,11 @@ final class BeanEntityServiceBuilderImpl extends EntityServiceBuilderImpl implem
 					builder.setLinkCreatorService(linkPrebuild.getCreatorService());
 				}
 				else {
-					builder.setLinkCreatorService(createCreatorService(
-							linkPrebuild.getBeanType(),
-							linkPrebuild.getBeanTypeId(),
-							linkPrebuild.getPropertyNames()));
+					builder.setLinkCreatorService(
+							createCreatorService(
+									linkPrebuild.getBeanType(),
+									linkPrebuild.getBeanTypeId(),
+									linkPrebuild.getPropertyNames()));
 				}
 				if (linkPrebuild.getDeleterService() != null) {
 					builder.setLinkDeleterService(linkPrebuild.getDeleterService());
@@ -872,10 +961,11 @@ final class BeanEntityServiceBuilderImpl extends EntityServiceBuilderImpl implem
 					builder.setAllLinksReaderService(linkPrebuild.getReaderService());
 				}
 				else {
-					builder.setAllLinksReaderService(createReaderService(
-							linkPrebuild.getBeanType(),
-							linkPrebuild.getBeanTypeId(),
-							linkPrebuild.getPropertyNames()));
+					builder.setAllLinksReaderService(
+							createReaderService(
+									linkPrebuild.getBeanType(),
+									linkPrebuild.getBeanTypeId(),
+									linkPrebuild.getPropertyNames()));
 				}
 				builder.setLinkBeanType(linkPrebuild.getBeanType());
 			}
@@ -909,7 +999,8 @@ final class BeanEntityServiceBuilderImpl extends EntityServiceBuilderImpl implem
 					builder.setLinkableReaderService(linkablePrebuild.getReaderService());
 				}
 				else {
-					builder.setLinkableReaderService(createReaderService(linkableBeanType, linkableBeanTypeId, linkableProperties));
+					builder.setLinkableReaderService(
+							createReaderService(linkableBeanType, linkableBeanTypeId, linkableProperties));
 				}
 			}
 

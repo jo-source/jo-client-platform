@@ -29,10 +29,29 @@
 package org.jowidgets.cap.common.api.filter;
 
 import org.jowidgets.cap.common.api.CapCommonToolkit;
+import org.jowidgets.util.Assert;
 
 public final class BooleanFilter {
 
 	private BooleanFilter() {}
+
+	public static IBooleanFilter create(final IFilter... filters) {
+		Assert.paramNotNull(filters, "filters");
+		final IBooleanFilterBuilder builder = builder();
+		boolean hasFilterAdded = false;
+		for (final IFilter filter : filters) {
+			if (filter != null) {
+				builder.addFilter(filter);
+				hasFilterAdded = true;
+			}
+		}
+		if (hasFilterAdded) {
+			return builder.build();
+		}
+		else {
+			return null;
+		}
+	}
 
 	public static IBooleanFilterBuilder builder() {
 		return CapCommonToolkit.filterFactory().booleanFilterBuilder();

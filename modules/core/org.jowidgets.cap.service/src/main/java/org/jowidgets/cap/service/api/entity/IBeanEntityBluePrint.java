@@ -43,6 +43,10 @@ import org.jowidgets.cap.service.api.adapter.ISyncDeleterService;
 import org.jowidgets.cap.service.api.adapter.ISyncReaderService;
 import org.jowidgets.cap.service.api.adapter.ISyncRefreshService;
 import org.jowidgets.cap.service.api.adapter.ISyncUpdaterService;
+import org.jowidgets.cap.service.api.creator.ICreatorServiceInterceptor;
+import org.jowidgets.cap.service.api.crud.ICrudServiceInterceptor;
+import org.jowidgets.cap.service.api.deleter.IDeleterServiceInterceptor;
+import org.jowidgets.cap.service.api.updater.IUpdaterServiceInterceptor;
 
 public interface IBeanEntityBluePrint {
 
@@ -213,6 +217,50 @@ public interface IBeanEntityBluePrint {
 	 * @return This builder
 	 */
 	IBeanEntityBluePrint setDeleterService(ISyncDeleterService deleterService);
+
+	/**
+	 * Adds an interceptor to the default creator service.
+	 * 
+	 * Remark: This is only possible, if no explicit creator service was set
+	 * 
+	 * @param interceptor The interceptor to add, must not be null
+	 *
+	 * @return This builder
+	 */
+	IBeanEntityBluePrint addCreatorServiceInterceptor(ICreatorServiceInterceptor<?> interceptor);
+
+	/**
+	 * Adds an interceptor to the default updater service.
+	 * 
+	 * Remark: This is only possible, if no explicit updater service was set
+	 * 
+	 * @param interceptor The interceptor to add, must not be null
+	 *
+	 * @return This builder
+	 */
+	IBeanEntityBluePrint addUpdaterServiceInterceptor(IUpdaterServiceInterceptor<?> interceptor);
+
+	/**
+	 * Adds an interceptor to the default deleter service.
+	 * 
+	 * Remark: This is only possible, if no explicit deleter service was set
+	 * 
+	 * @param interceptor The interceptor to add, must not be null
+	 *
+	 * @return This builder
+	 */
+	IBeanEntityBluePrint addDeleterServiceInterceptor(IDeleterServiceInterceptor<?> interceptor);
+
+	/**
+	 * Adds an interceptor to the default crud services.
+	 * 
+	 * Remark: This is only possible, if no explicit updater,creator or deleter service was set
+	 * 
+	 * @param interceptor The interceptor to add, must not be null
+	 *
+	 * @return This builder
+	 */
+	IBeanEntityBluePrint addCrudServiceInterceptor(ICrudServiceInterceptor<?> interceptor);
 
 	/**
 	 * Convenience method to set the updater service, creator service and deleter service to null

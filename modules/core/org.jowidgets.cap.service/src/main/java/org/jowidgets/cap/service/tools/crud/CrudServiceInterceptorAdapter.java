@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2016, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,48 +26,51 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.jpa.impl;
+package org.jowidgets.cap.service.tools.crud;
 
 import java.util.Collection;
 
-import javax.persistence.EntityManager;
-
-import org.jowidgets.cap.common.api.bean.IBean;
-import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.cap.service.api.CapServiceToolkit;
-import org.jowidgets.cap.service.tools.creator.AbstractSyncCreatorServiceImpl;
-import org.jowidgets.util.Assert;
+import org.jowidgets.cap.service.api.creator.IBeanDataMapper;
+import org.jowidgets.cap.service.api.crud.ICrudServiceInterceptor;
+import org.jowidgets.cap.service.api.updater.IBeanModificationsMap;
 
-final class SyncJpaCreatorServiceImpl<BEAN_TYPE extends IBean> extends AbstractSyncCreatorServiceImpl<BEAN_TYPE> {
-
-	private final Class<? extends BEAN_TYPE> beanType;
-
-	SyncJpaCreatorServiceImpl(final JpaCreatorServiceBuilderImpl<BEAN_TYPE> builder) {
-		super(builder);
-		Assert.paramNotNull(builder.getBeanType(), "builder.getBeanType()");
-		this.beanType = builder.getBeanType();
-	}
+public class CrudServiceInterceptorAdapter<BEAN_TYPE> implements ICrudServiceInterceptor<BEAN_TYPE> {
 
 	@Override
-	protected BEAN_TYPE createBean(final Collection<IBeanKey> parentBeanKeys, final IExecutionCallback executionCallback) {
-		try {
-			return beanType.newInstance();
-		}
-		catch (final Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
+	public void beforeInitializeForCreation(
+		final Collection<BEAN_TYPE> beans,
+		final IBeanDataMapper<BEAN_TYPE> beanDataMapper,
+		final IExecutionCallback executionCallback) {}
 
 	@Override
-	protected void persistBean(
-		final Collection<IBeanKey> parentBeanKeys,
-		final BEAN_TYPE bean,
-		final IExecutionCallback executionCallback) {
-		final EntityManager entityManager = EntityManagerProvider.get();
-		entityManager.persist(bean);
-		CapServiceToolkit.checkCanceled(executionCallback);
-		entityManager.flush();
-	}
+	public void afterInitializeForCreation(
+		final Collection<BEAN_TYPE> beans,
+		final IBeanDataMapper<BEAN_TYPE> beanDataMapper,
+		final IExecutionCallback executionCallback) {}
+
+	@Override
+	public void afterCreation(
+		final Collection<BEAN_TYPE> beans,
+		final IBeanDataMapper<BEAN_TYPE> beanDataMapper,
+		final IExecutionCallback executionCallback) {}
+
+	@Override
+	public void beforeUpdate(
+		final Collection<BEAN_TYPE> beans,
+		final IBeanModificationsMap<BEAN_TYPE> modifications,
+		final IExecutionCallback executionCallback) {}
+
+	@Override
+	public void afterUpdate(
+		final Collection<BEAN_TYPE> beans,
+		final IBeanModificationsMap<BEAN_TYPE> modifications,
+		final IExecutionCallback executionCallback) {}
+
+	@Override
+	public void beforeDelete(final Collection<BEAN_TYPE> beans, final IExecutionCallback executionCallback) {}
+
+	@Override
+	public void afterDelete(final Collection<BEAN_TYPE> beans, final IExecutionCallback executionCallback) {}
 
 }

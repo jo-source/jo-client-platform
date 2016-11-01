@@ -26,26 +26,16 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.api.deleter;
+package org.jowidgets.cap.service.api.executor;
 
-import org.jowidgets.cap.common.api.execution.IExecutableChecker;
-import org.jowidgets.cap.common.api.service.IDeleterService;
-import org.jowidgets.cap.service.api.bean.IBeanDeleteInterceptor;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-public interface IDeleterServiceBuilder<BEAN_TYPE> {
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+public @interface ExecutorServiceInterceptor {
 
-	IDeleterServiceBuilder<BEAN_TYPE> addExecutableChecker(IExecutableChecker<? extends BEAN_TYPE> executableChecker);
-
-	IDeleterServiceBuilder<BEAN_TYPE> setExecutableChecker(IExecutableChecker<? extends BEAN_TYPE> executableChecker);
-
-	IDeleterServiceBuilder<BEAN_TYPE> setAllowDeletedBeans(boolean allowDeletedBeans);
-
-	IDeleterServiceBuilder<BEAN_TYPE> setAllowStaleBeans(boolean allowStaleBeans);
-
-	IDeleterServiceBuilder<BEAN_TYPE> addDeleterInterceptor(IBeanDeleteInterceptor<BEAN_TYPE> interceptor);
-
-	IDeleterServiceBuilder<BEAN_TYPE> addDeleterServiceInterceptor(IDeleterServiceInterceptor<BEAN_TYPE> interceptor);
-
-	IDeleterService build();
-
+	Class<? extends IExecutorServiceInterceptor<?, ?>> value();
 }

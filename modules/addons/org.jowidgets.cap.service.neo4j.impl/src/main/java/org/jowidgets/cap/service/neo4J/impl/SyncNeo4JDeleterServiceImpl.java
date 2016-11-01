@@ -29,6 +29,7 @@
 package org.jowidgets.cap.service.neo4J.impl;
 
 import java.util.Collection;
+import java.util.List;
 
 import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
@@ -40,7 +41,7 @@ import org.jowidgets.cap.service.api.adapter.ISyncDeleterService;
 import org.jowidgets.cap.service.api.adapter.ISyncExecutorService;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.deleter.IDeleterServiceInterceptor;
-import org.jowidgets.cap.service.api.executor.IBeanExecutor;
+import org.jowidgets.cap.service.api.executor.IBeanListExecutor;
 import org.jowidgets.cap.service.api.executor.IExecutorServiceBuilder;
 import org.jowidgets.cap.service.neo4j.api.GraphDBConfig;
 import org.jowidgets.cap.service.neo4j.api.IBeanFactory;
@@ -85,7 +86,7 @@ final class SyncNeo4JDeleterServiceImpl<BEAN_TYPE extends IBean> implements ISyn
 		executorService.execute(beanKeys, null, executionCallback);
 	}
 
-	private final class DeleteExecutor implements IBeanExecutor<BEAN_TYPE, Void> {
+	private final class DeleteExecutor implements IBeanListExecutor<BEAN_TYPE, Void> {
 
 		private final Class<? extends BEAN_TYPE> beanType;
 		private final Object beanTypeId;
@@ -103,9 +104,20 @@ final class SyncNeo4JDeleterServiceImpl<BEAN_TYPE extends IBean> implements ISyn
 		}
 
 		@Override
-		public BEAN_TYPE execute(final BEAN_TYPE data, final Void parameter, final IExecutionCallback executionCallback) {
+		public List<BEAN_TYPE> execute(
+			final List<BEAN_TYPE> beans,
+			final Void parameter,
+			final IExecutionCallback executionCallback) {
+			interceptor.beforeDelete(beans, executionCallback);
+			for (final BEAN_TYPE bean : beans) {
+				execute(bean, parameter, executionCallback);
+			}
+			interceptor.afterDelete(beans, executionCallback);
+			return null;
+		}
+
+		private BEAN_TYPE execute(final BEAN_TYPE data, final Void parameter, final IExecutionCallback executionCallback) {
 			CapServiceToolkit.checkCanceled(executionCallback);
-			interceptor.beforeDelete(data, executionCallback);
 			if (data == null) {
 				return null;
 			}

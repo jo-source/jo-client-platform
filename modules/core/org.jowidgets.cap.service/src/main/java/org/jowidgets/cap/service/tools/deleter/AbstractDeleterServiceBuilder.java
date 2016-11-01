@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.service.tools.deleter;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -35,6 +36,8 @@ import org.jowidgets.cap.common.api.execution.ExecutableCheckerComposite;
 import org.jowidgets.cap.common.api.execution.IExecutableChecker;
 import org.jowidgets.cap.common.api.execution.IExecutableCheckerCompositeBuilder;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
+import org.jowidgets.cap.service.api.CapServiceToolkit;
+import org.jowidgets.cap.service.api.bean.IBeanDeleteInterceptor;
 import org.jowidgets.cap.service.api.deleter.IDeleterServiceBuilder;
 import org.jowidgets.cap.service.api.deleter.IDeleterServiceInterceptor;
 import org.jowidgets.util.Assert;
@@ -63,7 +66,8 @@ public abstract class AbstractDeleterServiceBuilder<BEAN_TYPE> implements IDelet
 	}
 
 	@Override
-	public IDeleterServiceBuilder<BEAN_TYPE> setExecutableChecker(final IExecutableChecker<? extends BEAN_TYPE> executableChecker) {
+	public IDeleterServiceBuilder<BEAN_TYPE> setExecutableChecker(
+		final IExecutableChecker<? extends BEAN_TYPE> executableChecker) {
 		this.executableCheckers.clear();
 		if (executableChecker != null) {
 			addExecutableChecker(executableChecker);
@@ -84,7 +88,26 @@ public abstract class AbstractDeleterServiceBuilder<BEAN_TYPE> implements IDelet
 	}
 
 	@Override
-	public IDeleterServiceBuilder<BEAN_TYPE> addDeleterInterceptor(final IDeleterServiceInterceptor<BEAN_TYPE> interceptor) {
+	public IDeleterServiceBuilder<BEAN_TYPE> addDeleterInterceptor(final IBeanDeleteInterceptor<BEAN_TYPE> interceptor) {
+		addDeleterServiceInterceptor(new IDeleterServiceInterceptor<BEAN_TYPE>() {
+
+			@Override
+			public void beforeDelete(final Collection<BEAN_TYPE> beans, final IExecutionCallback executionCallback) {
+				for (final BEAN_TYPE bean : beans) {
+					CapServiceToolkit.checkCanceled(executionCallback);
+					interceptor.beforeDelete(bean);
+				}
+			}
+
+			@Override
+			public void afterDelete(final Collection<BEAN_TYPE> beans, final IExecutionCallback executionCallback) {}
+		});
+		return null;
+	}
+
+	@Override
+	public IDeleterServiceBuilder<BEAN_TYPE> addDeleterServiceInterceptor(
+		final IDeleterServiceInterceptor<BEAN_TYPE> interceptor) {
 		Assert.paramNotNull(interceptor, "interceptor");
 		interceptors.add(interceptor);
 		return this;
@@ -131,9 +154,18 @@ public abstract class AbstractDeleterServiceBuilder<BEAN_TYPE> implements IDelet
 		}
 
 		@Override
-		public void beforeDelete(final BEAN_TYPE bean, final IExecutionCallback executionCallback) {
+		public void beforeDelete(final Collection<BEAN_TYPE> beans, final IExecutionCallback executionCallback) {
 			for (final IDeleterServiceInterceptor<BEAN_TYPE> interceptor : interceptors) {
-				interceptor.beforeDelete(bean, executionCallback);
+				CapServiceToolkit.checkCanceled(executionCallback);
+				interceptor.beforeDelete(beans, executionCallback);
+			}
+		}
+
+		@Override
+		public void afterDelete(final Collection<BEAN_TYPE> beans, final IExecutionCallback executionCallback) {
+			for (final IDeleterServiceInterceptor<BEAN_TYPE> interceptor : interceptors) {
+				CapServiceToolkit.checkCanceled(executionCallback);
+				interceptor.afterDelete(beans, executionCallback);
 			}
 		}
 

@@ -43,7 +43,7 @@ final class BooleanFilterBuilderImpl extends FilterBuilderImpl<IBooleanFilterBui
 
 	BooleanFilterBuilderImpl() {
 		filters = new LinkedList<IFilter>();
-		operator = null;
+		operator = BooleanOperator.AND;
 	}
 
 	@Override
@@ -55,9 +55,7 @@ final class BooleanFilterBuilderImpl extends FilterBuilderImpl<IBooleanFilterBui
 	@Override
 	public IBooleanFilterBuilder setFilters(final List<? extends IFilter> filters) {
 		this.filters.clear();
-		for (final IFilter filter : filters) {
-			this.filters.add(filter);
-		}
+		this.filters.addAll(filters);
 		return this;
 	}
 

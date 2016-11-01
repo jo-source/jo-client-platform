@@ -41,6 +41,7 @@ import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.api.bean.IBeanModifier;
 import org.jowidgets.cap.service.api.bean.IBeanUpdateInterceptor;
 import org.jowidgets.cap.service.api.updater.IUpdaterServiceBuilder;
+import org.jowidgets.cap.service.api.updater.IUpdaterServiceInterceptor;
 import org.jowidgets.cap.service.repository.api.IUpdateSupportBeanRepository;
 import org.jowidgets.util.IDecorator;
 import org.jowidgets.validation.IValidator;
@@ -76,6 +77,13 @@ final class BeanRepositoryUpdaterServiceBuilderImpl<BEAN_TYPE> implements IUpdat
 	@Override
 	public IUpdaterServiceBuilder<BEAN_TYPE> addUpdaterInterceptor(final IBeanUpdateInterceptor<BEAN_TYPE> interceptor) {
 		builder.addUpdaterInterceptor(interceptor);
+		return this;
+	}
+
+	@Override
+	public IUpdaterServiceBuilder<BEAN_TYPE> addUpdaterServiceInterceptor(
+		final IUpdaterServiceInterceptor<BEAN_TYPE> interceptor) {
+		builder.addUpdaterServiceInterceptor(interceptor);
 		return this;
 	}
 

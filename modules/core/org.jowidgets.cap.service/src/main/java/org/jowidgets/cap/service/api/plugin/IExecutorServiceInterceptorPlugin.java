@@ -26,26 +26,19 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.api.deleter;
+package org.jowidgets.cap.service.api.plugin;
 
-import org.jowidgets.cap.common.api.execution.IExecutableChecker;
-import org.jowidgets.cap.common.api.service.IDeleterService;
-import org.jowidgets.cap.service.api.bean.IBeanDeleteInterceptor;
+import org.jowidgets.cap.service.api.executor.IExecutorServiceInterceptor;
+import org.jowidgets.plugin.api.IPluginId;
+import org.jowidgets.util.ITypedKey;
 
-public interface IDeleterServiceBuilder<BEAN_TYPE> {
+//CHECKSTYLE:OFF
+public interface IExecutorServiceInterceptorPlugin<BEAN_TYPE, PARAM_TYPE>
+		extends IExecutorServiceInterceptor<BEAN_TYPE, PARAM_TYPE> {
+	//CHECKSTYLE:ON
 
-	IDeleterServiceBuilder<BEAN_TYPE> addExecutableChecker(IExecutableChecker<? extends BEAN_TYPE> executableChecker);
+	IPluginId<IExecutorServiceInterceptorPlugin<?, ?>> ID = new IPluginId<IExecutorServiceInterceptorPlugin<?, ?>>() {};
 
-	IDeleterServiceBuilder<BEAN_TYPE> setExecutableChecker(IExecutableChecker<? extends BEAN_TYPE> executableChecker);
-
-	IDeleterServiceBuilder<BEAN_TYPE> setAllowDeletedBeans(boolean allowDeletedBeans);
-
-	IDeleterServiceBuilder<BEAN_TYPE> setAllowStaleBeans(boolean allowStaleBeans);
-
-	IDeleterServiceBuilder<BEAN_TYPE> addDeleterInterceptor(IBeanDeleteInterceptor<BEAN_TYPE> interceptor);
-
-	IDeleterServiceBuilder<BEAN_TYPE> addDeleterServiceInterceptor(IDeleterServiceInterceptor<BEAN_TYPE> interceptor);
-
-	IDeleterService build();
+	ITypedKey<Class<?>> BEAN_TYPE_PROPERTY_KEY = new ITypedKey<Class<?>>() {};
 
 }

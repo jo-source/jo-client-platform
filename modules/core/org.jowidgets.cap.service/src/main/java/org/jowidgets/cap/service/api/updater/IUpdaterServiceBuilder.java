@@ -43,6 +43,8 @@ public interface IUpdaterServiceBuilder<BEAN_TYPE> {
 
 	IUpdaterServiceBuilder<BEAN_TYPE> addUpdaterInterceptor(IBeanUpdateInterceptor<BEAN_TYPE> interceptor);
 
+	IUpdaterServiceBuilder<BEAN_TYPE> addUpdaterServiceInterceptor(IUpdaterServiceInterceptor<BEAN_TYPE> interceptor);
+
 	IUpdaterServiceBuilder<BEAN_TYPE> addBeanValidator(IBeanValidator<? extends BEAN_TYPE> validator);
 
 	IUpdaterServiceBuilder<BEAN_TYPE> addPropertyValidator(String propertyName, IValidator<? extends Object> validator);

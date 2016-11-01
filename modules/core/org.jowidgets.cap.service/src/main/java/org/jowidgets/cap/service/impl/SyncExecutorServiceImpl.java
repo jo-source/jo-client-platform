@@ -28,6 +28,7 @@
 
 package org.jowidgets.cap.service.impl;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -50,9 +51,12 @@ import org.jowidgets.cap.service.api.bean.BeanUpdateInterceptor;
 import org.jowidgets.cap.service.api.bean.IBeanAccess;
 import org.jowidgets.cap.service.api.bean.IBeanDtoFactory;
 import org.jowidgets.cap.service.api.bean.IBeanUpdateInterceptor;
+import org.jowidgets.cap.service.api.executor.ExecutorServiceInterceptor;
 import org.jowidgets.cap.service.api.executor.IBeanExecutor;
 import org.jowidgets.cap.service.api.executor.IBeanListExecutor;
+import org.jowidgets.cap.service.api.executor.IExecutorServiceInterceptor;
 import org.jowidgets.cap.service.api.plugin.IBeanUpdateInterceptorPlugin;
+import org.jowidgets.cap.service.api.plugin.IExecutorServiceInterceptorPlugin;
 import org.jowidgets.cap.service.tools.bean.BeanDtoFactoryHelper;
 import org.jowidgets.cap.service.tools.validation.ServiceBeanValidationHelper;
 import org.jowidgets.plugin.api.IPluginPropertiesBuilder;
@@ -73,9 +77,8 @@ public final class SyncExecutorServiceImpl<BEAN_TYPE, PARAM_TYPE> implements ISy
 	private final boolean confirmValidationWarnings;
 
 	private final IBeanDtoFactory<BEAN_TYPE> dtoFactory;
-	private final List<IBeanUpdateInterceptor<BEAN_TYPE>> updateInterceptors;
-	private final IBeanUpdateInterceptor<BEAN_TYPE> updateInterceptor;
-	private final Collection<IBeanUpdateInterceptorPlugin<BEAN_TYPE>> updateInterceptorPlugins;
+	private final List<IBeanUpdateInterceptor<BEAN_TYPE>> beanUpdateInterceptors;
+	private final List<IExecutorServiceInterceptor<BEAN_TYPE, PARAM_TYPE>> executorServiceInterceptors;
 
 	@SuppressWarnings("unchecked")
 	SyncExecutorServiceImpl(
@@ -87,13 +90,15 @@ public final class SyncExecutorServiceImpl<BEAN_TYPE, PARAM_TYPE> implements ISy
 		final boolean allowDeletedBeans,
 		final boolean allowStaleBeans,
 		final boolean confirmValidationWarnings,
-		final List<IBeanUpdateInterceptor<BEAN_TYPE>> updateInterceptors) {
+		final List<IBeanUpdateInterceptor<BEAN_TYPE>> beanUpdateInterceptors,
+		final List<IExecutorServiceInterceptor<BEAN_TYPE, PARAM_TYPE>> executorServiceInterceptors) {
 
 		Assert.paramNotNull(beanAccess, "beanAccess");
 		Assert.paramNotNull(beanAccess.getBeanType(), "beanAccess.getBeanType()");
 		Assert.paramNotNull(executor, "executor");
 		Assert.paramNotNull(dtoFactory, "dtoFactory");
-		Assert.paramNotNull(updateInterceptors, "updateInterceptors");
+		Assert.paramNotNull(beanUpdateInterceptors, "beanUpdateInterceptors");
+		Assert.paramNotNull(executorServiceInterceptors, "executorServiceInterceptors");
 
 		this.beanAccess = (IBeanAccess<BEAN_TYPE>) beanAccess;
 		this.executor = executor;
@@ -102,15 +107,47 @@ public final class SyncExecutorServiceImpl<BEAN_TYPE, PARAM_TYPE> implements ISy
 		this.allowDeletedBeans = allowDeletedBeans;
 		this.allowStaleBeans = allowStaleBeans;
 		this.confirmValidationWarnings = confirmValidationWarnings;
-		this.updateInterceptors = new LinkedList<IBeanUpdateInterceptor<BEAN_TYPE>>(updateInterceptors);
-
 		this.dtoFactory = dtoFactory;
-		this.updateInterceptor = createInterceptor(beanAccess.getBeanType());
-		this.updateInterceptorPlugins = createUpdateInterceptorPlugins(beanAccess.getBeanType());
+
+		this.beanUpdateInterceptors = createBeanInterceptors(beanAccess.getBeanType(), beanUpdateInterceptors);
+		this.executorServiceInterceptors = createExecutorServiceInterceptors(
+				beanAccess.getBeanType(),
+				executorServiceInterceptors);
+	}
+
+	private List<IBeanUpdateInterceptor<BEAN_TYPE>> createBeanInterceptors(
+		final Class<?> beanType,
+		final List<IBeanUpdateInterceptor<BEAN_TYPE>> interceptorsOfBuilder) {
+
+		final List<IBeanUpdateInterceptor<BEAN_TYPE>> result = new ArrayList<IBeanUpdateInterceptor<BEAN_TYPE>>();
+		final IBeanUpdateInterceptor<BEAN_TYPE> annotatedInterceptor = createAnnotatedBeanInterceptor(beanType);
+		if (annotatedInterceptor != null) {
+			result.add(annotatedInterceptor);
+		}
+		result.addAll(createBeanUpdateInterceptorPlugins(beanType));
+		result.addAll(interceptorsOfBuilder);
+
+		return result;
+	}
+
+	private List<IExecutorServiceInterceptor<BEAN_TYPE, PARAM_TYPE>> createExecutorServiceInterceptors(
+		final Class<?> beanType,
+		final List<IExecutorServiceInterceptor<BEAN_TYPE, PARAM_TYPE>> interceptorsOfBuilder) {
+
+		final List<IExecutorServiceInterceptor<BEAN_TYPE, PARAM_TYPE>> result = new ArrayList<IExecutorServiceInterceptor<BEAN_TYPE, PARAM_TYPE>>();
+		final IExecutorServiceInterceptor<BEAN_TYPE, PARAM_TYPE> annotatedInterceptor = createAnnotatedExecutorServiceInterceptor(
+				beanType);
+		if (annotatedInterceptor != null) {
+			result.add(annotatedInterceptor);
+		}
+		result.addAll(createExecutorServiceInterceptorPlugins(beanType));
+		result.addAll(interceptorsOfBuilder);
+
+		return result;
 	}
 
 	@SuppressWarnings("unchecked")
-	private IBeanUpdateInterceptor<BEAN_TYPE> createInterceptor(final Class<?> beanType) {
+	private IBeanUpdateInterceptor<BEAN_TYPE> createAnnotatedBeanInterceptor(final Class<?> beanType) {
 		final BeanUpdateInterceptor annotation = AnnotationCache.getTypeAnnotationFromHierarchy(
 				beanType,
 				BeanUpdateInterceptor.class);
@@ -128,11 +165,40 @@ public final class SyncExecutorServiceImpl<BEAN_TYPE, PARAM_TYPE> implements ISy
 		return null;
 	}
 
+	@SuppressWarnings("unchecked")
+	private IExecutorServiceInterceptor<BEAN_TYPE, PARAM_TYPE> createAnnotatedExecutorServiceInterceptor(
+		final Class<?> beanType) {
+		final ExecutorServiceInterceptor annotation = AnnotationCache.getTypeAnnotationFromHierarchy(
+				beanType,
+				ExecutorServiceInterceptor.class);
+		if (annotation != null) {
+			final Class<? extends IExecutorServiceInterceptor<?, ?>> value = annotation.value();
+			if (value != null) {
+				try {
+					return (IExecutorServiceInterceptor<BEAN_TYPE, PARAM_TYPE>) value.newInstance();
+				}
+				catch (final Exception e) {
+					throw new RuntimeException(e);
+				}
+			}
+		}
+		return null;
+	}
+
 	@SuppressWarnings({"rawtypes", "unchecked"})
-	private Collection<IBeanUpdateInterceptorPlugin<BEAN_TYPE>> createUpdateInterceptorPlugins(final Class<?> beanType) {
+	private List<IBeanUpdateInterceptorPlugin<BEAN_TYPE>> createBeanUpdateInterceptorPlugins(final Class<?> beanType) {
 		final IPluginPropertiesBuilder propBuilder = PluginToolkit.pluginPropertiesBuilder();
 		propBuilder.add(IBeanUpdateInterceptorPlugin.BEAN_TYPE_PROPERTY_KEY, beanType);
 		final List result = PluginProvider.getPlugins(IBeanUpdateInterceptorPlugin.ID, propBuilder.build());
+		return result;
+	}
+
+	@SuppressWarnings({"rawtypes", "unchecked"})
+	private List<IExecutorServiceInterceptorPlugin<BEAN_TYPE, PARAM_TYPE>> createExecutorServiceInterceptorPlugins(
+		final Class<?> beanType) {
+		final IPluginPropertiesBuilder propBuilder = PluginToolkit.pluginPropertiesBuilder();
+		propBuilder.add(IExecutorServiceInterceptorPlugin.BEAN_TYPE_PROPERTY_KEY, beanType);
+		final List result = PluginProvider.getPlugins(IExecutorServiceInterceptorPlugin.ID, propBuilder.build());
 		return result;
 	}
 
@@ -210,7 +276,7 @@ public final class SyncExecutorServiceImpl<BEAN_TYPE, PARAM_TYPE> implements ISy
 		final PARAM_TYPE parameter,
 		final IExecutionCallback executionCallback) {
 
-		beforeUpdate(beans);
+		beforeExecute(beans, parameter, executionCallback);
 		if (executableChecker != null) {
 			checkExecutableStates(beans, executionCallback);
 		}
@@ -219,8 +285,10 @@ public final class SyncExecutorServiceImpl<BEAN_TYPE, PARAM_TYPE> implements ISy
 		CapServiceToolkit.checkCanceled(executionCallback);
 		validate(beans, executionCallback);
 		beanAccess.flush();
-		afterUpdate(executionResult);
-		return BeanDtoFactoryHelper.createDtos(dtoFactory, executionResult);
+		if (afterExecute(executionResult, parameter, executionCallback)) {
+			beanAccess.flush();
+		}
+		return BeanDtoFactoryHelper.createDtos(dtoFactory, executionResult, executionCallback);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -229,7 +297,7 @@ public final class SyncExecutorServiceImpl<BEAN_TYPE, PARAM_TYPE> implements ISy
 		final PARAM_TYPE parameter,
 		final IExecutionCallback executionCallback) {
 
-		beforeUpdate(beans);
+		beforeExecute(beans, parameter, executionCallback);
 		final IBeanExecutor<BEAN_TYPE, PARAM_TYPE> beanExecutor = (IBeanExecutor<BEAN_TYPE, PARAM_TYPE>) executor;
 
 		final List<BEAN_TYPE> executionResultList = new LinkedList<BEAN_TYPE>();
@@ -259,47 +327,46 @@ public final class SyncExecutorServiceImpl<BEAN_TYPE, PARAM_TYPE> implements ISy
 				CapServiceToolkit.checkCanceled(executionCallback);
 			}
 		}
-
-		validate(beans, executionCallback);
 		beanAccess.flush();
-		afterUpdate(executionResultList);
-		return BeanDtoFactoryHelper.createDtos(dtoFactory, executionResultList);
+		if (afterExecute(executionResultList, parameter, executionCallback)) {
+			beanAccess.flush();
+		}
+		validate(beans, executionCallback);
+		return BeanDtoFactoryHelper.createDtos(dtoFactory, executionResultList, executionCallback);
 	}
 
-	private void beforeUpdate(final Collection<? extends BEAN_TYPE> beans) {
-		if (updateInterceptor != null) {
-			for (final BEAN_TYPE bean : beans) {
-				updateInterceptor.beforeUpdate(bean);
-			}
-		}
-		for (final IBeanUpdateInterceptorPlugin<BEAN_TYPE> plugin : updateInterceptorPlugins) {
-			for (final BEAN_TYPE bean : beans) {
-				plugin.beforeUpdate(bean);
-			}
-		}
-		for (final IBeanUpdateInterceptor<BEAN_TYPE> interceptor : updateInterceptors) {
+	@SuppressWarnings("unchecked")
+	private void beforeExecute(
+		final Collection<? extends BEAN_TYPE> beans,
+		final PARAM_TYPE param,
+		final IExecutionCallback executionCallback) {
+		for (final IBeanUpdateInterceptor<BEAN_TYPE> interceptor : beanUpdateInterceptors) {
 			for (final BEAN_TYPE bean : beans) {
 				interceptor.beforeUpdate(bean);
 			}
 		}
+		for (final IExecutorServiceInterceptor<BEAN_TYPE, PARAM_TYPE> interceptor : executorServiceInterceptors) {
+			interceptor.beforeExecute((Collection<BEAN_TYPE>) beans, param, executionCallback);
+		}
 	}
 
-	private void afterUpdate(final Collection<? extends BEAN_TYPE> beans) {
-		if (updateInterceptor != null) {
-			for (final BEAN_TYPE bean : beans) {
-				updateInterceptor.afterUpdate(bean);
-			}
-		}
-		for (final IBeanUpdateInterceptorPlugin<BEAN_TYPE> plugin : updateInterceptorPlugins) {
-			for (final BEAN_TYPE bean : beans) {
-				plugin.afterUpdate(bean);
-			}
-		}
-		for (final IBeanUpdateInterceptor<BEAN_TYPE> interceptor : updateInterceptors) {
+	@SuppressWarnings("unchecked")
+	private boolean afterExecute(
+		final Collection<? extends BEAN_TYPE> beans,
+		final PARAM_TYPE param,
+		final IExecutionCallback executionCallback) {
+		boolean result = false;
+		for (final IBeanUpdateInterceptor<BEAN_TYPE> interceptor : beanUpdateInterceptors) {
 			for (final BEAN_TYPE bean : beans) {
 				interceptor.afterUpdate(bean);
 			}
+			result = true;
 		}
+		for (final IExecutorServiceInterceptor<BEAN_TYPE, PARAM_TYPE> interceptor : executorServiceInterceptors) {
+			interceptor.afterExecute((Collection<BEAN_TYPE>) beans, param, executionCallback);
+			result = true;
+		}
+		return result;
 	}
 
 	private void validate(final Collection<BEAN_TYPE> beans, final IExecutionCallback executionCallback) {

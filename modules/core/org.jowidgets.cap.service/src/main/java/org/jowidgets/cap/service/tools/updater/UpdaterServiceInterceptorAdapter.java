@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, grossmann
+ * Copyright (c) 2016, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,26 +26,26 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.service.api.deleter;
+package org.jowidgets.cap.service.tools.updater;
 
-import org.jowidgets.cap.common.api.execution.IExecutableChecker;
-import org.jowidgets.cap.common.api.service.IDeleterService;
-import org.jowidgets.cap.service.api.bean.IBeanDeleteInterceptor;
+import java.util.Collection;
 
-public interface IDeleterServiceBuilder<BEAN_TYPE> {
+import org.jowidgets.cap.common.api.execution.IExecutionCallback;
+import org.jowidgets.cap.service.api.updater.IBeanModificationsMap;
+import org.jowidgets.cap.service.api.updater.IUpdaterServiceInterceptor;
 
-	IDeleterServiceBuilder<BEAN_TYPE> addExecutableChecker(IExecutableChecker<? extends BEAN_TYPE> executableChecker);
+public class UpdaterServiceInterceptorAdapter<BEAN_TYPE> implements IUpdaterServiceInterceptor<BEAN_TYPE> {
 
-	IDeleterServiceBuilder<BEAN_TYPE> setExecutableChecker(IExecutableChecker<? extends BEAN_TYPE> executableChecker);
+	@Override
+	public void beforeUpdate(
+		final Collection<BEAN_TYPE> beans,
+		final IBeanModificationsMap<BEAN_TYPE> modifications,
+		final IExecutionCallback executionCallback) {}
 
-	IDeleterServiceBuilder<BEAN_TYPE> setAllowDeletedBeans(boolean allowDeletedBeans);
-
-	IDeleterServiceBuilder<BEAN_TYPE> setAllowStaleBeans(boolean allowStaleBeans);
-
-	IDeleterServiceBuilder<BEAN_TYPE> addDeleterInterceptor(IBeanDeleteInterceptor<BEAN_TYPE> interceptor);
-
-	IDeleterServiceBuilder<BEAN_TYPE> addDeleterServiceInterceptor(IDeleterServiceInterceptor<BEAN_TYPE> interceptor);
-
-	IDeleterService build();
+	@Override
+	public void afterUpdate(
+		final Collection<BEAN_TYPE> beans,
+		final IBeanModificationsMap<BEAN_TYPE> modifications,
+		final IExecutionCallback executionCallback) {}
 
 }
