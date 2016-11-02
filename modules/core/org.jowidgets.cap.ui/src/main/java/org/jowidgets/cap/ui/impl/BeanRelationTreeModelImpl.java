@@ -46,6 +46,7 @@ import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
 import org.jowidgets.cap.ui.api.model.DataModelContext;
 import org.jowidgets.cap.ui.api.model.IDataModel;
 import org.jowidgets.cap.ui.api.model.IDataModelContext;
+import org.jowidgets.cap.ui.api.model.IDataSaveListener;
 import org.jowidgets.cap.ui.api.model.IModificationStateListener;
 import org.jowidgets.cap.ui.api.model.IProcessStateListener;
 import org.jowidgets.cap.ui.api.model.LinkType;
@@ -246,6 +247,16 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE>
 				dataModel.save();
 			}
 		}
+	}
+
+	@Override
+	public void addDataSaveListener(final IDataSaveListener dataSaveListener) {
+		root.addDataSaveListener(dataSaveListener);
+	}
+
+	@Override
+	public void removeDataSaveListener(final IDataSaveListener dataSaveListener) {
+		root.removeDataSaveListener(dataSaveListener);
 	}
 
 	@Override

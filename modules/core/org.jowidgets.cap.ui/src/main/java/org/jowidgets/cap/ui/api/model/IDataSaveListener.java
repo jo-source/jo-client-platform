@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2016, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -28,26 +28,16 @@
 
 package org.jowidgets.cap.ui.api.model;
 
-import org.jowidgets.validation.IValidateable;
+public interface IDataSaveListener {
 
-public interface IDataModel extends IValidateable, IModificationStateObservable, IProcessStateObservable, IDataSaveObservable {
+	/**
+	 * Will be invoked before data will be saved
+	 */
+	void beforeDataSave();
 
-	void load();
-
-	void clearCache();
-
-	void clear();
-
-	void save();
-
-	void undo();
-
-	boolean hasModifications();
-
-	boolean hasModificationsCached();
-
-	boolean hasExecutions();
-
-	void cancelExecutions();
+	/**
+	 * Will be invoked after data was saved
+	 */
+	void afterDataSaved();
 
 }

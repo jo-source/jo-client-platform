@@ -87,6 +87,7 @@ import org.jowidgets.cap.ui.api.filter.IUiFilterFactory;
 import org.jowidgets.cap.ui.api.filter.IUiFilterTools;
 import org.jowidgets.cap.ui.api.model.IBeanListModelBeansListener;
 import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
+import org.jowidgets.cap.ui.api.model.IDataSaveListener;
 import org.jowidgets.cap.ui.api.model.ILabelModel;
 import org.jowidgets.cap.ui.api.model.IModificationStateListener;
 import org.jowidgets.cap.ui.api.model.IProcessStateListener;
@@ -619,6 +620,16 @@ public class BeanRelationNodeModelImpl<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE>
 	@Override
 	public void removeProcessStateListener(final IProcessStateListener listener) {
 		beanStateTracker.removeProcessStateListener(listener);
+	}
+
+	@Override
+	public void addDataSaveListener(final IDataSaveListener dataSaveListener) {
+		saveDelegate.addDataSaveListener(dataSaveListener);
+	}
+
+	@Override
+	public void removeDataSaveListener(final IDataSaveListener dataSaveListener) {
+		saveDelegate.removeDataSaveListener(dataSaveListener);
 	}
 
 	@Override

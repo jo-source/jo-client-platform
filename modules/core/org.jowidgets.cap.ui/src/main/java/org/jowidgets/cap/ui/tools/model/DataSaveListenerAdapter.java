@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2016, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,28 +26,16 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.model;
+package org.jowidgets.cap.ui.tools.model;
 
-import org.jowidgets.validation.IValidateable;
+import org.jowidgets.cap.ui.api.model.IDataSaveListener;
 
-public interface IDataModel extends IValidateable, IModificationStateObservable, IProcessStateObservable, IDataSaveObservable {
+public class DataSaveListenerAdapter implements IDataSaveListener {
 
-	void load();
+	@Override
+	public void beforeDataSave() {}
 
-	void clearCache();
-
-	void clear();
-
-	void save();
-
-	void undo();
-
-	boolean hasModifications();
-
-	boolean hasModificationsCached();
-
-	boolean hasExecutions();
-
-	void cancelExecutions();
+	@Override
+	public void afterDataSaved() {}
 
 }

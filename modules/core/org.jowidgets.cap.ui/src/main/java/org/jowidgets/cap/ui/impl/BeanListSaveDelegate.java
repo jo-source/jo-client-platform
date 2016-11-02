@@ -51,13 +51,14 @@ import org.jowidgets.cap.ui.api.command.SaveAction;
 import org.jowidgets.cap.ui.api.execution.BeanExecutionPolicy;
 import org.jowidgets.cap.ui.api.execution.IExecutionTask;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
+import org.jowidgets.cap.ui.tools.model.DataSaveObservable;
 import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.tools.command.ExecutionContext;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.util.IProvider;
 
-final class BeanListSaveDelegate<BEAN_TYPE> {
+final class BeanListSaveDelegate<BEAN_TYPE> extends DataSaveObservable {
 
 	private static final IMessage SAVE = Messages.getMessage("BeanListSaveDelegate.Save");
 	private static final IMessage CREATE = Messages.getMessage("BeanListSaveDelegate.Create");
@@ -126,11 +127,22 @@ final class BeanListSaveDelegate<BEAN_TYPE> {
 	}
 
 	void save() {
-		create();
-		update();
+		fireBeforeDataSave();
+		save(new Runnable() {
+			@Override
+			public void run() {
+				fireAfterDataSaved();
+			}
+		});
 	}
 
-	private void create() {
+	private void save(final Runnable finishedCallback) {
+		final CountDownRunnable countDownRunnable = new CountDownRunnable(finishedCallback, 2);
+		create(countDownRunnable);
+		update(countDownRunnable);
+	}
+
+	private void create(final Runnable finishedCallback) {
 		final Set<IBeanProxy<BEAN_TYPE>> beansToCreate = beansStateTracker.getBeansToCreate();
 		if (!EmptyCheck.isEmpty(beansToCreate)) {
 			if (creatorService == null) {
@@ -146,7 +158,11 @@ final class BeanListSaveDelegate<BEAN_TYPE> {
 				true,
 				fireBeansChanged);
 
-			for (final List<IBeanProxy<BEAN_TYPE>> preparedBeans : executionHelper.prepareExecutions(true, executionContext)) {
+			final List<List<IBeanProxy<BEAN_TYPE>>> preparedExecutions = executionHelper.prepareExecutions(
+					true,
+					executionContext);
+			final CountDownRunnable countDownRunnable = new CountDownRunnable(finishedCallback, preparedExecutions.size());
+			for (final List<IBeanProxy<BEAN_TYPE>> preparedBeans : preparedExecutions) {
 				if (preparedBeans.size() > 0) {
 					final IExecutionTask executionTask = preparedBeans.get(0).getExecutionTask();
 					if (executionTask != null) {
@@ -156,11 +172,16 @@ final class BeanListSaveDelegate<BEAN_TYPE> {
 						for (final IBeanProxy<BEAN_TYPE> bean : preparedBeans) {
 							beansData.add(createBeanData(bean));
 						}
-						final IResultCallback<List<IBeanDto>> helperCallback = executionHelper.createResultCallback(preparedBeans);
+						final IResultCallback<List<IBeanDto>> helperCallback = executionHelper.createResultCallback(
+								preparedBeans,
+								countDownRunnable);
 						creatorService.create(helperCallback, parentBeansProvider.get(), beansData, executionTask);
 					}
 				}
 			}
+		}
+		else {
+			finishedCallback.run();
 		}
 	}
 
@@ -174,7 +195,7 @@ final class BeanListSaveDelegate<BEAN_TYPE> {
 		return builder.build();
 	}
 
-	private void update() {
+	private void update(final Runnable finishedCallback) {
 		final Set<IBeanProxy<BEAN_TYPE>> modifiedBeans = beansStateTracker.getMasterBeansToUpdate();
 		if (!EmptyCheck.isEmpty(modifiedBeans)) {
 			if (updaterService == null) {
@@ -190,7 +211,11 @@ final class BeanListSaveDelegate<BEAN_TYPE> {
 				false,
 				fireBeansChanged);
 
-			for (final List<IBeanProxy<BEAN_TYPE>> preparedBeans : executionHelper.prepareExecutions(false, executionContext)) {
+			final List<List<IBeanProxy<BEAN_TYPE>>> preparedExecutions = executionHelper.prepareExecutions(
+					false,
+					executionContext);
+			final CountDownRunnable countDownRunnable = new CountDownRunnable(finishedCallback, preparedExecutions.size());
+			for (final List<IBeanProxy<BEAN_TYPE>> preparedBeans : preparedExecutions) {
 				if (preparedBeans.size() > 0) {
 					final IExecutionTask executionTask = preparedBeans.get(0).getExecutionTask();
 					if (executionTask != null) {
@@ -199,12 +224,37 @@ final class BeanListSaveDelegate<BEAN_TYPE> {
 						for (final IBeanProxy<?> bean : preparedBeans) {
 							modifications.addAll(bean.getModifications());
 						}
-						final IResultCallback<List<IBeanDto>> helperCallback = executionHelper.createResultCallback(preparedBeans);
+						final IResultCallback<List<IBeanDto>> helperCallback = executionHelper.createResultCallback(
+								preparedBeans,
+								countDownRunnable);
 						updaterService.update(helperCallback, modifications, executionTask);
 					}
 				}
 			}
 		}
+		else {
+			finishedCallback.run();
+		}
 	}
 
+	private final class CountDownRunnable implements Runnable {
+
+		private final Runnable destination;
+		private int count;
+
+		CountDownRunnable(final Runnable destination, final int count) {
+			this.destination = destination;
+			this.count = count;
+		}
+
+		@Override
+		public void run() {
+			if (count > 0) {
+				count--;
+			}
+			if (count == 0) {
+				destination.run();
+			}
+		}
+	}
 }

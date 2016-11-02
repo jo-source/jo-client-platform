@@ -29,6 +29,7 @@
 package org.jowidgets.cap.ui.tools.model;
 
 import org.jowidgets.cap.ui.api.model.IDataModel;
+import org.jowidgets.cap.ui.api.model.IDataSaveListener;
 import org.jowidgets.cap.ui.api.model.IModificationStateListener;
 import org.jowidgets.cap.ui.api.model.IProcessStateListener;
 import org.jowidgets.util.Assert;
@@ -106,6 +107,16 @@ public class DataModelWrapper implements IDataModel {
 	@Override
 	public void save() {
 		original.save();
+	}
+
+	@Override
+	public void addDataSaveListener(final IDataSaveListener dataSaveListener) {
+		original.addDataSaveListener(dataSaveListener);
+	}
+
+	@Override
+	public void removeDataSaveListener(final IDataSaveListener dataSaveListener) {
+		original.removeDataSaveListener(dataSaveListener);
 	}
 
 	@Override

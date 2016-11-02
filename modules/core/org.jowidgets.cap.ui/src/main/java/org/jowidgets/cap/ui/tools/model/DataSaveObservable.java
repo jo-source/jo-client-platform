@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2016, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,28 +26,42 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.ui.api.model;
+package org.jowidgets.cap.ui.tools.model;
 
-import org.jowidgets.validation.IValidateable;
+import org.jowidgets.cap.ui.api.model.IDataSaveListener;
+import org.jowidgets.cap.ui.api.model.IDataSaveObservable;
+import org.jowidgets.util.collection.IObserverSet;
+import org.jowidgets.util.collection.IObserverSetFactory.Strategy;
+import org.jowidgets.util.collection.ObserverSetFactory;
 
-public interface IDataModel extends IValidateable, IModificationStateObservable, IProcessStateObservable, IDataSaveObservable {
+public class DataSaveObservable implements IDataSaveObservable {
 
-	void load();
+	private final IObserverSet<IDataSaveListener> listeners;
 
-	void clearCache();
+	public DataSaveObservable() {
+		this.listeners = ObserverSetFactory.create(Strategy.HIGH_PERFORMANCE);
+	}
 
-	void clear();
+	@Override
+	public final void addDataSaveListener(final IDataSaveListener dataSaveListener) {
+		listeners.add(dataSaveListener);
+	}
 
-	void save();
+	@Override
+	public final void removeDataSaveListener(final IDataSaveListener dataSaveListener) {
+		listeners.remove(dataSaveListener);
+	}
 
-	void undo();
+	public final void fireBeforeDataSave() {
+		for (final IDataSaveListener listener : listeners) {
+			listener.beforeDataSave();
+		}
+	}
 
-	boolean hasModifications();
-
-	boolean hasModificationsCached();
-
-	boolean hasExecutions();
-
-	void cancelExecutions();
+	public final void fireAfterDataSaved() {
+		for (final IDataSaveListener listener : listeners) {
+			listener.afterDataSaved();
+		}
+	}
 
 }

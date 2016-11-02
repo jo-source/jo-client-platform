@@ -114,15 +114,26 @@ final class BeanListExecutionHelper<BEAN_TYPE> {
 	}
 
 	IResultCallback<List<IBeanDto>> createResultCallback(final List<IBeanProxy<BEAN_TYPE>> beansToExecute) {
+		return createResultCallback(beansToExecute, new Runnable() {
+			@Override
+			public void run() {}
+		});
+	}
+
+	IResultCallback<List<IBeanDto>> createResultCallback(
+		final List<IBeanProxy<BEAN_TYPE>> beansToExecute,
+		final Runnable finishedCallback) {
 		return new AbstractUiResultCallback<List<IBeanDto>>() {
 			@Override
 			public void finishedUi(final List<IBeanDto> result) {
 				afterExecution(beansToExecute, result);
+				finishedCallback.run();
 			}
 
 			@Override
 			public void exceptionUi(final Throwable exception) {
 				onExecption(beansToExecute, exception);
+				finishedCallback.run();
 			}
 
 		};

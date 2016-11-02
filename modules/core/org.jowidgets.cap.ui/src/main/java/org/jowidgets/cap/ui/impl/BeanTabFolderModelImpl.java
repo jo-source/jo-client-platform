@@ -87,6 +87,7 @@ import org.jowidgets.cap.ui.api.model.DataModelContext;
 import org.jowidgets.cap.ui.api.model.IBeanListModelBeansListener;
 import org.jowidgets.cap.ui.api.model.IBeanListModelListener;
 import org.jowidgets.cap.ui.api.model.IDataModelContext;
+import org.jowidgets.cap.ui.api.model.IDataSaveListener;
 import org.jowidgets.cap.ui.api.model.IModificationStateListener;
 import org.jowidgets.cap.ui.api.model.IProcessStateListener;
 import org.jowidgets.cap.ui.api.model.LinkType;
@@ -498,6 +499,16 @@ final class BeanTabFolderModelImpl<BEAN_TYPE> implements IBeanTabFolderModel<BEA
 	@Override
 	public void save() {
 		saveDelegate.save();
+	}
+
+	@Override
+	public void addDataSaveListener(final IDataSaveListener dataSaveListener) {
+		saveDelegate.addDataSaveListener(dataSaveListener);
+	}
+
+	@Override
+	public void removeDataSaveListener(final IDataSaveListener dataSaveListener) {
+		saveDelegate.removeDataSaveListener(dataSaveListener);
 	}
 
 	@Override
