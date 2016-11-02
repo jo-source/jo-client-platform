@@ -29,7 +29,9 @@
 package org.jowidgets.cap.service.tools.crud;
 
 import java.util.Collection;
+import java.util.List;
 
+import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.service.api.creator.IBeanDataMapper;
 import org.jowidgets.cap.service.api.crud.ICrudServiceInterceptor;
@@ -39,18 +41,21 @@ public class CrudServiceInterceptorAdapter<BEAN_TYPE> implements ICrudServiceInt
 
 	@Override
 	public void beforeInitializeForCreation(
+		final List<IBeanKey> parentBeanKeys,
 		final Collection<BEAN_TYPE> beans,
 		final IBeanDataMapper<BEAN_TYPE> beanDataMapper,
 		final IExecutionCallback executionCallback) {}
 
 	@Override
 	public void afterInitializeForCreation(
+		final List<IBeanKey> parentBeanKeys,
 		final Collection<BEAN_TYPE> beans,
 		final IBeanDataMapper<BEAN_TYPE> beanDataMapper,
 		final IExecutionCallback executionCallback) {}
 
 	@Override
 	public void afterCreation(
+		final List<IBeanKey> parentBeanKeys,
 		final Collection<BEAN_TYPE> beans,
 		final IBeanDataMapper<BEAN_TYPE> beanDataMapper,
 		final IExecutionCallback executionCallback) {}

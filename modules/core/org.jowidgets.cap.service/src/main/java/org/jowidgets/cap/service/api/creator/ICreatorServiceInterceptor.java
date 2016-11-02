@@ -29,7 +29,9 @@
 package org.jowidgets.cap.service.api.creator;
 
 import java.util.Collection;
+import java.util.List;
 
+import org.jowidgets.cap.common.api.bean.IBeanKey;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 
 public interface ICreatorServiceInterceptor<BEAN_TYPE> {
@@ -37,11 +39,13 @@ public interface ICreatorServiceInterceptor<BEAN_TYPE> {
 	/**
 	 * Will be invoked before the new beans will be initialized with the bean data values
 	 * 
+	 * @param parentBeanKeys The keys of the parents
 	 * @param beans The new beans
 	 * @param beanDataMapper Provides the IBeanData for each new bean
 	 * @param executionCallback The execution callback
 	 */
 	void beforeInitializeForCreation(
+		List<IBeanKey> parentBeanKeys,
 		Collection<BEAN_TYPE> beans,
 		IBeanDataMapper<BEAN_TYPE> beanDataMapper,
 		IExecutionCallback executionCallback);
@@ -49,11 +53,13 @@ public interface ICreatorServiceInterceptor<BEAN_TYPE> {
 	/**
 	 * Will be invoked after the new beans was initialized with the bean data values
 	 * 
+	 * @param parentBeanKeys The keys of the parents
 	 * @param beans The new beans
 	 * @param beanDataMapper Provides the IBeanData for each new bean
 	 * @param executionCallback The execution callback
 	 */
 	void afterInitializeForCreation(
+		List<IBeanKey> parentBeanKeys,
 		Collection<BEAN_TYPE> beans,
 		IBeanDataMapper<BEAN_TYPE> beanDataMapper,
 		IExecutionCallback executionCallback);
@@ -62,11 +68,13 @@ public interface ICreatorServiceInterceptor<BEAN_TYPE> {
 	 * Will be invoked after the new beans was created and before they will be
 	 * converted into IBeanDtos
 	 * 
+	 * @param parentBeanKeys The keys of the parents
 	 * @param beans The new beans
 	 * @param beanDataMapper Provides the IBeanData for each new bean
 	 * @param executionCallback The execution callback
 	 */
 	void afterCreation(
+		List<IBeanKey> parentBeanKeys,
 		Collection<BEAN_TYPE> beans,
 		IBeanDataMapper<BEAN_TYPE> beanDataMapper,
 		IExecutionCallback executionCallback);

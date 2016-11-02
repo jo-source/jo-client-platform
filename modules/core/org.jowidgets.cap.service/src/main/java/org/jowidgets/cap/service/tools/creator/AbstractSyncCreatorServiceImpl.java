@@ -61,6 +61,7 @@ import org.jowidgets.plugin.api.IPluginPropertiesBuilder;
 import org.jowidgets.plugin.api.PluginProvider;
 import org.jowidgets.plugin.api.PluginToolkit;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.collection.IdentityHashKey;
 import org.jowidgets.util.reflection.AnnotationCache;
 
 public abstract class AbstractSyncCreatorServiceImpl<BEAN_TYPE> implements ISyncCreatorService {
@@ -201,21 +202,21 @@ public abstract class AbstractSyncCreatorServiceImpl<BEAN_TYPE> implements ISync
 		final List<IBeanDto> result = new LinkedList<IBeanDto>();
 		final List<BEAN_TYPE> beans = new ArrayList<BEAN_TYPE>(beansData.size());
 
-		final Map<Object, IBeanData> beanDataMap = new HashMap<Object, IBeanData>();
+		final Map<IdentityHashKey, IBeanData> beanDataMap = new HashMap<IdentityHashKey, IBeanData>();
 		for (final IBeanData beanData : beansData) {
 			CapServiceToolkit.checkCanceled(executionCallback);
 			final BEAN_TYPE bean = createBean((Collection<IBeanKey>) parentBeanKeys, executionCallback);
-			beanDataMap.put(beanIdentityResolver.getId(bean), beanData);
+			beanDataMap.put(new IdentityHashKey(bean), beanData);
 			beans.add(bean);
 		}
 		final IBeanDataMapper<BEAN_TYPE> beanDataMapper = new BeanDataMapper(beanDataMap);
 
-		beforeInitialize(beans, beanDataMapper, executionCallback);
+		beforeInitialize((List<IBeanKey>) parentBeanKeys, beans, beanDataMapper, executionCallback);
 		for (final BEAN_TYPE bean : beans) {
 			CapServiceToolkit.checkCanceled(executionCallback);
 			beanInitializer.initialize(bean, beanDataMapper.getBeanData(bean));
 		}
-		afterInitialize(beans, beanDataMapper, executionCallback);
+		afterInitialize((List<IBeanKey>) parentBeanKeys, beans, beanDataMapper, executionCallback);
 
 		checkExecutableStates(beans, executionCallback);
 		validate(beans, executionCallback);
@@ -224,7 +225,7 @@ public abstract class AbstractSyncCreatorServiceImpl<BEAN_TYPE> implements ISync
 			CapServiceToolkit.checkCanceled(executionCallback);
 			persistBean((Collection<IBeanKey>) parentBeanKeys, bean, executionCallback);
 		}
-		afterCreate(beans, beanDataMapper, executionCallback);
+		afterCreate((List<IBeanKey>) parentBeanKeys, beans, beanDataMapper, executionCallback);
 
 		for (final BEAN_TYPE bean : beans) {
 			CapServiceToolkit.checkCanceled(executionCallback);
@@ -236,6 +237,7 @@ public abstract class AbstractSyncCreatorServiceImpl<BEAN_TYPE> implements ISync
 	}
 
 	private void beforeInitialize(
+		final List<IBeanKey> parentBeanKeys,
 		final List<BEAN_TYPE> beans,
 		final IBeanDataMapper<BEAN_TYPE> beanDataMapper,
 		final IExecutionCallback executionCallback) {
@@ -252,22 +254,24 @@ public abstract class AbstractSyncCreatorServiceImpl<BEAN_TYPE> implements ISync
 
 		for (final ICreatorServiceInterceptor<BEAN_TYPE> serviceInterceptor : creatorServiceInterceptors) {
 			CapServiceToolkit.checkCanceled(executionCallback);
-			serviceInterceptor.beforeInitializeForCreation(beans, beanDataMapper, executionCallback);
+			serviceInterceptor.beforeInitializeForCreation(parentBeanKeys, beans, beanDataMapper, executionCallback);
 		}
 	}
 
 	private void afterInitialize(
+		final List<IBeanKey> parentBeanKeys,
 		final List<BEAN_TYPE> beans,
 		final IBeanDataMapper<BEAN_TYPE> beanDataMapper,
 		final IExecutionCallback executionCallback) {
 
 		for (final ICreatorServiceInterceptor<BEAN_TYPE> serviceInterceptor : creatorServiceInterceptors) {
 			CapServiceToolkit.checkCanceled(executionCallback);
-			serviceInterceptor.afterInitializeForCreation(beans, beanDataMapper, executionCallback);
+			serviceInterceptor.afterInitializeForCreation(parentBeanKeys, beans, beanDataMapper, executionCallback);
 		}
 	}
 
 	private void afterCreate(
+		final List<IBeanKey> parentBeanKeys,
 		final List<BEAN_TYPE> beans,
 		final IBeanDataMapper<BEAN_TYPE> beanDataMapper,
 		final IExecutionCallback executionCallback) {
@@ -283,7 +287,7 @@ public abstract class AbstractSyncCreatorServiceImpl<BEAN_TYPE> implements ISync
 
 		for (final ICreatorServiceInterceptor<BEAN_TYPE> serviceInterceptor : creatorServiceInterceptors) {
 			CapServiceToolkit.checkCanceled(executionCallback);
-			serviceInterceptor.afterCreation(beans, beanDataMapper, executionCallback);
+			serviceInterceptor.afterCreation(parentBeanKeys, beans, beanDataMapper, executionCallback);
 		}
 	}
 
@@ -318,16 +322,16 @@ public abstract class AbstractSyncCreatorServiceImpl<BEAN_TYPE> implements ISync
 
 	private final class BeanDataMapper implements IBeanDataMapper<BEAN_TYPE> {
 
-		private final Map<Object, IBeanData> original;
+		private final Map<IdentityHashKey, IBeanData> original;
 
-		BeanDataMapper(final Map<Object, IBeanData> original) {
+		BeanDataMapper(final Map<IdentityHashKey, IBeanData> original) {
 			Assert.paramNotNull(original, "original");
 			this.original = original;
 		}
 
 		@Override
 		public IBeanData getBeanData(final BEAN_TYPE bean) {
-			return original.get(beanIdentityResolver.getId(bean));
+			return original.get(new IdentityHashKey(bean));
 		}
 
 	}

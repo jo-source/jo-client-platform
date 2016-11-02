@@ -90,6 +90,7 @@ final class OrderedBeansCrudInterceptorImpl<BEAN_TYPE extends IOrderedBean> exte
 
 	@Override
 	public void afterInitializeForCreation(
+		final List<IBeanKey> parentBeanKeys,
 		final Collection<BEAN_TYPE> beans,
 		final IBeanDataMapper<BEAN_TYPE> mapper,
 		final IExecutionCallback executionCallback) {
