@@ -177,6 +177,15 @@ public interface IBeanTableModel<BEAN_TYPE>
 
 	void addSelectedBeans(Collection<? extends IBeanProxy<BEAN_TYPE>> selectedBeans);
 
+	/**
+	 * Checks if the bean has added data beyond the pages
+	 * 
+	 * This may be true if data was added without loading or if paging is disabled
+	 * 
+	 * @return True if added data exists, false otherwise
+	 */
+	boolean hasAddedData();
+
 	void addFilterChangeListener(IChangeListener changeListener);
 
 	void removeFilterChangeListener(IChangeListener changeListener);

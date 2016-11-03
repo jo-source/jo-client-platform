@@ -282,7 +282,7 @@ final class CapActionFactoryImpl implements ICapActionFactory {
 	public <BEAN_TYPE extends IOrderedBean> IMoveOrderedBeanActionBuilder<BEAN_TYPE> moveOrderedBeanActionBuilder(
 		final IMoveOrderedBeanActionBuilder.Direction direction,
 		final IBeanListModel<BEAN_TYPE> model) {
-		return new MoveOrderedBeanActionBuilder<BEAN_TYPE>(direction, model);
+		return new MoveOrderedBeanActionBuilderImpl<BEAN_TYPE>(direction, model);
 	}
 
 }

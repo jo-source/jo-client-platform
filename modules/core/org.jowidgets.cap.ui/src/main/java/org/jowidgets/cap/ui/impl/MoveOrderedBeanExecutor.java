@@ -69,7 +69,7 @@ final class MoveOrderedBeanExecutor<BEAN_TYPE extends IOrderedBean> extends Abst
 	private final IEnabledState moveNotPossibleExecutionsRunning;
 	private final IEnabledState moveNotPossibleUnsavedChanges;
 
-	MoveOrderedBeanExecutor(final MoveOrderedBeanActionBuilder<BEAN_TYPE> builder) {
+	MoveOrderedBeanExecutor(final MoveOrderedBeanActionBuilderImpl<BEAN_TYPE> builder) {
 
 		Assert.paramNotNull(builder.getModel(), "builder.getModel()");
 		Assert.paramNotNull(builder.getDirection(), "builder.getDirection()");
@@ -186,37 +186,19 @@ final class MoveOrderedBeanExecutor<BEAN_TYPE extends IOrderedBean> extends Abst
 		final Long preOrder = model.getBean(preIndex).getBean().getOrderNumber();
 
 		if (firstOrder != null && preOrder != null) {
+			final ExecutionTask executionTask = new ExecutionTask();
 			final long diff = preOrder.longValue() - firstOrder.longValue();
-			moveByDiff(selection, diff);
-		}
-		else {
-			moveSelectionUpIterative(selection);
-		}
+			moveByDiff(selection, diff, executionTask);
 
-		if (viewport != null) {
-			viewport.scrollToElement(preIndex);
-		}
-	}
-
-	private void moveByDiff(final ArrayList<Integer> selection, final long diff) {
-		for (int i = 0; i < selection.size(); i++) {
-			final Integer index = selection.get(i);
-			final IOrderedBean bean = model.getBean(index).getBean();
-			final Long orderNumber = bean.getOrderNumber();
-			if (orderNumber != null) {
-				bean.setOrderNumber(orderNumber + diff);
+			if (viewport != null) {
+				viewport.scrollToElement(preIndex);
 			}
 		}
-	}
 
-	private void moveSelectionUpIterative(final ArrayList<Integer> selection) {
-		for (int i = selection.size() - 1; i >= 0; i--) {
-			final Integer index = selection.get(i);
-			model.getBean(index).getBean().setOrderNumber(model.getBean(index - 1).getBean().getOrderNumber());
-		}
 	}
 
 	private void moveSelectionDown(final ArrayList<Integer> selection) {
+
 		final int lastIndex = selection.get(selection.size() - 1);
 		final int nextIndex = lastIndex + 1;
 
@@ -224,22 +206,43 @@ final class MoveOrderedBeanExecutor<BEAN_TYPE extends IOrderedBean> extends Abst
 		final Long nextOrder = model.getBean(nextIndex).getBean().getOrderNumber();
 
 		if (lastOrder != null && nextOrder != null) {
+			final ExecutionTask executionTask = new ExecutionTask();
 			final long diff = nextOrder.longValue() - lastOrder.longValue();
-			moveByDiff(selection, diff);
-		}
-		else {
-			moveSelectionDownIterative(selection);
-		}
+			moveByDiff(selection, diff, executionTask);
 
-		if (viewport != null) {
-			viewport.scrollToElement(nextIndex);
+			if (viewport != null) {
+				viewport.scrollToElement(nextIndex);
+			}
 		}
 	}
 
-	private void moveSelectionDownIterative(final ArrayList<Integer> selection) {
+	private void moveByDiff(final ArrayList<Integer> selection, final long diff, final ExecutionTask executionTask) {
 		for (int i = 0; i < selection.size(); i++) {
 			final Integer index = selection.get(i);
-			model.getBean(index).getBean().setOrderNumber(model.getBean(index + 1).getBean().getOrderNumber());
+
+			final IBeanProxy<BEAN_TYPE> bean = model.getBean(index);
+			if (bean.getExecutionTask() != executionTask) {
+				bean.setExecutionTask(executionTask);
+			}
+			if (Direction.UP.equals(direction)) {
+				final IBeanProxy<BEAN_TYPE> before = model.getBean(index - 1);
+				if (before.getExecutionTask() != executionTask) {
+					before.setExecutionTask(executionTask);
+				}
+			}
+			else {
+				final IBeanProxy<BEAN_TYPE> after = model.getBean(index + 1);
+				if (after.getExecutionTask() != executionTask) {
+					after.setExecutionTask(executionTask);
+				}
+			}
+
+			final IOrderedBean orderedBean = bean.getBean();
+
+			final Long orderNumber = orderedBean.getOrderNumber();
+			if (orderNumber != null) {
+				orderedBean.setOrderNumber(orderNumber + diff);
+			}
 		}
 	}
 

@@ -60,7 +60,7 @@ import org.jowidgets.util.builder.AbstractSingleUseBuilder;
 import org.jowidgets.util.maybe.IMaybe;
 import org.jowidgets.util.maybe.Some;
 
-final class MoveOrderedBeanActionBuilder<BEAN_TYPE extends IOrderedBean> extends AbstractSingleUseBuilder<IAction>
+final class MoveOrderedBeanActionBuilderImpl<BEAN_TYPE extends IOrderedBean> extends AbstractSingleUseBuilder<IAction>
 		implements IMoveOrderedBeanActionBuilder<BEAN_TYPE> {
 
 	private final IBeanListModel<BEAN_TYPE> model;
@@ -82,7 +82,7 @@ final class MoveOrderedBeanActionBuilder<BEAN_TYPE extends IOrderedBean> extends
 
 	private boolean singleSelection;
 
-	MoveOrderedBeanActionBuilder(final Direction direction, final IBeanListModel<BEAN_TYPE> model) {
+	MoveOrderedBeanActionBuilderImpl(final Direction direction, final IBeanListModel<BEAN_TYPE> model) {
 
 		Assert.paramNotNull(direction, "direction");
 		Assert.paramNotNull(model, "model");

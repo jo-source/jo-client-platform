@@ -57,12 +57,14 @@ import org.jowidgets.api.widgets.ITable;
 import org.jowidgets.api.widgets.IWidget;
 import org.jowidgets.api.widgets.blueprint.ITableBluePrint;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
+import org.jowidgets.cap.common.api.ordered.IOrderedBean;
 import org.jowidgets.cap.common.tools.execution.ResultCallbackAdapter;
 import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionEvent;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionListener;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
+import org.jowidgets.cap.ui.api.command.MoveOrderedBeanAction;
 import org.jowidgets.cap.ui.api.filter.FilterType;
 import org.jowidgets.cap.ui.api.model.DataModelChangeType;
 import org.jowidgets.cap.ui.api.model.IChangeResponse;
@@ -165,6 +167,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 	private final boolean hasDefaultDeleterAction;
 	private final boolean hasDefaultCopyAction;
 	private final boolean hasDefaultPasteAction;
+	private final boolean hasDefaultMoveOrderedBeanAction;
 	private final IBeanTableMenuFactory<BEAN_TYPE> menuFactory;
 	private final PopupMenuObservable<Position> tableMenuObservable;
 	private final PopupMenuObservable<ITableColumnPopupEvent> headerMenuObservable;
@@ -183,6 +186,8 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 	private IAction deleteAction;
 	private IAction copyAction;
 	private IAction pasteAction;
+	private IAction moveOrderedBeanUpAction;
+	private IAction moveOrderedBeanDownAction;
 	private IBeanTableSettingsDialog settingsDialog;
 	private ITableCellPopupEvent currentCellEvent;
 	private ITableColumnPopupEvent currentColumnEvent;
@@ -190,6 +195,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 	private AutoScrollPolicy autoScrollPolicy;
 	private ScheduledFuture<?> autoUpdateFuture;
 
+	@SuppressWarnings("unchecked")
 	BeanTableImpl(final IComposite composite, final IBeanTableBluePrint<BEAN_TYPE> bluePrint) {
 		super(composite);
 
@@ -288,6 +294,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 		this.hasDefaultDeleterAction = bluePrint.hasDefaultDeleterAction();
 		this.hasDefaultCopyAction = bluePrint.hasDefaultCopyAction();
 		this.hasDefaultPasteAction = bluePrint.hasDefaultPasteAction();
+		this.hasDefaultMoveOrderedBeanAction = bluePrint.hasDefaultMoveOrderedBeanAction();
 		this.headerMenuInterceptor = bluePrint.getHeaderMenuInterceptor();
 		this.cellMenuInterceptor = bluePrint.getCellMenuInterceptor();
 
@@ -376,6 +383,17 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 					}
 					tablePopupMenuModel.addAction(deleteAction);
 				}
+			}
+			if (IOrderedBean.class.isAssignableFrom(model.getBeanType())
+				&& hasDefaultMoveOrderedBeanAction
+				&& model.getUpdaterService() != null) {
+				this.moveOrderedBeanUpAction = MoveOrderedBeanAction.up((IBeanTable<IOrderedBean>) this);
+				this.moveOrderedBeanDownAction = MoveOrderedBeanAction.down((IBeanTable<IOrderedBean>) this);
+				if (hasDefaultMenus || defaultMenuSeparatorAdded) {
+					tablePopupMenuModel.addSeparator();
+				}
+				tablePopupMenuModel.addAction(moveOrderedBeanUpAction);
+				tablePopupMenuModel.addAction(moveOrderedBeanDownAction);
 			}
 
 			addMenuModel(tablePopupMenuModel, pluggedTablePopupMenuModell);
@@ -771,6 +789,15 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 				separatorNeeded = false;
 			}
 			menuModel.addAction(deleteAction);
+		}
+
+		separatorNeeded = menuModel.getChildren().size() > 0;
+		if (moveOrderedBeanUpAction != null && moveOrderedBeanDownAction != null) {
+			if (separatorNeeded) {
+				menuModel.addSeparator();
+			}
+			menuModel.addAction(moveOrderedBeanUpAction);
+			menuModel.addAction(moveOrderedBeanDownAction);
 		}
 
 		if (cellMenuInterceptor != null) {

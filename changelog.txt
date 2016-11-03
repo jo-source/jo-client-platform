@@ -153,6 +153,9 @@ Features:
 
 Bugfixes:
 
+* Fixes issue #69 https://github.com/jo-source/jo-client-platform/issues/69 Missing selection event when updateInBackground() was invoked on IBeanTable 
+
+
 
 
 

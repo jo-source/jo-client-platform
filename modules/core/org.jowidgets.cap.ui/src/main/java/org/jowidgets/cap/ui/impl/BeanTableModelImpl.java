@@ -1945,6 +1945,11 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	}
 
 	@Override
+	public boolean hasAddedData() {
+		return addedData.size() > 0;
+	}
+
+	@Override
 	public void addFilterChangeListener(final IChangeListener changeListener) {
 		filterChangeObservable.addChangeListener(changeListener);
 	}
@@ -3360,6 +3365,10 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 				beanListModelObservable.fireBeansChanged();
 
 				dataModel.removeDataModelListener(tableDataModelListener);
+
+				final List<IBeanProxy<BEAN_TYPE>> emptyList = Collections.emptyList();
+				setSelectedBeans(emptyList);
+				fireSelectionChanged();
 				setSelectedBeans(selectedBeans);
 				fireSelectionChanged();
 				dataModel.addDataModelListener(tableDataModelListener);

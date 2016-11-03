@@ -49,6 +49,7 @@ final class BeanTableDefaults implements IDefaultInitializer<IBeanTableSetupBuil
 		bluePrint.setDefaultEditAction(true);
 		bluePrint.setDefaultCopyAction(false);
 		bluePrint.setDefaultPasteAction(false);
+		bluePrint.setDefaultMoveOrderedBeanAction(false);
 		bluePrint.setEditable(false);
 		bluePrint.setSearchFilterToolbarVisible(false);
 		bluePrint.setStatusBarVisible(true);

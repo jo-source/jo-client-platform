@@ -39,10 +39,8 @@ import org.jowidgets.cap.ui.api.types.AutoScrollPolicy;
 import org.jowidgets.common.types.TableSelectionPolicy;
 import org.jowidgets.common.widgets.descriptor.setup.mandatory.Mandatory;
 
-public interface IBeanTableSetupBuilder<INSTANCE_TYPE extends IBeanTableSetupBuilder<?, BEAN_TYPE>, BEAN_TYPE> extends
-		IComponentSetup,
-		IComponentSetupBuilder<INSTANCE_TYPE>,
-		IBeanTableSetupConvenience<INSTANCE_TYPE, BEAN_TYPE> {
+public interface IBeanTableSetupBuilder<INSTANCE_TYPE extends IBeanTableSetupBuilder<?, BEAN_TYPE>, BEAN_TYPE>
+		extends IComponentSetup, IComponentSetupBuilder<INSTANCE_TYPE>, IBeanTableSetupConvenience<INSTANCE_TYPE, BEAN_TYPE> {
 
 	INSTANCE_TYPE setModel(IBeanTableModel<BEAN_TYPE> model);
 
@@ -63,6 +61,8 @@ public interface IBeanTableSetupBuilder<INSTANCE_TYPE extends IBeanTableSetupBui
 	INSTANCE_TYPE setDefaultCopyAction(boolean copyAction);
 
 	INSTANCE_TYPE setDefaultPasteAction(boolean pasteAction);
+
+	INSTANCE_TYPE setDefaultMoveOrderedBeanAction(boolean moveOrderedBeanAction);
 
 	INSTANCE_TYPE setHeaderMenuInterceptor(ITableMenuCreationInterceptor<BEAN_TYPE> interceptor);
 
@@ -144,6 +144,9 @@ public interface IBeanTableSetupBuilder<INSTANCE_TYPE extends IBeanTableSetupBui
 
 	@Mandatory
 	boolean hasDefaultPasteAction();
+
+	@Mandatory
+	boolean hasDefaultMoveOrderedBeanAction();
 
 	@Mandatory
 	boolean isEditable();
