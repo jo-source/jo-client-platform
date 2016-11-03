@@ -32,6 +32,7 @@ import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.controller.IDisposeObservable;
 import org.jowidgets.api.image.IconsSmall;
 import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
+import org.jowidgets.cap.common.api.ordered.IOrderedBean;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
 import org.jowidgets.cap.ui.api.command.ICapActionFactory;
 import org.jowidgets.cap.ui.api.command.ICopyActionBuilder;
@@ -43,6 +44,7 @@ import org.jowidgets.cap.ui.api.command.IEditActionBuilder;
 import org.jowidgets.cap.ui.api.command.IExecutorActionBuilder;
 import org.jowidgets.cap.ui.api.command.ILinkCreatorActionBuilder;
 import org.jowidgets.cap.ui.api.command.ILinkDeleterActionBuilder;
+import org.jowidgets.cap.ui.api.command.IMoveOrderedBeanActionBuilder;
 import org.jowidgets.cap.ui.api.command.IPasswordChangeActionBuilder;
 import org.jowidgets.cap.ui.api.command.IPasteBeansActionBuilder;
 import org.jowidgets.cap.ui.api.command.IPasteLinkActionBuilder;
@@ -274,6 +276,13 @@ final class CapActionFactoryImpl implements ICapActionFactory {
 		final IBeanListModel<?> linkedModel,
 		final IEntityLinkDescriptor linkDescriptor) {
 		return linkDeleterActionBuilder(source, linkedModel, linkDescriptor).build();
+	}
+
+	@Override
+	public <BEAN_TYPE extends IOrderedBean> IMoveOrderedBeanActionBuilder<BEAN_TYPE> moveOrderedBeanActionBuilder(
+		final IMoveOrderedBeanActionBuilder.Direction direction,
+		final IBeanListModel<BEAN_TYPE> model) {
+		return new MoveOrderedBeanActionBuilder<BEAN_TYPE>(direction, model);
 	}
 
 }

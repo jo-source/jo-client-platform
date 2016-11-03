@@ -147,8 +147,8 @@ Features:
 
 * Implements issue #65 https://github.com/jo-source/jo-client-platform/issues/65 Allow the use of reader in the service layer 
 * API Change, Implements issue #66 https://github.com/jo-source/jo-client-platform/issues/66 Improve interception of C(R)UD services 
+* Implements issue #67 https://github.com/jo-source/jo-client-platform/issues/67 Add support to handle ordered beans
 * Implements issue #68 https://github.com/jo-source/jo-client-platform/issues/68 IDataModel must allow to add IDataSaveListener 
-
 
 
 Bugfixes:

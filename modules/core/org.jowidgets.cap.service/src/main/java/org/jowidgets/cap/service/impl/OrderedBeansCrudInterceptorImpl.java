@@ -235,7 +235,7 @@ final class OrderedBeansCrudInterceptorImpl<BEAN_TYPE extends IOrderedBean> exte
 		for (final IOrderedBean bean : beans) {
 			final Long orderOfBeanRef = bean.getOrderNumber();
 			if (orderOfBeanRef != null) {
-				if (orderOfBeanRef.longValue() > startOrder) {
+				if (orderOfBeanRef.longValue() >= startOrder) {
 					bean.setOrderNumber(Long.valueOf(order++));
 				}
 			}

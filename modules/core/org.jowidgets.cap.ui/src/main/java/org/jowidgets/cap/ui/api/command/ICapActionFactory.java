@@ -31,7 +31,9 @@ package org.jowidgets.cap.ui.api.command;
 import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.controller.IDisposeObservable;
 import org.jowidgets.cap.common.api.entity.IEntityLinkDescriptor;
+import org.jowidgets.cap.common.api.ordered.IOrderedBean;
 import org.jowidgets.cap.ui.api.bean.IBeanSelectionProvider;
+import org.jowidgets.cap.ui.api.command.IMoveOrderedBeanActionBuilder.Direction;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.model.IDataModel;
 
@@ -69,6 +71,10 @@ public interface ICapActionFactory {
 		IDataModel dataModel);
 
 	<BEAN_TYPE> IEditActionBuilder<BEAN_TYPE> editActionBuilder(IBeanListModel<BEAN_TYPE> model, IDataModel dataModel);
+
+	<BEAN_TYPE extends IOrderedBean> IMoveOrderedBeanActionBuilder<BEAN_TYPE> moveOrderedBeanActionBuilder(
+		Direction direction,
+		IBeanListModel<BEAN_TYPE> model);
 
 	<BEAN_TYPE> ICreatorActionBuilder<BEAN_TYPE> creatorActionBuilder(Object entityId, IBeanListModel<BEAN_TYPE> model);
 
