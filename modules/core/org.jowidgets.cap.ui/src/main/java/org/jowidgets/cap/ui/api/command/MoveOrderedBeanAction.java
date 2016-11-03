@@ -34,6 +34,7 @@ import org.jowidgets.cap.ui.api.CapUiToolkit;
 import org.jowidgets.cap.ui.api.command.IMoveOrderedBeanActionBuilder.Direction;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
+import org.jowidgets.cap.ui.api.widgets.IBeanTable;
 import org.jowidgets.util.Assert;
 
 public final class MoveOrderedBeanAction {
@@ -67,6 +68,13 @@ public final class MoveOrderedBeanAction {
 		return builder.setEntityLabels(model.getEntityId()).setDataModel(model);
 	}
 
+	public static <BEAN_TYPE extends IOrderedBean> IMoveOrderedBeanActionBuilder<BEAN_TYPE> builder(
+		final Direction direction,
+		final IBeanTable<BEAN_TYPE> table) {
+		Assert.paramNotNull(table, "table");
+		return builder(direction, table.getModel()).setViewport(table);
+	}
+
 	public static <BEAN_TYPE extends IOrderedBean> IMoveOrderedBeanActionBuilder<BEAN_TYPE> upBuilder(
 		final IBeanTableModel<BEAN_TYPE> model) {
 		return builder(Direction.UP, model);
@@ -83,6 +91,24 @@ public final class MoveOrderedBeanAction {
 
 	public static IAction down(final IBeanTableModel<? extends IOrderedBean> model) {
 		return downBuilder(model).build();
+	}
+
+	public static <BEAN_TYPE extends IOrderedBean> IMoveOrderedBeanActionBuilder<BEAN_TYPE> upBuilder(
+		final IBeanTable<BEAN_TYPE> table) {
+		return builder(Direction.UP, table);
+	}
+
+	public static <BEAN_TYPE extends IOrderedBean> IMoveOrderedBeanActionBuilder<BEAN_TYPE> downBuilder(
+		final IBeanTable<BEAN_TYPE> table) {
+		return builder(Direction.DOWN, table);
+	}
+
+	public static IAction up(final IBeanTable<? extends IOrderedBean> table) {
+		return upBuilder(table).build();
+	}
+
+	public static IAction down(final IBeanTable<? extends IOrderedBean> table) {
+		return downBuilder(table).build();
 	}
 
 }

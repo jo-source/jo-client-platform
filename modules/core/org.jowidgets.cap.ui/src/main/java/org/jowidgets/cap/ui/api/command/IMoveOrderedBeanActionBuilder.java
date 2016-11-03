@@ -39,6 +39,7 @@ import org.jowidgets.cap.ui.api.execution.BeanMessageStatePolicy;
 import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
 import org.jowidgets.cap.ui.api.model.IDataModel;
 import org.jowidgets.cap.ui.api.sort.ISortModel;
+import org.jowidgets.cap.ui.api.widgets.IBeanListViewport;
 
 public interface IMoveOrderedBeanActionBuilder<BEAN_TYPE extends IOrderedBean>
 		extends ICapActionBuilder<IMoveOrderedBeanActionBuilder<BEAN_TYPE>> {
@@ -69,6 +70,18 @@ public interface IMoveOrderedBeanActionBuilder<BEAN_TYPE extends IOrderedBean>
 	 * @return This builder
 	 */
 	IMoveOrderedBeanActionBuilder<BEAN_TYPE> setDataModel(IDataModel dataModel);
+
+	/**
+	 * Sets the viewport.
+	 * 
+	 * If a viewport is set, the viewport will be changed die to moved beans
+	 * stay in the viewport after moved
+	 * 
+	 * @param dataModel The viewport to set
+	 * 
+	 * @return This builder
+	 */
+	IMoveOrderedBeanActionBuilder<BEAN_TYPE> setViewport(IBeanListViewport viewport);
 
 	/**
 	 * Sets the entity labels (singular and plural) with help of the entity id

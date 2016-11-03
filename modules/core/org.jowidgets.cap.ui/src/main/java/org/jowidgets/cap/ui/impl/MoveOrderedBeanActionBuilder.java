@@ -46,6 +46,7 @@ import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 import org.jowidgets.cap.ui.api.model.IDataModel;
 import org.jowidgets.cap.ui.api.sort.ISortModel;
+import org.jowidgets.cap.ui.api.widgets.IBeanListViewport;
 import org.jowidgets.common.image.IImageConstant;
 import org.jowidgets.common.types.Accelerator;
 import org.jowidgets.common.types.Modifier;
@@ -68,6 +69,7 @@ final class MoveOrderedBeanActionBuilder<BEAN_TYPE extends IOrderedBean> extends
 
 	private ISortModel sortModel;
 	private IDataModel dataModel;
+	private IBeanListViewport viewport;
 
 	private String text;
 	private IMaybe<String> toolTipText;
@@ -114,6 +116,13 @@ final class MoveOrderedBeanActionBuilder<BEAN_TYPE extends IOrderedBean> extends
 	public IMoveOrderedBeanActionBuilder<BEAN_TYPE> setDataModel(final IDataModel dataModel) {
 		checkExhausted();
 		this.dataModel = dataModel;
+		return this;
+	}
+
+	@Override
+	public IMoveOrderedBeanActionBuilder<BEAN_TYPE> setViewport(final IBeanListViewport viewport) {
+		checkExhausted();
+		this.viewport = viewport;
 		return this;
 	}
 
@@ -289,6 +298,10 @@ final class MoveOrderedBeanActionBuilder<BEAN_TYPE extends IOrderedBean> extends
 
 	Direction getDirection() {
 		return direction;
+	}
+
+	IBeanListViewport getViewport() {
+		return viewport;
 	}
 
 	String getNotPossibleSingleMessage() {

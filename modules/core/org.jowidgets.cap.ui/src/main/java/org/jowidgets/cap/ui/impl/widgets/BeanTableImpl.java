@@ -504,6 +504,16 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 		table.addSelectionVetoListener(selectionVetoListener);
 	}
 
+	@Override
+	public void scrollToElement(final int elementIndex) {
+		table.scrollToRow(elementIndex);
+	}
+
+	@Override
+	public Interval<Integer> getVisibleElements() {
+		return table.getVisibleRows();
+	}
+
 	private void modifyBeanTableBpByPlugins(final Object entityId, final IBeanTableBluePrint<BEAN_TYPE> beanTableBp) {
 		final IPluginProperties properties = PluginProperties.create(IBeanTablePlugin.ENTITIY_ID_PROPERTY_KEY, entityId);
 		for (final IBeanTablePlugin plugin : PluginProvider.getPlugins(IBeanTablePlugin.ID, properties)) {

@@ -40,7 +40,7 @@ import org.jowidgets.common.widgets.controller.ITableCellPopupEvent;
 import org.jowidgets.common.widgets.controller.ITableColumnPopupEvent;
 import org.jowidgets.util.ITypedKey;
 
-public interface IBeanTable<BEAN_TYPE> extends ITable {
+public interface IBeanTable<BEAN_TYPE> extends ITable, IBeanListViewport {
 
 	ITypedKey<ITableColumnPopupEvent> COLUMN_POPUP_EVENT_CONTEXT_KEY = new ITypedKey<ITableColumnPopupEvent>() {};
 	ITypedKey<ITableCellPopupEvent> CELL_POPUP_EVENT_CONTEXT_KEY = new ITypedKey<ITableCellPopupEvent>() {};

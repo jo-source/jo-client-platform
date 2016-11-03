@@ -67,8 +67,8 @@ import org.jowidgets.util.Interval;
 import org.jowidgets.validation.IValidationResult;
 import org.jowidgets.validation.ValidationResult;
 
-final class BeanSelectionTableImpl<BEAN_TYPE> extends AbstractInputControl<List<IBeanProxy<BEAN_TYPE>>> implements
-		IBeanSelectionTable<BEAN_TYPE> {
+final class BeanSelectionTableImpl<BEAN_TYPE> extends AbstractInputControl<List<IBeanProxy<BEAN_TYPE>>>
+		implements IBeanSelectionTable<BEAN_TYPE> {
 
 	private final String nothingSelectedErrorMessage;
 	private final String unloadedSelectionErrorMessage;
@@ -344,6 +344,16 @@ final class BeanSelectionTableImpl<BEAN_TYPE> extends AbstractInputControl<List<
 	@Override
 	public void scrollToRow(final int rowIndex) {
 		table.scrollToRow(rowIndex);
+	}
+
+	@Override
+	public void scrollToElement(final int elementIndex) {
+		table.scrollToElement(elementIndex);
+	}
+
+	@Override
+	public Interval<Integer> getVisibleElements() {
+		return table.getVisibleElements();
 	}
 
 	@Override

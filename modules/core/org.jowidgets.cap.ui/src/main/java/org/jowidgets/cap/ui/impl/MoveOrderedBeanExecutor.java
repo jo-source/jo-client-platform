@@ -49,6 +49,7 @@ import org.jowidgets.cap.ui.api.model.IDataModel;
 import org.jowidgets.cap.ui.api.model.IModificationStateListener;
 import org.jowidgets.cap.ui.api.model.IProcessStateListener;
 import org.jowidgets.cap.ui.api.sort.ISortModel;
+import org.jowidgets.cap.ui.api.widgets.IBeanListViewport;
 import org.jowidgets.tools.command.AbstractEnabledChecker;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCheck;
@@ -60,6 +61,7 @@ final class MoveOrderedBeanExecutor<BEAN_TYPE extends IOrderedBean> extends Abst
 	private final IBeanListModel<BEAN_TYPE> model;
 	private final IDataModel dataModel;
 	private final ISortModel sortModel;
+	private final IBeanListViewport viewport;
 	private final Direction direction;
 	private final IEnabledState moveNotPossibleSingle;
 	private final IEnabledState moveNotPossibleMulti;
@@ -74,6 +76,7 @@ final class MoveOrderedBeanExecutor<BEAN_TYPE extends IOrderedBean> extends Abst
 
 		this.model = builder.getModel();
 		this.dataModel = builder.getDataModel();
+		this.viewport = builder.getViewport();
 		this.sortModel = builder.getSortModel();
 		this.direction = builder.getDirection();
 
@@ -189,6 +192,10 @@ final class MoveOrderedBeanExecutor<BEAN_TYPE extends IOrderedBean> extends Abst
 		else {
 			moveSelectionUpIterative(selection);
 		}
+
+		if (viewport != null) {
+			viewport.scrollToElement(preIndex);
+		}
 	}
 
 	private void moveByDiff(final ArrayList<Integer> selection, final long diff) {
@@ -222,6 +229,10 @@ final class MoveOrderedBeanExecutor<BEAN_TYPE extends IOrderedBean> extends Abst
 		}
 		else {
 			moveSelectionDownIterative(selection);
+		}
+
+		if (viewport != null) {
+			viewport.scrollToElement(nextIndex);
 		}
 	}
 
