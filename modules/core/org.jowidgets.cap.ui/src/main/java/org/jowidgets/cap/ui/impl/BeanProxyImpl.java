@@ -706,8 +706,11 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 		for (final String propertyName : propertyNames) {
 			result.add(propertyName);
 			for (final IBeanPropertyValidator<BEAN_TYPE> validator : beanPropertyValidators) {
-				if (validator.getPropertyDependencies().contains(propertyName)) {
-					result.addAll(validator.getPropertyDependencies());
+				//TODO avoid this ugly type check by adding a single validator for each attribute
+				if (!(validator instanceof AttributesBeanPropertyValidator)) {
+					if (validator.getPropertyDependencies().contains(propertyName)) {
+						result.addAll(validator.getPropertyDependencies());
+					}
 				}
 			}
 		}
@@ -772,6 +775,23 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 	private void clearValidationResults() {
 		final boolean hasResults = independentWorstResult.get() != null || validationResults.size() > 0;
 		if (hasResults) {
+			if (independentWorstResult.get() != null) {
+				for (final Entry<String, IObserverSet<IExternalBeanValidator>> entry : externalValidators.entrySet()) {
+					final IBeanValidationResult okResult = BeanValidationResult.create(entry.getKey(), ValidationResult.ok());
+					for (final IExternalBeanValidator externalValidator : entry.getValue()) {
+						externalValidator.validate(Collections.singletonList(okResult));
+					}
+				}
+			}
+			else {
+				for (final String propertyName : validationResults.keySet()) {
+					for (final IExternalBeanValidator externalValidator : getRegisteredExternalValidators(propertyName)) {
+						final IBeanValidationResult okResult = BeanValidationResult.create(propertyName, ValidationResult.ok());
+						externalValidator.validate(Collections.singletonList(okResult));
+					}
+				}
+			}
+
 			independentWorstResult.set(null);
 			validationResults.clear();
 			fireValidationConditionsChanged();
@@ -864,7 +884,8 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 		final String context) {
 		if (validators != null) {
 			for (final IBeanPropertyValidator<BEAN_TYPE> validator : validators) {
-				if (EmptyCheck.isEmpty(validator.getPropertyDependencies())
+				if (!validateUnmodified
+					|| EmptyCheck.isEmpty(validator.getPropertyDependencies())
 					|| validator.getPropertyDependencies().contains(propertyName)) {
 					final Collection<IBeanValidationResult> results = validator.validateProperty(this, propertyName);
 					if (!EmptyCheck.isEmpty(results)) {
@@ -873,6 +894,7 @@ final class BeanProxyImpl<BEAN_TYPE> implements IBeanProxy<BEAN_TYPE>, IValidati
 				}
 			}
 		}
+
 	}
 
 	@Override
