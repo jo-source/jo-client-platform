@@ -169,6 +169,21 @@ Features:
 Bugfixes:
 
 * Bugfix for issue #49, fixed index for PropertyChangeListener on sorted adds and updates that change the order
+* Added fix for issue #70 not working  https://github.com/jo-source/jo-client-platform/issues/70 Cross validation for IBeanValidator does not work correctly  
+ 
+
+----------------------------------------------------------------------------------------------------------------------------
+
+0.62.0 
+
+
+Features:
+
+
+
+Bugfixes:
+
+
 * Fixes issue #70  https://github.com/jo-source/jo-client-platform/issues/70 Cross validation for IBeanValidator does not work correctly   
 
 

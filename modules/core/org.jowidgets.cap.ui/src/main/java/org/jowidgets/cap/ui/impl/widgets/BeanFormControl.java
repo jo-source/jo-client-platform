@@ -591,13 +591,19 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 
 			//change the validation map, if the worst first changed
 			final IValidationResult lastResult = validationResults.get(propertyName);
-			boolean hasMessage = false;
-			boolean hasHint = false;
+
 			if (lastResult == null || !validationResult.getWorstFirst().equals(lastResult.getWorstFirst())) {
+				boolean hasMessage = false;
+				boolean hasHint = false;
+
+				final IAttribute<Object> attribute = attributes.get(propertyName);
 				if (!validationResult.isValid()
 					&& !control.hasModifications()
 					&& !bean.isModified(propertyName)
-					&& inputHint != null) {
+					&& inputHint != null
+					&& attribute != null
+					&& attribute.isMandatory()
+					&& EmptyCheck.isEmpty(bean.getValue(propertyName))) {
 					validationResults.put(propertyName, ValidationResult.infoError(inputHint));
 					hasHint = true;
 				}
@@ -606,20 +612,21 @@ final class BeanFormControl<BEAN_TYPE> extends AbstractInputControl<IBeanProxy<B
 					hasMessage = validationResult.getWorstFirst().getType() != MessageType.OK;
 				}
 				validationChanged = true;
-			}
 
-			//update the validation label
-			final IValidationResultLabel validationLabel = validationLabels.get(propertyName);
-			if (validationLabel != null) {
-				if (hasMessage || control.hasModifications() || bean.isModified(propertyName)) {
-					if (!hasHint) {
-						validationLabel.setResult(validationResult);
+				//update the validation label
+				final IValidationResultLabel validationLabel = validationLabels.get(propertyName);
+				if (validationLabel != null) {
+					if (hasMessage || control.hasModifications() || bean.isModified(propertyName)) {
+						if (!hasHint) {
+							validationLabel.setResult(validationResult);
+						}
+					}
+					else {
+						validationLabel.setEmpty();
 					}
 				}
-				else {
-					validationLabel.setEmpty();
-				}
 			}
+
 		}
 		else if (bean != null && control == null) {
 			//change the validation map, if the worst first changed
