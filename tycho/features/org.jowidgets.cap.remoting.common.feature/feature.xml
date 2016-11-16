@@ -2,7 +2,7 @@
 <feature
     id="org.jowidgets.cap.remoting.common.feature"
     label="jo-client-platform remoting common feature"
-    version="0.62.0.qualifier">
+    version="0.63.0.qualifier">
 
 	<description url="http://www.example.com/description">
 		Feature that holds all cap remoting common bundles
