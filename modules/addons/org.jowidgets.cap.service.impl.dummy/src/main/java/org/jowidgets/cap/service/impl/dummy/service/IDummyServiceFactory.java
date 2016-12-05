@@ -85,20 +85,20 @@ public interface IDummyServiceFactory {
 		IEntityData<? extends IBeanPropertyMap> data,
 		List<String> propertyNames);
 
-	ICreatorService creatorService(final IEntityData<? extends IBean> data, final List<String> propertyNames);
+	ICreatorService creatorService(IEntityData<? extends IBean> data, List<String> propertyNames);
 
 	<BEAN_TYPE extends IBean> ICreatorService creatorService(
 		IEntityData<? extends BEAN_TYPE> data,
 		IBeanDtoFactory<BEAN_TYPE> beanDtoFactory,
 		IBeanInitializer<BEAN_TYPE> beanInitializer);
 
-	IReaderService<Void> readerService(final IEntityData<? extends IBean> data, final List<String> propertyNames);
+	IReaderService<Void> readerService(IEntityData<? extends IBean> data, List<String> propertyNames);
 
 	<BEAN_TYPE extends IBean> IReaderService<Void> readerService(
 		IEntityData<? extends BEAN_TYPE> data,
 		IBeanDtoFactory<BEAN_TYPE> beanDtoFactory);
 
-	IDeleterService deleterService(final IEntityData<? extends IBean> data);
+	IDeleterService deleterService(IEntityData<? extends IBean> data);
 
 	IDeleterService deleterService(IEntityData<? extends IBean> data, boolean allowDeletedData, boolean allowStaleData);
 

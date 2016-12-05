@@ -36,7 +36,7 @@ import org.jowidgets.util.IConverter;
 
 public interface IBeanDtoComparatorBuilder {
 
-	IBeanDtoComparatorBuilder setSorting(final Collection<? extends ISort> sorting);
+	IBeanDtoComparatorBuilder setSorting(Collection<? extends ISort> sorting);
 
 	IBeanDtoComparatorBuilder setPropertyComparator(String propertyName, Comparator<?> comparator);
 

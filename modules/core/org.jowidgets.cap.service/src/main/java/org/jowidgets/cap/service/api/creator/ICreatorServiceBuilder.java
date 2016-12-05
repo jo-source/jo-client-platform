@@ -64,7 +64,7 @@ public interface ICreatorServiceBuilder<BEAN_TYPE> {
 
 	ICreatorServiceBuilder<BEAN_TYPE> setBeanInitializer(IBeanInitializer<BEAN_TYPE> beanInitializer);
 
-	ICreatorServiceBuilder<BEAN_TYPE> setBeanDtoFactoryAndBeanInitializer(final Collection<String> propertyNames);
+	ICreatorServiceBuilder<BEAN_TYPE> setBeanDtoFactoryAndBeanInitializer(Collection<String> propertyNames);
 
 	ICreatorService build();
 

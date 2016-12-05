@@ -30,7 +30,7 @@ package org.jowidgets.service.api;
 
 public interface IServiceProviderBuilder extends IServiceRegistry {
 
-	IServiceProviderBuilder addServiceDecorator(final IServicesDecoratorProvider decorator);
+	IServiceProviderBuilder addServiceDecorator(IServicesDecoratorProvider decorator);
 
 	IServiceProvider build();
 

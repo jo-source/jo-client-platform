@@ -45,7 +45,7 @@ public interface IExecutionTaskDialogBluePrint extends
 
 	IExecutionTaskDialogBluePrint setModal(boolean modal);
 
-	IExecutionTaskDialogBluePrint setCancelButton(final IButtonSetup buttonSetup);
+	IExecutionTaskDialogBluePrint setCancelButton(IButtonSetup buttonSetup);
 
 	IExecutionTaskDialogBluePrint setMinSize(Dimension size);
 
@@ -58,6 +58,7 @@ public interface IExecutionTaskDialogBluePrint extends
 	 * 
 	 * @return This builder
 	 */
+	@Override
 	IExecutionTaskDialogBluePrint setAutoDispose(boolean autoDispose);
 
 	@Mandatory
@@ -72,6 +73,7 @@ public interface IExecutionTaskDialogBluePrint extends
 	@Mandatory
 	boolean getCloseable();
 
+	@Override
 	@Mandatory
 	boolean getAutoDispose();
 

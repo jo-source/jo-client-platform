@@ -32,7 +32,7 @@ import org.jowidgets.cap.common.api.bean.IBean;
 
 public interface IEntityDataStore {
 
-	void putEntityData(final Object entityTypeId, final IEntityData<? extends IBean> data);
+	void putEntityData(Object entityTypeId, IEntityData<? extends IBean> data);
 
-	IEntityData<? extends IBean> getEntityData(final Object entityTypeId);
+	IEntityData<? extends IBean> getEntityData(Object entityTypeId);
 }

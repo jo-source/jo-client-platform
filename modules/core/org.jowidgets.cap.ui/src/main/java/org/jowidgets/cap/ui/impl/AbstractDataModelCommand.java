@@ -51,10 +51,14 @@ import org.jowidgets.validation.IValidationConditionListener;
 
 abstract class AbstractDataModelCommand implements ICommand, ICommandExecutor, IEnabledChecker {
 
-	static final ILocaleLocal<IEnabledState> NO_MODIFICATIONS_STATE = createDisabledState("AbstractDataModelCommand.there_is_no_modified_data");
-	static final ILocaleLocal<IEnabledState> IN_PROCESS_STATE = createDisabledState("AbstractDataModelCommand.the_data_is_in_process");
-	static final ILocaleLocal<IEnabledState> NOT_IN_PROCESS_STATE = createDisabledState("AbstractDataModelCommand.there_is_no_data_in_process");
-	private static final ILocaleLocal<IEnabledState> NO_DATA_NODE_STATE = createDisabledState("AbstractDataModelCommand.there_is_no_selected_data_node");
+	static final ILocaleLocal<IEnabledState> NO_MODIFICATIONS_STATE = createDisabledState(
+			"AbstractDataModelCommand.there_is_no_modified_data");
+	static final ILocaleLocal<IEnabledState> IN_PROCESS_STATE = createDisabledState(
+			"AbstractDataModelCommand.the_data_is_in_process");
+	static final ILocaleLocal<IEnabledState> NOT_IN_PROCESS_STATE = createDisabledState(
+			"AbstractDataModelCommand.there_is_no_data_in_process");
+	private static final ILocaleLocal<IEnabledState> NO_DATA_NODE_STATE = createDisabledState(
+			"AbstractDataModelCommand.there_is_no_selected_data_node");
 
 	private final Set<IDataModel> dataModels;
 	private final EnabledChecker enabledChecker;
@@ -99,7 +103,7 @@ abstract class AbstractDataModelCommand implements ICommand, ICommandExecutor, I
 		});
 	}
 
-	abstract void execute(IDataModel dataModel, final IExecutionContext executionContext);
+	abstract void execute(IDataModel dataModel, IExecutionContext executionContext);
 
 	abstract IEnabledState getEnabledState(IDataModel model);
 

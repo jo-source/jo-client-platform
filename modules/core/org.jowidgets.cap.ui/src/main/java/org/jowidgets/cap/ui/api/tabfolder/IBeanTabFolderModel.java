@@ -48,11 +48,8 @@ import org.jowidgets.cap.ui.api.model.IDataModelContextProvider;
 import org.jowidgets.cap.ui.api.sort.ISortModel;
 import org.jowidgets.util.event.IChangeListener;
 
-public interface IBeanTabFolderModel<BEAN_TYPE> extends
-		IDataModel,
-		IDataModelContextProvider,
-		IBeanListModel<BEAN_TYPE>,
-		IDisposeObservable {
+public interface IBeanTabFolderModel<BEAN_TYPE>
+		extends IDataModel, IDataModelContextProvider, IBeanListModel<BEAN_TYPE>, IDisposeObservable {
 
 	Object getEntityId();
 
@@ -110,7 +107,7 @@ public interface IBeanTabFolderModel<BEAN_TYPE> extends
 
 	void removeBean(IBeanProxy<BEAN_TYPE> bean);
 
-	void exchangeBean(final IBeanProxy<BEAN_TYPE> oldBean, final IBeanProxy<BEAN_TYPE> newBean);
+	void exchangeBean(IBeanProxy<BEAN_TYPE> oldBean, IBeanProxy<BEAN_TYPE> newBean);
 
 	void dispose();
 

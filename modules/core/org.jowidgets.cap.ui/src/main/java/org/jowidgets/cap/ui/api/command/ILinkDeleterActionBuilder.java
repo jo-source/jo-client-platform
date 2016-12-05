@@ -38,8 +38,8 @@ import org.jowidgets.cap.ui.api.execution.BeanModificationStatePolicy;
 import org.jowidgets.cap.ui.api.execution.IExecutionInterceptor;
 import org.jowidgets.cap.ui.api.model.IBeanListModel;
 
-public interface ILinkDeleterActionBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> extends
-		ICapActionBuilder<ILinkDeleterActionBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE>> {
+public interface ILinkDeleterActionBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE>
+		extends ICapActionBuilder<ILinkDeleterActionBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE>> {
 
 	ILinkDeleterActionBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> setSource(
 		IBeanSelectionProvider<SOURCE_BEAN_TYPE> selectionProvider);
@@ -59,9 +59,11 @@ public interface ILinkDeleterActionBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> e
 
 	ILinkDeleterActionBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> addEnabledChecker(IEnabledChecker enabledChecker);
 
-	ILinkDeleterActionBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> setExceptionConverter(IBeanExceptionConverter exceptionConverter);
+	ILinkDeleterActionBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> setExceptionConverter(
+		IBeanExceptionConverter exceptionConverter);
 
-	ILinkDeleterActionBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> addExecutionInterceptor(IExecutionInterceptor<Void> interceptor);
+	ILinkDeleterActionBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> addExecutionInterceptor(
+		IExecutionInterceptor<Void> interceptor);
 
 	/**
 	 * If auto selection is set, after bean deletion was delegated to the deleter service, the
@@ -85,7 +87,7 @@ public interface ILinkDeleterActionBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> e
 	 * 
 	 * @return This builder
 	 */
-	ILinkDeleterActionBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> setLinkedEntityLabelSingular(final String label);
+	ILinkDeleterActionBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> setLinkedEntityLabelSingular(String label);
 
 	/**
 	 * Sets the entity label plural.

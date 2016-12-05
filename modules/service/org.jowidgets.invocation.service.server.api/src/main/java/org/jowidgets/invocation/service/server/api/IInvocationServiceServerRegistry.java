@@ -32,6 +32,6 @@ import org.jowidgets.invocation.service.common.api.IMethodInvocationService;
 
 public interface IInvocationServiceServerRegistry {
 
-	void register(final String methodName, final IMethodInvocationService<?, ?, ?, ?, ?> method);
+	void register(String methodName, IMethodInvocationService<?, ?, ?, ?, ?> method);
 
 }

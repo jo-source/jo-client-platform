@@ -43,7 +43,7 @@ public interface IAbstractNeo4JReaderServiceBuilder<BUILDER_TYPE extends IAbstra
 
 	BUILDER_TYPE setBeanDtoFactory(IBeanDtoFactory<BEAN_TYPE> beanDtoFactory);
 
-	BUILDER_TYPE setBeanDtoFactory(final Collection<String> propertyNames);
+	BUILDER_TYPE setBeanDtoFactory(Collection<String> propertyNames);
 
 	BUILDER_TYPE addFilter(IFilter filter);
 

@@ -42,7 +42,7 @@ public interface ICreateSupportBeanRepository<BEAN_TYPE> extends IBeanRepository
 	 * @param executionCallback
 	 * @return The bean that was created
 	 */
-	BEAN_TYPE create(final Collection<IBeanKey> parentBeanKeys, final IExecutionCallback executionCallback);
+	BEAN_TYPE create(Collection<IBeanKey> parentBeanKeys, IExecutionCallback executionCallback);
 
 	/**
 	 * Will be invoked after a bean was created and all properties was set.
@@ -52,6 +52,6 @@ public interface ICreateSupportBeanRepository<BEAN_TYPE> extends IBeanRepository
 	 * @param executionCallback The execution callback of the request
 	 * @return The bean that was created
 	 */
-	void postCreate(final Collection<IBeanKey> parentBeanKeys, BEAN_TYPE bean, final IExecutionCallback executionCallback);
+	void postCreate(Collection<IBeanKey> parentBeanKeys, BEAN_TYPE bean, IExecutionCallback executionCallback);
 
 }

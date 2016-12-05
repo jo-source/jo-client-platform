@@ -30,16 +30,16 @@ package org.jowidgets.cap.ui.api.attribute;
 
 import org.jowidgets.cap.ui.api.control.IDisplayFormat;
 
-public interface IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> extends
-		IGenericControlPanelProviderBluePrint<ELEMENT_VALUE_TYPE, IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE>> {
+public interface IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE>
+		extends IGenericControlPanelProviderBluePrint<ELEMENT_VALUE_TYPE, IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE>> {
 
-	IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setDisplayFormatId(final String id);
+	IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setDisplayFormatId(String id);
 
-	IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setDisplayFormatName(final String name);
+	IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setDisplayFormatName(String name);
 
-	IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setDisplayFormatDescription(final String description);
+	IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setDisplayFormatDescription(String description);
 
-	IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setDisplayFormat(final IDisplayFormat displayFormat);
+	IControlPanelProviderBuilder<ELEMENT_VALUE_TYPE> setDisplayFormat(IDisplayFormat displayFormat);
 
 	IControlPanelProvider<ELEMENT_VALUE_TYPE> build();
 }

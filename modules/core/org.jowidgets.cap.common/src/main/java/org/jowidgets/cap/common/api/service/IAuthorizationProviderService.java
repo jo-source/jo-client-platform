@@ -33,6 +33,6 @@ import org.jowidgets.cap.common.api.execution.IResultCallback;
 
 public interface IAuthorizationProviderService<PRINCIPAL_TYPE> {
 
-	void getPrincipal(final IResultCallback<PRINCIPAL_TYPE> result, final IExecutionCallback executionCallback);
+	void getPrincipal(IResultCallback<PRINCIPAL_TYPE> result, IExecutionCallback executionCallback);
 
 }

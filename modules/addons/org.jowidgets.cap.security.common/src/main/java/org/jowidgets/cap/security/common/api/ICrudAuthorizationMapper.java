@@ -41,9 +41,6 @@ public interface ICrudAuthorizationMapper<AUTHORIZATION_TYPE> {
 	 * 
 	 * @return The authorization or null, if the service is not secure
 	 */
-	AUTHORIZATION_TYPE getAuthorization(
-		final Class<? extends IBean> beanType,
-		final Object entityId,
-		final CrudServiceType serviceType);
+	AUTHORIZATION_TYPE getAuthorization(Class<? extends IBean> beanType, Object entityId, CrudServiceType serviceType);
 
 }

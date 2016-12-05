@@ -62,11 +62,11 @@ public interface IGenericBeanAttributeBluePrint<ELEMENT_VALUE_TYPE, BLUE_PRINT_T
 
 	BLUE_PRINT_TYPE setValueRange(IValueRange valueRange);
 
-	BLUE_PRINT_TYPE setValueRange(final Collection<? extends ELEMENT_VALUE_TYPE> values, final boolean open);
+	BLUE_PRINT_TYPE setValueRange(Collection<? extends ELEMENT_VALUE_TYPE> values, boolean open);
 
 	BLUE_PRINT_TYPE setValueRange(ELEMENT_VALUE_TYPE... values);
 
-	BLUE_PRINT_TYPE setValueRange(final Collection<? extends ELEMENT_VALUE_TYPE> values);
+	BLUE_PRINT_TYPE setValueRange(Collection<? extends ELEMENT_VALUE_TYPE> values);
 
 	BLUE_PRINT_TYPE setDefaultValue(Object value);
 

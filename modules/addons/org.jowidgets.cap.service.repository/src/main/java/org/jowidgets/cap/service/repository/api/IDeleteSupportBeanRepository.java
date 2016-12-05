@@ -39,6 +39,6 @@ public interface IDeleteSupportBeanRepository<BEAN_TYPE> extends IBeanRepository
 	 * @param executionCallback The execution callback of the request
 	 * @return The bean that was updated
 	 */
-	void delete(BEAN_TYPE bean, final IExecutionCallback executionCallback);
+	void delete(BEAN_TYPE bean, IExecutionCallback executionCallback);
 
 }

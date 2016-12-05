@@ -126,7 +126,7 @@ public interface ICapServiceToolkit {
 
 	IExecutionCallback delayedExecutionCallback(
 		IExecutionCallback executionCallback,
-		final ScheduledExecutorService scheduledExecutorService,
+		ScheduledExecutorService scheduledExecutorService,
 		Long delay);
 
 	IExecutionCallback delayedExecutionCallback(IExecutionCallback executionCallback);

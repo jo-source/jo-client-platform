@@ -34,6 +34,6 @@ public interface IExecutionTaskFactory {
 
 	IExecutionTask create();
 
-	IExecutionTask create(final IExecutionContext executionContext);
+	IExecutionTask create(IExecutionContext executionContext);
 
 }

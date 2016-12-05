@@ -49,10 +49,8 @@ import org.jowidgets.cap.ui.api.types.IEntityTypeId;
 import org.jowidgets.util.IProvider;
 import org.jowidgets.util.ITypedKey;
 
-public interface IBeanRelationNodeModel<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> extends
-		ILabelModel,
-		IDataModel,
-		IBeanListModel<CHILD_BEAN_TYPE> {
+public interface IBeanRelationNodeModel<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE>
+		extends ILabelModel, IDataModel, IBeanListModel<CHILD_BEAN_TYPE> {
 
 	ITypedKey<Boolean> IS_PAGE_END_DUMMY = new ITypedKey<Boolean>() {};
 
@@ -109,9 +107,9 @@ public interface IBeanRelationNodeModel<PARENT_BEAN_TYPE, CHILD_BEAN_TYPE> exten
 
 	void setSelectedBeans(Collection<? extends IBeanProxy<CHILD_BEAN_TYPE>> selectedBeans);
 
-	void refreshBean(final IBeanProxy<CHILD_BEAN_TYPE> bean);
+	void refreshBean(IBeanProxy<CHILD_BEAN_TYPE> bean);
 
-	void refreshBeans(final Collection<IBeanProxy<CHILD_BEAN_TYPE>> beans);
+	void refreshBeans(Collection<IBeanProxy<CHILD_BEAN_TYPE>> beans);
 
 	void setFilter(String id, IUiFilter filter);
 

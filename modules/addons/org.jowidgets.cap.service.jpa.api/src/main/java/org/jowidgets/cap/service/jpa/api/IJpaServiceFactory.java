@@ -48,6 +48,6 @@ public interface IJpaServiceFactory extends IBeanServiceFactory {
 	<PARAM_TYPE> IReaderService<PARAM_TYPE> readerService(
 		Class<? extends IBean> beanType,
 		IQueryCreator<PARAM_TYPE> queryCreator,
-		final Collection<String> propertyNames);
+		Collection<String> propertyNames);
 
 }

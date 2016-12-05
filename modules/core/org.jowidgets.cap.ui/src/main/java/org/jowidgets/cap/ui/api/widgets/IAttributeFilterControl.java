@@ -35,6 +35,6 @@ import org.jowidgets.cap.ui.api.filter.IUiConfigurableFilter;
 
 public interface IAttributeFilterControl extends IInputControl<IUiConfigurableFilter<? extends Object>> {
 
-	void setAttribute(final IAttribute<?> attribute, IFilterType filterType);
+	void setAttribute(IAttribute<?> attribute, IFilterType filterType);
 
 }

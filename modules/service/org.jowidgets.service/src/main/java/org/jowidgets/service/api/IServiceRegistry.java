@@ -30,6 +30,6 @@ package org.jowidgets.service.api;
 
 public interface IServiceRegistry {
 
-	<SERVICE_TYPE> void addService(final IServiceId<? extends SERVICE_TYPE> id, final SERVICE_TYPE service);
+	<SERVICE_TYPE> void addService(IServiceId<? extends SERVICE_TYPE> id, SERVICE_TYPE service);
 
 }

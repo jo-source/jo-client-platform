@@ -39,16 +39,16 @@ import org.jowidgets.cap.common.api.sort.ISort;
 public interface IQueryCreator<PARAMETER_TYPE> {
 
 	Query createReadQuery(
-		final EntityManager entityManager,
-		final List<? extends IBeanKey> parentBeanKeys,
-		final IFilter filter,
-		final List<? extends ISort> sorting,
-		final PARAMETER_TYPE parameter);
+		EntityManager entityManager,
+		List<? extends IBeanKey> parentBeanKeys,
+		IFilter filter,
+		List<? extends ISort> sorting,
+		PARAMETER_TYPE parameter);
 
 	Query createCountQuery(
-		final EntityManager entityManager,
-		final List<? extends IBeanKey> parentBeanKeys,
-		final IFilter filter,
-		final PARAMETER_TYPE parameter);
+		EntityManager entityManager,
+		List<? extends IBeanKey> parentBeanKeys,
+		IFilter filter,
+		PARAMETER_TYPE parameter);
 
 }

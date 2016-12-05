@@ -32,13 +32,13 @@ import org.jowidgets.util.ITypedKey;
 
 public interface IPluginRegistry {
 
-	<PLUGIN_TYPE> void addPlugin(final IPluginId<? extends PLUGIN_TYPE> id, final PLUGIN_TYPE plugin);
+	<PLUGIN_TYPE> void addPlugin(IPluginId<? extends PLUGIN_TYPE> id, PLUGIN_TYPE plugin);
 
-	<PLUGIN_TYPE> void addPlugin(final IPluginId<? extends PLUGIN_TYPE> id, final PLUGIN_TYPE plugin, IPluginFilter filter);
+	<PLUGIN_TYPE> void addPlugin(IPluginId<? extends PLUGIN_TYPE> id, PLUGIN_TYPE plugin, IPluginFilter filter);
 
 	<PLUGIN_TYPE, PROPERTY_VALUE_TYPE> void addPlugin(
-		final IPluginId<? extends PLUGIN_TYPE> id,
-		final PLUGIN_TYPE plugin,
-		final ITypedKey<PROPERTY_VALUE_TYPE> key,
-		final PROPERTY_VALUE_TYPE... propertyValues);
+		IPluginId<? extends PLUGIN_TYPE> id,
+		PLUGIN_TYPE plugin,
+		ITypedKey<PROPERTY_VALUE_TYPE> key,
+		PROPERTY_VALUE_TYPE... propertyValues);
 }

@@ -46,8 +46,8 @@ public interface IEntityComponentMasterTableViewPlugin {
 
 	void onInitialize(
 		IPluginProperties properties,
-		final IViewContext context,
-		final IBeanTable<?> table,
-		final Collection<IAction> linkCreatorActions);
+		IViewContext context,
+		IBeanTable<?> table,
+		Collection<IAction> linkCreatorActions);
 
 }

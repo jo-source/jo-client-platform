@@ -43,7 +43,7 @@ public interface IBeanDialogBluePrint<BEAN_TYPE> extends
 
 	IBeanDialogBluePrint<BEAN_TYPE> setOkButton(IButtonSetup buttonSetup);
 
-	IBeanDialogBluePrint<BEAN_TYPE> setCancelButton(final IButtonSetup buttonSetup);
+	IBeanDialogBluePrint<BEAN_TYPE> setCancelButton(IButtonSetup buttonSetup);
 
 	@Mandatory
 	IBeanFormBluePrint<BEAN_TYPE> getBeanForm();

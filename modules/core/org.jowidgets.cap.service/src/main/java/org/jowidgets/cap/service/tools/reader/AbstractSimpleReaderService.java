@@ -112,7 +112,7 @@ public abstract class AbstractSimpleReaderService<BEAN_TYPE, PARAM_TYPE> impleme
 	protected abstract List<? extends BEAN_TYPE> getAllBeans(
 		List<? extends IBeanKey> parentBeans,
 		PARAM_TYPE parameter,
-		final IExecutionCallback executionCallback);
+		IExecutionCallback executionCallback);
 
 	@Override
 	public final List<IBeanDto> read(
@@ -169,7 +169,8 @@ public abstract class AbstractSimpleReaderService<BEAN_TYPE, PARAM_TYPE> impleme
 					beanFactory,
 					getAllBeans(parentBeans, parameter, executionCallback),
 					executionCallback);
-			return Integer.valueOf(CapServiceToolkit.beanDtoCollectionFilter().filter(result, decoratedFilter, executionCallback).size());
+			return Integer.valueOf(
+					CapServiceToolkit.beanDtoCollectionFilter().filter(result, decoratedFilter, executionCallback).size());
 		}
 	}
 

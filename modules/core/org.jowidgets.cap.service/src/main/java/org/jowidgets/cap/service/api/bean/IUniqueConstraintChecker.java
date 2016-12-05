@@ -43,7 +43,7 @@ public interface IUniqueConstraintChecker {
 	 * @param beansData The beans data that should be created
 	 * @param executionCallback The execution callback of the service request
 	 */
-	void checkCreation(final Collection<? extends IBeanData> beansData, final IExecutionCallback executionCallback);
+	void checkCreation(Collection<? extends IBeanData> beansData, IExecutionCallback executionCallback);
 
 	/**
 	 * Checks if the update of the beans will violate a unique constraint, if so, a UniqueConstraintViolationException
@@ -52,5 +52,5 @@ public interface IUniqueConstraintChecker {
 	 * @param modifications The modifications that should be done
 	 * @param executionCallback The execution callback of the service request
 	 */
-	void checkUpdate(Collection<? extends IBeanModification> modifications, final IExecutionCallback executionCallback);
+	void checkUpdate(Collection<? extends IBeanModification> modifications, IExecutionCallback executionCallback);
 }

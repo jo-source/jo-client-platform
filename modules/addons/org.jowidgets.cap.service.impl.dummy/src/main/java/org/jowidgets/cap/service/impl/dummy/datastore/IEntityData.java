@@ -36,19 +36,19 @@ import org.jowidgets.cap.service.api.bean.IBeanAccess;
 
 public interface IEntityData<BEAN_TYPE extends IBean> extends IBeanAccess<BEAN_TYPE> {
 
-	void add(final BEAN_TYPE object);
+	void add(BEAN_TYPE object);
 
-	BEAN_TYPE getData(final Object id);
+	BEAN_TYPE getData(Object id);
 
-	void deleteData(final Object id);
+	void deleteData(Object id);
 
 	List<BEAN_TYPE> getAllData();
 
-	List<BEAN_TYPE> getAllData(final int fromIndex, final int rowCount);
+	List<BEAN_TYPE> getAllData(int fromIndex, int rowCount);
 
 	Long nextId();
 
-	BEAN_TYPE getBean(final IBeanKey key);
+	BEAN_TYPE getBean(IBeanKey key);
 
 	BEAN_TYPE createData();
 }

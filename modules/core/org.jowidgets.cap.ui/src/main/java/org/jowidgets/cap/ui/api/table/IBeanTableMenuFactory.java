@@ -44,7 +44,7 @@ public interface IBeanTableMenuFactory<BEAN_TYPE> {
 
 	IMenuModel headerPopupMenu(IBeanTable<BEAN_TYPE> table, int columnIndex);
 
-	IMenuModel cellPopupMenu(IBeanTable<BEAN_TYPE> table, final IMenuModel headerPopupMenuModel, int columnIndex);
+	IMenuModel cellPopupMenu(IBeanTable<BEAN_TYPE> table, IMenuModel headerPopupMenuModel, int columnIndex);
 
 	IMenuModel columnsVisibilityMenu(IBeanTableModel<BEAN_TYPE> model);
 

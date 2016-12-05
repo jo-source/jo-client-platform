@@ -48,10 +48,10 @@ public interface IEntityComponentRelationTreeDetailViewPlugin {
 
 	void onInitialize(
 		IPluginProperties properties,
-		final IViewContext context,
-		final IBeanTable<?> rootTable,
-		final IBeanRelationTree<?> relationTree,
-		final IBeanRelationTreeDetail<?> relationTreeDetail,
-		final Collection<IAction> linkCreatorActions);
+		IViewContext context,
+		IBeanTable<?> rootTable,
+		IBeanRelationTree<?> relationTree,
+		IBeanRelationTreeDetail<?> relationTreeDetail,
+		Collection<IAction> linkCreatorActions);
 
 }

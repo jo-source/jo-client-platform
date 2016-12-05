@@ -116,7 +116,7 @@ public abstract class AbstractSimpleBeanReader<BEAN_TYPE, PARAM_TYPE> implements
 	protected abstract List<BEAN_TYPE> getAllBeans(
 		List<? extends IBeanKey> parentBeans,
 		PARAM_TYPE parameter,
-		final IExecutionCallback executionCallback);
+		IExecutionCallback executionCallback);
 
 	@Override
 	public final List<BEAN_TYPE> read(

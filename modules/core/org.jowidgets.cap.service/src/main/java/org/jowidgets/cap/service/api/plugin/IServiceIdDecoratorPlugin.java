@@ -43,8 +43,8 @@ public interface IServiceIdDecoratorPlugin {
 
 	<SERVICE_TYPE> IServiceId<SERVICE_TYPE> decorateServiceId(
 		IServiceId<SERVICE_TYPE> defaultId,
-		final IServiceId<IEntityService> entityServiceId,
-		final Class<? extends IBean> beanType,
-		final Object entityId,
+		IServiceId<IEntityService> entityServiceId,
+		Class<? extends IBean> beanType,
+		Object entityId,
 		Class<SERVICE_TYPE> serviceType);
 }

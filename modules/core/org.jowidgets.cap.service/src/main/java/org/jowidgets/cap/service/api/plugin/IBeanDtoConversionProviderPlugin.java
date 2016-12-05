@@ -43,18 +43,18 @@ public interface IBeanDtoConversionProviderPlugin {
 	ITypedKey<Class<?>> BEAN_TYPE_PROPERTY_KEY = new ITypedKey<Class<?>>() {};
 
 	<BEAN_TYPE> IBeanDtoFactory<BEAN_TYPE> dtoFactory(
-		final Class<? extends BEAN_TYPE> beanType,
-		final Collection<String> propertyNames,
+		Class<? extends BEAN_TYPE> beanType,
+		Collection<String> propertyNames,
 		IBeanDtoFactory<BEAN_TYPE> original);
 
 	<BEAN_TYPE> IBeanInitializer<BEAN_TYPE> beanInitializer(
-		final Class<? extends BEAN_TYPE> beanType,
-		final Collection<String> propertyNames,
+		Class<? extends BEAN_TYPE> beanType,
+		Collection<String> propertyNames,
 		IBeanInitializer<BEAN_TYPE> original);
 
 	<BEAN_TYPE> IBeanModifier<BEAN_TYPE> beanModifier(
-		final Class<? extends BEAN_TYPE> beanType,
-		final Collection<String> propertyNames,
+		Class<? extends BEAN_TYPE> beanType,
+		Collection<String> propertyNames,
 		IBeanModifier<BEAN_TYPE> original);
 
 }

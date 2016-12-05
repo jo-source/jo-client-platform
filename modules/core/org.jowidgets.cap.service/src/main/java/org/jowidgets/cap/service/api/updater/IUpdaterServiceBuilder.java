@@ -68,7 +68,7 @@ public interface IUpdaterServiceBuilder<BEAN_TYPE> {
 
 	IUpdaterServiceBuilder<BEAN_TYPE> setBeanModifier(IBeanModifier<BEAN_TYPE> beanModifier);
 
-	IUpdaterServiceBuilder<BEAN_TYPE> setBeanDtoFactoryAndBeanModifier(final Collection<String> propertyNames);
+	IUpdaterServiceBuilder<BEAN_TYPE> setBeanDtoFactoryAndBeanModifier(Collection<String> propertyNames);
 
 	IUpdaterServiceBuilder<BEAN_TYPE> setAllowDeletedBeans(boolean allowDeletedBeans);
 

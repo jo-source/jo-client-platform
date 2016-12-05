@@ -39,7 +39,7 @@ public interface IBeanValidationResultListBuilder {
 
 	IBeanValidationResultListBuilder addResult(
 		String context,
-		final Collection<? extends IBeanValidationResult> validationResultCollection);
+		Collection<? extends IBeanValidationResult> validationResultCollection);
 
 	IBeanValidationResultListBuilder addResult(IBeanValidationResult validationResult);
 

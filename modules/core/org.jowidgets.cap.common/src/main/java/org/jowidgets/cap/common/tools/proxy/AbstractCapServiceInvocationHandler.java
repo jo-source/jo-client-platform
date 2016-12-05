@@ -71,7 +71,8 @@ public abstract class AbstractCapServiceInvocationHandler implements InvocationH
 	 * @return The invocation result
 	 * @throws Throwable
 	 */
-	protected abstract Object invokeSyncSignature(final Method method, final Object[] args, IExecutionCallback executionCallback) throws Throwable;
+	protected abstract Object invokeSyncSignature(Method method, Object[] args, IExecutionCallback executionCallback)
+			throws Throwable;
 
 	/**
 	 * Invokes an async signature method (return type is void, method has a result callback)
@@ -85,11 +86,11 @@ public abstract class AbstractCapServiceInvocationHandler implements InvocationH
 	 * @return Normally null is returned, because the method is async (has void as result type=
 	 */
 	protected abstract Object invokeAsyncSignature(
-		final Method method,
-		final Object[] args,
-		final int resultCallbackIndex,
-		final IResultCallback<Object> resultCallback,
-		final IExecutionCallback executionCallback);
+		Method method,
+		Object[] args,
+		int resultCallbackIndex,
+		IResultCallback<Object> resultCallback,
+		IExecutionCallback executionCallback);
 
 	private IExecutionCallback getExecutionCallback(final Class<?>[] parameterTypes, final Object[] args) {
 		final int executionCallbackIndex = getFirstMatchingIndex(IExecutionCallback.class, parameterTypes);

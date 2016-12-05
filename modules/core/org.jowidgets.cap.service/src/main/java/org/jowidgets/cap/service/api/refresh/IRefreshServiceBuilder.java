@@ -38,7 +38,7 @@ public interface IRefreshServiceBuilder<BEAN_TYPE> {
 
 	IRefreshServiceBuilder<BEAN_TYPE> setBeanDtoFactory(IBeanDtoFactory<BEAN_TYPE> beanDtoFactory);
 
-	IRefreshServiceBuilder<BEAN_TYPE> setBeanDtoFactory(final Collection<String> propertyNames);
+	IRefreshServiceBuilder<BEAN_TYPE> setBeanDtoFactory(Collection<String> propertyNames);
 
 	IRefreshServiceBuilder<BEAN_TYPE> setAllowDeletedBeans(boolean allowDeletedBeans);
 

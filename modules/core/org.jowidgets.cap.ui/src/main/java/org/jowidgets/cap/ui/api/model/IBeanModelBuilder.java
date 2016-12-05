@@ -50,33 +50,31 @@ public interface IBeanModelBuilder<BEAN_TYPE, INSTANCE_TYPE> {
 
 	INSTANCE_TYPE setReaderService(IServiceId<IReaderService<Void>> readerServiceId);
 
-	<PARAM_TYPE> INSTANCE_TYPE setReaderService(
-		final IReaderService<PARAM_TYPE> readerService,
-		IProvider<PARAM_TYPE> paramProvider);
+	<PARAM_TYPE> INSTANCE_TYPE setReaderService(IReaderService<PARAM_TYPE> readerService, IProvider<PARAM_TYPE> paramProvider);
 
 	<PARAM_TYPE> INSTANCE_TYPE setReaderService(
-		final IServiceId<IReaderService<PARAM_TYPE>> readerServiceId,
+		IServiceId<IReaderService<PARAM_TYPE>> readerServiceId,
 		IProvider<PARAM_TYPE> paramProvider);
 
 	INSTANCE_TYPE setEntityServices(IBeanServicesProvider beanServicesProvider);
 
-	INSTANCE_TYPE setEntityServices(final IServiceId<IBeanServicesProvider> entityServicesProviderId);
+	INSTANCE_TYPE setEntityServices(IServiceId<IBeanServicesProvider> entityServicesProviderId);
 
-	INSTANCE_TYPE setCreatorService(final ICreatorService creatorService);
+	INSTANCE_TYPE setCreatorService(ICreatorService creatorService);
 
-	INSTANCE_TYPE setCreatorService(final IServiceId<ICreatorService> creatorServiceId);
+	INSTANCE_TYPE setCreatorService(IServiceId<ICreatorService> creatorServiceId);
 
-	INSTANCE_TYPE setRefreshService(final IRefreshService refreshService);
+	INSTANCE_TYPE setRefreshService(IRefreshService refreshService);
 
-	INSTANCE_TYPE setRefreshService(final IServiceId<IRefreshService> refreshServiceId);
+	INSTANCE_TYPE setRefreshService(IServiceId<IRefreshService> refreshServiceId);
 
-	INSTANCE_TYPE setUpdaterService(final IUpdaterService updaterService);
+	INSTANCE_TYPE setUpdaterService(IUpdaterService updaterService);
 
-	INSTANCE_TYPE setUpdaterService(final IServiceId<IUpdaterService> updaterServiceId);
+	INSTANCE_TYPE setUpdaterService(IServiceId<IUpdaterService> updaterServiceId);
 
-	INSTANCE_TYPE setDeleterService(final IDeleterService deleterService);
+	INSTANCE_TYPE setDeleterService(IDeleterService deleterService);
 
-	INSTANCE_TYPE setDeleterService(final IServiceId<IDeleterService> deleterServiceId);
+	INSTANCE_TYPE setDeleterService(IServiceId<IDeleterService> deleterServiceId);
 
 	INSTANCE_TYPE setParent(IBeanSelectionProvider<?> parent, LinkType linkType);
 

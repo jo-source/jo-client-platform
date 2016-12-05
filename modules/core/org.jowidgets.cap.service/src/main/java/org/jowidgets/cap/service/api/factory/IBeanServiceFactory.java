@@ -142,8 +142,8 @@ public interface IBeanServiceFactory {
 		IBeanDtoFactory<BEAN_TYPE> beanDtoFactory);
 
 	<BEAN_TYPE extends IBean, PARAM_TYPE> IReaderService<PARAM_TYPE> readerService(
-		final Class<? extends BEAN_TYPE> beanType,
-		final IBeanDtoFactory<BEAN_TYPE> beanDtoFactory,
+		Class<? extends BEAN_TYPE> beanType,
+		IBeanDtoFactory<BEAN_TYPE> beanDtoFactory,
 		IFilter filter);
 
 	<BEAN_TYPE extends IBean> IDeleterServiceBuilder<BEAN_TYPE> deleterServiceBuilder(Class<? extends BEAN_TYPE> beanType);

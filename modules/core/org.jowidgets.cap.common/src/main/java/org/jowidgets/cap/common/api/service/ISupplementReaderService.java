@@ -44,7 +44,7 @@ public interface ISupplementReaderService<PARAM_TYPE> {
 	 * 
 	 * @param result a initial reference
 	 */
-	void getInitialReference(final IResultCallback<Object> result);
+	void getInitialReference(IResultCallback<Object> result);
 
 	/**
 	 * Reads a supplement of a result

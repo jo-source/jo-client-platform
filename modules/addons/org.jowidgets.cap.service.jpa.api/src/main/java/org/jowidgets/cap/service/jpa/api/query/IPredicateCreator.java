@@ -40,9 +40,9 @@ import org.jowidgets.cap.common.api.bean.IBeanKey;
 public interface IPredicateCreator<PARAMETER_TYPE> {
 
 	Predicate createPredicate(
-		final CriteriaBuilder criteriaBuilder,
-		final Root<?> bean,
-		final CriteriaQuery<?> query,
+		CriteriaBuilder criteriaBuilder,
+		Root<?> bean,
+		CriteriaQuery<?> query,
 		List<IBeanKey> parentBeanKeys,
 		List<Object> parentBeanIds,
 		PARAMETER_TYPE parameter);

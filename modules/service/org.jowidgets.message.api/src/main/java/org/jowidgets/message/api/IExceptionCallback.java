@@ -30,6 +30,6 @@ package org.jowidgets.message.api;
 
 public interface IExceptionCallback {
 
-	void exception(final Throwable throwable);
+	void exception(Throwable throwable);
 
 }

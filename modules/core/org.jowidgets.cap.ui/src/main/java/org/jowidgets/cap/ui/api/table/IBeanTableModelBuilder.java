@@ -36,9 +36,9 @@ import org.jowidgets.service.api.IServiceId;
 
 public interface IBeanTableModelBuilder<BEAN_TYPE> extends IBeanModelBuilder<BEAN_TYPE, IBeanTableModelBuilder<BEAN_TYPE>> {
 
-	IBeanTableModelBuilder<BEAN_TYPE> setEntityLabelSingular(final String label);
+	IBeanTableModelBuilder<BEAN_TYPE> setEntityLabelSingular(String label);
 
-	IBeanTableModelBuilder<BEAN_TYPE> setEntityLabelPlural(final String label);
+	IBeanTableModelBuilder<BEAN_TYPE> setEntityLabelPlural(String label);
 
 	@Deprecated
 	/**
@@ -48,7 +48,7 @@ public interface IBeanTableModelBuilder<BEAN_TYPE> extends IBeanModelBuilder<BEA
 	 * @return
 	 */
 	<PARAM_TYPE> IBeanTableModelBuilder<BEAN_TYPE> setReaderService(
-		final IReaderService<PARAM_TYPE> readerService,
+		IReaderService<PARAM_TYPE> readerService,
 		IReaderParameterProvider<PARAM_TYPE> paramProvider);
 
 	@Deprecated
@@ -59,7 +59,7 @@ public interface IBeanTableModelBuilder<BEAN_TYPE> extends IBeanModelBuilder<BEA
 	 * @return
 	 */
 	<PARAM_TYPE> IBeanTableModelBuilder<BEAN_TYPE> setReaderService(
-		final IServiceId<IReaderService<PARAM_TYPE>> readerServiceId,
+		IServiceId<IReaderService<PARAM_TYPE>> readerServiceId,
 		IReaderParameterProvider<PARAM_TYPE> paramProvider);
 
 	IBeanTableModelBuilder<BEAN_TYPE> setSorting(ISortModelConfig sorting);
@@ -112,7 +112,7 @@ public interface IBeanTableModelBuilder<BEAN_TYPE> extends IBeanModelBuilder<BEA
 	 * @param addUpdatesSorted
 	 * @return this builder
 	 */
-	IBeanTableModelBuilder<BEAN_TYPE> setAddUpdatesSorted(final boolean addUpdatesSorted);
+	IBeanTableModelBuilder<BEAN_TYPE> setAddUpdatesSorted(boolean addUpdatesSorted);
 
 	/**
 	 * If set to true, the default values of the attributes changes each time a property will be modified

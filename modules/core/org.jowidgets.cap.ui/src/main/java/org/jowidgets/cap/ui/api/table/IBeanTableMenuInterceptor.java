@@ -43,7 +43,7 @@ public interface IBeanTableMenuInterceptor<BEAN_TYPE> {
 
 	IMenuModel headerPopupMenu(IBeanTable<?> table, int columnIndex, IMenuModel menuModel);
 
-	IMenuModel cellPopupMenu(IBeanTable<?> table, final IMenuModel headerPopupMenuModel, int columnIndex, IMenuModel menuModel);
+	IMenuModel cellPopupMenu(IBeanTable<?> table, IMenuModel headerPopupMenuModel, int columnIndex, IMenuModel menuModel);
 
 	IMenuModel columnsVisibilityMenu(IBeanTableModel<?> model, IMenuModel menuModel);
 
@@ -53,7 +53,7 @@ public interface IBeanTableMenuInterceptor<BEAN_TYPE> {
 
 	IMenuModel filterHeaderMenu(IBeanTable<?> table, int columnIndex, IMenuModel menuModel);
 
-	IMenuModel editMenu(IBeanTable<BEAN_TYPE> table, final int columnIndex, IMenuModel menuModel);
+	IMenuModel editMenu(IBeanTable<BEAN_TYPE> table, int columnIndex, IMenuModel menuModel);
 
 	IMenuModel alignmentMenu(IBeanTableModel<?> model, int columnIndex, IMenuModel menuModel);
 

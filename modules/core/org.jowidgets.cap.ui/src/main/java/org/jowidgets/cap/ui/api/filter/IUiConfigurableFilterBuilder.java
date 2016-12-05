@@ -30,7 +30,7 @@ package org.jowidgets.cap.ui.api.filter;
 
 public interface IUiConfigurableFilterBuilder<BUILDER_TYPE, CONFIG_TYPE> extends IUiFilterBuilder<BUILDER_TYPE> {
 
-	IUiConfigurableFilterBuilder<BUILDER_TYPE, CONFIG_TYPE> setConfig(final CONFIG_TYPE config);
+	IUiConfigurableFilterBuilder<BUILDER_TYPE, CONFIG_TYPE> setConfig(CONFIG_TYPE config);
 
 	IUiConfigurableFilterBuilder<BUILDER_TYPE, CONFIG_TYPE> setType(IFilterType filterType);
 

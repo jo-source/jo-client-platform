@@ -47,7 +47,7 @@ public interface IBeanRepository<BEAN_TYPE> extends IBeanIdentityResolver<BEAN_T
 	 * 
 	 * @return The bean for the id or null if not found
 	 */
-	BEAN_TYPE find(Object id, final IExecutionCallback executionCallback);
+	BEAN_TYPE find(Object id, IExecutionCallback executionCallback);
 
 	/**
 	 * Reads all beans for given parent bean keys
@@ -56,6 +56,6 @@ public interface IBeanRepository<BEAN_TYPE> extends IBeanIdentityResolver<BEAN_T
 	 * @param executionCallback The execution callback of the request
 	 * @return The collection of beans, may be empty but never null
 	 */
-	List<BEAN_TYPE> read(final List<? extends IBeanKey> parentBeanKeys, final IExecutionCallback executionCallback);
+	List<BEAN_TYPE> read(List<? extends IBeanKey> parentBeanKeys, IExecutionCallback executionCallback);
 
 }

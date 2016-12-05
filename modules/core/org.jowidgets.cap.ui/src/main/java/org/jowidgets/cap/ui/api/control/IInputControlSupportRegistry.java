@@ -36,7 +36,7 @@ public interface IInputControlSupportRegistry {
 
 	<ELEMENT_VALUE_TYPE> IInputControlSupport<ELEMENT_VALUE_TYPE> getControls(ILookUpValueRange valueRange);
 
-	void setControls(Object lookUpId, final IInputControlSupport<?> controlSupport);
+	void setControls(Object lookUpId, IInputControlSupport<?> controlSupport);
 
 	<ELEMENT_VALUE_TYPE> void setControls(
 		Class<? extends ELEMENT_VALUE_TYPE> type,

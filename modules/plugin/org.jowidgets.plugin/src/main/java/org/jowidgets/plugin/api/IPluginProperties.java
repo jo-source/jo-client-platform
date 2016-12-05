@@ -32,6 +32,6 @@ import org.jowidgets.util.ITypedKey;
 
 public interface IPluginProperties {
 
-	<VALUE_TYPE> VALUE_TYPE getValue(final ITypedKey<VALUE_TYPE> key);
+	<VALUE_TYPE> VALUE_TYPE getValue(ITypedKey<VALUE_TYPE> key);
 
 }

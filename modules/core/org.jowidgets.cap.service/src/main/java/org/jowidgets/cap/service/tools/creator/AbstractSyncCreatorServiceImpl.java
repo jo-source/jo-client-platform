@@ -142,14 +142,12 @@ public abstract class AbstractSyncCreatorServiceImpl<BEAN_TYPE> implements ISync
 		this.beanCreateInterceptors = createBeanCreateInterceptors(beanType);
 	}
 
-	protected abstract BEAN_TYPE createBean(
-		final Collection<IBeanKey> parentBeanKeys,
-		final IExecutionCallback executionCallback);
+	protected abstract BEAN_TYPE createBean(Collection<IBeanKey> parentBeanKeys, IExecutionCallback executionCallback);
 
 	protected abstract void persistBean(
 		Collection<IBeanKey> parentBeanKeys,
 		BEAN_TYPE bean,
-		final IExecutionCallback executionCallback);
+		IExecutionCallback executionCallback);
 
 	protected Class<? extends BEAN_TYPE> getBeanType() {
 		return beanType;

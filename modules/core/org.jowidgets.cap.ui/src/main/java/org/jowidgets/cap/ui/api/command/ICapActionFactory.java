@@ -107,8 +107,8 @@ public interface ICapActionFactory {
 		IEntityLinkDescriptor linkDescriptor);
 
 	IAction linkCreatorAction(
-		final IBeanSelectionProvider<?> source,
-		final IBeanListModel<?> linkedModel,
+		IBeanSelectionProvider<?> source,
+		IBeanListModel<?> linkedModel,
 		IEntityLinkDescriptor linkDescriptor);
 
 	<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> IPasteLinkActionBuilder<SOURCE_BEAN_TYPE, LINK_BEAN_TYPE, LINKABLE_BEAN_TYPE> pasteLinkActionBuilder(
@@ -121,21 +121,21 @@ public interface ICapActionFactory {
 		IDisposeObservable disposeObservable);
 
 	IAction pasteLinkActionBuilder(
-		final IBeanSelectionProvider<?> source,
-		final IBeanListModel<?> linkedModel,
+		IBeanSelectionProvider<?> source,
+		IBeanListModel<?> linkedModel,
 		IEntityLinkDescriptor linkDescriptor,
 		IDisposeObservable disposeObservable);
 
 	<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> ILinkDeleterActionBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> linkDeleterActionBuilder();
 
 	<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> ILinkDeleterActionBuilder<SOURCE_BEAN_TYPE, LINKED_BEAN_TYPE> linkDeleterActionBuilder(
-		final IBeanSelectionProvider<SOURCE_BEAN_TYPE> source,
-		final IBeanListModel<LINKED_BEAN_TYPE> linkedModel,
+		IBeanSelectionProvider<SOURCE_BEAN_TYPE> source,
+		IBeanListModel<LINKED_BEAN_TYPE> linkedModel,
 		IEntityLinkDescriptor linkDescriptor);
 
 	IAction linkDeleterAction(
-		final IBeanSelectionProvider<?> source,
-		final IBeanListModel<?> linkedModel,
+		IBeanSelectionProvider<?> source,
+		IBeanListModel<?> linkedModel,
 		IEntityLinkDescriptor linkDescriptor);
 
 }

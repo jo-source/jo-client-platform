@@ -46,7 +46,7 @@ public interface IGenericControlPanelProviderBluePrint<ELEMENT_VALUE_TYPE, INSTA
 
 	INSTANCE_TYPE setStringObjectConverter(IStringObjectConverter<ELEMENT_VALUE_TYPE> stringObjectConverter);
 
-	INSTANCE_TYPE setConverter(final IConverter<? extends ELEMENT_VALUE_TYPE> converter);
+	INSTANCE_TYPE setConverter(IConverter<? extends ELEMENT_VALUE_TYPE> converter);
 
 	INSTANCE_TYPE setFilterSupport(IFilterSupport<?> filterSupport);
 

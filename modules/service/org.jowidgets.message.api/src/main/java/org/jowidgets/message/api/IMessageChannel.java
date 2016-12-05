@@ -41,6 +41,6 @@ public interface IMessageChannel {
 	 *            server is not available.
 	 *            Remark: Handling of receiver sided exceptions must be handles on higher layers
 	 */
-	void send(final Object message, IExceptionCallback exceptionCallback);
+	void send(Object message, IExceptionCallback exceptionCallback);
 
 }
