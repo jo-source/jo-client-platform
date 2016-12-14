@@ -29,6 +29,8 @@
 package org.jowidgets.cap.ui.api.widgets;
 
 import org.jowidgets.api.types.AutoPackPolicy;
+import org.jowidgets.api.widgets.ITable;
+import org.jowidgets.api.widgets.blueprint.ITableBluePrintFactory;
 import org.jowidgets.api.widgets.blueprint.builder.IComponentSetupBuilder;
 import org.jowidgets.api.widgets.descriptor.setup.IComponentSetup;
 import org.jowidgets.api.widgets.descriptor.setup.IValidationLabelSetup;
@@ -37,12 +39,15 @@ import org.jowidgets.cap.ui.api.table.IBeanTableMenuInterceptor;
 import org.jowidgets.cap.ui.api.table.IBeanTableModel;
 import org.jowidgets.cap.ui.api.types.AutoScrollPolicy;
 import org.jowidgets.common.types.TableSelectionPolicy;
+import org.jowidgets.common.widgets.descriptor.IWidgetDescriptor;
 import org.jowidgets.common.widgets.descriptor.setup.mandatory.Mandatory;
 
 public interface IBeanTableSetupBuilder<INSTANCE_TYPE extends IBeanTableSetupBuilder<?, BEAN_TYPE>, BEAN_TYPE>
 		extends IComponentSetup, IComponentSetupBuilder<INSTANCE_TYPE>, IBeanTableSetupConvenience<INSTANCE_TYPE, BEAN_TYPE> {
 
 	INSTANCE_TYPE setModel(IBeanTableModel<BEAN_TYPE> model);
+
+	INSTANCE_TYPE setTableBluePrintFactory(ITableBluePrintFactory<? extends IWidgetDescriptor<ITable>> bpf);
 
 	INSTANCE_TYPE setSelectionPolicy(TableSelectionPolicy selectionPolicy);
 
@@ -114,6 +119,9 @@ public interface IBeanTableSetupBuilder<INSTANCE_TYPE extends IBeanTableSetupBui
 	INSTANCE_TYPE setRowHeight(Integer rowHeight);
 
 	INSTANCE_TYPE setValidationLabel(IValidationLabelSetup valiadationLabel);
+
+	@Mandatory
+	ITableBluePrintFactory<? extends IWidgetDescriptor<ITable>> getTableBluePrintFactory();
 
 	@Mandatory
 	TableSelectionPolicy getSelectionPolicy();

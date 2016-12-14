@@ -55,7 +55,7 @@ import org.jowidgets.api.widgets.IComposite;
 import org.jowidgets.api.widgets.IPopupMenu;
 import org.jowidgets.api.widgets.ITable;
 import org.jowidgets.api.widgets.IWidget;
-import org.jowidgets.api.widgets.blueprint.ITableBluePrint;
+import org.jowidgets.api.widgets.blueprint.builder.ITableSetupBuilder;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.ordered.IOrderedBean;
 import org.jowidgets.cap.common.tools.execution.ResultCallbackAdapter;
@@ -112,6 +112,7 @@ import org.jowidgets.common.widgets.controller.ITableColumnMouseEvent;
 import org.jowidgets.common.widgets.controller.ITableColumnPopupDetectionListener;
 import org.jowidgets.common.widgets.controller.ITableColumnPopupEvent;
 import org.jowidgets.common.widgets.controller.ITableSelectionListener;
+import org.jowidgets.common.widgets.descriptor.IWidgetDescriptor;
 import org.jowidgets.common.widgets.layout.MigLayoutDescriptor;
 import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.i18n.api.MessageReplacer;
@@ -266,15 +267,15 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 		this.menuFactory = CapUiToolkit.beanTableMenuFactory(menuInterceptors);
 		this.autoUpdateItemModel = createAutoUpdateItemModel();
 
-		final ITableBluePrint tableBp = BPF.table(model.getTableModel());
-		tableBp.setSetup(bluePrint);
-		tableBp.setEditor(new BeanTableCellEditorFactory(this));
-		tableBp.setSelectionPolicy(bluePrint.getSelectionPolicy());
+		final ITableSetupBuilder<?> setupBuilder = bluePrint.getTableBluePrintFactory().create(model.getTableModel());
+		setupBuilder.setSetup(bluePrint);
+		setupBuilder.setEditor(new BeanTableCellEditorFactory(this));
+		setupBuilder.setSelectionPolicy(bluePrint.getSelectionPolicy());
 
 		final IComposite contentComposite = mainComposite.add(BPF.composite(), MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
 		contentComposite.setLayout(new MigLayoutDescriptor("hidemode 2", "0[]0[grow, 0::]0", "0[grow, 0::]0"));
 
-		this.table = contentComposite.add(tableBp, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
+		this.table = contentComposite.add((IWidgetDescriptor<ITable>) setupBuilder, MigLayoutFactory.GROWING_CELL_CONSTRAINTS);
 
 		this.tableMenuObservable = new PopupMenuObservable<Position>();
 		this.headerMenuObservable = new PopupMenuObservable<ITableColumnPopupEvent>();

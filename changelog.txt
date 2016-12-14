@@ -186,6 +186,23 @@ Bugfixes:
 
 * Fixes issue #70  https://github.com/jo-source/jo-client-platform/issues/70 Cross validation for IBeanValidator does not work correctly   
 
+----------------------------------------------------------------------------------------------------------------------------
+
+0.63.0 
+
+
+Features:
+
+Implements issue #71 https://github.com/jo-source/jo-client-platform/issues/71 Allow to change table implementation for IBeanTable
+
+
+Bugfixes:
+ 
+
+
+
+
+
 
 
 

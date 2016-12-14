@@ -35,6 +35,7 @@ import org.jowidgets.cap.ui.api.types.AutoScrollPolicy;
 import org.jowidgets.cap.ui.api.widgets.IBeanTableSetupBuilder;
 import org.jowidgets.common.types.TableSelectionPolicy;
 import org.jowidgets.tools.widgets.blueprint.BPF;
+import org.jowidgets.tools.widgets.blueprint.DefaultTableBluePrintFactory;
 
 final class BeanTableDefaults implements IDefaultInitializer<IBeanTableSetupBuilder<?, ?>> {
 
@@ -60,5 +61,6 @@ final class BeanTableDefaults implements IDefaultInitializer<IBeanTableSetupBuil
 		bluePrint.setAutoKeyBinding(true);
 		bluePrint.setValidationLabel(BPF.validationResultLabel().setEmptyIcon(IconsSmall.OK_GREYED));
 		bluePrint.setValidationLabelVisible(false);
+		bluePrint.setTableBluePrintFactory(DefaultTableBluePrintFactory.instance());
 	}
 }
