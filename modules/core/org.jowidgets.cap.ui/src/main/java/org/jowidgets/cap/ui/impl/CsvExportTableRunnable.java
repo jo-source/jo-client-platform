@@ -41,17 +41,20 @@ import org.jowidgets.cap.ui.impl.CsvExporter.IBeanProvider;
 final class CsvExportTableRunnable implements Runnable {
 
 	private final IBeanTableModel<?> model;
+	private final List<IBeanDto> addedData;
 	private final IResultCallback<String> resultCallback;
 	private final ICsvExportParameter parameter;
 	private final IExecutionCallback executionCallback;
 
 	CsvExportTableRunnable(
 		final IBeanTableModel<?> model,
+		final List<IBeanDto> addedData,
 		final IResultCallback<String> resultCallback,
 		final ICsvExportParameter parameter,
 		final IExecutionCallback executionCallback) {
 
 		this.model = model;
+		this.addedData = addedData;
 		this.resultCallback = resultCallback;
 		this.parameter = parameter;
 		this.executionCallback = executionCallback;
@@ -74,38 +77,66 @@ final class CsvExportTableRunnable implements Runnable {
 
 		private final IExternalReader reader;
 
-		private boolean hasMoreBeans;
+		private boolean hasMoreLoadedData;
+		private boolean hasMoreAddedData;
 		private int currentPage;
 
 		private BeanProvider() {
 			this.reader = model.createExternalReader();
-			this.hasMoreBeans = true;
+			this.hasMoreLoadedData = true;
+			this.hasMoreAddedData = addedData.size() > 0;
 			this.currentPage = 0;
 		}
 
 		@Override
 		public boolean hasMoreBeans() {
-			return hasMoreBeans;
+			return hasMoreLoadedData || hasMoreAddedData;
 		}
 
 		@Override
 		public void countBeans(final IResultCallback<Integer> resultCallback) {
-			reader.count(resultCallback, executionCallback);
+			final IResultCallback<Integer> decoratedResult = new IResultCallback<Integer>() {
+				@Override
+				public void finished(final Integer result) {
+					if (result != null) {
+						resultCallback.finished(Integer.valueOf(result.intValue() + addedData.size()));
+					}
+					else {
+						resultCallback.finished(result);
+					}
+				}
+
+				@Override
+				public void exception(final Throwable exception) {
+					resultCallback.exception(exception);
+				}
+			};
+			reader.count(decoratedResult, executionCallback);
 		}
 
 		@Override
 		public void getBeans(final IResultCallback<List<IBeanDto>> resultCallback) {
+			if (hasMoreLoadedData) {
+				loadBeans(resultCallback);
+			}
+			else if (hasMoreAddedData) {
+				hasMoreAddedData = false;
+				resultCallback.finished(addedData);
+			}
+		}
+
+		private void loadBeans(final IResultCallback<List<IBeanDto>> resultCallback) {
 			final IResultCallback<List<IBeanDto>> decoratedResult = new IResultCallback<List<IBeanDto>>() {
 
 				@Override
 				public void finished(final List<IBeanDto> result) {
 					if (result.size() > PAGE_SIZE) {
-						hasMoreBeans = true;
+						hasMoreLoadedData = true;
 						currentPage++;
 						resultCallback.finished(result.subList(0, PAGE_SIZE));
 					}
 					else {
-						hasMoreBeans = false;
+						hasMoreLoadedData = false;
 						resultCallback.finished(result);
 					}
 				}
@@ -116,7 +147,7 @@ final class CsvExportTableRunnable implements Runnable {
 				}
 			};
 
-			hasMoreBeans = false;
+			hasMoreLoadedData = false;
 			reader.read(decoratedResult, currentPage * PAGE_SIZE, PAGE_SIZE + 1, executionCallback);
 		}
 

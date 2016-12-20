@@ -197,6 +197,18 @@ Implements issue #71 https://github.com/jo-source/jo-client-platform/issues/71 A
 
 
 Bugfixes:
+
+----------------------------------------------------------------------------------------------------------------------------
+
+0.64.0 
+
+
+Features:
+
+
+Bugfixes:
+
+* Fixes issue #72  https://github.com/jo-source/jo-client-platform/issues/72 CSV Export does not consider added beans 
  
 
 

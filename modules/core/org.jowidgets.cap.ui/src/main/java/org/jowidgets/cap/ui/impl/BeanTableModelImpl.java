@@ -1974,6 +1974,11 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 	}
 
 	@Override
+	public List<IBeanProxy<BEAN_TYPE>> getAddedData() {
+		return Collections.unmodifiableList(new ArrayList<IBeanProxy<BEAN_TYPE>>(addedData));
+	}
+
+	@Override
 	public void addFilterChangeListener(final IChangeListener changeListener) {
 		filterChangeObservable.addChangeListener(changeListener);
 	}

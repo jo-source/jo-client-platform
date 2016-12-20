@@ -178,13 +178,28 @@ public interface IBeanTableModel<BEAN_TYPE>
 	void addSelectedBeans(Collection<? extends IBeanProxy<BEAN_TYPE>> selectedBeans);
 
 	/**
-	 * Checks if the bean has added data beyond the pages
+	 * Checks if the model has added data beyond the pages
 	 * 
 	 * This may be true if data was added without loading or if paging is disabled
 	 * 
 	 * @return True if added data exists, false otherwise
 	 */
 	boolean hasAddedData();
+
+	/**
+	 * Gets the added data beyond the pages as an unmodifiable snapshot.
+	 * 
+	 * The returned collection is unmodifiable to clarify that modifications will
+	 * not modify the table.
+	 * 
+	 * The returned collection is also a snapshot, so if added data of the table changed after this
+	 * method was invoked, the returned collection remain unchanged.
+	 * 
+	 * The added data may contain data if data was added without loading or if paging is disabled
+	 * 
+	 * @return The added data, may be empty but never null
+	 */
+	List<IBeanProxy<BEAN_TYPE>> getAddedData();
 
 	void addFilterChangeListener(IChangeListener changeListener);
 

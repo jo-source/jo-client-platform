@@ -85,7 +85,8 @@ class CsvExportExecutor<BEAN_TYPE> implements IExecutor<BEAN_TYPE, ICsvExportPar
 			exportRunnable = new CsvExportSelectedRunnable(model, resultCallback, parameter, beanDtos, executionTask);
 		}
 		else {
-			exportRunnable = new CsvExportTableRunnable(model, resultCallback, parameter, executionTask);
+			final List<IBeanDto> addedData = createBeanDtos(model.getAddedData(), model.getPropertyNames());
+			exportRunnable = new CsvExportTableRunnable(model, addedData, resultCallback, parameter, executionTask);
 		}
 
 		executionTaskDialog.setVisible(true);
