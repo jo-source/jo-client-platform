@@ -312,6 +312,16 @@ final class BeanSelectionTableImpl<BEAN_TYPE> extends AbstractInputControl<List<
 	}
 
 	@Override
+	public int getColumnAtPosition(final Position position) {
+		return table.getColumnAtPosition(position);
+	}
+
+	@Override
+	public int getRowAtPosition(final Position position) {
+		return table.getRowAtPosition(position);
+	}
+
+	@Override
 	public ArrayList<Integer> getColumnPermutation() {
 		return table.getColumnPermutation();
 	}

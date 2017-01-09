@@ -42,6 +42,8 @@ import java.util.concurrent.TimeUnit;
 import org.jowidgets.api.command.IAction;
 import org.jowidgets.api.command.IExecutionContext;
 import org.jowidgets.api.controller.IListSelectionVetoListener;
+import org.jowidgets.api.dnd.IDragSource;
+import org.jowidgets.api.dnd.IDropTarget;
 import org.jowidgets.api.model.item.ICheckedItemModel;
 import org.jowidgets.api.model.item.ICheckedItemModelBuilder;
 import org.jowidgets.api.model.item.IItemModelFactory;
@@ -1361,6 +1363,16 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 	}
 
 	@Override
+	public int getColumnAtPosition(final Position position) {
+		return table.getColumnAtPosition(position);
+	}
+
+	@Override
+	public int getRowAtPosition(final Position position) {
+		return table.getRowAtPosition(position);
+	}
+
+	@Override
 	public ArrayList<Integer> getColumnPermutation() {
 		return table.getColumnPermutation();
 	}
@@ -1538,6 +1550,16 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 	@Override
 	public void setRowHeight(final int height) {
 		table.setRowHeight(height);
+	}
+
+	@Override
+	public IDragSource getDragSource() {
+		return table.getDragSource();
+	}
+
+	@Override
+	public IDropTarget getDropTarget() {
+		return table.getDropTarget();
 	}
 
 }
