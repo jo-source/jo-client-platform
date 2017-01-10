@@ -43,7 +43,7 @@ public final class BeanDtosDeletionUpdate implements IBeanDtosDeletionUpdate, Se
 	private final Set<Object> idsOfDeletedBeans;
 
 	public BeanDtosDeletionUpdate(final Collection<Object> idsOfDeletedBeans) {
-		Assert.paramNotNull(idsOfDeletedBeans, "changedBeans");
+		Assert.paramNotNull(idsOfDeletedBeans, "idsOfDeletedBeans");
 		this.idsOfDeletedBeans = new HashSet<Object>(idsOfDeletedBeans);
 	}
 
