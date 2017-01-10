@@ -67,6 +67,7 @@ import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.bean.IBeanDto;
 import org.jowidgets.cap.common.api.bean.IBeanDtosChangeUpdate;
 import org.jowidgets.cap.common.api.bean.IBeanDtosClearUpdate;
+import org.jowidgets.cap.common.api.bean.IBeanDtosDeletionUpdate;
 import org.jowidgets.cap.common.api.bean.IBeanDtosInsertionUpdate;
 import org.jowidgets.cap.common.api.bean.IBeanDtosUpdate;
 import org.jowidgets.cap.common.api.bean.IBeanKey;
@@ -1402,6 +1403,33 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		bean.removePropertyChangeListener(listener);
 
 		bean.addPropertyChangeListener(listener);
+	}
+
+	private void deleteFromAddedBeans(final Collection<Object> idsOfBeansToDelete) {
+
+		final List<IBeanProxy<BEAN_TYPE>> selectedBeans = new ArrayList<IBeanProxy<BEAN_TYPE>>(getSelectedBeans());
+		final ListIterator<IBeanProxy<BEAN_TYPE>> addedDataIterator = addedData.listIterator();
+		final Set<IBeanProxy<BEAN_TYPE>> removedBeans = new HashSet<IBeanProxy<BEAN_TYPE>>();
+
+		while (addedDataIterator.hasNext()) {
+			final IBeanProxy<BEAN_TYPE> bean = addedDataIterator.next();
+			if (idsOfBeansToDelete.contains(bean.getId())) {
+				addedDataIterator.remove();
+
+				beansStateTracker.unregister(bean);
+				lastSelectedBeans.remove(bean);
+
+				selectedBeans.remove(bean);
+				removedBeans.add(bean);
+			}
+		}
+
+		cachedReaderService.removeBeans(getParentBeanKeys(), removedBeans);
+		setSelectedBeans(selectedBeans);
+
+		fireBeansChanged();
+		beanListModelObservable.fireBeansRemoved(removedBeans);
+		beanListModelObservable.fireBeansChanged();
 	}
 
 	@Override
@@ -2945,6 +2973,9 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 					}
 					else if (update instanceof IBeanDtosChangeUpdate) {
 						updateBeans(((IBeanDtosChangeUpdate) update).getChangedBeans(), addUpdatesSorted);
+					}
+					else if (update instanceof IBeanDtosDeletionUpdate) {
+						deleteFromAddedBeans(((IBeanDtosDeletionUpdate) update).getIdsOfDeletedBeans());
 					}
 					else if (update instanceof IBeanDtosClearUpdate) {
 						clearAddedData();

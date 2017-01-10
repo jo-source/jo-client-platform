@@ -60,6 +60,7 @@ import org.jowidgets.cap.common.api.service.IReaderService;
 import org.jowidgets.cap.common.api.sort.ISort;
 import org.jowidgets.cap.common.api.sort.SortOrder;
 import org.jowidgets.cap.common.tools.bean.BeanDtosChangeUpdate;
+import org.jowidgets.cap.common.tools.bean.BeanDtosDeletionUpdate;
 import org.jowidgets.cap.common.tools.bean.BeanDtosInsertionUpdate;
 import org.jowidgets.cap.common.tools.sort.Sort;
 import org.jowidgets.cap.ui.api.attribute.Attribute;
@@ -335,6 +336,34 @@ public class BeanTableModelImplTest {
 		assertTrue(
 				"the previously first bean should now be second",
 				tableModel.getBean(1).getValue("value").equals(bean2.getValue("value")));
+	}
+
+	@Test
+	public void testBeanDeletionUpdate() {
+		tableModel.getSortModel().setCurrentSorting(Arrays.asList(new ISort() {
+			@Override
+			public SortOrder getSortOrder() {
+				return SortOrder.ASC;
+			}
+
+			@Override
+			public String getPropertyName() {
+				return "key";
+			}
+		}));
+
+		tableModel.load();
+
+		triggerPageLoading();
+		final IUpdatableResultCallback<IBeanDtosUpdate, List<IBeanDto>> updatableCallback = assertUpdatableResultCallback(
+				resultCallback);
+		updatableCallback.finished(new ArrayList<IBeanDto>());
+		updatableCallback.update(new BeanDtosInsertionUpdate(Arrays.asList((IBeanDto) bean1, (IBeanDto) bean2)));
+		updatableCallback.update(new BeanDtosDeletionUpdate(Arrays.asList(bean1.getId())));
+
+		final int size = tableModel.getSize();
+		assertTrue("Only 1 beans should be loaded, but was " + size, size == 1);
+		assertTrue("bean2 should be left", tableModel.getBean(0).getValue("value").equals(bean2.getValue("value")));
 	}
 
 	@Test
