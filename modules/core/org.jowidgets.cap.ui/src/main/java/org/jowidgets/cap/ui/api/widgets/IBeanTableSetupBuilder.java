@@ -77,6 +77,23 @@ public interface IBeanTableSetupBuilder<INSTANCE_TYPE extends IBeanTableSetupBui
 
 	INSTANCE_TYPE setSearchFilterToolbarVisible(boolean visible);
 
+	/**
+	 * Allow to enable or disable the search filter toolbar function.
+	 * 
+	 * With the enabled flag, it will be prohibited that the search filter toolbar can
+	 * be enabled by user, e.g. with context menu or with CTRL+F. Also if the enabled state
+	 * will be set to false, the visible state will be ignored, so even setting the toolbar visible
+	 * after creation programmatically has no effect.
+	 * 
+	 * If the toolbar is enabled it might not automatically be visible by default. The flag set
+	 * by {@link #setSearchFilterToolbarVisible(boolean)} determines if the toolbar is initially visible.
+	 * 
+	 * @param enabled The enabled state to set, the default value is true
+	 * 
+	 * @return This builder
+	 */
+	INSTANCE_TYPE setSearchFilterToolbarEnabled(boolean enabled);
+
 	INSTANCE_TYPE setValidationLabelVisible(boolean visible);
 
 	INSTANCE_TYPE setStatusBarVisible(boolean visible);
@@ -167,6 +184,9 @@ public interface IBeanTableSetupBuilder<INSTANCE_TYPE extends IBeanTableSetupBui
 
 	@Mandatory
 	boolean getSearchFilterToolbarVisible();
+
+	@Mandatory
+	boolean getSearchFilterToolbarEnabled();
 
 	@Mandatory
 	boolean getStatusBarVisible();

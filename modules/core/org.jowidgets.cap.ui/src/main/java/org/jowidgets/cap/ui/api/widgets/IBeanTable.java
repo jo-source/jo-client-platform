@@ -69,6 +69,17 @@ public interface IBeanTable<BEAN_TYPE> extends ITable, IBeanListViewport {
 
 	ICheckedItemModel getSearchFilterToolbarItemModel();
 
+	/**
+	 * Gets the search filter toolbar enabled state.
+	 * 
+	 * This value never changes for an table instance during runtime.
+	 * 
+	 * See {@link IBeanTableSetupBuilder#setSearchFilterToolbarEnabled(boolean)}
+	 * 
+	 * @return The enabled state
+	 */
+	boolean isSearchFilterToolbarEnabled();
+
 	void setValidationLabelVisible(boolean visible);
 
 	ICheckedItemModel getValidationLabelItemModel();

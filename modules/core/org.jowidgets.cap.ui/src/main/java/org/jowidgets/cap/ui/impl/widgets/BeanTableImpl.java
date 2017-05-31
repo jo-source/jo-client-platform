@@ -150,6 +150,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 	private final ITable table;
 	private final IBeanTableModel<BEAN_TYPE> model;
 	private final BeanTableSearchFilterToolbar<BEAN_TYPE> searchFilterToolbar;
+	private final boolean searchFilterToolbarEnabled;
 	private final BeanTableValidationLabel<BEAN_TYPE> validationLabel;
 	private final BeanTableFilterToolbar<BEAN_TYPE> filterToolbar;
 	private final BeanTableStatusBar<BEAN_TYPE> statusBar;
@@ -209,6 +210,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 
 		this.model = bluePrint.getModel();
 		this.autoPackPolicy = bluePrint.getAutoPackPolicy();
+		this.searchFilterToolbarEnabled = bluePrint.getSearchFilterToolbarEnabled();
 
 		final IComposite mainComposite;
 		if (model.getReaderService() == null) {
@@ -322,7 +324,7 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 				pluggedCellPopupMenuModel,
 				pluggedHeaderPopupMenuModel);
 
-		this.searchFilterToolbar = new BeanTableSearchFilterToolbar<BEAN_TYPE>(mainComposite, this);
+		this.searchFilterToolbar = new BeanTableSearchFilterToolbar<BEAN_TYPE>(mainComposite, searchFilterToolbarEnabled, this);
 		this.validationLabel = new BeanTableValidationLabel<BEAN_TYPE>(mainComposite, this, bluePrint.getValidationLabel());
 		this.filterToolbar = new BeanTableFilterToolbar<BEAN_TYPE>(contentComposite, this, menuFactory);
 		this.statusBar = new BeanTableStatusBar<BEAN_TYPE>(mainComposite, bluePrint.getStatusBarRenderer(), this);
@@ -442,18 +444,20 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 
 		table.addTableColumnListener(new TableSortColumnListener());
 
-		final IKeyListener keyListener = new KeyAdapter() {
-			@Override
-			public void keyPressed(final IKeyEvent event) {
-				if (event.getModifier().contains(Modifier.CTRL) && event.getVirtualKey() == VirtualKey.F) {
-					setSearchFilterToolbarVisible(true);
-					searchFilterToolbar.requestSearchFocus();
+		if (searchFilterToolbarEnabled) {
+			final IKeyListener keyListener = new KeyAdapter() {
+				@Override
+				public void keyPressed(final IKeyEvent event) {
+					if (event.getModifier().contains(Modifier.CTRL) && event.getVirtualKey() == VirtualKey.F) {
+						setSearchFilterToolbarVisible(true);
+						searchFilterToolbar.requestSearchFocus();
+					}
 				}
-			}
-		};
+			};
 
-		getWidget().addKeyListener(keyListener);
-		table.addKeyListener(keyListener);
+			getWidget().addKeyListener(keyListener);
+			table.addKeyListener(keyListener);
+		}
 
 		this.processStateListener = new IProcessStateListener() {
 			@Override
@@ -954,7 +958,9 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 
 	@Override
 	public void setSearchFilterToolbarVisible(final boolean visible) {
-		searchFilterToolbar.setVisible(visible);
+		if (searchFilterToolbarEnabled) {
+			searchFilterToolbar.setVisible(visible);
+		}
 	}
 
 	@Override
@@ -975,6 +981,11 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 	@Override
 	public void setStatusBarVisible(final boolean visible) {
 		statusBar.setVisible(visible);
+	}
+
+	@Override
+	public boolean isSearchFilterToolbarEnabled() {
+		return searchFilterToolbarEnabled;
 	}
 
 	@Override

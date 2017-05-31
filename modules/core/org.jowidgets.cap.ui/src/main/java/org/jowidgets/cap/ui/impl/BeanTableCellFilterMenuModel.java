@@ -84,7 +84,9 @@ final class BeanTableCellFilterMenuModel<BEAN_TYPE> extends MenuModel {
 		tryAddAction(menuFactory.deleteFilterAction(model));
 		addSeparator();
 		tryAddItem(table.getFilterToolbarItemModel());
-		tryAddItem(table.getSearchFilterToolbarItemModel());
+		if (table.isSearchFilterToolbarEnabled()) {
+			tryAddItem(table.getSearchFilterToolbarItemModel());
+		}
 	}
 
 	private static boolean hasIncludingFilterSupport(final IAttribute<?> attribute) {

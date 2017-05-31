@@ -35,6 +35,7 @@ final class BeanSelectionTableDefaults implements IDefaultInitializer<IBeanSelec
 
 	@Override
 	public void initialize(final IBeanSelectionTableBluePrint<?> bluePrint) {
+		bluePrint.setSearchFilterToolbarEnabled(true);
 		bluePrint.setSearchFilterToolbarVisible(true);
 		bluePrint.setMandatorySelectionValidator(true);
 	}

@@ -202,10 +202,10 @@ Bugfixes:
 
 0.64.0 
 
+Uses jowidgets 0.68.0
+
 
 Features:
-
-* Uses jowidgets 0.68.0
 
 
 Bugfixes:
@@ -217,11 +217,9 @@ Bugfixes:
 
 0.65.0 
 
+Uses jowidgets 0.69.0
 
 Features:
-
-* Uses jowidgets 0.69.0
-
 
 Bugfixes:
 
@@ -229,11 +227,9 @@ Bugfixes:
 
 0.66.0 
 
+Uses jowidgets 0.70.0
 
 Features:
-
-* Uses jowidgets 0.70.0
-
 
 Bugfixes:
 
@@ -242,10 +238,22 @@ Bugfixes:
 
 0.67.0 
 
+Uses jowidgets 0.71.0
 
 Features:
 
-* Uses jowidgets 0.71.0
+Bugfixes:
+
+----------------------------------------------------------------------------------------------------------------------------
+
+0.68.0 
+
+Uses jowidgets 0.72.0
+
+
+Features:
+
+* Implements issue #73 https://github.com/jo-source/jo-client-platform/issues/73 Allow to disable search filter in IBeanTable 
 
 
 Bugfixes:

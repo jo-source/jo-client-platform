@@ -94,6 +94,7 @@ final class BeanTableSearchFilterToolbar<BEAN_TYPE> {
 	private static final int LISTENER_DELAY = 500;
 
 	private final IComposite composite;
+	private final boolean searchFilterToolbarEnabled;
 	private final IBeanTableModel<BEAN_TYPE> model;
 	private final IAttributeSet attributes;
 	private final IComposite toolbar;
@@ -109,8 +110,12 @@ final class BeanTableSearchFilterToolbar<BEAN_TYPE> {
 	private ScheduledExecutorService executorService;
 	private String lastText;
 
-	BeanTableSearchFilterToolbar(final IComposite composite, final BeanTableImpl<BEAN_TYPE> table) {
+	BeanTableSearchFilterToolbar(
+		final IComposite composite,
+		final boolean searchFilterToolbarEnabled,
+		final BeanTableImpl<BEAN_TYPE> table) {
 		this.composite = composite;
+		this.searchFilterToolbarEnabled = searchFilterToolbarEnabled;
 		this.model = table.getModel();
 		this.attributes = model.getAttributeSet();
 
@@ -211,7 +216,9 @@ final class BeanTableSearchFilterToolbar<BEAN_TYPE> {
 				table.setSearchFilterToolbarVisible(searchFilterItemModel.isSelected());
 			}
 		};
-		searchFilterItemModel.addItemListener(searchFilterItemListener);
+		if (searchFilterToolbarEnabled) {
+			searchFilterItemModel.addItemListener(searchFilterItemListener);
+		}
 
 		if (!EmptyCheck.isEmpty(textField.getText()) && !toolbar.isVisible()) {
 			setVisible(true);
@@ -267,6 +274,9 @@ final class BeanTableSearchFilterToolbar<BEAN_TYPE> {
 	}
 
 	void setVisible(final boolean visible) {
+		if (!searchFilterToolbarEnabled) {
+			return;
+		}
 		if (toolbar.isVisible() != visible) {
 			composite.layoutBegin();
 			toolbar.setVisible(visible);
