@@ -93,10 +93,30 @@ public class BeanTableTest {
 	}
 
 	@Test
+	public void testSearchFilterToolbarNotVisibleByDefault() {
+		final IBeanTable<ITestBean> beanTable = rootFrame.add(createBeanTableBluePrint());
+		Assert.assertFalse(beanTable.getConfig().isSearchFilterToolbarVisible());
+	}
+
+	@Test
+	public void testSetSearchFilterToolbarVisibleState() {
+		final IBeanTableBluePrint<ITestBean> tableBp = createBeanTableBluePrint();
+		tableBp.setSearchFilterToolbarVisible(true);
+		final IBeanTable<ITestBean> beanTable = rootFrame.add(tableBp);
+		Assert.assertTrue(beanTable.getConfig().isSearchFilterToolbarVisible());
+
+		beanTable.setSearchFilterToolbarVisible(false);
+		Assert.assertFalse(beanTable.getConfig().isSearchFilterToolbarVisible());
+
+		beanTable.setSearchFilterToolbarVisible(true);
+		Assert.assertTrue(beanTable.getConfig().isSearchFilterToolbarVisible());
+	}
+
+	@Test
 	public void testEnableSearchFilterToolbarWithKeyEvent() {
 		final IBeanTableBluePrint<ITestBean> tableBp = createBeanTableBluePrint();
 
-		tableBp.setStatusBarVisible(false);
+		tableBp.setSearchFilterToolbarVisible(false);
 
 		final IBeanTable<ITestBean> beanTable = rootFrame.add(tableBp);
 		Assert.assertFalse(beanTable.getConfig().isSearchFilterToolbarVisible());
@@ -123,7 +143,7 @@ public class BeanTableTest {
 	@Test
 	public void testDisableSearchFilterToolbar() {
 		final IBeanTableBluePrint<ITestBean> tableBp = createBeanTableBluePrint();
-		tableBp.setStatusBarVisible(true);
+		tableBp.setSearchFilterToolbarVisible(true);
 		tableBp.setSearchFilterToolbarEnabled(false);
 
 		final SearchFilterItemsCheckInterceptor menuInterceptor = new SearchFilterItemsCheckInterceptor();
