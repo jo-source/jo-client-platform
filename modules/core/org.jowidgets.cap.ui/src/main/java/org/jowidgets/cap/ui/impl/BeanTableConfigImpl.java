@@ -108,4 +108,25 @@ final class BeanTableConfigImpl implements IBeanTableConfig {
 		return validationLabelVisible;
 	}
 
+	@Override
+	public String toString() {
+		return "BeanTableConfigImpl [columnPermutation="
+			+ columnPermutation
+			+ ", autoUpdate="
+			+ autoUpdate
+			+ ", autoUpdateInterval="
+			+ autoUpdateInterval
+			+ ", autoScrollPolicy="
+			+ autoScrollPolicy
+			+ ", filterToolbarVisible="
+			+ filterToolbarVisible
+			+ ", searchFilterToolbarVisible="
+			+ searchFilterToolbarVisible
+			+ ", statusBarVisible="
+			+ statusBarVisible
+			+ ", validationLabelVisible="
+			+ validationLabelVisible
+			+ "]";
+	}
+
 }

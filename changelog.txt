@@ -269,6 +269,17 @@ Features:
 
 Bugfixes:
 
+----------------------------------------------------------------------------------------------------------------------------
+
+0.70.0 
+
+
+Features:
+
+* Implemented toString() for BeanTableConfigImpl
+
+Bugfixes:
+
 
 
 
