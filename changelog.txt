@@ -273,6 +273,7 @@ Bugfixes:
 
 0.70.0 
 
+Uses jowidgets 0.74.0
 
 Features:
 
