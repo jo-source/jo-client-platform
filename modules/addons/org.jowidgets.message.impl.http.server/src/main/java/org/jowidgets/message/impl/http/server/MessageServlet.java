@@ -58,7 +58,7 @@ public final class MessageServlet extends HttpServlet implements IMessageReceive
 	private long pollInterval = 10000;
 	private Executor executor = Executors.newFixedThreadPool(
 			Runtime.getRuntime().availableProcessors() * 10,
-			new DaemonThreadFactory());
+			new DaemonThreadFactory("org.jowidgets.message.impl.http.server.MessageServlet.executor-"));
 	private volatile IMessageReceiver receiver;
 
 	public MessageServlet(final Object brokerId) {
