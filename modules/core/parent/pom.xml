@@ -15,6 +15,7 @@
 		<module>../org.jowidgets.cap.common</module>
 		<module>../org.jowidgets.cap.service</module>
 		<module>../org.jowidgets.cap.ui</module>
+		<module>../org.jowidgets.cap.ui.test</module>
 	</modules>
 
 </project>

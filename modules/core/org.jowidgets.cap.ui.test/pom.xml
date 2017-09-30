@@ -1,7 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<artifactId>org.jowidgets.cap.ui</artifactId>
+	<artifactId>org.jowidgets.cap.ui.test</artifactId>
 
 	<parent>
 		<groupId>org.jowidgets</groupId>
@@ -14,32 +14,22 @@
 	
 	    <dependency>
 			<groupId>org.jowidgets</groupId>
-			<artifactId>org.jowidgets.service</artifactId>
+			<artifactId>org.jowidgets.cap.ui</artifactId>
 			<version>0.71.0-SNAPSHOT</version>
 		</dependency>
-
-		<dependency>
-			<groupId>org.jowidgets</groupId>
-			<artifactId>org.jowidgets.cap.common</artifactId>
-			<version>0.71.0-SNAPSHOT</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>org.jowidgets</groupId>
-			<artifactId>org.jowidgets.logging.api</artifactId>
-			<version>${jowidgets.version}</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>org.jowidgets</groupId>
-			<artifactId>org.jowidgets.tools</artifactId>
-			<version>${jowidgets.version}</version>
-		</dependency>
-		
-		<dependency>
+        
+        <dependency>
             <groupId>org.jowidgets</groupId>
-            <artifactId>org.jowidgets.workbench.tools</artifactId>
+            <artifactId>org.jowidgets.test.tools</artifactId>
             <version>${jowidgets.version}</version>
+            <scope>test</scope>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.jowidgets</groupId>
+            <artifactId>org.jowidgets.spi.impl.dummy</artifactId>
+            <version>${jowidgets.version}</version>
+            <scope>test</scope>
         </dependency>
         
 	</dependencies>

@@ -282,6 +282,26 @@ Features:
 Bugfixes:
 
 
+----------------------------------------------------------------------------------------------------------------------------
+
+0.71.0 
+
+
+Uses jowidgets 0.xx.0
+
+
+Features:
+
+
+Bugfixes:
+
+* Fixes issue #74  https://github.com/jo-source/jo-client-platform/issues/74 Can not open example applications inside eclispe with snapshot dependcies to test toolkit
+
+
+----------------------------------------------------------------------------------------------------------------------------
+
+
+
 
 
 
