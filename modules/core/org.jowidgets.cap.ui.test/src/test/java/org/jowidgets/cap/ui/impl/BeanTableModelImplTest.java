@@ -67,7 +67,7 @@ import org.jowidgets.cap.ui.api.attribute.Attribute;
 import org.jowidgets.cap.ui.api.attribute.IAttribute;
 import org.jowidgets.cap.ui.api.attribute.IAttributeBuilder;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
-import org.jowidgets.logging.api.TestLoggerProvider;
+import org.jowidgets.logging.tools.JUnitLoggerProvider;
 import org.jowidgets.test.tools.TestToolkit;
 import org.jowidgets.util.Interval;
 import org.junit.After;
@@ -97,7 +97,7 @@ public class BeanTableModelImplTest {
 	@SuppressWarnings("unchecked")
 	@Before
 	public void setup() {
-		TestLoggerProvider.setConsoleLoggerForCurrentThread();
+		JUnitLoggerProvider.reset();
 		TestToolkit.setUpToolkitBeforeTest();
 
 		readerService = createReaderService();
@@ -172,8 +172,8 @@ public class BeanTableModelImplTest {
 
 	@After
 	public void tearDown() {
+		JUnitLoggerProvider.reset();
 		TestToolkit.tearDownToolkitAfterTest();
-		TestLoggerProvider.clearLoggerForCurrentThread();
 	}
 
 	@Test

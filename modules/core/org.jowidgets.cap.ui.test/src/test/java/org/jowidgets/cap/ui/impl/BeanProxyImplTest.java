@@ -35,8 +35,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import junit.framework.Assert;
-
 import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.api.widgets.IContainer;
 import org.jowidgets.api.widgets.IControl;
@@ -66,7 +64,7 @@ import org.jowidgets.cap.ui.impl.beans.PersonDtoDescriptorBuilder;
 import org.jowidgets.cap.ui.impl.beans.PersonNameValidator;
 import org.jowidgets.common.widgets.factory.ICustomWidgetCreator;
 import org.jowidgets.common.widgets.factory.ICustomWidgetFactory;
-import org.jowidgets.logging.api.TestLoggerProvider;
+import org.jowidgets.logging.tools.JUnitLoggerProvider;
 import org.jowidgets.test.tools.TestToolkit;
 import org.jowidgets.tools.widgets.blueprint.BPF;
 import org.jowidgets.util.ValueHolder;
@@ -76,6 +74,8 @@ import org.jowidgets.validation.MessageType;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import junit.framework.Assert;
 
 public class BeanProxyImplTest {
 
@@ -98,7 +98,7 @@ public class BeanProxyImplTest {
 
 	@Before
 	public void setUp() {
-		TestLoggerProvider.setConsoleLoggerForCurrentThread();
+		JUnitLoggerProvider.reset();
 		TestToolkit.setUpToolkitBeforeTest();
 		this.personDescriptor = new PersonDtoDescriptorBuilder().build();
 		this.personAttributes = createAttributes(personDescriptor);
@@ -115,8 +115,8 @@ public class BeanProxyImplTest {
 
 	@After
 	public void tearDown() {
+		JUnitLoggerProvider.reset();
 		TestToolkit.tearDownToolkitAfterTest();
-		TestLoggerProvider.clearLoggerForCurrentThread();
 	}
 
 	private IBeanProxy<IPerson> createPersonProxy(final IBeanDto beanDto) {
@@ -124,7 +124,9 @@ public class BeanProxyImplTest {
 		return createPersonProxy(beanDto, emptyValidatory);
 	}
 
-	private IBeanProxy<IPerson> createPersonProxy(final IBeanDto beanDto, final List<IBeanPropertyValidator<IPerson>> validators) {
+	private IBeanProxy<IPerson> createPersonProxy(
+		final IBeanDto beanDto,
+		final List<IBeanPropertyValidator<IPerson>> validators) {
 		final IBeanProxyFactoryBuilder<IPerson> factoryBuilder = BeanProxyFactory.builder(IPerson.class);
 		factoryBuilder.setBeanTypeId(IPerson.class);
 		factoryBuilder.setAttributes(personAttributes);
@@ -325,11 +327,8 @@ public class BeanProxyImplTest {
 				IPerson.class,
 				personAttributes.getAttributes());
 
-		beanFormBp.setEditModeLayouter(createPersonBeanFormLayouter(
-				nameControl,
-				lastNameControl,
-				nameValidationlabel,
-				lastnameValidationlabel));
+		beanFormBp.setEditModeLayouter(
+				createPersonBeanFormLayouter(nameControl, lastNameControl, nameValidationlabel, lastnameValidationlabel));
 
 		final IBeanForm<IPerson> result = rootFrame.add(beanFormBp);
 		rootFrame.setVisible(true);
@@ -381,7 +380,8 @@ public class BeanProxyImplTest {
 		container.add(new ICustomWidgetCreator<IControl>() {
 			@Override
 			public IControl create(final ICustomWidgetFactory widgetFactory) {
-				final ICustomWidgetCreator<? extends IControl> original = controlFactory.createPropertyValidationLabel(propertyName);
+				final ICustomWidgetCreator<? extends IControl> original = controlFactory.createPropertyValidationLabel(
+						propertyName);
 				final IControl result = original.create(widgetFactory);
 				valueHolder.set((IValidationResultLabel) result);
 				return result;
