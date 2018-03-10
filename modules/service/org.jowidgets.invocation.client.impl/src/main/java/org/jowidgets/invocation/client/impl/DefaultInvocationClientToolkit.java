@@ -73,7 +73,7 @@ public final class DefaultInvocationClientToolkit implements IInvocationClientTo
 			final InvocationClientImpl invocationClient = new InvocationClientImpl(brokerId, invocationClientServiceRegistry);
 			result = new InvocationCallbackMessageReceiver(invocationClient, invocationClientServiceRegistry);
 			receivers.put(brokerId, result);
-			MessageToolkit.setReceiver(brokerId, result);
+			MessageToolkit.getChannelBroker(brokerId).setReceiver(result);
 		}
 		return result;
 	}

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2018, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,56 +26,48 @@
  * DAMAGE.
  */
 
-package org.jowidgets.invocation.client.impl;
+package org.jowidgets.message.impl.mock;
 
-final class TimeStampedObject<OBJECT_TYPE> {
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
-	private final OBJECT_TYPE object;
-	private final long timestamp;
+import org.jowidgets.message.api.IMessageChannel;
+import org.jowidgets.message.api.IMessageReceiver;
+import org.jowidgets.message.api.IMessageReceiverBroker;
 
-	TimeStampedObject(final OBJECT_TYPE object) {
-		this.object = object;
-		this.timestamp = System.currentTimeMillis();
-	}
+public final class MessageReceiverBrokerMock implements IMessageReceiverBroker {
 
-	OBJECT_TYPE getObject() {
-		return object;
-	}
+	private final Object brokerId;
+	private final BlockingQueue<QueuedMessage> messages;
 
-	long getTimestamp() {
-		return timestamp;
-	}
+	private IMessageReceiver receiver;
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((object == null) ? 0 : object.hashCode());
-		return result;
+	MessageReceiverBrokerMock(final Object brokerId) {
+		this.brokerId = brokerId;
+		this.messages = new LinkedBlockingQueue<QueuedMessage>();
 	}
 
 	@Override
-	public boolean equals(final Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		@SuppressWarnings("rawtypes")
-		final TimeStampedObject other = (TimeStampedObject) obj;
-		if (object == null) {
-			if (other.object != null) {
-				return false;
+	public Object getBrokerId() {
+		return brokerId;
+	}
+
+	@Override
+	public void setReceiver(final IMessageReceiver receiver) {
+		this.receiver = receiver;
+	}
+
+	void addMessage(final Object message, final IMessageChannel replyChannel) {
+		messages.add(new QueuedMessage(message, replyChannel));
+	}
+
+	public void dispatchMessages() {
+		while (messages.size() > 0) {
+			final QueuedMessage message = messages.poll();
+			if (receiver != null) {
+				receiver.onMessage(message.getMessage(), message.getReplyChannel());
 			}
 		}
-		else if (!object.equals(other.object)) {
-			return false;
-		}
-		return true;
 	}
 
 }

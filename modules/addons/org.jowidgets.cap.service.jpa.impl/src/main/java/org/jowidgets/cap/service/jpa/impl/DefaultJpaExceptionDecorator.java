@@ -33,6 +33,7 @@ import java.util.Set;
 
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.OptimisticLockException;
+import javax.persistence.QueryTimeoutException;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 
@@ -40,6 +41,8 @@ import org.jowidgets.cap.common.api.bean.IBean;
 import org.jowidgets.cap.common.api.exception.DeletedBeanException;
 import org.jowidgets.cap.common.api.exception.ExecutableCheckException;
 import org.jowidgets.cap.common.api.exception.ServiceException;
+import org.jowidgets.cap.common.api.exception.ServiceInterruptedException;
+import org.jowidgets.cap.common.api.exception.ServiceTimeoutException;
 import org.jowidgets.cap.common.api.exception.StaleBeanException;
 import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.util.IDecorator;
@@ -66,6 +69,12 @@ final class DefaultJpaExceptionDecorator implements IDecorator<Throwable> {
 				final ConstraintViolation<?> violation = constraintViolations.iterator().next();
 				return new ExecutableCheckException(violation.getRootBean());
 			}
+		}
+		else if (exception instanceof QueryTimeoutException) {
+			return new ServiceTimeoutException(exception);
+		}
+		else if (exception instanceof InterruptedException) {
+			return new ServiceInterruptedException(exception);
 		}
 		else if (exception instanceof InvocationTargetException) {
 			return decorate(((InvocationTargetException) exception).getTargetException());

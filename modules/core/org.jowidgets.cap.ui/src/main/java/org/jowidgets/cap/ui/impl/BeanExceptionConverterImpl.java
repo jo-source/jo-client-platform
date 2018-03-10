@@ -43,6 +43,8 @@ import org.jowidgets.cap.common.api.exception.DeletedBeanException;
 import org.jowidgets.cap.common.api.exception.ExecutableCheckException;
 import org.jowidgets.cap.common.api.exception.ForeignKeyConstraintViolationException;
 import org.jowidgets.cap.common.api.exception.ServiceException;
+import org.jowidgets.cap.common.api.exception.ServiceInterruptedException;
+import org.jowidgets.cap.common.api.exception.ServiceTimeoutException;
 import org.jowidgets.cap.common.api.exception.StaleBeanException;
 import org.jowidgets.cap.common.api.exception.UniqueConstraintViolationException;
 import org.jowidgets.cap.common.api.validation.IBeanValidationResult;
@@ -65,23 +67,42 @@ final class BeanExceptionConverterImpl implements IBeanExceptionConverter {
 	private static final ILogger LOGGER = LoggerProvider.get(BeanExceptionConverterImpl.class);
 
 	private static final IMessage EXECUTABLE_CHECK_BEAN = Messages.getMessage("BeanExceptionConverterImpl.executableCheckBean");
+
 	private static final IMessage EXECUTABLE_CHECK = Messages.getMessage("BeanExceptionConverterImpl.executableCheck");
+
 	private static final IMessage STALE_DATA_BEAN = Messages.getMessage("BeanExceptionConverterImpl.staleDataBean");
+
 	private static final IMessage STALE_DATA = Messages.getMessage("BeanExceptionConverterImpl.staleData");
+
 	private static final IMessage DELETED_DATA_BEAN = Messages.getMessage("BeanExceptionConverterImpl.deletedDataBean");
+
 	private static final IMessage DELETED_DATA = Messages.getMessage("BeanExceptionConverterImpl.deletedData");
+
 	private static final IMessage FK_CONSTRAINT = Messages.getMessage("BeanExceptionConverterImpl.fkConstraint");
+
 	private static final IMessage UNIQUE_CONSTRAINT_NO_PROP = Messages.getMessage(
 			"BeanExceptionConverterImpl.uniqueConstraintNoProp");
+
 	private static final IMessage UNIQUE_CONSTRAINT_SINGLE_PROP = Messages.getMessage(
 			"BeanExceptionConverterImpl.uniqueConstraintSingleProp");
+
 	private static final IMessage UNIQUE_CONSTRAINT_PLURAL_PROP = Messages.getMessage(
 			"BeanExceptionConverterImpl.uniqueConstraintPluralProp");
+
 	private static final IMessage AUTHORIZATION_FAILED = Messages.getMessage("BeanExceptionConverterImpl.authorizationFailed");
+
 	private static final IMessage AUTHORIZATION_OF_FAILED = Messages.getMessage(
 			"BeanExceptionConverterImpl.authorizationOfFailed");
+
+	private static final IMessage SERVICE_TIMEOUT_EXCEPTION = Messages.getMessage(
+			"BeanExceptionConverterImpl.serviceTimeoutException");
+
+	private static final IMessage SERVICE_INTERRUPTED_EXCEPTION = Messages.getMessage(
+			"BeanExceptionConverterImpl.serviceInterruptedException");
+
 	private static final IMessage UNDEFINED_RUNTIME_EXCEPTION = Messages.getMessage(
 			"BeanExceptionConverterImpl.undefinedRuntimeException");
+
 	private static final IMessage VALIDATION_OF_OTHER_DATASETS_FAILED = Messages.getMessage(
 			"BeanExceptionConverterImpl.validationOfOtherDatasetsFailed");
 
@@ -154,6 +175,12 @@ final class BeanExceptionConverterImpl implements IBeanExceptionConverter {
 		}
 		else if (exception instanceof UniqueConstraintViolationException) {
 			return convertUniqueConstraintViolationException(shortMessage, bean, (UniqueConstraintViolationException) exception);
+		}
+		else if (exception instanceof ServiceTimeoutException) {
+			return convertServiceTimeoutException(shortMessage, (ServiceTimeoutException) exception);
+		}
+		else if (exception instanceof ServiceInterruptedException) {
+			return convertServiceInterruptedException(shortMessage, (ServiceInterruptedException) exception);
 		}
 		else {
 			return convertUndefinedServiceException(shortMessage, exception);
@@ -261,6 +288,28 @@ final class BeanExceptionConverterImpl implements IBeanExceptionConverter {
 
 	private IBeanMessage convertForeignKeyConstraintViolationException(final String shortMessage, final Throwable rootThrowable) {
 		return new BeanMessageImpl(BeanMessageType.WARNING, shortMessage, FK_CONSTRAINT.get(), rootThrowable);
+	}
+
+	private IBeanMessage convertServiceTimeoutException(final String shortMessage, final ServiceTimeoutException exception) {
+		final String userMessage = exception.getUserMessage();
+		if (!EmptyCheck.isEmpty(userMessage)) {
+			return new BeanMessageImpl(BeanMessageType.WARNING, shortMessage, userMessage, exception);
+		}
+		else {
+			return new BeanMessageImpl(BeanMessageType.WARNING, shortMessage, SERVICE_TIMEOUT_EXCEPTION.get(), exception);
+		}
+	}
+
+	private IBeanMessage convertServiceInterruptedException(
+		final String shortMessage,
+		final ServiceInterruptedException exception) {
+		final String userMessage = exception.getUserMessage();
+		if (!EmptyCheck.isEmpty(userMessage)) {
+			return new BeanMessageImpl(BeanMessageType.WARNING, shortMessage, userMessage, exception);
+		}
+		else {
+			return new BeanMessageImpl(BeanMessageType.WARNING, shortMessage, SERVICE_INTERRUPTED_EXCEPTION.get(), exception);
+		}
 	}
 
 	private IBeanMessage convertUniqueConstraintViolationException(

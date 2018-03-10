@@ -28,60 +28,56 @@
 
 package org.jowidgets.message.impl.http.server;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+
+import javax.servlet.http.HttpSession;
 
 import org.jowidgets.message.api.IExceptionCallback;
 import org.jowidgets.message.api.IMessageChannel;
 import org.jowidgets.message.api.IMessageReceiver;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.ISystemTimeProvider;
 
-final class Connection implements IMessageChannel {
+final class MessageChannel implements IMessageChannel {
 
+	private final HttpSession session;
+	private final MessageExecutionsWatchdog watchdog;
 	private final IMessageReceiver receiver;
-	private final Executor executor;
-	private final BlockingQueue<Object> queue = new LinkedBlockingQueue<Object>();
+	private final ExecutorService executor;
 
-	Connection(final IMessageReceiver receiver, final Executor executor) {
+	private final BlockingQueue<Object> queue;
+	private final ISystemTimeProvider systemTimeProvider;
+
+	MessageChannel(
+		final IMessageReceiver receiver,
+		final ExecutorService executor,
+		final HttpSession session,
+		final MessageExecutionsWatchdog watchdog,
+		final ISystemTimeProvider systemTimeProvider) {
+
 		Assert.paramNotNull(receiver, "receiver");
 		Assert.paramNotNull(executor, "executor");
+		Assert.paramNotNull(session, "session");
+		Assert.paramNotNull(watchdog, "watchdog");
+		Assert.paramNotNull(systemTimeProvider, "systemTimeProvider");
+
 		this.receiver = receiver;
 		this.executor = executor;
+		this.session = session;
+		this.watchdog = watchdog;
+
+		this.queue = new LinkedBlockingQueue<Object>();
+		this.systemTimeProvider = systemTimeProvider;
 	}
 
-	void onMessage(final Object msg, final List<IExecutionInterceptor<Object>> executionInterceptors) {
-		final List<Object> contexts = new ArrayList<Object>(executionInterceptors.size());
-		for (final IExecutionInterceptor<Object> executionInterceptor : executionInterceptors) {
-			contexts.add(executionInterceptor.getExecutionContext());
-		}
-		executor.execute(new Runnable() {
-			@Override
-			public void run() {
-				doRun(msg, executionInterceptors, contexts);
-			}
-		});
-	}
-
-	private void doRun(
-		final Object msg,
-		final List<IExecutionInterceptor<Object>> executionInterceptors,
-		final List<Object> contexts) {
-		if (executionInterceptors.isEmpty()) {
-			receiver.onMessage(msg, this);
-			return;
-		}
-		executionInterceptors.get(0).beforeExecution(contexts.get(0));
-		try {
-			doRun(msg, executionInterceptors.subList(1, executionInterceptors.size()), contexts.subList(1, contexts.size()));
-		}
-		finally {
-			executionInterceptors.get(0).afterExecution();
-		}
+	void onMessage(final Object message, final Collection<IExecutionInterceptor<Object>> interceptors) {
+		watchdog.addExecution(session, new MessageExecution(message, interceptors, executor, receiver, this, systemTimeProvider));
 	}
 
 	List<Object> pollMessages(final long pollInterval) {

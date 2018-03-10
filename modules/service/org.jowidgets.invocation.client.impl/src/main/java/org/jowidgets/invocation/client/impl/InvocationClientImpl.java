@@ -28,9 +28,6 @@
 
 package org.jowidgets.invocation.client.impl;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.jowidgets.invocation.client.api.IInvocationClient;
 import org.jowidgets.invocation.common.api.ICancelService;
 import org.jowidgets.invocation.common.api.IMethod;
@@ -41,28 +38,19 @@ import org.jowidgets.invocation.common.impl.ResponseMessage;
 import org.jowidgets.message.api.IMessageChannel;
 import org.jowidgets.message.api.MessageToolkit;
 import org.jowidgets.util.Assert;
-import org.jowidgets.util.Tuple;
 
 class InvocationClientImpl implements IInvocationClient {
 
-	//TODO MG remove invocations after defined timeout
-	private final Map<Object, TimeStampedObject<Object>> invokedInvocations;
-	private final Map<Object, TimeStampedObject<Object>> canceledInvocations;
-	private final Map<Object, TimeStampedObject<IMessageChannel>> acknowledgedInvocations;
-	private final Map<Object, TimeStampedObject<Tuple<Object, IMessageChannel>>> interimRequests;
-
 	private final InvocationClientServiceRegistryImpl invocationClientServiceRegistry;
 	private final IMessageChannel messageChannel;
+	private final ICancelService cancelService;
+	private final IResponseService responseService;
 
 	InvocationClientImpl(final Object brokerId, final InvocationClientServiceRegistryImpl invocationClientServiceRegistry) {
-		Assert.paramNotNull(brokerId, "brokerId");
-		this.invokedInvocations = new ConcurrentHashMap<Object, TimeStampedObject<Object>>();
-		this.canceledInvocations = new ConcurrentHashMap<Object, TimeStampedObject<Object>>();
-		this.acknowledgedInvocations = new ConcurrentHashMap<Object, TimeStampedObject<IMessageChannel>>();
-		this.interimRequests = new ConcurrentHashMap<Object, TimeStampedObject<Tuple<Object, IMessageChannel>>>();
-
 		this.messageChannel = MessageToolkit.getChannel(brokerId);
 		this.invocationClientServiceRegistry = invocationClientServiceRegistry;
+		this.cancelService = new CancelService();
+		this.responseService = new ResponseService();
 	}
 
 	@Override
@@ -71,7 +59,6 @@ class InvocationClientImpl implements IInvocationClient {
 			@Override
 			public void invoke(final Object invocationId, final Object parameter) {
 				final MethodInvocationMessage message = new MethodInvocationMessage(invocationId, methodName, parameter);
-				invokedInvocations.put(invocationId, new TimeStampedObject<Object>(invocationId));
 				messageChannel.send(message, new ExceptionCallback(invocationClientServiceRegistry, invocationId));
 			}
 		};
@@ -79,55 +66,30 @@ class InvocationClientImpl implements IInvocationClient {
 
 	@Override
 	public ICancelService getCancelService() {
-		return new ICancelService() {
-			@Override
-			public void canceled(final Object invocationId) {
-				Assert.paramNotNull(invocationId, "invocationId");
-				final TimeStampedObject<IMessageChannel> ackInvocation = acknowledgedInvocations.get(invocationId);
-				if (ackInvocation != null) {
-					final CancelMessage message = new CancelMessage(invocationId);
-					ackInvocation.getObject().send(message, new ExceptionCallback(invocationClientServiceRegistry, invocationId));
-					canceledInvocations.remove(invocationId);
-				}
-				else {
-					canceledInvocations.put(invocationId, new TimeStampedObject<Object>(invocationId));
-				}
-			}
-		};
+		return cancelService;
 	}
 
 	@Override
 	public IResponseService getResponseService() {
-		return new IResponseService() {
-			@Override
-			public void response(final Object requestId, final Object response) {
-				Assert.paramNotNull(requestId, "requestId");
-				final TimeStampedObject<Tuple<Object, IMessageChannel>> request = interimRequests.remove(requestId);
-				if (request != null) {
-					final Tuple<Object, IMessageChannel> tuple = request.getObject();
-					final ResponseMessage message = new ResponseMessage(requestId, response);
-					tuple.getSecond().send(message, new ExceptionCallback(invocationClientServiceRegistry, tuple.getFirst()));
-				}
-				else {
-					throw new IllegalStateException("The request id '" + requestId + "' is not known");
-				}
-			}
-		};
+		return responseService;
 	}
 
-	void registerAcknowledge(final Object invocationId, final IMessageChannel replyChannel) {
-		if (canceledInvocations.remove(invocationId) != null) {
+	private class CancelService implements ICancelService {
+		@Override
+		public void canceled(final Object invocationId) {
+			Assert.paramNotNull(invocationId, "invocationId");
 			final CancelMessage message = new CancelMessage(invocationId);
-			replyChannel.send(message, new ExceptionCallback(invocationClientServiceRegistry, invocationId));
-		}
-		else {
-			acknowledgedInvocations.put(invocationId, new TimeStampedObject<IMessageChannel>(replyChannel));
+			messageChannel.send(message, new ExceptionCallback(invocationClientServiceRegistry, invocationId));
 		}
 	}
 
-	void registerInterimRequest(final Object invocationId, final Object requestId, final IMessageChannel replyChannel) {
-		final Tuple<Object, IMessageChannel> tuple = new Tuple<Object, IMessageChannel>(invocationId, replyChannel);
-		interimRequests.put(requestId, new TimeStampedObject<Tuple<Object, IMessageChannel>>(tuple));
+	private class ResponseService implements IResponseService {
+		@Override
+		public void response(final Object requestId, final Object response) {
+			Assert.paramNotNull(requestId, "requestId");
+			final ResponseMessage message = new ResponseMessage(requestId, response);
+			messageChannel.send(message, new ExceptionCallback(invocationClientServiceRegistry, requestId));
+		}
 	}
 
 }

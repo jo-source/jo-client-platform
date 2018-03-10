@@ -43,8 +43,10 @@ import javax.persistence.Query;
 import javax.persistence.Table;
 import javax.persistence.metamodel.EntityType;
 
+import org.hibernate.JDBCException;
 import org.hibernate.exception.ConstraintViolationException;
 import org.jowidgets.cap.common.api.exception.ForeignKeyConstraintViolationException;
+import org.jowidgets.cap.common.api.exception.ServiceException;
 import org.jowidgets.cap.common.api.exception.UniqueConstraintViolationException;
 import org.jowidgets.cap.service.jpa.api.EntityManagerHolder;
 import org.jowidgets.util.EmptyCheck;
@@ -82,9 +84,37 @@ final class HibernateOracleExceptionDecoratorImpl implements IDecorator<Throwabl
 					}
 				}
 			}
+			else if (cause instanceof JDBCException) {
+				return decorateJDBCException(original, (JDBCException) cause);
+			}
+		}
+		else if (original instanceof JDBCException) {
+			return decorateJDBCException(original, (JDBCException) original);
 		}
 
 		return original;
+	}
+
+	private Throwable decorateJDBCException(final Throwable parent, final JDBCException jdbcException) {
+		final SQLException sqlException = jdbcException.getSQLException();
+
+		final String userMessage = getUserMessage(sqlException.getErrorCode());
+		if (userMessage != null) {
+			return new ServiceException(sqlException.getMessage(), userMessage, sqlException);
+		}
+		else {
+			return parent;
+		}
+	}
+
+	private String getUserMessage(final int errorCode) {
+		if (errorCode == 28) {//sqlState=08006
+			return Messages.getString("HibernateOracleExceptionDecoratorImpl.database_session_killed");
+		}
+		if (errorCode == 17008) {//sqlState=08003
+			return Messages.getString("HibernateOracleExceptionDecoratorImpl.database_connection_closed");
+		}
+		return null;
 	}
 
 	private String getConstraintName(final ConstraintViolationException exception) {

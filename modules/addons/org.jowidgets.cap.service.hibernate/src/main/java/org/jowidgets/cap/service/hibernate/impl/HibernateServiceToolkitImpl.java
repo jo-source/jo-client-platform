@@ -30,14 +30,24 @@ package org.jowidgets.cap.service.hibernate.impl;
 
 import org.jowidgets.cap.service.hibernate.api.ICancelServicesDecoratorProviderBuilder;
 import org.jowidgets.cap.service.hibernate.api.IHibernateServiceToolkit;
+import org.jowidgets.logging.api.ILogger;
+import org.jowidgets.logging.api.LoggerProvider;
 import org.jowidgets.util.IDecorator;
+import org.jowidgets.util.IExceptionHandler;
+import org.jowidgets.util.concurrent.ThreadInterruptObserver;
 
 public final class HibernateServiceToolkitImpl implements IHibernateServiceToolkit {
 
+	private static final ILogger LOGGER = LoggerProvider.get(HibernateServiceToolkitImpl.class);
+
 	private final IDecorator<Throwable> exceptionDecorator;
+	private final ThreadInterruptObserver threadInterruptObserver;
 
 	public HibernateServiceToolkitImpl() {
 		this.exceptionDecorator = new HibernateExceptionDecoratorImpl();
+		this.threadInterruptObserver = new ThreadInterruptObserver(
+			HibernateServiceToolkitImpl.class.getName() + "-CancelQueryThreadInterruptWatchdog-",
+			new LoggingExceptionHandler());
 	}
 
 	@Override
@@ -47,7 +57,17 @@ public final class HibernateServiceToolkitImpl implements IHibernateServiceToolk
 
 	@Override
 	public ICancelServicesDecoratorProviderBuilder cancelServiceDecoratorProviderBuilder(final String persistenceUnitName) {
-		return new CancelServicesDecoratorProviderBuilder(persistenceUnitName);
+		if (!threadInterruptObserver.isRunning()) {
+			threadInterruptObserver.start();
+		}
+		return new CancelServicesDecoratorProviderBuilder(persistenceUnitName, threadInterruptObserver);
+	}
+
+	private class LoggingExceptionHandler implements IExceptionHandler {
+		@Override
+		public void handleException(final Throwable exception) {
+			LOGGER.error(exception);
+		}
 	}
 
 }

@@ -42,17 +42,28 @@ import org.jowidgets.cap.common.api.service.IUpdaterService;
 import org.jowidgets.cap.service.hibernate.api.ICancelServicesDecoratorProviderBuilder;
 import org.jowidgets.service.api.IServicesDecoratorProvider;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.concurrent.IThreadInterruptObservable;
 
 final class CancelServicesDecoratorProviderBuilder implements ICancelServicesDecoratorProviderBuilder {
 
 	private final String persistenceUnitName;
+	private final IThreadInterruptObservable threadInterruptObservable;
 	private final Set<Class<?>> services;
+
+	private Long killAfterMillis = Long.valueOf(60000);
+	private Long minQueryRuntimeMillis = Long.valueOf(25);
 
 	private int order;
 
-	CancelServicesDecoratorProviderBuilder(final String persistenceUnitName) {
+	CancelServicesDecoratorProviderBuilder(
+		final String persistenceUnitName,
+		final IThreadInterruptObservable threadInterruptObservable) {
+
 		Assert.paramNotEmpty(persistenceUnitName, "persistenceUnitName");
+		Assert.paramNotNull(threadInterruptObservable, "threadInterruptObservable");
+
 		this.persistenceUnitName = persistenceUnitName;
+		this.threadInterruptObservable = threadInterruptObservable;
 		this.order = ICancelServicesDecoratorProviderBuilder.DEFAULT_ORDER;
 		this.services = new HashSet<Class<?>>();
 
@@ -81,6 +92,18 @@ final class CancelServicesDecoratorProviderBuilder implements ICancelServicesDec
 	}
 
 	@Override
+	public ICancelServicesDecoratorProviderBuilder setKillSessionAfterMillis(final Long killAfterMillis) {
+		this.killAfterMillis = killAfterMillis;
+		return this;
+	}
+
+	@Override
+	public ICancelServicesDecoratorProviderBuilder setMinQueryRuntimeMillis(final Long minQueryRuntimeMillis) {
+		this.minQueryRuntimeMillis = minQueryRuntimeMillis;
+		return this;
+	}
+
+	@Override
 	public ICancelServicesDecoratorProviderBuilder setOrder(final int order) {
 		this.order = order;
 		return this;
@@ -88,7 +111,13 @@ final class CancelServicesDecoratorProviderBuilder implements ICancelServicesDec
 
 	@Override
 	public IServicesDecoratorProvider build() {
-		return new CancelServicesDecoratorProviderImpl(persistenceUnitName, services, order);
+		return new CancelServicesDecoratorProviderImpl(
+			persistenceUnitName,
+			threadInterruptObservable,
+			services,
+			minQueryRuntimeMillis,
+			killAfterMillis,
+			order);
 	}
 
 }

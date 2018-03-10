@@ -16,6 +16,7 @@
 		<module>../org.jowidgets.service</module>
 		<module>../org.jowidgets.security</module>
 		<module>../org.jowidgets.message.api</module>	
+		<module>../org.jowidgets.message.impl.mock</module>
 		<module>../org.jowidgets.message.impl.socket</module>	
 		<module>../org.jowidgets.invocation.common.api</module>	
 		<module>../org.jowidgets.invocation.client.api</module>
@@ -23,6 +24,7 @@
 		<module>../org.jowidgets.invocation.common.impl</module>	
 		<module>../org.jowidgets.invocation.client.impl</module>
 		<module>../org.jowidgets.invocation.server.impl</module>
+		<module>../org.jowidgets.invocation.test</module>
 		<module>../org.jowidgets.invocation.service.common.api</module>	
 		<module>../org.jowidgets.invocation.service.server.api</module>
 		<module>../org.jowidgets.invocation.service.client.api</module>	

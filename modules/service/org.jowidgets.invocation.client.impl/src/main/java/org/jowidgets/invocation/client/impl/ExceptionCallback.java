@@ -36,7 +36,6 @@ final class ExceptionCallback implements IExceptionCallback {
 	private final Object invocationId;
 
 	ExceptionCallback(final InvocationClientServiceRegistryImpl invocationClientServiceRegistry, final Object invocationId) {
-		super();
 		this.invocationClientServiceRegistry = invocationClientServiceRegistry;
 		this.invocationId = invocationId;
 	}

@@ -37,12 +37,16 @@ import org.jowidgets.cap.common.api.exception.ExecutableCheckException;
 import org.jowidgets.cap.common.api.exception.ForeignKeyConstraintViolationException;
 import org.jowidgets.cap.common.api.exception.ServiceCanceledException;
 import org.jowidgets.cap.common.api.exception.ServiceException;
+import org.jowidgets.cap.common.api.exception.ServiceInterruptedException;
+import org.jowidgets.cap.common.api.exception.ServiceTimeoutException;
+import org.jowidgets.cap.common.api.exception.ServiceUnavailableException;
 import org.jowidgets.cap.common.api.exception.StaleBeanException;
 import org.jowidgets.cap.common.api.exception.UniqueConstraintViolationException;
 import org.jowidgets.cap.common.api.validation.IBeanValidationResult;
 import org.jowidgets.cap.service.api.exception.IServiceExceptionLogger;
 import org.jowidgets.logging.api.ILogger;
 import org.jowidgets.logging.api.LoggerProvider;
+import org.jowidgets.util.EmptyCheck;
 
 public class DefaultServiceExceptionLogger implements IServiceExceptionLogger {
 
@@ -76,6 +80,9 @@ public class DefaultServiceExceptionLogger implements IServiceExceptionLogger {
 		if (decorated instanceof ServiceException) {
 			final ServiceException serviceException = (ServiceException) decorated;
 			if (logServiceCanceledException(serviceType, original, serviceException)
+				|| logServiceTimeoutException(serviceType, original, serviceException)
+				|| logServiceUnavailableException(serviceType, original, serviceException)
+				|| logServiceInterruptedException(serviceType, original, serviceException)
 				|| logAuthorizationFailedException(serviceType, original, serviceException)
 				|| logBeanException(serviceType, original, serviceException)
 				|| logBeansValidationException(serviceType, original, serviceException)
@@ -99,6 +106,57 @@ public class DefaultServiceExceptionLogger implements IServiceExceptionLogger {
 		if (serviceException instanceof ServiceCanceledException) {
 			if (logger.isInfoEnabled()) {
 				logger.info("Service '" + serviceType + "' canceled by user");
+			}
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
+	protected boolean logServiceTimeoutException(
+		final Class<?> serviceType,
+		final Throwable original,
+		final ServiceException serviceException) {
+		if (serviceException instanceof ServiceTimeoutException) {
+			if (logger.isInfoEnabled()) {
+				logger.info("Service '" + serviceType + "' was canceled by a timeout");
+			}
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
+	protected boolean logServiceUnavailableException(
+		final Class<?> serviceType,
+		final Throwable original,
+		final ServiceException serviceException) {
+		if (serviceException instanceof ServiceUnavailableException) {
+			if (logger.isInfoEnabled()) {
+				final String message = serviceException.getMessage();
+				if (EmptyCheck.isEmpty(message)) {
+					logger.info("Service '" + serviceType + "' is currently not available.");
+				}
+				else {
+					logger.info("Service '" + serviceType + "' is currently not available: " + message);
+				}
+			}
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
+	protected boolean logServiceInterruptedException(
+		final Class<?> serviceType,
+		final Throwable original,
+		final ServiceException serviceException) {
+		if (serviceException instanceof ServiceInterruptedException) {
+			if (logger.isInfoEnabled()) {
+				logger.info("Service '" + serviceType + "' was interrupted");
 			}
 			return true;
 		}

@@ -53,6 +53,13 @@ public final class InvocationClientToolkit {
 		return toolkit != null;
 	}
 
+	/**
+	 * Dispose the toolkit. Only use after JUnit tests.
+	 */
+	public static void dispose() {
+		toolkit = null;
+	}
+
 	public static synchronized IInvocationClientToolkit getInstance() {
 		if (toolkit == null) {
 			final ServiceLoader<IInvocationClientToolkit> toolkitProviderLoader = ServiceLoader.load(
@@ -67,9 +74,8 @@ public final class InvocationClientToolkit {
 			InvocationClientToolkit.toolkit = iterator.next();
 
 			if (iterator.hasNext()) {
-				throw new IllegalStateException("More than one implementation found for '"
-					+ IInvocationClientToolkit.class.getName()
-					+ "'");
+				throw new IllegalStateException(
+					"More than one implementation found for '" + IInvocationClientToolkit.class.getName() + "'");
 			}
 
 		}

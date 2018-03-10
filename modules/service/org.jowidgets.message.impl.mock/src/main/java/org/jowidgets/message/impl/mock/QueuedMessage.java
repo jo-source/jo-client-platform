@@ -26,22 +26,26 @@
  * DAMAGE.
  */
 
-package org.jowidgets.invocation.common.impl;
+package org.jowidgets.message.impl.mock;
 
-import java.io.Serializable;
+import org.jowidgets.message.api.IMessageChannel;
 
-public final class AcknowledgeMessage implements Serializable {
+final class QueuedMessage {
 
-	private static final long serialVersionUID = -2420370598980702491L;
+	private final Object message;
+	private final IMessageChannel replyChannel;
 
-	private final Object invocationId;
-
-	public AcknowledgeMessage(final Object invocationId) {
-		this.invocationId = invocationId;
+	QueuedMessage(final Object message, final IMessageChannel replyChannel) {
+		this.message = message;
+		this.replyChannel = replyChannel;
 	}
 
-	public Object getInvocationId() {
-		return invocationId;
+	Object getMessage() {
+		return message;
+	}
+
+	IMessageChannel getReplyChannel() {
+		return replyChannel;
 	}
 
 }

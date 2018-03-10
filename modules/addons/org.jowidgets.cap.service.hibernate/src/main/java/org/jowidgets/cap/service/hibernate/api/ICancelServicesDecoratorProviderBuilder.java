@@ -67,6 +67,34 @@ public interface ICancelServicesDecoratorProviderBuilder {
 	ICancelServicesDecoratorProviderBuilder addServices(Class<?>... services);
 
 	/**
+	 * Sets the killAfterMillis parameter.
+	 * 
+	 * If session cancel failed, the session may be killed after killAfterMillis milliseconds if a {@link IKillSessionSupport} is
+	 * available. If set to null, sessions will not be killed.
+	 * 
+	 * If not set, the default value of 2 minutes (120000 millis) is used.
+	 * 
+	 * @param killAfterMillis The value to set or null to disable kill
+	 *
+	 * @return This builder
+	 */
+	ICancelServicesDecoratorProviderBuilder setKillSessionAfterMillis(Long killAfterMillis);
+
+	/**
+	 * Sets the minQueryRuntimeMillis parameter.
+	 * 
+	 * If set, before cancel will be invoked, the cancel thread will sleep minQueryRuntimeMillis - currentQueryDuration
+	 * milliseconds to avoid that cancel will fail because the underlying statement was not yet executed.
+	 * 
+	 * If not set, the default value of 25 millis is used.
+	 * 
+	 * @param minQueryRuntimeMillis The value to set or null to disable the feature
+	 *
+	 * @return This builder
+	 */
+	ICancelServicesDecoratorProviderBuilder setMinQueryRuntimeMillis(Long minQueryRuntimeMillis);
+
+	/**
 	 * Sets the order for the service decoration. Decorators with higher order will be invoked later.
 	 * 
 	 * By default, the {@link #DEFAULT_ORDER} will be used

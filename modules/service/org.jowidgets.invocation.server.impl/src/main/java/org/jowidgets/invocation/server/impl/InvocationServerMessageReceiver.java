@@ -28,13 +28,11 @@
 
 package org.jowidgets.invocation.server.impl;
 
-import org.jowidgets.invocation.common.impl.AcknowledgeMessage;
 import org.jowidgets.invocation.common.impl.CancelMessage;
 import org.jowidgets.invocation.common.impl.MethodInvocationMessage;
 import org.jowidgets.invocation.common.impl.ResponseMessage;
 import org.jowidgets.invocation.server.api.IInvocationServer;
 import org.jowidgets.invocation.server.api.IInvocationServerServiceRegistry;
-import org.jowidgets.message.api.IExceptionCallback;
 import org.jowidgets.message.api.IMessageChannel;
 import org.jowidgets.message.api.IMessageReceiver;
 
@@ -56,16 +54,6 @@ final class InvocationServerMessageReceiver implements IMessageReceiver {
 			final MethodInvocationMessage invocationMessage = (MethodInvocationMessage) message;
 			final Object invocationId = invocationMessage.getInvocationId();
 			invocationServer.registerInvocation(invocationId, replyChannel);
-
-			final IExceptionCallback exceptionCallback = new IExceptionCallback() {
-				@Override
-				public void exception(final Throwable throwable) {
-					invocationServer.unregisterInvocation(invocationId);
-					invocationServerServiceRegistry.onCancel(invocationId);
-				}
-			};
-
-			replyChannel.send(new AcknowledgeMessage(invocationId), exceptionCallback);
 			invocationServerServiceRegistry.onMethodInvocation((MethodInvocationMessage) message);
 		}
 		else if (message instanceof CancelMessage) {

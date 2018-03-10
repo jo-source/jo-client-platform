@@ -28,9 +28,7 @@
 
 package org.jowidgets.message.api;
 
-public interface IMessageChannelBroker {
-
-	Object getBrokerId();
+public interface IMessageChannelBroker extends IMessageReceiverBroker {
 
 	IMessageChannel getChannel();
 
