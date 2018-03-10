@@ -108,23 +108,29 @@ public final class InvocationServerImpl implements IInvocationServer {
 					if (message instanceof ExceptionMessage) {
 						final Throwable throwable = ((ExceptionMessage) message).getException();
 						if (exceptionCallback != null) {
-							exceptionCallback.exception(new IllegalStateException(
-								"No message channel is registered for invocationId '" + invocationId + "'",
-								throwable));
+							exceptionCallback.exception(
+									new IllegalStateException(
+										"No message channel is registered for invocationId '" + invocationId + "'",
+										throwable));
 						}
 						else {
-							MessageToolkit.handleExceptions(brokerId, new IllegalStateException(
-								"No message channel is registered for invocationId '" + invocationId + "'",
-								throwable));
+							MessageToolkit.handleExceptions(
+									brokerId,
+									new IllegalStateException(
+										"No message channel is registered for invocationId '" + invocationId + "'",
+										throwable));
 						}
 					}
 					else if (exceptionCallback != null) {
-						exceptionCallback.exception(new IllegalStateException(
-							"No message channel is registered for invocationId '" + invocationId + "'"));
+						exceptionCallback.exception(
+								new IllegalStateException(
+									"No message channel is registered for invocationId '" + invocationId + "'"));
 					}
 					else {
-						MessageToolkit.handleExceptions(brokerId, new IllegalStateException(
-							"No message channel is registered for invocationId '" + invocationId + "'"));
+						MessageToolkit.handleExceptions(
+								brokerId,
+								new IllegalStateException(
+									"No message channel is registered for invocationId '" + invocationId + "'"));
 					}
 				}
 			};
