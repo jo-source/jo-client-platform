@@ -36,6 +36,7 @@ import javax.persistence.PersistenceException;
 import org.hibernate.StaleObjectStateException;
 import org.hibernate.exception.ConstraintViolationException;
 import org.jowidgets.cap.common.api.exception.ExecutableCheckException;
+import org.jowidgets.cap.common.api.exception.ServiceException;
 import org.jowidgets.cap.common.api.exception.StaleBeanException;
 import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.util.IDecorator;
@@ -44,7 +45,11 @@ public class HibernateExceptionDecoratorImpl implements IDecorator<Throwable> {
 
 	@Override
 	public Throwable decorate(final Throwable original) {
-		if (original instanceof PersistenceException) {
+		if (original instanceof InterruptedException) {
+			//TODO use new ServiceInvocationInterruptedException where i18n can be used in client
+			return new ServiceException("Service invocation was interrupted", "Service invocation was interrupted", original);
+		}
+		else if (original instanceof PersistenceException) {
 			final PersistenceException persistenceException = (PersistenceException) original;
 			final Throwable cause = persistenceException.getCause();
 

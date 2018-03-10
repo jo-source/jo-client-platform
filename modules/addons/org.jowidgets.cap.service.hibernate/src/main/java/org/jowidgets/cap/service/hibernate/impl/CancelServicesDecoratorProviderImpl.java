@@ -56,18 +56,27 @@ import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.IServicesDecoratorProvider;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.IDecorator;
+import org.jowidgets.util.concurrent.IThreadInterruptListener;
+import org.jowidgets.util.concurrent.IThreadInterruptObservable;
 
 final class CancelServicesDecoratorProviderImpl implements IServicesDecoratorProvider {
 
+	private final IThreadInterruptObservable threadInterruptObservable;
 	private final EntityManagerFactory entityManagerFactory;
 	private final Set<Class<?>> services;
 	private final int order;
 
-	CancelServicesDecoratorProviderImpl(final String persistenceUnitName, final Set<Class<?>> services, final int order) {
+	CancelServicesDecoratorProviderImpl(
+		final String persistenceUnitName,
+		final IThreadInterruptObservable threadInterruptObservable,
+		final Set<Class<?>> services,
+		final int order) {
 
+		Assert.paramNotNull(threadInterruptObservable, "threadInterruptObservable");
 		Assert.paramNotNull(persistenceUnitName, "persistenceUnitName");
 		Assert.paramNotNull(services, "services");
 
+		this.threadInterruptObservable = threadInterruptObservable;
 		this.entityManagerFactory = EntityManagerFactoryProvider.get(persistenceUnitName);
 		if (entityManagerFactory == null && !services.isEmpty()) {
 			throw new IllegalArgumentException(
@@ -175,9 +184,18 @@ final class CancelServicesDecoratorProviderImpl implements IServicesDecoratorPro
 			try {
 				addCancelListener(executionCallback);
 				CapServiceToolkit.checkCanceled(executionCallback);
+				if (Thread.interrupted()) {
+					throw new InterruptedException("Query invocation was interrupted.");
+				}
 				isRunning.set(true);
-				final Object result = method.invoke(original, args);
-				return result;
+				final IThreadInterruptListener interruptListener = createThreadInterruptListener();
+				try {
+					threadInterruptObservable.addInterruptListener(interruptListener);
+					return method.invoke(original, args);
+				}
+				finally {
+					threadInterruptObservable.removeInterruptListener(interruptListener);
+				}
 			}
 			catch (final Exception e) {
 				decoratedResultCallback.exception(e);
@@ -219,23 +237,42 @@ final class CancelServicesDecoratorProviderImpl implements IServicesDecoratorPro
 		}
 
 		private void addCancelListener(final IExecutionCallback executionCallback) {
+			if (executionCallback != null) {
+				executionCallback.addExecutionCallbackListener(createCancelSessionListener());
+			}
+		}
+
+		private IThreadInterruptListener createThreadInterruptListener() {
+			final IExecutionCallbackListener cancelListener = createCancelSessionListener();
+			return new IThreadInterruptListener() {
+				@Override
+				public void interrupted(final Thread thread) {
+					if (isRunning.get()) {
+						cancelListener.canceled();
+					}
+					threadInterruptObservable.removeInterruptListener(thread, this);
+				}
+			};
+		}
+
+		private IExecutionCallbackListener createCancelSessionListener() {
 			final EntityManager em = EntityManagerHolder.get();
-			if (executionCallback != null && em != null) {
-				final Session session = em.unwrap(Session.class);
-				executionCallback.addExecutionCallbackListener(new IExecutionCallbackListener() {
-					@Override
-					public void canceled() {
-						try {
-							if (session.isOpen() && isRunning.get()) {
+			return new IExecutionCallbackListener() {
+				@Override
+				public void canceled() {
+					try {
+						if (em != null) {
+							final Session session = em.unwrap(Session.class);
+							if (session != null && session.isOpen() && isRunning.get()) {
 								canceledSessionHolder.set(session);
 								session.cancelQuery();
 							}
 						}
-						catch (final Exception e) {
-						}
 					}
-				});
-			}
+					catch (final Exception e) {
+					}
+				}
+			};
 		}
 
 		private class DecoratedResultCallback implements IResultCallback<Object> {
@@ -251,7 +288,10 @@ final class CancelServicesDecoratorProviderImpl implements IServicesDecoratorPro
 			public final void exception(final Throwable exception) {
 				isRunning.set(false);
 				checkCanceled();
-				if (executionCallback != null
+				if (Thread.interrupted() && !(executionCallback != null && executionCallback.isCanceled())) {
+					resultCallback.exception(new InterruptedException("Query invocation was interrupted."));
+				}
+				else if (executionCallback != null
 					&& executionCallback.isCanceled()
 					&& !(exception instanceof ServiceCanceledException)) {
 					resultCallback.exception(new ServiceCanceledException());
