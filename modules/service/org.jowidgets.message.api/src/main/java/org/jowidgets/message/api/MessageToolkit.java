@@ -46,7 +46,7 @@ public final class MessageToolkit {
 
 	private static final IMessageToolkit INSTANCE = new MessageToolkitImpl();
 
-	private static Map<Object, IMessageChannel> messageChannelBrokers = getChannels();
+	private static Map<Object, IMessageChannelBroker> messageChannelBrokers = getChannels();
 	private static Map<Object, IMessageReceiverBroker> messageReceiverBrokers = getReceivers();
 	private static Map<Object, Set<IExceptionCallback>> exceptionCallbacks = new ConcurrentHashMap<Object, Set<IExceptionCallback>>();
 
@@ -60,7 +60,14 @@ public final class MessageToolkit {
 		if (channelBroker == null) {
 			throw new IllegalArgumentException("Parameter 'channelBroker' must not be null");
 		}
-		messageChannelBrokers.put(channelBroker.getBrokerId(), channelBroker.getChannel());
+		messageChannelBrokers.put(channelBroker.getBrokerId(), channelBroker);
+	}
+
+	public static synchronized void removeChannelBroker(final IMessageChannelBroker channelBroker) {
+		if (channelBroker == null) {
+			throw new IllegalArgumentException("Parameter 'channelBroker' must not be null");
+		}
+		messageChannelBrokers.remove(channelBroker.getBrokerId());
 	}
 
 	public static synchronized void addReceiverBroker(final IMessageReceiverBroker receiver) {
@@ -70,12 +77,19 @@ public final class MessageToolkit {
 		messageReceiverBrokers.put(receiver.getBrokerId(), receiver);
 	}
 
+	public static synchronized void removeReceiverBroker(final IMessageReceiverBroker receiver) {
+		if (receiver == null) {
+			throw new IllegalArgumentException("Parameter 'receiver' must not be null");
+		}
+		messageReceiverBrokers.remove(receiver.getBrokerId());
+	}
+
 	@Deprecated
 	/**
 	 * @deprecated jowidgets logging api will be used by default from now
 	 * 
-	 * Adds a exception callback for a defined broker id, this will not remove the other exception callbacks
-	 * added before to this broker
+	 *             Adds a exception callback for a defined broker id, this will not remove the other exception callbacks
+	 *             added before to this broker
 	 * 
 	 * @param brokerId The broker to set the callback for
 	 * @param exceptionCallback The callback to set
@@ -99,8 +113,8 @@ public final class MessageToolkit {
 	/**
 	 * @deprecated jowidgets logging api will be used by default from now
 	 * 
-	 * Sets the exception callback for a defined broker id, this will remove all other exception callbacks for this
-	 * broker
+	 *             Sets the exception callback for a defined broker id, this will remove all other exception callbacks for this
+	 *             broker
 	 * 
 	 * @param brokerId The broker to set the callback for
 	 * @param exceptionCallback The callback to set
@@ -122,7 +136,7 @@ public final class MessageToolkit {
 	/**
 	 * @deprecated jowidgets logging api will be used by default from now
 	 * 
-	 * Removes a earlier registered exception callback for a given broker id
+	 *             Removes a earlier registered exception callback for a given broker id
 	 * 
 	 * @param brokerId
 	 * @param exceptionCallback
@@ -142,6 +156,10 @@ public final class MessageToolkit {
 
 	public static IMessageChannel getChannel(final Object brokerId) {
 		return getInstance().getChannel(brokerId);
+	}
+
+	public static IMessageChannelBroker getChannelBroker(final Object brokerId) {
+		return getInstance().getChannelBroker(brokerId);
 	}
 
 	public static void setReceiver(final Object brokerId, final IMessageReceiver receiver) {
@@ -166,15 +184,15 @@ public final class MessageToolkit {
 		}
 	}
 
-	private static Map<Object, IMessageChannel> getChannels() {
-		final Map<Object, IMessageChannel> result = new ConcurrentHashMap<Object, IMessageChannel>();
+	private static Map<Object, IMessageChannelBroker> getChannels() {
+		final Map<Object, IMessageChannelBroker> result = new ConcurrentHashMap<Object, IMessageChannelBroker>();
 		final ServiceLoader<IMessageChannelBroker> widgetServiceLoader = ServiceLoader.load(
 				IMessageChannelBroker.class,
 				SharedClassLoader.getCompositeClassLoader());
 		final Iterator<IMessageChannelBroker> iterator = widgetServiceLoader.iterator();
 		while (iterator.hasNext()) {
 			final IMessageChannelBroker messageChannelBroker = iterator.next();
-			result.put(messageChannelBroker.getBrokerId(), messageChannelBroker.getChannel());
+			result.put(messageChannelBroker.getBrokerId(), messageChannelBroker);
 		}
 		return result;
 	}
@@ -207,11 +225,22 @@ public final class MessageToolkit {
 	private static class MessageToolkitImpl implements IMessageToolkit {
 
 		@Override
-		public IMessageChannel getChannel(final Object brokerId) {
+		public IMessageChannelBroker getChannelBroker(final Object brokerId) {
 			if (brokerId == null) {
 				throw new IllegalArgumentException("Parameter 'brokerId' must not be null");
 			}
 			return messageChannelBrokers.get(brokerId);
+		}
+
+		@Override
+		public IMessageChannel getChannel(final Object brokerId) {
+			final IMessageChannelBroker channelBroker = getChannelBroker(brokerId);
+			if (channelBroker != null) {
+				return channelBroker.getChannel();
+			}
+			else {
+				return null;
+			}
 		}
 
 		@Override
@@ -227,9 +256,8 @@ public final class MessageToolkit {
 				messageBrokerServer.setReceiver(receiver);
 			}
 			else {
-				throw new IllegalArgumentException("No broker server found for parameter 'brokerId' with value '"
-					+ brokerId
-					+ "'");
+				throw new IllegalArgumentException(
+					"No broker server found for parameter 'brokerId' with value '" + brokerId + "'");
 			}
 		}
 

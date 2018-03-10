@@ -96,7 +96,12 @@ public final class MessageBrokerBuilder {
 	}
 
 	public IMessageChannelBroker buildChannel() {
-		return new MessageChannelBroker(brokerId, new Peer(host, port), new Peer(receiverHost, receiverPort), sendExecutor);
+		return new MessageChannelBroker(
+			brokerId,
+			new Peer(host, port),
+			new Peer(receiverHost, receiverPort),
+			sendExecutor,
+			new MessageReceiverBroker(brokerId, new Peer(host, port), sendExecutor, receiveExecutor));
 	}
 
 	public synchronized IMessageReceiverBroker buildReceiver() {

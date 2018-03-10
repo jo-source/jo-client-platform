@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, H.Westphal
+ * Copyright (c) 2018, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -28,76 +28,102 @@
 
 package org.jowidgets.message.impl.http.server;
 
-import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
-import javax.servlet.http.HttpSession;
-
-import org.jowidgets.message.api.IExceptionCallback;
 import org.jowidgets.message.api.IMessageChannel;
 import org.jowidgets.message.api.IMessageReceiver;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.ISystemTimeProvider;
 
-final class Connection implements IMessageChannel {
+final class MessageExecution {
 
-	private final HttpSession session;
-	private final MessageExecutionsWatchdog watchdog;
-	private final IMessageReceiver receiver;
-	private final ExecutorService executor;
-
-	private final BlockingQueue<Object> queue;
+	private final MessageHandler messageHandler;
+	private final AtomicReference<Long> canceledTimeMillis;
+	private final AtomicBoolean canceled;
 	private final ISystemTimeProvider systemTimeProvider;
+	private final long creationTimeMillis;
 
-	Connection(
-		final IMessageReceiver receiver,
+	private final Future<?> submitionResult;
+
+	MessageExecution(
+		final Object message,
+		final List<IExecutionInterceptor<Object>> interceptors,
 		final ExecutorService executor,
-		final HttpSession session,
-		final MessageExecutionsWatchdog watchdog,
+		final IMessageReceiver receiver,
+		final IMessageChannel replyChannel,
 		final ISystemTimeProvider systemTimeProvider) {
 
-		Assert.paramNotNull(receiver, "receiver");
+		Assert.paramNotNull(interceptors, "interceptors");
 		Assert.paramNotNull(executor, "executor");
-		Assert.paramNotNull(session, "session");
-		Assert.paramNotNull(watchdog, "watchdog");
+		Assert.paramNotNull(receiver, "receiver");
+		Assert.paramNotNull(replyChannel, "replyChannel");
 		Assert.paramNotNull(systemTimeProvider, "systemTimeProvider");
 
-		this.receiver = receiver;
-		this.executor = executor;
-		this.session = session;
-		this.watchdog = watchdog;
+		this.canceledTimeMillis = new AtomicReference<Long>();
+		this.canceled = new AtomicBoolean(false);
+		this.messageHandler = new MessageHandler(
+			message,
+			interceptors,
+			receiver,
+			replyChannel,
+			systemTimeProvider,
+			canceledTimeMillis);
 
-		this.queue = new LinkedBlockingQueue<Object>();
 		this.systemTimeProvider = systemTimeProvider;
+		this.creationTimeMillis = systemTimeProvider.currentTimeMillis();
+
+		this.submitionResult = executor.submit(messageHandler);
 	}
 
-	void onMessage(final Object message, final List<IExecutionInterceptor<Object>> interceptors) {
-		watchdog.addExecution(session, new MessageExecution(message, interceptors, executor, receiver, this, systemTimeProvider));
-	}
-
-	List<Object> pollMessages(final long pollInterval) {
-		final List<Object> msgs = new LinkedList<Object>();
-		if (queue.drainTo(msgs) == 0) {
+	synchronized void cancel() {
+		if (canceledTimeMillis.compareAndSet(null, systemTimeProvider.currentTimeMillis())) {
 			try {
-				final Object msg = queue.poll(pollInterval, TimeUnit.MILLISECONDS);
-				if (msg != null) {
-					msgs.add(msg);
-				}
+				submitionResult.cancel(true);
 			}
-			catch (final InterruptedException e) {
-				Thread.currentThread().interrupt();
+			finally {
+				canceled.set(true);
 			}
 		}
-		return msgs;
 	}
 
-	@Override
-	public void send(final Object message, final IExceptionCallback exceptionCallback) {
-		queue.add(message);
+	long getCreationTimeMillis() {
+		return creationTimeMillis;
+	}
+
+	Object getMessage() {
+		return messageHandler.getMessage();
+	}
+
+	Long getHandlerStartTimeMillis() {
+		return messageHandler.getStartTimeMillis();
+	}
+
+	boolean isHandlerStarted() {
+		return messageHandler.isStarted();
+	}
+
+	boolean isHandlerTerminated() {
+		return messageHandler.isTerminated();
+	}
+
+	Long getHandlerRuntimeMillis() {
+		return messageHandler.getRuntimeMillis();
+	}
+
+	boolean isHandlerRunning() {
+		return messageHandler.isRunning();
+	}
+
+	Long getCanceledTimeMillis() {
+		return canceledTimeMillis.get();
+	}
+
+	boolean isCanceled() {
+		return canceled.get();
 	}
 
 }

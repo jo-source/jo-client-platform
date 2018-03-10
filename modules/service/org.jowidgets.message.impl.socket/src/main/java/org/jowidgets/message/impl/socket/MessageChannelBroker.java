@@ -32,18 +32,28 @@ import java.util.concurrent.Executor;
 
 import org.jowidgets.message.api.IMessageChannel;
 import org.jowidgets.message.api.IMessageChannelBroker;
+import org.jowidgets.message.api.IMessageReceiver;
+import org.jowidgets.message.api.IMessageReceiverBroker;
 import org.jowidgets.util.Assert;
 
 final class MessageChannelBroker implements IMessageChannelBroker {
 
 	private final Object brokerId;
 	private final IMessageChannel messageProducer;
+	private final IMessageReceiverBroker messageReceiverBroker;
 
-	MessageChannelBroker(final Object brokerId, final Peer peer, final Peer receiverPeer, final Executor executor) {
+	MessageChannelBroker(
+		final Object brokerId,
+		final Peer peer,
+		final Peer receiverPeer,
+		final Executor executor,
+		final IMessageReceiverBroker messageReceiverBroker) {
 		Assert.paramNotNull(brokerId, "brokerId");
 		Assert.paramNotNull(executor, "executor");
+		Assert.paramNotNull(messageReceiverBroker, "messageReceiverBroker");
 		this.brokerId = brokerId;
 		this.messageProducer = new MessageChannel(peer, receiverPeer, executor);
+		this.messageReceiverBroker = messageReceiverBroker;
 	}
 
 	@Override
@@ -54,6 +64,11 @@ final class MessageChannelBroker implements IMessageChannelBroker {
 	@Override
 	public IMessageChannel getChannel() {
 		return messageProducer;
+	}
+
+	@Override
+	public void setReceiver(final IMessageReceiver receiver) {
+		messageReceiverBroker.setReceiver(receiver);
 	}
 
 }

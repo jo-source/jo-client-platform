@@ -30,10 +30,12 @@ package org.jowidgets.message.impl.http.server;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.Executor;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -45,25 +47,83 @@ import org.jowidgets.message.api.IMessageReceiver;
 import org.jowidgets.message.api.IMessageReceiverBroker;
 import org.jowidgets.message.api.MessageToolkit;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.DefaultSystemTimeProvider;
+import org.jowidgets.util.ISystemTimeProvider;
 import org.jowidgets.util.concurrent.DaemonThreadFactory;
 
 public final class MessageServlet extends HttpServlet implements IMessageReceiverBroker {
 
+	static final String CONNECTION_ATTRIBUTE_NAME = MessageServlet.class.getName() + "#connection";
+
 	private static final long serialVersionUID = 1L;
-	private static final String CONNECTION_ATTRIBUTE_NAME = MessageServlet.class.getName() + "#connection";
+	private static final long DEFAULT_POLL_INTERVAL = 1000;
 
 	private final Object brokerId;
-	private final List<IExecutionInterceptor<Object>> executionInterceptors = new LinkedList<IExecutionInterceptor<Object>>();
+	private final ISystemTimeProvider systemTimeProvider;
+	private final MessageExecutionsWatchdog watchdog;
 
-	private long pollInterval = 10000;
-	private Executor executor = Executors.newFixedThreadPool(
-			Runtime.getRuntime().availableProcessors() * 10,
-			new DaemonThreadFactory("org.jowidgets.message.impl.http.server.MessageServlet.executor-"));
+	private final List<IExecutionInterceptor<Object>> executionInterceptors;
+
+	private long pollInterval;
+	private ExecutorService executor;
 	private volatile IMessageReceiver receiver;
 
 	public MessageServlet(final Object brokerId) {
-		super();
+		Assert.paramNotNull(brokerId, "brokerId");
 		this.brokerId = brokerId;
+
+		this.systemTimeProvider = DefaultSystemTimeProvider.getInstance();
+		this.executionInterceptors = new CopyOnWriteArrayList<IExecutionInterceptor<Object>>();
+		this.watchdog = new MessageExecutionsWatchdog();
+		final ScheduledExecutorService watchdogExecutor = Executors.newSingleThreadScheduledExecutor(
+				new DaemonThreadFactory("Watchdog"));
+		watchdogExecutor.scheduleAtFixedRate(new Runnable() {
+			@Override
+			public void run() {
+				watchdog.watchExecutions();
+			}
+		}, 0, 1000, TimeUnit.MILLISECONDS);
+		watchdog.addWatchdogListener(new IMessageExecutionWatchdogListener() {
+
+			@Override
+			public void onUnfinishedCancelExecutionWatch(
+				final Object message,
+				final long creationTimeMillis,
+				final long startTimeMillis,
+				final long cancelTimeMillis,
+				final long watchTimeMillis) {
+				System.out.println("UnfinishedCancel: " + ((watchTimeMillis - cancelTimeMillis) / 1000));
+			}
+
+			@Override
+			public void onRunningExecutionWatch(
+				final Object message,
+				final long creationTimeMillis,
+				final long startTimeMillis,
+				final long watchTimeMillis) {
+				if ((watchTimeMillis - startTimeMillis) > 10000) {
+					System.out.println("Running: " + ((watchTimeMillis - startTimeMillis) / 1000));
+				}
+			}
+
+			@Override
+			public void onPendingExecutionWatch(final Object message, final long creationTimeMillis, final long watchTimeMillis) {
+				if ((watchTimeMillis - creationTimeMillis) > 1000) {
+					System.out.println("Pending: " + ((watchTimeMillis - creationTimeMillis) / 1000));
+				}
+			}
+
+			@Override
+			public void onExecutionCancel(final Object message, final long cancelTimeMillis) {
+				System.out.println("Message canceled: " + message);
+			}
+		});
+
+		this.executor = Executors.newFixedThreadPool(
+				4,
+				new DaemonThreadFactory("org.jowidgets.message.impl.http.server.MessageServlet.executor-"));
+
+		this.pollInterval = DEFAULT_POLL_INTERVAL;
 	}
 
 	@Override
@@ -75,7 +135,7 @@ public final class MessageServlet extends HttpServlet implements IMessageReceive
 		this.pollInterval = pollInterval;
 	}
 
-	public void setExecutor(final Executor executor) {
+	public void setExecutor(final ExecutorService executor) {
 		Assert.paramNotNull(executor, "executor");
 		this.executor = executor;
 	}
@@ -98,6 +158,7 @@ public final class MessageServlet extends HttpServlet implements IMessageReceive
 		final HttpSession session = req.getSession();
 		if (session.isNew()) {
 			// return immediately to send new session id to client
+			System.out.println("New session");
 			oos.writeInt(0);
 		}
 		else {
@@ -142,9 +203,11 @@ public final class MessageServlet extends HttpServlet implements IMessageReceive
 
 	private Connection getConnection(final HttpSession session) {
 		synchronized (session) {
+			//System.out.println("Session access: " + new Date(session.getLastAccessedTime()) + " " + session);
 			Connection conn = (Connection) session.getAttribute(CONNECTION_ATTRIBUTE_NAME);
 			if (conn == null) {
-				conn = new Connection(receiver, executor);
+				System.out.println("new connection");
+				conn = new Connection(receiver, executor, session, watchdog, systemTimeProvider);
 				session.setAttribute(CONNECTION_ATTRIBUTE_NAME, conn);
 			}
 			return conn;
