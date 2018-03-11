@@ -296,6 +296,7 @@ Features:
 Bugfixes:
 
 * Fixes issue #74  https://github.com/jo-source/jo-client-platform/issues/74 Can not open example applications inside eclispe with snapshot dependcies to test toolkit
+* Fixes issue #78  https://github.com/jo-source/jo-client-platform/issues/78 Can't find Großmutter or other values with umlauts
 
 
 ----------------------------------------------------------------------------------------------------------------------------

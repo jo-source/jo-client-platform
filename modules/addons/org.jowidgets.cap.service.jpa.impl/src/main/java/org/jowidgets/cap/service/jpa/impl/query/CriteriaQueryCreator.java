@@ -221,7 +221,8 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 		if (filter instanceof IPropertyFilter) {
 			final IPropertyFilter propertyFilter = (IPropertyFilter) filter;
 			final String propertyName = propertyFilter.getPropertyName();
-			final IPropertyFilterPredicateCreator<PARAM_TYPE> predicateCreator = propertyFilterPredicateCreators.get(propertyName);
+			final IPropertyFilterPredicateCreator<PARAM_TYPE> predicateCreator = propertyFilterPredicateCreators.get(
+					propertyName);
 			if (predicateCreator != null) {
 				return predicateCreator.createPredicate(criteriaBuilder, bean, query, propertyFilter, parameter);
 			}
@@ -241,7 +242,8 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 		}
 		else if (filter instanceof ICustomFilter) {
 			final ICustomFilter customFilter = (ICustomFilter) filter;
-			final ICustomFilterPredicateCreator<PARAM_TYPE> customFilterPredicateCreator = getCustomFilterPredicateCreator(customFilter);
+			final ICustomFilterPredicateCreator<PARAM_TYPE> customFilterPredicateCreator = getCustomFilterPredicateCreator(
+					customFilter);
 			if (customFilterPredicateCreator != null) {
 				final Predicate predicate;
 				predicate = customFilterPredicateCreator.createPredicate(
@@ -600,7 +602,6 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 			String paramString = (String) parameter;
 			if (caseInsensitive) {
 				expr = criteriaBuilder.upper((Expression<String>) expr);
-				paramString = paramString.toUpperCase();
 			}
 			if (paramString.contains("*") || paramString.contains("%")) {
 				paramString = paramString.replace('*', '%');
@@ -608,10 +609,10 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 					return criteriaBuilder.or(
 							expr.isNull(),
 							criteriaBuilder.equal(path, ""),
-							criteriaBuilder.notLike((Expression<String>) expr, paramString));
+							criteriaBuilder.notLike((Expression<String>) expr, toExpression(paramString, criteriaBuilder)));
 				}
 				else {
-					return criteriaBuilder.like((Expression<String>) expr, paramString);
+					return criteriaBuilder.like((Expression<String>) expr, toExpression(paramString, criteriaBuilder));
 				}
 			}
 			else {
@@ -619,10 +620,10 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 					return criteriaBuilder.or(
 							expr.isNull(),
 							criteriaBuilder.equal(path, ""),
-							criteriaBuilder.notEqual(expr, paramString));
+							criteriaBuilder.notEqual(expr, toExpression(paramString, criteriaBuilder)));
 				}
 				else {
-					return criteriaBuilder.equal(expr, paramString);
+					return criteriaBuilder.equal(expr, toExpression(paramString, criteriaBuilder));
 				}
 			}
 		}
@@ -631,6 +632,15 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 		}
 		else {
 			return criteriaBuilder.equal(path, parameter);
+		}
+	}
+
+	private Expression<String> toExpression(final String tanga, final CriteriaBuilder criteriaBuilder) {
+		if (caseInsensitive) {
+			return criteriaBuilder.upper(criteriaBuilder.literal(tanga));
+		}
+		else {
+			return (criteriaBuilder.literal(tanga));
 		}
 	}
 
@@ -645,7 +655,7 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 		if (path.getJavaType() == String.class) {
 			boolean havePlaceholder = false;
 			final Predicate[] predicates = new Predicate[filter.getParameters().length];
-			final Collection<String> newParams = new HashSet<String>();
+			final Collection<Expression<String>> newParams = new HashSet<Expression<String>>();
 			int index = 0;
 			for (Object param : filter.getParameters()) {
 				param = getConvertedParameter(param, converter);
@@ -654,12 +664,7 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 					if (paramString.contains("*") || paramString.contains("%")) {
 						havePlaceholder = true;
 					}
-					if (caseInsensitive) {
-						newParams.add(paramString.toUpperCase());
-					}
-					else {
-						newParams.add(paramString);
-					}
+					newParams.add(toExpression(paramString, criteriaBuilder));
 					predicates[index] = createEqualPredicate(criteriaBuilder, filter, path, false, param);
 				}
 				else {
@@ -671,11 +676,16 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 				return invertPredicateIfNeeded(criteriaBuilder, criteriaBuilder.or(predicates), filter, doFilterInversion);
 			}
 			else if (caseInsensitive) {
-				final Predicate predicate = criteriaBuilder.upper((Expression<String>) path).in(newParams);
+				final Predicate predicate = criteriaBuilder.upper((Expression<String>) path).in(
+						newParams.toArray(new Expression[newParams.size()]));
 				return invertPredicateIfNeeded(criteriaBuilder, predicate, filter, doFilterInversion);
 			}
 			else {
-				return invertPredicateIfNeeded(criteriaBuilder, path.in(newParams), filter, doFilterInversion);
+				return invertPredicateIfNeeded(
+						criteriaBuilder,
+						path.in(newParams.toArray(new Expression[newParams.size()])),
+						filter,
+						doFilterInversion);
 			}
 		}
 		else {
@@ -693,21 +703,17 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 		final boolean doFilterInversion) {
 
 		final Collection<?> params = Arrays.asList(getParameters(filter, converter));
-		final Collection<Object> newParams = new HashSet<Object>();
+		final Collection<Expression<String>> newParams = new HashSet<Expression<String>>();
 		final boolean toUpper = caseInsensitive && path.getJavaType() == String.class;
 		for (final Object p : params) {
 			if (p != null) {
-				if (toUpper) {
-					newParams.add(p.toString().toUpperCase());
-				}
-				else {
-					newParams.add(p);
-				}
+				newParams.add(toExpression(p.toString(), criteriaBuilder));
 			}
 		}
 		final Subquery<Long> subquery = query.subquery(Long.class);
 		subquery.select(criteriaBuilder.count(criteriaBuilder.literal(1))).where(
-				(toUpper ? criteriaBuilder.upper((Expression<String>) path) : path).in(newParams));
+				(toUpper ? criteriaBuilder.upper((Expression<String>) path) : path).in(
+						newParams.toArray(new Expression[newParams.size()])));
 
 		final Predicate result = criteriaBuilder.ge(subquery, newParams.size());
 
@@ -852,7 +858,8 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 			}
 			catch (final IllegalArgumentException illegalArgumentException) {
 				if (IPropertyMap.class.isAssignableFrom(bean.getJavaType())) {
-					final PropertyMapQueryPath propertyMapQueryPath = bean.getJavaType().getAnnotation(PropertyMapQueryPath.class);
+					final PropertyMapQueryPath propertyMapQueryPath = bean.getJavaType().getAnnotation(
+							PropertyMapQueryPath.class);
 					if (propertyMapQueryPath != null) {
 						return true;
 					}
@@ -913,9 +920,11 @@ final class CriteriaQueryCreator<PARAM_TYPE> implements IQueryCreator<PARAM_TYPE
 		final Class<ANNOTATION_TYPE> annotation) {
 		final Class<?> beanClass = root.getJavaType();
 		try {
-			final PropertyDescriptor descriptor = new PropertyDescriptor(propertyName, beanClass, "is"
-				+ propertyName.substring(0, 1).toUpperCase(Locale.ENGLISH)
-				+ propertyName.substring(1), null);
+			final PropertyDescriptor descriptor = new PropertyDescriptor(
+				propertyName,
+				beanClass,
+				"is" + propertyName.substring(0, 1).toUpperCase(Locale.ENGLISH) + propertyName.substring(1),
+				null);
 			final Method readMethod = descriptor.getReadMethod();
 			return readMethod.getAnnotation(annotation);
 		}
