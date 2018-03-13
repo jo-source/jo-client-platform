@@ -2,7 +2,7 @@
 <feature
     id="org.jowidgets.cap.service.repository.feature"
     label="jo-client-platform repository service feature"
-    version="0.65.1">
+    version="0.65.2.qualifier">
 
 	<description url="http://www.example.com/description">
 		Feature that holds all jpa repository service bundles
