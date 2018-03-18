@@ -72,7 +72,7 @@ final class MessageBroker implements IMessageBroker, IMessageChannel {
 	private final BlockingQueue<DeferredMessage> outQueue = new LinkedBlockingQueue<DeferredMessage>();
 	private final Executor incomingExecutor = Executors.newFixedThreadPool(
 			Runtime.getRuntime().availableProcessors() * 2,
-			new DaemonThreadFactory());
+			new DaemonThreadFactory(MessageBroker.class.getName() + "-incommingMessageExecutor-"));
 	private final CountDownLatch sessionInitialized = new CountDownLatch(1);
 
 	private IHttpRequestInitializer httpRequestInitializer;
@@ -122,7 +122,7 @@ final class MessageBroker implements IMessageBroker, IMessageChannel {
 			public void run() {
 				sendMessages();
 			}
-		});
+		}, MessageBroker.class.getName() + "-messageSender");
 		thread.setDaemon(true);
 		return thread;
 	}
@@ -193,7 +193,7 @@ final class MessageBroker implements IMessageBroker, IMessageChannel {
 			public void run() {
 				receiveMessages();
 			}
-		});
+		}, MessageBroker.class.getName() + "-messageReceiver");
 		thread.setDaemon(true);
 		return thread;
 	}
