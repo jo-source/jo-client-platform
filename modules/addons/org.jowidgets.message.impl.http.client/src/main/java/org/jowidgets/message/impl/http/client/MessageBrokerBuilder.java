@@ -27,22 +27,31 @@
  */
 package org.jowidgets.message.impl.http.client;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.concurrent.DaemonThreadFactory;
 
 public final class MessageBrokerBuilder {
+
+	private static final long DEFAULT_SLEEP_DURATION_AFTER_IO_EXCEPTION = 10000;
 
 	private final Object brokerId;
 
 	private String url;
 	private HttpClient httpClient;
 	private IHttpRequestInitializer httpRequestInitializer;
+	private ExecutorService executorService;
+	private long sleepDurationAfterIoException;
 
 	public MessageBrokerBuilder(final Object brokerId) {
 		Assert.paramNotNull(brokerId, "brokerId");
 		this.brokerId = brokerId;
+		this.sleepDurationAfterIoException = DEFAULT_SLEEP_DURATION_AFTER_IO_EXCEPTION;
 	}
 
 	public MessageBrokerBuilder setUrl(final String url) {
@@ -63,14 +72,48 @@ public final class MessageBrokerBuilder {
 		return this;
 	}
 
+	public MessageBrokerBuilder setIncommingMessageExecutor(final ExecutorService executorService) {
+		Assert.paramNotNull(executorService, "executorService");
+		this.executorService = executorService;
+		return this;
+	}
+
+	public MessageBrokerBuilder setSleepDurationMillisAfterIoException(final long sleepDurationAfterIoException) {
+		this.sleepDurationAfterIoException = sleepDurationAfterIoException;
+		return this;
+	}
+
+	private HttpClient getOrCreateHttpClient() {
+		if (httpClient != null) {
+			return httpClient;
+		}
+		else {
+			return new DefaultHttpClient(new ThreadSafeClientConnManager());
+		}
+	}
+
+	private ExecutorService getOrCreateExecutorService() {
+		if (executorService != null) {
+			return executorService;
+		}
+		else {
+			return Executors.newFixedThreadPool(
+					Runtime.getRuntime().availableProcessors() * 2,
+					new DaemonThreadFactory(MessageBroker.class.getName() + "-incommingMessageExecutor-"));
+		}
+	}
+
 	public IMessageBroker build() {
 		if (url == null) {
 			throw new IllegalStateException("url must be set");
 		}
-		final MessageBroker broker = new MessageBroker(brokerId, url, httpClient == null ? new DefaultHttpClient(
-			new ThreadSafeClientConnManager()) : httpClient);
-		broker.setHttpRequestInitializer(httpRequestInitializer);
-		return broker;
+		return new MessageBroker(
+			brokerId,
+			url,
+			getOrCreateHttpClient(),
+			getOrCreateExecutorService(),
+			httpRequestInitializer,
+			sleepDurationAfterIoException);
 	}
 
 }

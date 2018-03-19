@@ -35,56 +35,111 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.util.EntityUtils;
 import org.jowidgets.classloading.tools.SharedClassLoadingObjectInputStream;
 import org.jowidgets.message.api.IExceptionCallback;
 import org.jowidgets.message.api.IMessageChannel;
 import org.jowidgets.message.api.IMessageReceiver;
 import org.jowidgets.message.api.MessageToolkit;
-import org.jowidgets.util.concurrent.DaemonThreadFactory;
+import org.jowidgets.util.Assert;
 import org.jowidgets.util.io.IoUtils;
 
 final class MessageBroker implements IMessageBroker, IMessageChannel {
 
-	private static final class DeferredMessage {
-		private final Object message;
-		private final IExceptionCallback exceptionCallback;
-
-		private DeferredMessage(final Object message, final IExceptionCallback exceptionCallback) {
-			this.message = message;
-			this.exceptionCallback = exceptionCallback;
-		}
-	}
-
 	private final Object brokerId;
 	private final String url;
+	private final IHttpRequestInitializer httpRequestInitializer;
 	private final HttpClient httpClient;
-	private final BlockingQueue<DeferredMessage> outQueue = new LinkedBlockingQueue<DeferredMessage>();
-	private final Executor incomingExecutor = Executors.newFixedThreadPool(
-			Runtime.getRuntime().availableProcessors() * 2,
-			new DaemonThreadFactory(MessageBroker.class.getName() + "-incommingMessageExecutor-"));
-	private final CountDownLatch sessionInitialized = new CountDownLatch(1);
+	private final ExecutorService incommingMessageExecutor;
+	private final long sleepDurationAfterIoException;
 
-	private IHttpRequestInitializer httpRequestInitializer;
+	private final BlockingQueue<DeferredMessage> messageQueue;
+	private final CountDownLatch sessionInitialized;
+	private final Thread senderThread;
+	private final Thread receiverThread;
 
 	private volatile IMessageReceiver receiver;
 
-	MessageBroker(final Object brokerId, final String url, final HttpClient httpClient) {
+	MessageBroker(
+		final Object brokerId,
+		final String url,
+		final HttpClient httpClient,
+		final ExecutorService incommingMessageExecutor,
+		final IHttpRequestInitializer httpRequestInitializer,
+		final long sleepDurationAfterIoException) {
+
+		Assert.paramNotNull(brokerId, "brokerId");
+		Assert.paramNotNull(url, "url");
+		Assert.paramNotNull(httpClient, "httpClient");
+		Assert.paramNotNull(incommingMessageExecutor, "incommingMessageExecutor");
+
 		this.brokerId = brokerId;
 		this.url = url;
 		this.httpClient = httpClient;
-		createSenderThread().start();
-		createReceiverThread().start();
+		this.incommingMessageExecutor = incommingMessageExecutor;
+		this.httpRequestInitializer = httpRequestInitializer;
+		this.sleepDurationAfterIoException = sleepDurationAfterIoException;
+
+		this.messageQueue = new LinkedBlockingQueue<DeferredMessage>();
+		this.sessionInitialized = new CountDownLatch(1);
+		this.senderThread = createSenderThread();
+		this.receiverThread = createReceiverThread();
+
+		senderThread.start();
+		receiverThread.start();
+	}
+
+	private Thread createSenderThread() {
+		final Thread result = new Thread(new MessageSenderLoop(), MessageBroker.class.getName() + "-messageSender");
+		result.setDaemon(true);
+		return result;
+	}
+
+	private Thread createReceiverThread() {
+		final Thread result = new Thread(new MessageReceiverLoop(), MessageBroker.class.getName() + "-messageReceiver");
+		result.setDaemon(true);
+		return result;
+	}
+
+	@Override
+	public boolean shutdown(final long timeout) throws InterruptedException {
+		final long startTime = System.currentTimeMillis();
+
+		if (senderThread.isAlive()) {
+			senderThread.interrupt();
+		}
+
+		if (receiverThread.isAlive()) {
+			receiverThread.interrupt();
+		}
+
+		senderThread.join(timeout);
+
+		if (timeout == 0) {
+			receiverThread.join(timeout);
+		}
+		else {
+			final long elapsedTime = System.currentTimeMillis() - startTime;
+			final long residualTimeout = timeout - elapsedTime;
+			if (residualTimeout > 0) {
+				receiverThread.join(residualTimeout);
+			}
+		}
+
+		httpClient.getConnectionManager().shutdown();
+
+		return !senderThread.isAlive() && !receiverThread.isAlive();
 	}
 
 	@Override
@@ -107,149 +162,218 @@ final class MessageBroker implements IMessageBroker, IMessageChannel {
 		this.receiver = receiver;
 	}
 
-	public void setHttpRequestInitializer(final IHttpRequestInitializer httpRequestInitializer) {
-		this.httpRequestInitializer = httpRequestInitializer;
-	}
-
 	@Override
 	public void send(final Object message, final IExceptionCallback exceptionCallback) {
-		outQueue.add(new DeferredMessage(message, exceptionCallback));
+		messageQueue.add(new DeferredMessage(message, exceptionCallback));
 	}
 
-	private Thread createSenderThread() {
-		final Thread thread = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				sendMessages();
-			}
-		}, MessageBroker.class.getName() + "-messageSender");
-		thread.setDaemon(true);
-		return thread;
-	}
-
-	private void sendMessages() {
-		try {
-			sessionInitialized.await();
-			for (;;) {
-				final DeferredMessage msg = outQueue.take();
-				try {
-					final HttpPost request = new HttpPost(url);
-					if (httpRequestInitializer != null) {
-						httpRequestInitializer.initialize(request);
-					}
-					final byte[] data = createMessageData(msg.message);
-					request.setEntity(new ByteArrayEntity(data));
-					try {
-						final HttpResponse response = httpClient.execute(request);
-						try {
-							final StatusLine statusLine = response.getStatusLine();
-							if (statusLine.getStatusCode() != 200) {
-								throw new IOException("Invalid HTTP response: " + statusLine);
-							}
-						}
-						finally {
-							final HttpEntity entity = response.getEntity();
-							if (entity != null) {
-								entity.getContent().close();
-							}
-						}
-					}
-					catch (final IOException e) {
-						if (msg.exceptionCallback != null) {
-							msg.exceptionCallback.exception(e);
-						}
-						else {
-							MessageToolkit.handleExceptions(brokerId, e);
-						}
-						// sleep more, because of network problems
-						Thread.sleep(10000);
-					}
-				}
-				catch (final Throwable t) {
-					if (msg.exceptionCallback != null) {
-						msg.exceptionCallback.exception(t);
-					}
-					else {
-						MessageToolkit.handleExceptions(brokerId, t);
-					}
-					Thread.sleep(10);
-				}
-			}
-		}
-		catch (final InterruptedException e) {
-			Thread.currentThread().interrupt();
+	private void initializeHttpRequest(final HttpRequest request) {
+		if (httpRequestInitializer != null) {
+			httpRequestInitializer.initialize(request);
 		}
 	}
 
-	private byte[] createMessageData(final Object data) throws IOException {
-		final ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		new ObjectOutputStream(bos).writeObject(data);
-		return bos.toByteArray();
+	private void checkStatusLine(final HttpResponse response) throws IOException {
+		final StatusLine statusLine = response.getStatusLine();
+		if (statusLine.getStatusCode() != 200) {
+			throw new IOException("Invalid HTTP response: " + statusLine);
+		}
 	}
 
-	private Thread createReceiverThread() {
-		final Thread thread = new Thread(new Runnable() {
-			@Override
-			public void run() {
+	private static final class DeferredMessage {
+
+		private final Object message;
+		private final IExceptionCallback exceptionCallback;
+
+		DeferredMessage(final Object message, final IExceptionCallback exceptionCallback) {
+			this.message = message;
+			this.exceptionCallback = exceptionCallback;
+		}
+
+		Object getMessage() {
+			return message;
+		}
+
+		IExceptionCallback getExceptionCallback() {
+			return exceptionCallback;
+		}
+
+	}
+
+	private class MessageSenderLoop implements Runnable {
+
+		@Override
+		public void run() {
+			try {
+				sessionInitialized.await();
+				while (!Thread.interrupted()) {
+					trySendMessage();
+				}
+			}
+			catch (final InterruptedException e) {
+				Thread.currentThread().interrupt();
+			}
+		}
+
+		private void trySendMessage() throws InterruptedException {
+			final DeferredMessage message = messageQueue.take();
+			try {
+				sendMessage(message);
+			}
+			catch (final IOException e) {
+				handleException(e, message.getExceptionCallback());
+				// sleep more, because of network problems
+				Thread.sleep(sleepDurationAfterIoException);
+			}
+			catch (final InterruptedException e) {
+				Thread.currentThread().interrupt();
+				throw new InterruptedException("Send message was interrupted.");
+			}
+			catch (final Throwable t) {
+				handleException(t, message.getExceptionCallback());
+			}
+		}
+
+		private void sendMessage(final DeferredMessage message) throws IOException, InterruptedException {
+			HttpPost request = null;
+			HttpResponse response = null;
+			try {
+				request = createHttpRequest(message);
+				response = httpClient.execute(request);
+				checkStatusLine(response);
+			}
+			catch (final RuntimeException e) {
+				if (request != null) {
+					request.abort();
+				}
+				throw e;
+			}
+			finally {
+				if (response != null) {
+					EntityUtils.consume(response.getEntity());
+				}
+			}
+		}
+
+		private HttpPost createHttpRequest(final DeferredMessage message) throws IOException {
+			final HttpPost result = new HttpPost(url);
+			initializeHttpRequest(result);
+			result.setEntity(createMessageEntity(message.getMessage()));
+			return result;
+		}
+
+		private ByteArrayEntity createMessageEntity(final Object message) throws IOException {
+			final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+			new ObjectOutputStream(byteArrayOutputStream).writeObject(message);
+			return new ByteArrayEntity(byteArrayOutputStream.toByteArray());
+		}
+
+		private void handleException(final Throwable throwable, final IExceptionCallback exceptionCallback) {
+			if (exceptionCallback != null) {
+				exceptionCallback.exception(throwable);
+			}
+			else {
+				MessageToolkit.handleExceptions(brokerId, throwable);
+			}
+		}
+	}
+
+	private class MessageReceiverLoop implements Runnable {
+
+		@Override
+		public void run() {
+			try {
+				while (!Thread.interrupted()) {
+					tryReceiveMessages();
+				}
+			}
+			catch (final InterruptedException e) {
+				Thread.currentThread().interrupt();
+			}
+		}
+
+		private void tryReceiveMessages() throws InterruptedException {
+			try {
 				receiveMessages();
 			}
-		}, MessageBroker.class.getName() + "-messageReceiver");
-		thread.setDaemon(true);
-		return thread;
-	}
+			catch (final IOException e) {
+				MessageToolkit.handleExceptions(brokerId, e);
+				// sleep more, because of network problems
+				Thread.sleep(sleepDurationAfterIoException);
+			}
+			catch (final InterruptedException e) {
+				Thread.currentThread().interrupt();
+				throw new InterruptedException("Receive messages was interrupted.");
+			}
+			catch (final Throwable t) {
+				MessageToolkit.handleExceptions(brokerId, t);
+			}
+		}
 
-	private void receiveMessages() {
-		try {
-			for (;;) {
-				try {
-					final HttpGet request = new HttpGet(url);
-					if (httpRequestInitializer != null) {
-						httpRequestInitializer.initialize(request);
-					}
-					final HttpResponse response = httpClient.execute(request);
-					final HttpEntity entity = response.getEntity();
-					if (entity != null) {
-						final InputStream is = entity.getContent();
-						final ObjectInputStream ois = new SharedClassLoadingObjectInputStream(is);
-						try {
-							final StatusLine statusLine = response.getStatusLine();
-							if (statusLine.getStatusCode() != 200) {
-								throw new IOException("Invalid HTTP response: " + statusLine);
-							}
-							sessionInitialized.countDown();
-							final int num = ois.readInt();
-							for (int i = 0; i < num; i++) {
-								try {
-									final Object msg = ois.readObject();
-									incomingExecutor.execute(new Runnable() {
-										@Override
-										public void run() {
-											if (receiver != null) {
-												receiver.onMessage(msg, MessageBroker.this);
-											}
-										}
-									});
-								}
-								catch (final ClassNotFoundException e) {
-									MessageToolkit.handleExceptions(brokerId, e);
-								}
-							}
-						}
-						finally {
-							IoUtils.tryCloseSilent(ois);
-							IoUtils.tryCloseSilent(is);
-						}
-					}
+		private void receiveMessages() throws IOException, InterruptedException {
+			HttpGet request = null;
+			HttpResponse response = null;
+			try {
+				request = createHttpRequest();
+				response = httpClient.execute(request);
+
+				checkStatusLine(response);
+				sessionInitialized.countDown();
+
+				final HttpEntity entity = response.getEntity();
+				if (entity != null && entity.isStreaming()) {
+					executeMessagesFromStream(entity.getContent());
 				}
-				catch (final IOException e) {
-					MessageToolkit.handleExceptions(brokerId, e);
-					Thread.sleep(10000);
+			}
+			catch (final RuntimeException e) {
+				if (request != null) {
+					request.abort();
+				}
+				throw e;
+			}
+			finally {
+				if (response != null) {
+					EntityUtils.consume(response.getEntity());
 				}
 			}
 		}
-		catch (final InterruptedException e) {
-			Thread.currentThread().interrupt();
+
+		private HttpGet createHttpRequest() {
+			final HttpGet result = new HttpGet(url);
+			initializeHttpRequest(result);
+			return result;
 		}
+
+		private void executeMessagesFromStream(final InputStream inputStream) throws IOException {
+			final ObjectInputStream objectInputStream = new SharedClassLoadingObjectInputStream(inputStream);
+			try {
+				final int objectCount = objectInputStream.readInt();
+				for (int i = 0; i < objectCount; i++) {
+					try {
+						executeMessage(objectInputStream.readObject());
+					}
+					catch (final ClassNotFoundException e) {
+						MessageToolkit.handleExceptions(brokerId, e);
+					}
+				}
+			}
+			finally {
+				IoUtils.tryCloseSilent(objectInputStream);
+			}
+		}
+
+		private void executeMessage(final Object message) {
+			incommingMessageExecutor.execute(new Runnable() {
+				@Override
+				public void run() {
+					final IMessageReceiver currentReceiver = receiver;
+					if (currentReceiver != null) {
+						currentReceiver.onMessage(message, MessageBroker.this);
+					}
+				}
+			});
+		}
+
 	}
 
 }
