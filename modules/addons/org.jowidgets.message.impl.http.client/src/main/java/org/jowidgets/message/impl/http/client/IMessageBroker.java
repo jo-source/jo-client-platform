@@ -34,6 +34,24 @@ import org.jowidgets.message.api.IMessageReceiverBroker;
 
 public interface IMessageBroker extends IMessageChannelBroker, IMessageReceiverBroker {
 
+	/**
+	 * Get's the used httpClient
+	 * 
+	 * @return The httpClient, never null
+	 */
 	HttpClient getHttpClient();
+
+	/**
+	 * Shutdown the message broker which interrupts the sender and receiver thread.
+	 * 
+	 * This method blocks until the shutdown was completed, the timeout expired or an {@link InterruptedException} occurs.
+	 * 
+	 * @param timeoutMillis The timeout to wait in millis, 0 means no timeout
+	 * 
+	 * @return If shutdown completed, false otherwise
+	 * 
+	 * @throws InterruptedException If the invoking thread was interrupted
+	 */
+	boolean shutdown(long timeoutMillis) throws InterruptedException;
 
 }
