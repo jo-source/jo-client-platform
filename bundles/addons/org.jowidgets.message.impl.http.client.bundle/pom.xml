@@ -37,7 +37,7 @@
 				<configuration>
 					<instructions>
 						<Embed-Dependency>org.jowidgets.message.impl.http.client;inline=true</Embed-Dependency>
-						<Require-Bundle>org.jowidgets.message.api.bundle,org.jowidgets.util.bundle,org.jowidgets.classloading.api.bundle</Require-Bundle>
+						<Require-Bundle>org.jowidgets.message.api.bundle,org.jowidgets.i18n.bundle,org.jowidgets.util.bundle,org.jowidgets.classloading.api.bundle</Require-Bundle>
 					</instructions>
 				</configuration>
 			</plugin>

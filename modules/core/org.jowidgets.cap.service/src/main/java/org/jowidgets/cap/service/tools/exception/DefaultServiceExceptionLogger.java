@@ -114,7 +114,17 @@ public class DefaultServiceExceptionLogger implements IServiceExceptionLogger {
 		if (serviceException instanceof AuthorizationFailedException) {
 			if (logger.isInfoEnabled()) {
 				final AuthorizationFailedException authorizationException = (AuthorizationFailedException) serviceException;
-				logger.info("Authorization failed for '" + authorizationException.getAuthorisation() + "'");
+				final String message = authorizationException.getMessage();
+				if (message != null) {
+					logger.info(message);
+				}
+				else if (authorizationException.getAuthorisation() != null) {
+					logger.info("Authorization failed for '" + authorizationException.getAuthorisation() + "'");
+				}
+				else {
+					logger.info("Authorization failed.");
+				}
+
 			}
 			return true;
 		}

@@ -45,6 +45,7 @@ import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.conn.HttpHostConnectException;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.util.EntityUtils;
 import org.jowidgets.classloading.tools.SharedClassLoadingObjectInputStream;
@@ -176,7 +177,7 @@ final class MessageBroker implements IMessageBroker, IMessageChannel {
 	private void checkStatusLine(final HttpResponse response) throws IOException {
 		final StatusLine statusLine = response.getStatusLine();
 		if (statusLine.getStatusCode() != 200) {
-			throw new IOException("Invalid HTTP response: " + statusLine);
+			throw new UnexpectedHttpStatusException(statusLine.getStatusCode(), statusLine.getReasonPhrase());
 		}
 	}
 
@@ -220,10 +221,8 @@ final class MessageBroker implements IMessageBroker, IMessageChannel {
 			try {
 				sendMessage(message);
 			}
-			catch (final IOException e) {
-				handleException(e, message.getExceptionCallback());
-				// sleep more, because of network problems
-				Thread.sleep(sleepDurationAfterIoException);
+			catch (final HttpHostConnectException e) {
+				handleException(new MessageServerConnectException(e), message.getExceptionCallback());
 			}
 			catch (final InterruptedException e) {
 				Thread.currentThread().interrupt();

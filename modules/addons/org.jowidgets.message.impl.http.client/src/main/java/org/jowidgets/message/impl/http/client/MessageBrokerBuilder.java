@@ -78,6 +78,13 @@ public final class MessageBrokerBuilder {
 		return this;
 	}
 
+	/**
+	 * Sets the duration the message receiver thread sleeps after an io exception occurred
+	 * 
+	 * @param sleepDurationAfterIoException The duration to set
+	 * 
+	 * @return This builder
+	 */
 	public MessageBrokerBuilder setSleepDurationMillisAfterIoException(final long sleepDurationAfterIoException) {
 		this.sleepDurationAfterIoException = sleepDurationAfterIoException;
 		return this;

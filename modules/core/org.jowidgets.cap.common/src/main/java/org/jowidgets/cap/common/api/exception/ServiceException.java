@@ -33,6 +33,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.exception.IUserCapableMessageException;
 
 /**
  * The base exception of all service exceptions.
@@ -43,7 +44,7 @@ import org.jowidgets.util.Assert;
  * To make the information of the cause available in the client layer, the stack trace will
  * be created from this exception and its cause when this exception will be created.
  */
-public class ServiceException extends RuntimeException {
+public class ServiceException extends RuntimeException implements IUserCapableMessageException {
 
 	private static final long serialVersionUID = -7579908469741974763L;
 
@@ -95,15 +96,7 @@ public class ServiceException extends RuntimeException {
 		stackTrace = stackTraceBuilder.toString();
 	}
 
-	/**
-	 * Gets the user message of the exception.
-	 * The user message is a message that could be presented to the end user.
-	 * User messages should normally not presume technical / programming background
-	 * of the user. Instead they should describe the problem (and possible solution)
-	 * in the with words of the domain the application is designed for.
-	 * 
-	 * @return The user message or null, if no user message was set
-	 */
+	@Override
 	public final String getUserMessage() {
 		return userMessage;
 	}

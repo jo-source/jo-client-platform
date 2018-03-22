@@ -57,6 +57,7 @@ import org.jowidgets.logging.api.ILogger;
 import org.jowidgets.logging.api.LoggerProvider;
 import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.util.StringUtils;
+import org.jowidgets.util.exception.IUserCapableMessageException;
 import org.jowidgets.validation.IValidationMessage;
 
 final class BeanExceptionConverterImpl implements IBeanExceptionConverter {
@@ -77,6 +78,8 @@ final class BeanExceptionConverterImpl implements IBeanExceptionConverter {
 	private static final IMessage UNIQUE_CONSTRAINT_PLURAL_PROP = Messages.getMessage(
 			"BeanExceptionConverterImpl.uniqueConstraintPluralProp");
 	private static final IMessage AUTHORIZATION_FAILED = Messages.getMessage("BeanExceptionConverterImpl.authorizationFailed");
+	private static final IMessage AUTHORIZATION_OF_FAILED = Messages.getMessage(
+			"BeanExceptionConverterImpl.authorizationOfFailed");
 	private static final IMessage UNDEFINED_RUNTIME_EXCEPTION = Messages.getMessage(
 			"BeanExceptionConverterImpl.undefinedRuntimeException");
 	private static final IMessage VALIDATION_OF_OTHER_DATASETS_FAILED = Messages.getMessage(
@@ -242,7 +245,18 @@ final class BeanExceptionConverterImpl implements IBeanExceptionConverter {
 	private IBeanMessage convertAuthorizationFailedException(
 		final String shortMessage,
 		final AuthorizationFailedException exception) {
-		return new BeanMessageImpl(BeanMessageType.ERROR, shortMessage, AUTHORIZATION_FAILED.get(), exception);
+		final String userMessage = exception.getUserMessage();
+		final Object authorisation = exception.getAuthorisation();
+		if (!EmptyCheck.isEmpty(userMessage)) {
+			return new BeanMessageImpl(BeanMessageType.ERROR, shortMessage, userMessage, exception);
+		}
+		else if (authorisation instanceof String) {
+			final String message = MessageReplacer.replace(AUTHORIZATION_OF_FAILED.get(), (String) authorisation);
+			return new BeanMessageImpl(BeanMessageType.ERROR, shortMessage, message, exception);
+		}
+		else {
+			return new BeanMessageImpl(BeanMessageType.ERROR, shortMessage, AUTHORIZATION_FAILED.get(), exception);
+		}
 	}
 
 	private IBeanMessage convertForeignKeyConstraintViolationException(final String shortMessage, final Throwable rootThrowable) {
@@ -282,8 +296,25 @@ final class BeanExceptionConverterImpl implements IBeanExceptionConverter {
 	}
 
 	private IBeanMessage convertUndefinedException(final String shortMessage, final Throwable throwable) {
-		LOGGER.error("Undefined service exception", throwable);
-		return new BeanMessageImpl(BeanMessageType.ERROR, shortMessage, UNDEFINED_RUNTIME_EXCEPTION.get(), throwable);
+		LOGGER.error("Undefined exception", throwable);
+		final IBeanMessage result = tryConvertUserCapableMessageException(shortMessage, throwable);
+		if (result != null) {
+			return result;
+		}
+		else {
+			return new BeanMessageImpl(BeanMessageType.ERROR, shortMessage, UNDEFINED_RUNTIME_EXCEPTION.get(), throwable);
+		}
+	}
+
+	private IBeanMessage tryConvertUserCapableMessageException(final String shortMessage, final Throwable throwable) {
+		if (throwable instanceof IUserCapableMessageException) {
+			final IUserCapableMessageException userCapableMessageException = (IUserCapableMessageException) throwable;
+			final String userMessage = userCapableMessageException.getUserMessage();
+			if (!EmptyCheck.isEmpty(userMessage)) {
+				return new BeanMessageImpl(BeanMessageType.ERROR, shortMessage, userMessage, throwable);
+			}
+		}
+		return null;
 	}
 
 	private Collection<String> getPropertyLabels(final IBeanProxy<?> destinationBean, final Collection<String> propertyNames) {

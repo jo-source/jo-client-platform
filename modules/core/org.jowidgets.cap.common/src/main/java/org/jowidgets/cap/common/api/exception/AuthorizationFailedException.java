@@ -28,17 +28,74 @@
 
 package org.jowidgets.cap.common.api.exception;
 
+/**
+ * Will be thrown of the user has no authorization to execute a service or if the authorization can not be
+ * determined, e.g. because a service or db that provides the authorization is not available.
+ */
 public class AuthorizationFailedException extends ServiceException {
 
 	private static final long serialVersionUID = -7579908469741974763L;
 
 	private final Object authorisation;
 
+	/**
+	 * Creates a new exception with given authorization
+	 * 
+	 * @param authorization The authorization that failed, may be null (e.g. in case of an unavailable authorization service)
+	 */
 	public AuthorizationFailedException(final Object authorization) {
-		super("User is not authorized for the authorization '" + authorization + "'");
+		this(
+			authorization,
+			authorization != null
+					? "User is not authorized for the authorization '" + authorization + "'" : "User is not authorized",
+			null,
+			null);
+	}
+
+	/**
+	 * Creates a new exception with given message and user message and no specific authorization
+	 * 
+	 * @param message The (technical) message of the exception
+	 * @param userMessage The (non technical, user domain specific) message that can be presented to the end user
+	 */
+	public AuthorizationFailedException(final String message, final String userMessage) {
+		this(null, message, userMessage, null);
+	}
+
+	/**
+	 * Creates a new exception with given message, user message and authorization
+	 * 
+	 * @param authorization The authorization that failed, may be null (e.g. in case of an unavailable authorization service)
+	 * @param message The (technical) message of the exception
+	 * @param userMessage The (non technical, user domain specific) message that can be presented to the end user
+	 */
+	public AuthorizationFailedException(final Object authorization, final String message, final String userMessage) {
+		this(authorization, message, userMessage, null);
+	}
+
+	/**
+	 * Creates a new exception with given message, user message,authorization and cause
+	 * 
+	 * @param authorization The authorization that failed, may be null (e.g. in case of an unavailable authorization service)
+	 * @param message The (technical) message of the exception
+	 * @param userMessage The (non technical, user domain specific) message that can be presented to the end user
+	 * @param cause The cause of the exception. Remark: The cause will not be returned with getCause(), instead the cause
+	 *            will be used to create a complete stack trace for this exception on creation time.
+	 */
+	public AuthorizationFailedException(
+		final Object authorization,
+		final String message,
+		final String userMessage,
+		final Throwable cause) {
+		super(message, userMessage, cause);
 		this.authorisation = authorization;
 	}
 
+	/**
+	 * Gets the authorization that has been failed or null if unspecific
+	 * 
+	 * @return The authorization or null
+	 */
 	public Object getAuthorisation() {
 		return authorisation;
 	}
