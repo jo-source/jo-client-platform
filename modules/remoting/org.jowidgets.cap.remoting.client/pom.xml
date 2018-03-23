@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>org.jowidgets</groupId>
 		<artifactId>org.jowidgets.cap.modules.remoting.parent</artifactId>
-		<version>0.65.4-SNAPSHOT</version>
+		<version>0.65.4</version>
 		<relativePath>../parent/pom.xml</relativePath>
 	</parent>
 
@@ -15,13 +15,13 @@
         <dependency>
             <groupId>org.jowidgets</groupId>
             <artifactId>org.jowidgets.invocation.service.client.api</artifactId>
-            <version>0.65.4-SNAPSHOT</version>
+            <version>0.65.4</version>
         </dependency>
 		
         <dependency>
             <groupId>org.jowidgets</groupId>
             <artifactId>org.jowidgets.cap.remoting.common</artifactId>
-            <version>0.65.4-SNAPSHOT</version>
+            <version>0.65.4</version>
         </dependency>
 		
     </dependencies>

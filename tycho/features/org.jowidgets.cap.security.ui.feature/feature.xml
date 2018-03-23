@@ -2,7 +2,7 @@
 <feature
     id="org.jowidgets.cap.security.ui.feature"
     label="jo-client-platform security ui feature"
-    version="0.65.4.qualifier">
+    version="0.65.4">
 
 	<description url="http://www.example.com/description">
 		Feature that holds all cap security ui bundles
