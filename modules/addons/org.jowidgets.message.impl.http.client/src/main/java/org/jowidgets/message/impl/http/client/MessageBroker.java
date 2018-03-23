@@ -33,19 +33,21 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.ConnectException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpHost;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.conn.HttpHostConnectException;
+import org.apache.http.client.utils.URIUtils;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.util.EntityUtils;
 import org.jowidgets.classloading.tools.SharedClassLoadingObjectInputStream;
@@ -221,9 +223,6 @@ final class MessageBroker implements IMessageBroker, IMessageChannel {
 			try {
 				sendMessage(message);
 			}
-			catch (final HttpHostConnectException e) {
-				handleException(new MessageServerConnectException(e), message.getExceptionCallback());
-			}
 			catch (final InterruptedException e) {
 				Thread.currentThread().interrupt();
 				throw new InterruptedException("Send message was interrupted.");
@@ -241,6 +240,9 @@ final class MessageBroker implements IMessageBroker, IMessageChannel {
 				response = httpClient.execute(request);
 				checkStatusLine(response);
 			}
+			catch (final ConnectException e) {
+				throw new MessageServerConnectException(tryExtractHost(request), e);
+			}
 			catch (final RuntimeException e) {
 				if (request != null) {
 					request.abort();
@@ -252,6 +254,18 @@ final class MessageBroker implements IMessageBroker, IMessageChannel {
 					EntityUtils.consume(response.getEntity());
 				}
 			}
+		}
+
+		private HttpHost tryExtractHost(final HttpPost request) {
+			if (request != null) {
+				try {
+					return URIUtils.extractHost(request.getURI());
+				}
+				catch (final Exception e) {
+					// ignore
+				}
+			}
+			return null;
 		}
 
 		private HttpPost createHttpRequest(final DeferredMessage message) throws IOException {
