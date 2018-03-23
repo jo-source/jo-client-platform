@@ -28,8 +28,9 @@
 
 package org.jowidgets.message.impl.http.client;
 
+import java.net.ConnectException;
+
 import org.apache.http.HttpHost;
-import org.apache.http.conn.HttpHostConnectException;
 import org.jowidgets.i18n.api.IMessage;
 import org.jowidgets.i18n.api.MessageReplacer;
 import org.jowidgets.util.exception.IUserCapableMessageException;
@@ -37,20 +38,40 @@ import org.jowidgets.util.exception.IUserCapableMessageException;
 /**
  * Will be thrown if there is some problem with the connection to the messaging server.
  */
-public final class MessageServerConnectException extends HttpHostConnectException implements IUserCapableMessageException {
+public final class MessageServerConnectException extends ConnectException implements IUserCapableMessageException {
 
 	private static final long serialVersionUID = -7463246491912931221L;
 
 	private static final IMessage MESSAGE_WITH_HOST = Messages.getMessage("MessageServerConnectException.messageWithHost");
 	private static final IMessage MESSAGE_WITHOUT_HOST = Messages.getMessage("MessageServerConnectException.messageWithoutHost");
 
-	MessageServerConnectException(final HttpHostConnectException cause) {
-		super(cause.getHost(), cause);
+	private final HttpHost host;
+
+	MessageServerConnectException() {
+		this(null);
+	}
+
+	MessageServerConnectException(final ConnectException cause) {
+		this(null, cause);
+	}
+
+	MessageServerConnectException(final HttpHost host, final ConnectException cause) {
+		super(getMessage(host, cause));
+		this.host = host;
+		initCause(cause);
+	}
+
+	private static String getMessage(final HttpHost host, final ConnectException cause) {
+		if (host != null) {
+			return "Connection to host '" + host + "' refused";
+		}
+		else {
+			return "Connection refused";
+		}
 	}
 
 	@Override
 	public String getUserMessage() {
-		final HttpHost host = getHost();
 		if (host != null) {
 			return MessageReplacer.replace(MESSAGE_WITH_HOST, host.toString());
 		}
