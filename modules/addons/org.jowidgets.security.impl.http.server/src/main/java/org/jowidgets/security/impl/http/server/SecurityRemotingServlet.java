@@ -29,6 +29,8 @@
 package org.jowidgets.security.impl.http.server;
 
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.servlet.GenericServlet;
 import javax.servlet.ServletConfig;
@@ -38,7 +40,10 @@ import javax.servlet.ServletResponse;
 
 import org.jowidgets.cap.remoting.common.RemotingBrokerId;
 import org.jowidgets.cap.remoting.server.CapServerServicePublisher;
+import org.jowidgets.logging.api.ILogger;
+import org.jowidgets.logging.api.LoggerProvider;
 import org.jowidgets.message.api.MessageToolkit;
+import org.jowidgets.message.impl.http.server.IExecutionInterceptor;
 import org.jowidgets.message.impl.http.server.MessageServlet;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCheck;
@@ -46,9 +51,13 @@ import org.jowidgets.util.EmptyCheck;
 public final class SecurityRemotingServlet extends GenericServlet {
 
 	public static final String BROKER_ID_PARAMETER_NAME = "brokerId";
+	public static final String EXECUTION_INTERCEPTORS_PARAMETER_NAME = "executionInterceptors";
 
 	private static final long serialVersionUID = 1L;
 
+	private static final ILogger LOGGER = LoggerProvider.get(SecurityRemotingServlet.class);
+
+	private List<IExecutionInterceptor<?>> executionInterceptors;
 	private MessageServlet messageServlet;
 
 	private String brokerId;
@@ -65,10 +74,28 @@ public final class SecurityRemotingServlet extends GenericServlet {
 	@Override
 	public void init(final ServletConfig servletConfig) throws ServletException {
 		super.init(servletConfig);
+		this.executionInterceptors = getExecutionInterceptors(servletConfig);
 		final String brokerIdParameter = servletConfig.getInitParameter(BROKER_ID_PARAMETER_NAME);
 		if (!EmptyCheck.isEmpty(brokerIdParameter)) {
 			brokerId = brokerIdParameter;
 		}
+	}
+
+	private List<IExecutionInterceptor<?>> getExecutionInterceptors(final ServletConfig servletConfig) {
+		final List<IExecutionInterceptor<?>> result = new LinkedList<IExecutionInterceptor<?>>();
+		final String param = servletConfig.getInitParameter(EXECUTION_INTERCEPTORS_PARAMETER_NAME);
+		if (!EmptyCheck.isEmpty(param)) {
+			final String[] interceptors = param.split(";");
+			for (final String interceptorClassName : interceptors) {
+				try {
+					result.add((IExecutionInterceptor<?>) Class.forName(interceptorClassName.trim()).newInstance());
+				}
+				catch (final Exception e) {
+					LOGGER.error("Error instantiating IExecutionInterceptor '" + interceptorClassName + "'.", e);
+				}
+			}
+		}
+		return result;
 	}
 
 	@Override
@@ -88,6 +115,9 @@ public final class SecurityRemotingServlet extends GenericServlet {
 			messageServlet = new MessageServlet(brokerId);
 			messageServlet.addExecutionInterceptor(new SecurityExecutionInterceptor());
 			messageServlet.addExecutionInterceptor(new CurrentRequestExecutionInterceptor());
+			for (final IExecutionInterceptor<?> executionInterceptor : executionInterceptors) {
+				messageServlet.addExecutionInterceptor(executionInterceptor);
+			}
 			MessageToolkit.addReceiverBroker(messageServlet);
 			new CapServerServicePublisher(brokerId).publishServices();
 		}
