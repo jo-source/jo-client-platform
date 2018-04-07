@@ -28,6 +28,7 @@
 
 package org.jowidgets.message.impl.http.server;
 
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
@@ -75,7 +76,7 @@ final class Connection implements IMessageChannel {
 		this.systemTimeProvider = systemTimeProvider;
 	}
 
-	void onMessage(final Object message, final List<IExecutionInterceptor<Object>> interceptors) {
+	void onMessage(final Object message, final Collection<IExecutionInterceptor<Object>> interceptors) {
 		watchdog.addExecution(session, new MessageExecution(message, interceptors, executor, receiver, this, systemTimeProvider));
 	}
 

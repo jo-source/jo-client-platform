@@ -26,23 +26,26 @@
  * DAMAGE.
  */
 
-package org.jowidgets.message.impl.http.server;
+package org.jowidgets.cap.tools.starter.server;
 
-public interface IMessageExecutionWatchdogListener {
+import org.jowidgets.message.impl.http.server.IMessageExecutionWatchdogListener;
+import org.jowidgets.message.impl.http.server.WatchDogResult;
 
-	/**
-	 * This method will be invoked if a execution has been canceled by watchdog
-	 * 
-	 * @param message The message that was canceled
-	 * @param cancelTimeMillis The cancel timestamp
-	 */
-	void onExecutionCancel(Object message, long cancelTimeMillis);
+public final class WatchdogListener implements IMessageExecutionWatchdogListener {
 
-	/**
-	 * This method will every time the watchdog was executed
-	 * 
-	 * @param watchDogResult The result of the watchdog
-	 */
-	void onExecutionsWatch(WatchDogResult watchDogResult);
+	@Override
+	public void onExecutionsWatch(final WatchDogResult watchDogResult) {
+		if (watchDogResult.getPendingExecutions().size() > 0
+			|| watchDogResult.getRunningExecutions().size() > 0
+			|| watchDogResult.getUnfinishedCancelExecutions().size() > 0) {
+			System.out.println(watchDogResult);
+		}
+
+	}
+
+	@Override
+	public void onExecutionCancel(final Object message, final long cancelTimeMillis) {
+		System.out.println("Message canceled: " + message);
+	}
 
 }

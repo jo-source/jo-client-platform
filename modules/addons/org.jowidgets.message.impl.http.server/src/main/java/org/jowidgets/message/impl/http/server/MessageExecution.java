@@ -28,7 +28,7 @@
 
 package org.jowidgets.message.impl.http.server;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -39,7 +39,7 @@ import org.jowidgets.message.api.IMessageReceiver;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.ISystemTimeProvider;
 
-final class MessageExecution {
+public final class MessageExecution {
 
 	private final MessageHandler messageHandler;
 	private final AtomicReference<Long> canceledTimeMillis;
@@ -51,7 +51,7 @@ final class MessageExecution {
 
 	MessageExecution(
 		final Object message,
-		final List<IExecutionInterceptor<Object>> interceptors,
+		final Collection<IExecutionInterceptor<Object>> interceptors,
 		final ExecutorService executor,
 		final IMessageReceiver receiver,
 		final IMessageChannel replyChannel,
@@ -79,7 +79,7 @@ final class MessageExecution {
 		this.submitionResult = executor.submit(messageHandler);
 	}
 
-	synchronized void cancel() {
+	public synchronized void cancel() {
 		if (canceledTimeMillis.compareAndSet(null, systemTimeProvider.currentTimeMillis())) {
 			try {
 				submitionResult.cancel(true);
@@ -90,39 +90,43 @@ final class MessageExecution {
 		}
 	}
 
-	long getCreationTimeMillis() {
+	public Thread getExecutingThread() {
+		return messageHandler.getExecutingThread();
+	}
+
+	public long getCreationTimeMillis() {
 		return creationTimeMillis;
 	}
 
-	Object getMessage() {
+	public Object getMessage() {
 		return messageHandler.getMessage();
 	}
 
-	Long getHandlerStartTimeMillis() {
+	public Long getHandlerStartTimeMillis() {
 		return messageHandler.getStartTimeMillis();
 	}
 
-	boolean isHandlerStarted() {
+	public boolean isHandlerStarted() {
 		return messageHandler.isStarted();
 	}
 
-	boolean isHandlerTerminated() {
+	public boolean isHandlerTerminated() {
 		return messageHandler.isTerminated();
 	}
 
-	Long getHandlerRuntimeMillis() {
+	public Long getHandlerRuntimeMillis() {
 		return messageHandler.getRuntimeMillis();
 	}
 
-	boolean isHandlerRunning() {
+	public boolean isHandlerRunning() {
 		return messageHandler.isRunning();
 	}
 
-	Long getCanceledTimeMillis() {
+	public Long getCanceledTimeMillis() {
 		return canceledTimeMillis.get();
 	}
 
-	boolean isCanceled() {
+	public boolean isCanceled() {
 		return canceled.get();
 	}
 

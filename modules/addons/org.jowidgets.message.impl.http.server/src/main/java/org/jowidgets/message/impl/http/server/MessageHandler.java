@@ -29,6 +29,7 @@
 package org.jowidgets.message.impl.http.server;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -51,13 +52,13 @@ final class MessageHandler implements Runnable {
 	private final IMessageChannel replyChannel;
 	private final ISystemTimeProvider systemTimeProvider;
 	private final AtomicReference<Long> canceled;
-
 	private final AtomicReference<Long> started;
+	private final AtomicReference<Thread> executingThread;
 	private final AtomicBoolean terminated;
 
 	MessageHandler(
 		final Object message,
-		final List<IExecutionInterceptor<Object>> interceptors,
+		final Collection<IExecutionInterceptor<Object>> interceptors,
 		final IMessageReceiver receiver,
 		final IMessageChannel replyChannel,
 		final ISystemTimeProvider systemTimeProvider,
@@ -78,10 +79,11 @@ final class MessageHandler implements Runnable {
 		this.canceled = canceled;
 
 		this.started = new AtomicReference<Long>();
+		this.executingThread = new AtomicReference<Thread>(null);
 		this.terminated = new AtomicBoolean(false);
 	}
 
-	private static List<Object> readExecutionContexts(final List<IExecutionInterceptor<Object>> interceptors) {
+	private static List<Object> readExecutionContexts(final Collection<IExecutionInterceptor<Object>> interceptors) {
 		final ArrayList<Object> result = new ArrayList<Object>(interceptors.size());
 		for (final IExecutionInterceptor<Object> interceptor : interceptors) {
 			result.add(interceptor.getExecutionContext());
@@ -93,10 +95,12 @@ final class MessageHandler implements Runnable {
 	public void run() {
 		try {
 			if (canceled.get() == null && started.compareAndSet(null, Long.valueOf(systemTimeProvider.currentTimeMillis()))) {
+				executingThread.set(Thread.currentThread());
 				doRun(interceptors, executionContexts);
 			}
 		}
 		finally {
+			executingThread.set(null);
 			terminated.set(true);
 		}
 	}
@@ -128,6 +132,10 @@ final class MessageHandler implements Runnable {
 
 	Object getMessage() {
 		return message;
+	}
+
+	Thread getExecutingThread() {
+		return executingThread.get();
 	}
 
 	Long getStartTimeMillis() {
