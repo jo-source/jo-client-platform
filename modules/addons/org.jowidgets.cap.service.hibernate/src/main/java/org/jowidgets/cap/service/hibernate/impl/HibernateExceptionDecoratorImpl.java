@@ -33,6 +33,7 @@ import java.sql.SQLException;
 import javax.persistence.OptimisticLockException;
 import javax.persistence.PersistenceException;
 
+import org.hibernate.JDBCException;
 import org.hibernate.StaleObjectStateException;
 import org.hibernate.exception.ConstraintViolationException;
 import org.jowidgets.cap.common.api.exception.ExecutableCheckException;
@@ -45,11 +46,7 @@ public class HibernateExceptionDecoratorImpl implements IDecorator<Throwable> {
 
 	@Override
 	public Throwable decorate(final Throwable original) {
-		if (original instanceof InterruptedException) {
-			//TODO use new ServiceInvocationInterruptedException where i18n can be used in client
-			return new ServiceException("Service invocation was interrupted", "Service invocation was interrupted", original);
-		}
-		else if (original instanceof PersistenceException) {
+		if (original instanceof PersistenceException) {
 			final PersistenceException persistenceException = (PersistenceException) original;
 			final Throwable cause = persistenceException.getCause();
 
@@ -57,6 +54,9 @@ public class HibernateExceptionDecoratorImpl implements IDecorator<Throwable> {
 				if (cause instanceof StaleObjectStateException) {
 					return getStaleBeanException((StaleObjectStateException) cause);
 				}
+			}
+			else if (cause instanceof JDBCException) {
+				return decorateJDBCException((JDBCException) cause);
 			}
 			else if (cause instanceof ConstraintViolationException) {
 				final ConstraintViolationException constViolationException = (ConstraintViolationException) cause;
@@ -77,11 +77,11 @@ public class HibernateExceptionDecoratorImpl implements IDecorator<Throwable> {
 							userMessage = sqlException.getMessage();
 						}
 						else {
-							userMessage = userBaseMessage.replace("%1", ""); //$NON-NLS-1$
+							userMessage = userBaseMessage.replace("%1", "");
 						}
 					}
 					else {
-						userMessage = userBaseMessage.replace("%1", ""); //$NON-NLS-1$
+						userMessage = userBaseMessage.replace("%1", "");
 					}
 
 				}
@@ -89,8 +89,34 @@ public class HibernateExceptionDecoratorImpl implements IDecorator<Throwable> {
 			}
 			//TODO MG handle more hibernate exceptions 
 		}
+		else if (original instanceof JDBCException) {
+			return decorateJDBCException((JDBCException) original);
+		}
 
 		return original;
+	}
+
+	private Throwable decorateJDBCException(final JDBCException jdbcException) {
+		final SQLException sqlException = jdbcException.getSQLException();
+		return new ServiceException(
+			sqlException.getMessage(),
+			getUserMessageForJDBCException(sqlException.getSQLState()),
+			jdbcException);
+	}
+
+	private String getUserMessageForJDBCException(final String sqlState) {
+		if (sqlState == null) {
+			return Messages.getString("HibernateExceptionDecoratorImpl.database_access_failed");
+		}
+		else if ("08003".equals(sqlState)) {
+			return Messages.getString("HibernateExceptionDecoratorImpl.database_connection_closed");
+		}
+		else if (sqlState.startsWith("08")) {
+			return Messages.getString("HibernateExceptionDecoratorImpl.database_connection_failed");
+		}
+		else {
+			return Messages.getString("HibernateExceptionDecoratorImpl.database_access_failed");
+		}
 	}
 
 	private StaleBeanException getStaleBeanException(final StaleObjectStateException exception) {

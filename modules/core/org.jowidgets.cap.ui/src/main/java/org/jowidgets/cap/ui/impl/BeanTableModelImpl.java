@@ -2696,12 +2696,20 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 				@Override
 				public void finishedUi(final Integer result) {
-					setResult(result);
+					if (!isCallbackCanceled()) {
+						setResult(result);
+					}
 				}
 
 				@Override
 				public void exceptionUi(final Throwable exception) {
-					setException(exception);
+					if (!isCallbackCanceled()) {
+						setException(exception);
+					}
+				}
+
+				private boolean isCallbackCanceled() {
+					return executionTask.isCanceled() || canceled;
 				}
 			};
 		}
@@ -3019,6 +3027,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 		private void setResult(final List<IBeanDto> loadedBeans) {
 
 			if (pagingEnabled) {
+				tryToCancelCountLoader();
 				//if the result is empty and the page is not the first page, reload the whole table
 				if (loadedBeans.size() == 0 && pageIndex > 0) {
 					rowCountOfPages = 0;
@@ -3035,8 +3044,7 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 						&& countedRowCount.intValue() > rowCountOfPages
 						&& loadedBeans.size() <= pageSize) {
 						countedRowCount = null;
-						if (autoRowCount && pagingEnabled) {
-							tryToCancelCountLoader();
+						if (autoRowCount) {
 							countLoader = new CountLoader();
 							countLoader.loadCount();
 						}
