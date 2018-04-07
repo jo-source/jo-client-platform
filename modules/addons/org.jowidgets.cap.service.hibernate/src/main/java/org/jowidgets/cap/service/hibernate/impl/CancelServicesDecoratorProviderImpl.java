@@ -31,32 +31,19 @@ package org.jowidgets.cap.service.hibernate.impl;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 
-import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 
-import org.hibernate.Session;
-import org.hibernate.jdbc.Work;
-import org.jowidgets.cap.common.api.exception.ServiceCanceledException;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
-import org.jowidgets.cap.common.api.execution.IExecutionCallbackListener;
 import org.jowidgets.cap.common.api.execution.IResultCallback;
-import org.jowidgets.cap.common.api.execution.IUpdatableResultCallback;
 import org.jowidgets.cap.common.tools.proxy.AbstractCapServiceInvocationHandler;
-import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.jpa.api.EntityManagerFactoryProvider;
-import org.jowidgets.cap.service.jpa.api.EntityManagerHolder;
 import org.jowidgets.service.api.IServiceId;
 import org.jowidgets.service.api.IServicesDecoratorProvider;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.IDecorator;
-import org.jowidgets.util.concurrent.IThreadInterruptListener;
 import org.jowidgets.util.concurrent.IThreadInterruptObservable;
 
 final class CancelServicesDecoratorProviderImpl implements IServicesDecoratorProvider {
@@ -64,12 +51,18 @@ final class CancelServicesDecoratorProviderImpl implements IServicesDecoratorPro
 	private final IThreadInterruptObservable threadInterruptObservable;
 	private final EntityManagerFactory entityManagerFactory;
 	private final Set<Class<?>> services;
+	private final Long killAfterMillis;
+	private final Long minQueryRuntimeMillis;
+	private final long waitForCancelSleepMillis;
 	private final int order;
 
 	CancelServicesDecoratorProviderImpl(
 		final String persistenceUnitName,
 		final IThreadInterruptObservable threadInterruptObservable,
 		final Set<Class<?>> services,
+		final Long minQueryRuntimeMillis,
+		final Long killAfterMillis,
+		final long waitForCancelSleepMillis,
 		final int order) {
 
 		Assert.paramNotNull(threadInterruptObservable, "threadInterruptObservable");
@@ -84,6 +77,9 @@ final class CancelServicesDecoratorProviderImpl implements IServicesDecoratorPro
 		}
 
 		this.services = new HashSet<Class<?>>(services);
+		this.minQueryRuntimeMillis = minQueryRuntimeMillis;
+		this.killAfterMillis = killAfterMillis;
+		this.waitForCancelSleepMillis = waitForCancelSleepMillis;
 		this.order = order;
 	}
 
@@ -141,193 +137,19 @@ final class CancelServicesDecoratorProviderImpl implements IServicesDecoratorPro
 			final IResultCallback<Object> resultCallback,
 			final IExecutionCallback executionCallback) {
 
-			return new CancelableInvoker(original, method, args, resultCallbackIndex, resultCallback, executionCallback).invoke();
+			return new CancelableInvoker(
+				threadInterruptObservable,
+				entityManagerFactory,
+				original,
+				method,
+				args,
+				resultCallbackIndex,
+				resultCallback,
+				executionCallback,
+				minQueryRuntimeMillis,
+				killAfterMillis,
+				waitForCancelSleepMillis).invoke();
 		}
-
-	}
-
-	private final class CancelableInvoker {
-
-		private final Object original;
-		private final Method method;
-		private final Object[] args;
-		private final int resultCallbackIndex;
-		private final IResultCallback<Object> resultCallback;
-		private final IExecutionCallback executionCallback;
-		private final AtomicBoolean isRunning;
-		private final AtomicReference<Session> canceledSessionHolder;
-
-		private CancelableInvoker(
-			final Object original,
-			final Method method,
-			final Object[] args,
-			final int resultCallbackIndex,
-			final IResultCallback<Object> resultCallback,
-			final IExecutionCallback executionCallback) {
-
-			this.isRunning = new AtomicBoolean(false);
-			this.canceledSessionHolder = new AtomicReference<Session>();
-			this.original = original;
-			this.method = method;
-			this.args = args;
-			this.resultCallbackIndex = resultCallbackIndex;
-			this.resultCallback = resultCallback;
-			this.executionCallback = executionCallback;
-		}
-
-		private Object invoke() {
-
-			final IResultCallback<Object> decoratedResultCallback = createDecoratedResultCallback();
-
-			args[resultCallbackIndex] = decoratedResultCallback;
-
-			try {
-				addCancelListener(executionCallback);
-				CapServiceToolkit.checkCanceled(executionCallback);
-				if (Thread.interrupted()) {
-					throw new InterruptedException("Query invocation was interrupted.");
-				}
-				isRunning.set(true);
-				final IThreadInterruptListener interruptListener = createThreadInterruptListener();
-				try {
-					threadInterruptObservable.addInterruptListener(interruptListener);
-					return method.invoke(original, args);
-				}
-				finally {
-					threadInterruptObservable.removeInterruptListener(interruptListener);
-				}
-			}
-			catch (final Exception e) {
-				decoratedResultCallback.exception(e);
-				return null;
-			}
-
-		}
-
-		private IResultCallback<Object> createDecoratedResultCallback() {
-			if (resultCallback instanceof IUpdatableResultCallback<?, ?>) {
-				return new DecoratedUpdateCallback();
-			}
-			else {
-				return new DecoratedResultCallback();
-			}
-		}
-
-		private void checkCanceled() {
-			final Session canceledSession = canceledSessionHolder.get();
-			if (canceledSession != null && canceledSession.isOpen()) {
-				try {
-					//If the session was canceled without any hibernate exception,
-					//the connection is in a dirty state what may lead
-					//to a timeout exception in future when connection will be recycled from
-					//another session.
-					//To avoid this, the connection will be rolled back. This only
-					//works if the release mode (hibernate.connection.release_mode) is set to 'on_close'
-					canceledSession.doWork(new Work() {
-						@Override
-						public void execute(final Connection connection) throws SQLException {
-							connection.rollback();
-						}
-					});
-				}
-				catch (final Exception e) {
-					//this exception can be ignored, because the service was already canceled
-				}
-			}
-		}
-
-		private void addCancelListener(final IExecutionCallback executionCallback) {
-			if (executionCallback != null) {
-				executionCallback.addExecutionCallbackListener(createCancelSessionListener());
-			}
-		}
-
-		private IThreadInterruptListener createThreadInterruptListener() {
-			final IExecutionCallbackListener cancelListener = createCancelSessionListener();
-			return new IThreadInterruptListener() {
-				@Override
-				public void interrupted(final Thread thread) {
-					if (isRunning.get()) {
-						cancelListener.canceled();
-					}
-					threadInterruptObservable.removeInterruptListener(thread, this);
-				}
-			};
-		}
-
-		private IExecutionCallbackListener createCancelSessionListener() {
-			final EntityManager em = EntityManagerHolder.get();
-			return new IExecutionCallbackListener() {
-				@Override
-				public void canceled() {
-					try {
-						if (em != null) {
-							final Session session = em.unwrap(Session.class);
-							if (session != null && session.isOpen() && isRunning.get()) {
-								canceledSessionHolder.set(session);
-								session.cancelQuery();
-							}
-						}
-					}
-					catch (final Exception e) {
-					}
-				}
-			};
-		}
-
-		private class DecoratedResultCallback implements IResultCallback<Object> {
-
-			@Override
-			public final void finished(final Object result) {
-				isRunning.set(false);
-				checkCanceled();
-				resultCallback.finished(result);
-			}
-
-			@Override
-			public final void exception(final Throwable exception) {
-				isRunning.set(false);
-				checkCanceled();
-				if (Thread.interrupted() && !(executionCallback != null && executionCallback.isCanceled())) {
-					resultCallback.exception(new InterruptedException("Query invocation was interrupted."));
-				}
-				else if (executionCallback != null
-					&& executionCallback.isCanceled()
-					&& !(exception instanceof ServiceCanceledException)) {
-					resultCallback.exception(new ServiceCanceledException());
-				}
-				else {
-					resultCallback.exception(exception);
-				}
-			}
-		}
-
-		private class DecoratedUpdateCallback extends DecoratedResultCallback
-				implements IUpdatableResultCallback<Object, Object> {
-
-			@SuppressWarnings("unchecked")
-			@Override
-			public void update(final Object result) {
-				checkCanceled();
-				((IUpdatableResultCallback<Object, Object>) resultCallback).update(result);
-			}
-
-			@SuppressWarnings("unchecked")
-			@Override
-			public void updatesFinished() {
-				checkCanceled();
-				((IUpdatableResultCallback<Object, Object>) resultCallback).updatesFinished();
-			}
-
-			@SuppressWarnings("unchecked")
-			@Override
-			public void exceptionOnUpdate(final Throwable exception) {
-				checkCanceled();
-				((IUpdatableResultCallback<Object, Object>) resultCallback).exceptionOnUpdate(exception);
-			}
-
-		}
-
 	}
 
 }
