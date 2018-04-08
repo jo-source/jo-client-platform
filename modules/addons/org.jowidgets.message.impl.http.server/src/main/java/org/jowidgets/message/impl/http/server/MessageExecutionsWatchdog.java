@@ -48,23 +48,21 @@ final class MessageExecutionsWatchdog {
 
 	private static final ILogger LOGGER = LoggerProvider.get(MessageExecutionsWatchdog.class);
 
-	private static final long DEFAULT_SESSION_INACTIVITY_TIMEOUT = 60 * 1000; // 1 minute
-
 	private final ISystemTimeProvider systemTimeProvider;
-	private final long sessionInactivityTimeout;
-
 	private final ConcurrentHashMap<HttpSession, List<MessageExecution>> executionsMap;
-
 	private final CopyOnWriteArraySet<IMessageExecutionWatchdogListener> watchdogListeners;
 
-	private final AtomicReference<WatchDogResult> lastWatchDogResult;
+	private final AtomicReference<WatchDogEvent> lastWatchDogResult;
 
-	MessageExecutionsWatchdog() {
-		this(DefaultSystemTimeProvider.getInstance(), DEFAULT_SESSION_INACTIVITY_TIMEOUT);
+	private long sessionInactivityTimeout;
+	private Long haraKiriTimeout;
+	private Long haraKiriPendingThreshold;
+
+	MessageExecutionsWatchdog(final long sessionInactivityTimeout) {
+		this(DefaultSystemTimeProvider.getInstance(), sessionInactivityTimeout);
 	}
 
 	MessageExecutionsWatchdog(final ISystemTimeProvider systemTimeProvider, final long sessionInactivityTimeout) {
-
 		Assert.paramNotNull(systemTimeProvider, "systemTimeProvider");
 
 		this.systemTimeProvider = systemTimeProvider;
@@ -72,33 +70,93 @@ final class MessageExecutionsWatchdog {
 
 		this.executionsMap = new ConcurrentHashMap<HttpSession, List<MessageExecution>>();
 		this.watchdogListeners = new CopyOnWriteArraySet<IMessageExecutionWatchdogListener>();
-
-		this.lastWatchDogResult = new AtomicReference<WatchDogResult>(new WatchDogResultBuilder().build());
+		this.lastWatchDogResult = new AtomicReference<WatchDogEvent>(new WatchDogEventBuilder().build());
 	}
 
-	WatchDogResult getLastWatchResult() {
+	void setSessionInactivityTimeout(final long sessionInactivityTimeout) {
+		this.sessionInactivityTimeout = sessionInactivityTimeout;
+	}
+
+	void setHaraKiriTimeout(final Long haraKiriTimeout) {
+		this.haraKiriTimeout = haraKiriTimeout;
+	}
+
+	void setHaraKiriPendingThreshold(final Long haraKiriPendingThreshold) {
+		this.haraKiriPendingThreshold = haraKiriPendingThreshold;
+	}
+
+	WatchDogEvent getLastWatchResult() {
 		return lastWatchDogResult.get();
 	}
 
 	void watchExecutions() {
-		final WatchDogResultBuilder resultBuilder = new WatchDogResultBuilder();
+		final WatchDogEventBuilder eventBuilder = new WatchDogEventBuilder();
 		for (final HttpSession session : executionsMap.keySet()) {
 			synchronized (session) {
-				watchExecutionsOfSession(session, resultBuilder);
+				watchExecutionsOfSession(session, eventBuilder);
 			}
 		}
-		final WatchDogResult watchDogResult = resultBuilder.build();
-		lastWatchDogResult.set(watchDogResult);
-		onExecutionsWatch(watchDogResult);
+		final WatchDogEvent watchDogEvent = eventBuilder.build();
+		if (checkIfHaraKiriIsNecessary(watchDogEvent)) {
+			doHaraKiri(watchDogEvent);
+			//watch again after hara kiri without and omit listener events
+			watchExecutions();
+		}
+		else {
+			lastWatchDogResult.set(watchDogEvent);
+			onExecutionsWatch(watchDogEvent);
+		}
 	}
 
-	private void onExecutionsWatch(final WatchDogResult watchDogResult) {
+	private void onExecutionsWatch(final WatchDogEvent watchDogResult) {
 		for (final IMessageExecutionWatchdogListener listener : watchdogListeners) {
 			listener.onExecutionsWatch(watchDogResult);
 		}
 	}
 
-	private void watchExecutionsOfSession(final HttpSession session, final WatchDogResultBuilder resultBuilder) {
+	private void doHaraKiri(final WatchDogEvent event) {
+		for (final MessageExecution execution : event.getPendingExecutions()) {
+			execution.cancel();
+		}
+		for (final MessageExecution execution : event.getRunningExecutions()) {
+			execution.cancel();
+		}
+	}
+
+	private boolean checkIfHaraKiriIsNecessary(final WatchDogEvent event) {
+		return isHaraKiriPendingThresholdReached(event) || isHaraKiriTimeoutReached(event);
+	}
+
+	private boolean isHaraKiriPendingThresholdReached(final WatchDogEvent event) {
+		final Long haraKiriPendingThreshholdCopy = haraKiriPendingThreshold;
+		if (haraKiriPendingThreshholdCopy == null) {
+			return false;
+		}
+		if (event.getPendingExecutions().size() >= haraKiriPendingThreshholdCopy.longValue()) {
+			LOGGER.warn("Max pending threshhold '" + haraKiriPendingThreshholdCopy + "' reached, try to cancel all executions.");
+			return true;
+		}
+		return false;
+	}
+
+	private boolean isHaraKiriTimeoutReached(final WatchDogEvent event) {
+		final Long haraKiriTimeoutCopy = haraKiriTimeout;
+		if (haraKiriTimeoutCopy == null) {
+			return false;
+		}
+		final MessageExecution maxPendingExecution = event.getMaxPendingExecution();
+		if (maxPendingExecution != null) {
+			final long creationTime = maxPendingExecution.getCreationTimeMillis();
+			final long duration = systemTimeProvider.currentTimeMillis() - creationTime;
+			if (duration >= haraKiriTimeoutCopy.longValue()) {
+				LOGGER.warn("Max pending timeout '" + haraKiriTimeoutCopy + "' reached, try to cancel all executions.");
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private void watchExecutionsOfSession(final HttpSession session, final WatchDogEventBuilder eventBuilder) {
 		final List<MessageExecution> executions = executionsMap.get(session);
 		removeCompletedExecutions(executions);
 		if (executions == null || executions.isEmpty()) {
@@ -109,11 +167,11 @@ final class MessageExecutionsWatchdog {
 			if (isSessionInactive(session)) {
 				if (!cancelMessageExecutions(executions)) {
 					//watch if no execution was canceled
-					watchMessageExecutions(executions, resultBuilder);
+					watchMessageExecutions(executions, eventBuilder);
 				}
 			}
 			else {
-				watchMessageExecutions(executions, resultBuilder);
+				watchMessageExecutions(executions, eventBuilder);
 			}
 		}
 	}
@@ -132,10 +190,10 @@ final class MessageExecutionsWatchdog {
 	}
 
 	private boolean isExecutionCompleted(final MessageExecution execution) {
-		if (execution.isHandlerTerminated()) {
+		if (execution.isTerminated()) {
 			return true;
 		}
-		else if (execution.isCanceled() && !execution.isHandlerStarted()) {
+		else if (execution.isCanceled() && !execution.isStarted()) {
 			return true;
 		}
 		else {
@@ -174,25 +232,23 @@ final class MessageExecutionsWatchdog {
 		}
 	}
 
-	private void watchMessageExecutions(
-		final Collection<MessageExecution> executions,
-		final WatchDogResultBuilder resultBuilder) {
+	private void watchMessageExecutions(final Collection<MessageExecution> executions, final WatchDogEventBuilder eventBuilder) {
 		for (final MessageExecution execution : executions) {
-			watchMessageExecution(execution, resultBuilder);
+			watchMessageExecution(execution, eventBuilder);
 		}
 	}
 
-	private void watchMessageExecution(final MessageExecution execution, final WatchDogResultBuilder resultBuilder) {
+	private void watchMessageExecution(final MessageExecution execution, final WatchDogEventBuilder eventBuilder) {
 		if (!execution.isCanceled()) {
-			if (execution.isHandlerStarted()) {
-				resultBuilder.addRunningExecution(execution);
+			if (execution.isStarted()) {
+				eventBuilder.addRunningExecution(execution);
 			}
 			else {
-				resultBuilder.addPendingExecution(execution);
+				eventBuilder.addPendingExecution(execution);
 			}
 		}
-		else if (execution.isHandlerStarted() && !execution.isHandlerTerminated()) {
-			resultBuilder.addUnfinishedCancelExecution(execution);
+		else if (execution.isStarted() && !execution.isTerminated()) {
+			eventBuilder.addUnfinishedCancelExecution(execution);
 		}
 	}
 
@@ -217,30 +273,30 @@ final class MessageExecutionsWatchdog {
 		watchdogListeners.remove(listener);
 	}
 
-	class WatchDogResultBuilder {
+	class WatchDogEventBuilder {
 
 		private final long watchTimeMillis = systemTimeProvider.currentTimeMillis();
 		private final List<MessageExecution> running = new LinkedList<MessageExecution>();
 		private final List<MessageExecution> pending = new LinkedList<MessageExecution>();
 		private final List<MessageExecution> unfinishedCancel = new LinkedList<MessageExecution>();
 
-		WatchDogResultBuilder addRunningExecution(final MessageExecution execution) {
+		WatchDogEventBuilder addRunningExecution(final MessageExecution execution) {
 			running.add(execution);
 			return this;
 		}
 
-		WatchDogResultBuilder addPendingExecution(final MessageExecution execution) {
+		WatchDogEventBuilder addPendingExecution(final MessageExecution execution) {
 			pending.add(execution);
 			return this;
 		}
 
-		WatchDogResultBuilder addUnfinishedCancelExecution(final MessageExecution execution) {
+		WatchDogEventBuilder addUnfinishedCancelExecution(final MessageExecution execution) {
 			unfinishedCancel.add(execution);
 			return this;
 		}
 
-		WatchDogResult build() {
-			return new WatchDogResult(watchTimeMillis, running, pending, unfinishedCancel);
+		WatchDogEvent build() {
+			return new WatchDogEvent(watchTimeMillis, running, pending, unfinishedCancel);
 		}
 
 	}

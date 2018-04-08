@@ -28,21 +28,26 @@
 
 package org.jowidgets.message.impl.http.server;
 
+/**
+ * Allows to observe the message executions of the {@link MessageServlet}.
+ */
 public interface IMessageExecutionWatchdogListener {
 
 	/**
-	 * This method will be invoked if a execution has been canceled by watchdog
+	 * This method will be invoked if a execution has been canceled by watchdog.
+	 * 
+	 * A execution may be canceled by several reasons, e.g. if the client is no longer active or because of server overload.
 	 * 
 	 * @param message The message that was canceled
-	 * @param cancelTimeMillis The cancel timestamp
+	 * @param cancelTimeMillis The cancel timestamp in millis when cancel has been started
 	 */
 	void onExecutionCancel(Object message, long cancelTimeMillis);
 
 	/**
 	 * This method will every time the watchdog was executed
 	 * 
-	 * @param watchDogResult The result of the watchdog
+	 * @param watchDogEvent The result of the watchdog execution
 	 */
-	void onExecutionsWatch(WatchDogResult watchDogResult);
+	void onExecutionsWatch(WatchDogEvent watchDogEvent);
 
 }

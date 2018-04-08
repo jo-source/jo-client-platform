@@ -29,12 +29,12 @@
 package org.jowidgets.cap.tools.starter.server;
 
 import org.jowidgets.message.impl.http.server.IMessageExecutionWatchdogListener;
-import org.jowidgets.message.impl.http.server.WatchDogResult;
+import org.jowidgets.message.impl.http.server.WatchDogEvent;
 
 public final class WatchdogListener implements IMessageExecutionWatchdogListener {
 
 	@Override
-	public void onExecutionsWatch(final WatchDogResult watchDogResult) {
+	public void onExecutionsWatch(final WatchDogEvent watchDogResult) {
 		if (watchDogResult.getPendingExecutions().size() > 0
 			|| watchDogResult.getRunningExecutions().size() > 0
 			|| watchDogResult.getUnfinishedCancelExecutions().size() > 0) {
