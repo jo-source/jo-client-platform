@@ -113,7 +113,7 @@ public final class MessageServlet extends HttpServlet implements IMessageReceive
 		this.systemTimeProvider = DefaultSystemTimeProvider.getInstance();
 		this.executionInterceptors = new CopyOnWriteArraySet<IExecutionInterceptor<Object>>();
 		this.watchdog = new MessageExecutionsWatchdog(DEFAULT_SESSION_INACTIVITY_TIMEOUT);
-		this.watchdogExecutor = Executors.newSingleThreadScheduledExecutor(new DaemonThreadFactory(CLASS_NAME + ".Watchdog"));
+		this.watchdogExecutor = Executors.newSingleThreadScheduledExecutor(new DaemonThreadFactory(CLASS_NAME + ".Watchdog-"));
 
 		this.initialize = new AtomicBoolean(false);
 		this.initialized = new AtomicBoolean(false);

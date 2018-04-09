@@ -131,7 +131,7 @@ public final class WatchDogEvent {
 	 * 
 	 * The max pending execution duration represents the duration the messaging can not handle events since.
 	 * 
-	 * @return The oldest pending execution or null if no pending events exists
+	 * @return The oldest pending execution or null if no pending execution exists
 	 */
 	public MessageExecution getMaxPendingExecution() {
 		long min = 0;
@@ -147,6 +147,32 @@ public final class WatchDogEvent {
 					if (creationTimeMillis < min) {
 						result = execution;
 						min = creationTimeMillis;
+					}
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * Get's the running execution that has the maximal runtime or null, if no execution is running.
+	 * 
+	 * @return The oldest running execution or null if no running execution exists
+	 */
+	public MessageExecution getMaxRuntimeExecution() {
+		long min = 0;
+		MessageExecution result = null;
+		for (final MessageExecution execution : getRunningExecutions()) {
+			if (execution.isRunning()) {
+				if (result == null) {
+					result = execution;
+					min = execution.getStartTimeMillis().longValue();
+				}
+				else {
+					final long startTimeMillis = execution.getStartTimeMillis().longValue();
+					if (startTimeMillis < min) {
+						result = execution;
+						min = startTimeMillis;
 					}
 				}
 			}

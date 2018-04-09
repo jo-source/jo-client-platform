@@ -60,8 +60,16 @@ public final class CapServerStarter {
 		Assert.paramNotNull(brokerId, "brokerId");
 		final Server server = new Server(port);
 		final ServletContextHandler root = new ServletContextHandler(ServletContextHandler.SESSIONS);
-		root.addServlet(new ServletHolder(new SecurityRemotingServlet(brokerId)), "/");
+
+		final ServletHolder servletHolder = new ServletHolder(new SecurityRemotingServlet(brokerId));
+
+		servletHolder.setInitParameter(
+				"messageExecutionsWatchdogListeners",
+				"org.jowidgets.cap.tools.starter.server.WatchdogListener");
+
+		root.addServlet(servletHolder, "/");
 		root.addFilter(new FilterHolder(new BasicAuthenticationFilter()), "/", FilterMapping.DEFAULT);
+
 		server.setHandler(root);
 		server.start();
 		server.join();

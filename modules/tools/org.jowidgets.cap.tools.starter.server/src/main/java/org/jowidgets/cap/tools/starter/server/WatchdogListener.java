@@ -28,24 +28,57 @@
 
 package org.jowidgets.cap.tools.starter.server;
 
+import java.util.List;
+
+import org.jowidgets.logging.api.ILogger;
+import org.jowidgets.logging.api.LoggerProvider;
 import org.jowidgets.message.impl.http.server.IMessageExecutionWatchdogListener;
+import org.jowidgets.message.impl.http.server.MessageExecution;
 import org.jowidgets.message.impl.http.server.WatchDogEvent;
 
 public final class WatchdogListener implements IMessageExecutionWatchdogListener {
 
+	private static final ILogger LOGGER = LoggerProvider.get(WatchdogListener.class);
+
+	private static final long PENDING_EXECUTIONS_WARN_THRESHOLD = 30 * 1000; // 30 seconds
+	private static final long RUNNING_EXECUTIONS_WARN_THRESHOLD = 30 * 60 * 1000; // 30 minutes
+	private static final long UNFINISHED_CANCEL_WARN_THRESHOLD = 10 * 1000; // 10 seconds
+
 	@Override
-	public void onExecutionsWatch(final WatchDogEvent watchDogResult) {
-		if (watchDogResult.getPendingExecutions().size() > 0
-			|| watchDogResult.getRunningExecutions().size() > 0
-			|| watchDogResult.getUnfinishedCancelExecutions().size() > 0) {
-			System.out.println(watchDogResult);
+	public void onExecutionsWatch(final WatchDogEvent event) {
+		final MessageExecution maxPendingExecution = event.getMaxPendingExecution();
+		if (maxPendingExecution != null) {
+			final long delay = event.getWatchTimeMillis() - maxPendingExecution.getCreationTimeMillis();
+			if (delay >= PENDING_EXECUTIONS_WARN_THRESHOLD) {
+				LOGGER.warn("There are pending executions since " + delay + " millis");
+			}
+		}
+
+		final MessageExecution maxRuntimeExecution = event.getMaxRuntimeExecution();
+		if (maxRuntimeExecution != null) {
+			final long delay = event.getWatchTimeMillis() - maxRuntimeExecution.getStartTimeMillis().longValue();
+			if (delay >= RUNNING_EXECUTIONS_WARN_THRESHOLD) {
+				LOGGER.warn("There are running executions since " + delay + " millis");
+			}
+		}
+
+		final List<MessageExecution> unfinishedCancelExecutions = event.getUnfinishedCancelExecutions(
+				UNFINISHED_CANCEL_WARN_THRESHOLD);
+		if (unfinishedCancelExecutions.size() > 0) {
+			LOGGER.warn("There are " + unfinishedCancelExecutions + " unfinished cancel executions");
+		}
+
+		if (event.getPendingExecutions().size() > 0
+			|| event.getRunningExecutions().size() > 0
+			|| event.getUnfinishedCancelExecutions().size() > 0) {
+			LOGGER.info(event.toString());
 		}
 
 	}
 
 	@Override
 	public void onExecutionCancel(final Object message, final long cancelTimeMillis) {
-		System.out.println("Message canceled: " + message);
+		LOGGER.info("Message canceled by watchdog: " + message);
 	}
 
 }
