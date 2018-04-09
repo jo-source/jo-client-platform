@@ -44,7 +44,7 @@ import org.jowidgets.message.api.IMessageReceiver;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.ISystemTimeProvider;
 
-final class Connection implements IMessageChannel {
+final class MessageChannel implements IMessageChannel {
 
 	private final HttpSession session;
 	private final MessageExecutionsWatchdog watchdog;
@@ -54,7 +54,7 @@ final class Connection implements IMessageChannel {
 	private final BlockingQueue<Object> queue;
 	private final ISystemTimeProvider systemTimeProvider;
 
-	Connection(
+	MessageChannel(
 		final IMessageReceiver receiver,
 		final ExecutorService executor,
 		final HttpSession session,

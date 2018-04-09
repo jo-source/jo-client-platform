@@ -67,22 +67,24 @@ public final class MessageServlet extends HttpServlet implements IMessageReceive
 	public static final String POLL_INTERVAL_MILLIS_PARAMETER_NAME = "pollIntervalMillis";
 	public static final String WATCHDOG_INTERVAL_MILLIS_PARAMETER_NAME = "watchdogIntervalMillis";
 	public static final String SESSION_INACTIVITY_MILLIS_PARAMETER_NAME = "sessionInactivityMillis";
+	public static final String DENY_REQUEST_PENDING_TIMEOUT_MILLIS_PARAMETER_NAME = "denyRequestPendingTimeoutMillis";
 	public static final String HARA_KIRI_TIMEOUT_MILLIS_PARAMETER_NAME = "haraKiriTimeoutMillis";
 	public static final String HARA_KIRI_PENDING_THRESHOLD_PARAMETER_NAME = "haraKiriPendingThreshold";
 	public static final String EXECUTOR_THREAD_COUNT_PARAMETER_NAME = "executorThreadCount";
 
-	private static final long DEFAULT_POLL_INTERVAL_MILLIS = 10000; // 10 seconds
-	private static final long DEFAULT_WATCHDOG_INTERVAL_MILLIS = 1000; // 1 second
-	private static final long DEFAULT_SESSION_INACTIVITY_TIMEOUT = 60 * 1000; // 1 minute
-	private static final long DEFAULT_HARA_KIRI_TIMEOUT = 1000 * 60 * 5; //5 Minutes
-	private static final long DEFAULT_HARA_KIRI_PENDING_THRESHHOLD = 50;
-	private static final long DEFAULT_THREAD_COUNT = Runtime.getRuntime().availableProcessors() * 20;
+	static final String MESSAGE_CHANNEL_ATTRIBUTE_NAME = MessageServlet.class.getName() + "#channel";
+
+	private static final long DEFAULT_POLL_INTERVAL_MILLIS = 10000; // wait up to 10 seconds on get() for messages to receive
+	private static final long DEFAULT_WATCHDOG_INTERVAL_MILLIS = 1000; // watch executions every 1 second
+	private static final long DEFAULT_SESSION_INACTIVITY_TIMEOUT = 60 * 1000; // cancel session if client is more than 1 minute inactive
+	private static final long DEFAULT_DENY_REQUEST_PENDING_TIMEOUT_MILLIS = 20 * 1000; // deny new requests if system is 20 seconds inactive
+	private static final long DEFAULT_HARA_KIRI_TIMEOUT = 1000 * 60 * 30; //do not allow more than 30 minutes system inactivity
+	private static final long DEFAULT_HARA_KIRI_PENDING_THRESHHOLD = 10000; // do not allow more than 10000 pending messages
+	private static final long DEFAULT_THREAD_COUNT = Runtime.getRuntime().availableProcessors() * 20; // use up to 20 thread's for each core
 
 	private static final long serialVersionUID = 1L;
 	private static final String CLASS_NAME = MessageServlet.class.getName();
 	private static final ILogger LOGGER = LoggerProvider.get(MessageServlet.class);
-
-	private static final String CONNECTION_ATTRIBUTE_NAME = MessageServlet.class.getName() + "#connection";
 
 	private final Object brokerId;
 	private final ISystemTimeProvider systemTimeProvider;
@@ -95,6 +97,8 @@ public final class MessageServlet extends HttpServlet implements IMessageReceive
 	private final AtomicBoolean initialized;
 
 	private long pollInterval;
+	private long denyRequestPendingTimeoutMillis;
+	private long sessionInactivityTimeoutMillis;
 	private ExecutorService executor;
 	private volatile IMessageReceiver receiver;
 
@@ -117,7 +121,7 @@ public final class MessageServlet extends HttpServlet implements IMessageReceive
 		this.executor = (ExecutorService) Proxy.newProxyInstance(
 				Executors.class.getClassLoader(),
 				new Class[] {ExecutorService.class},
-				new DummyExecutorServicehandler());
+				new DummyExecutorServiceInvocationHandler());
 
 		this.pollInterval = DEFAULT_POLL_INTERVAL_MILLIS;
 	}
@@ -138,6 +142,12 @@ public final class MessageServlet extends HttpServlet implements IMessageReceive
 		this.pollInterval = getLongFromConfig(config, POLL_INTERVAL_MILLIS_PARAMETER_NAME, DEFAULT_POLL_INTERVAL_MILLIS);
 		LOGGER.info("Set poll interval to: " + pollInterval);
 
+		this.denyRequestPendingTimeoutMillis = getLongFromConfig(
+				config,
+				DENY_REQUEST_PENDING_TIMEOUT_MILLIS_PARAMETER_NAME,
+				DEFAULT_DENY_REQUEST_PENDING_TIMEOUT_MILLIS);
+		LOGGER.info("Set deny request pending timeout millis to: " + denyRequestPendingTimeoutMillis);
+
 		initializeExecutor(config);
 		initializeWatchdog(config);
 	}
@@ -154,6 +164,10 @@ public final class MessageServlet extends HttpServlet implements IMessageReceive
 	}
 
 	private void initializeWatchdog(final ServletConfig config) {
+		sessionInactivityTimeoutMillis = getLongFromConfig(
+				config,
+				SESSION_INACTIVITY_MILLIS_PARAMETER_NAME,
+				DEFAULT_SESSION_INACTIVITY_TIMEOUT);
 		final Long sessionInactivityTimeout = getLongFromConfig(
 				config,
 				SESSION_INACTIVITY_MILLIS_PARAMETER_NAME,
@@ -274,12 +288,13 @@ public final class MessageServlet extends HttpServlet implements IMessageReceive
 
 		final HttpSession session = request.getSession();
 		if (session.isNew()) {
+			session.setMaxInactiveInterval((int) (sessionInactivityTimeoutMillis / 1000));
 			// return immediately to send new session id to client
 			oos.writeInt(0);
 		}
 		else {
-			final Connection conn = getConnection(session);
-			final List<Object> messages = conn.pollMessages(pollInterval);
+			final MessageChannel channel = getOrCreateMessageChannel(session);
+			final List<Object> messages = channel.pollMessages(pollInterval);
 			oos.writeInt(messages.size());
 			for (final Object message : messages) {
 				try {
@@ -312,16 +327,15 @@ public final class MessageServlet extends HttpServlet implements IMessageReceive
 		if (session == null) {
 			throw new ServletException("invalid session");
 		}
-		final Connection conn = getConnection(session);
+		final MessageChannel conn = getOrCreateMessageChannel(session);
 		try {
-			final Object msg = new ObjectInputStream(request.getInputStream()).readObject();
-			//TODO only handle service unavailable if ensured that all executions of this user was canceled before
-			//			final WatchDogResult watchResult = watchdog.getLastWatchResult();
-			//			if (watchResult.getPendingExecutions(2000).size() > 0 || watchResult.getRunningExecutions(2000).size() >= 4) {
-			//				resp.sendError(503, "To many executions");
-			//				return;
-			//			}
-			conn.onMessage(msg, executionInterceptors);
+			final WatchDogEvent watchEvent = watchdog.getLastWatchEvent();
+			if (watchEvent.getPendingExecutions(denyRequestPendingTimeoutMillis).size() > 0) {
+				watchdog.cancelExecutionsOfSession(session);
+				response.sendError(503, "Message rejected, to many pending messages.");
+				return;
+			}
+			conn.onMessage(new ObjectInputStream(request.getInputStream()).readObject(), executionInterceptors);
 		}
 		catch (final ClassNotFoundException e) {
 			MessageToolkit.handleExceptions(brokerId, e);
@@ -329,14 +343,15 @@ public final class MessageServlet extends HttpServlet implements IMessageReceive
 		}
 	}
 
-	private Connection getConnection(final HttpSession session) {
+	private MessageChannel getOrCreateMessageChannel(final HttpSession session) {
 		synchronized (session) {
-			Connection connection = (Connection) session.getAttribute(CONNECTION_ATTRIBUTE_NAME);
-			if (connection == null) {
-				connection = new Connection(receiver, executor, session, watchdog, systemTimeProvider);
-				session.setAttribute(CONNECTION_ATTRIBUTE_NAME, connection);
+			MessageChannel channel = (MessageChannel) session.getAttribute(MESSAGE_CHANNEL_ATTRIBUTE_NAME);
+			if (channel == null) {
+				LOGGER.debug("Create a new channel for session, max inactive interval: " + session.getMaxInactiveInterval());
+				channel = new MessageChannel(receiver, executor, session, watchdog, systemTimeProvider);
+				session.setAttribute(MESSAGE_CHANNEL_ATTRIBUTE_NAME, channel);
 			}
-			return connection;
+			return channel;
 		}
 	}
 
@@ -347,10 +362,10 @@ public final class MessageServlet extends HttpServlet implements IMessageReceive
 		}
 	}
 
-	private final class DummyExecutorServicehandler implements InvocationHandler {
+	private final class DummyExecutorServiceInvocationHandler implements InvocationHandler {
 		@Override
 		public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
-			throw new UnsupportedOperationException("Executor is not initialzed");
+			throw new UnsupportedOperationException("Executor is not initialized");
 		}
 	}
 

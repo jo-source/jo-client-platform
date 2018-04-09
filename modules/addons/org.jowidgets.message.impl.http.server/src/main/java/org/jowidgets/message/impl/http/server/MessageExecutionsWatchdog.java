@@ -85,7 +85,7 @@ final class MessageExecutionsWatchdog {
 		this.haraKiriPendingThreshold = haraKiriPendingThreshold;
 	}
 
-	WatchDogEvent getLastWatchResult() {
+	WatchDogEvent getLastWatchEvent() {
 		return lastWatchDogResult.get();
 	}
 
@@ -108,6 +108,36 @@ final class MessageExecutionsWatchdog {
 		}
 	}
 
+	void cancelExecutionsOfSession(final HttpSession session) {
+		synchronized (session) {
+			final List<MessageExecution> executions = executionsMap.remove(session);
+			if (executions != null) {
+				cancelMessageExecutions(executions);
+			}
+		}
+	}
+
+	void addExecution(final HttpSession session, final MessageExecution execution) {
+		synchronized (session) {
+			List<MessageExecution> executions = executionsMap.get(session);
+			if (executions == null) {
+				executions = new LinkedList<MessageExecution>();
+				executionsMap.put(session, executions);
+			}
+			executions.add(execution);
+		}
+	}
+
+	void addWatchdogListener(final IMessageExecutionWatchdogListener listener) {
+		Assert.paramNotNull(listener, "listener");
+		watchdogListeners.add(listener);
+	}
+
+	void removeWatchdogListener(final IMessageExecutionWatchdogListener listener) {
+		Assert.paramNotNull(listener, "listener");
+		watchdogListeners.remove(listener);
+	}
+
 	private void onExecutionsWatch(final WatchDogEvent watchDogResult) {
 		for (final IMessageExecutionWatchdogListener listener : watchdogListeners) {
 			listener.onExecutionsWatch(watchDogResult);
@@ -115,12 +145,8 @@ final class MessageExecutionsWatchdog {
 	}
 
 	private void doHaraKiri(final WatchDogEvent event) {
-		for (final MessageExecution execution : event.getPendingExecutions()) {
-			execution.cancel();
-		}
-		for (final MessageExecution execution : event.getRunningExecutions()) {
-			execution.cancel();
-		}
+		cancelMessageExecutions(event.getPendingExecutions());
+		cancelMessageExecutions(event.getRunningExecutions());
 	}
 
 	private boolean checkIfHaraKiriIsNecessary(final WatchDogEvent event) {
@@ -161,10 +187,12 @@ final class MessageExecutionsWatchdog {
 		removeCompletedExecutions(executions);
 		if (executions == null || executions.isEmpty()) {
 			executionsMap.remove(session);
-			LOGGER.info("Session has no executions and was removed from watchdog: " + session);
+			LOGGER.debug("Session has no executions and was removed from watchdog: " + session);
 		}
 		else {
 			if (isSessionInactive(session)) {
+				//avoid memory leak caused by out-dated result messages of inactive client
+				session.removeAttribute(MessageServlet.MESSAGE_CHANNEL_ATTRIBUTE_NAME);
 				if (!cancelMessageExecutions(executions)) {
 					//watch if no execution was canceled
 					watchMessageExecutions(executions, eventBuilder);
@@ -250,27 +278,6 @@ final class MessageExecutionsWatchdog {
 		else if (execution.isStarted() && !execution.isTerminated()) {
 			eventBuilder.addUnfinishedCancelExecution(execution);
 		}
-	}
-
-	void addExecution(final HttpSession session, final MessageExecution execution) {
-		synchronized (session) {
-			List<MessageExecution> executions = executionsMap.get(session);
-			if (executions == null) {
-				executions = new LinkedList<MessageExecution>();
-				executionsMap.put(session, executions);
-			}
-			executions.add(execution);
-		}
-	}
-
-	void addWatchdogListener(final IMessageExecutionWatchdogListener listener) {
-		Assert.paramNotNull(listener, "listener");
-		watchdogListeners.add(listener);
-	}
-
-	void removeWatchdogListener(final IMessageExecutionWatchdogListener listener) {
-		Assert.paramNotNull(listener, "listener");
-		watchdogListeners.remove(listener);
 	}
 
 	class WatchDogEventBuilder {

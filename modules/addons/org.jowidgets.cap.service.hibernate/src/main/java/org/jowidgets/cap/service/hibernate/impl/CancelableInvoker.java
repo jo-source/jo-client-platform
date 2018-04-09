@@ -45,6 +45,7 @@ import org.jowidgets.cap.common.api.execution.IResultCallback;
 import org.jowidgets.cap.common.api.execution.IUpdatableResultCallback;
 import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.hibernate.api.IKillSessionSupport;
+import org.jowidgets.cap.service.hibernate.api.KillSessionSupport;
 import org.jowidgets.cap.service.jpa.api.EntityManagerHolder;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.DefaultSystemTimeProvider;
@@ -96,7 +97,7 @@ final class CancelableInvoker {
 			resultCallback,
 			executionCallback,
 			minQueryRuntimeMillis,
-			null, //KillSessionSupport.getInstance(),
+			KillSessionSupport.getInstance(),
 			killAfterMillis,
 			waitForCancelSleepMillis);
 	}
