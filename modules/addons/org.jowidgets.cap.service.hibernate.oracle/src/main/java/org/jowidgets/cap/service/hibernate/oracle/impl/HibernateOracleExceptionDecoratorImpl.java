@@ -85,17 +85,17 @@ final class HibernateOracleExceptionDecoratorImpl implements IDecorator<Throwabl
 				}
 			}
 			else if (cause instanceof JDBCException) {
-				return decorateJDBCException((JDBCException) cause);
+				return decorateJDBCException(original, (JDBCException) cause);
 			}
 		}
 		else if (original instanceof JDBCException) {
-			return decorateJDBCException((JDBCException) original);
+			return decorateJDBCException(original, (JDBCException) original);
 		}
 
 		return original;
 	}
 
-	private Throwable decorateJDBCException(final JDBCException jdbcException) {
+	private Throwable decorateJDBCException(final Throwable parent, final JDBCException jdbcException) {
 		final SQLException sqlException = jdbcException.getSQLException();
 
 		final String userMessage = getUserMessage(sqlException.getErrorCode());
@@ -103,7 +103,7 @@ final class HibernateOracleExceptionDecoratorImpl implements IDecorator<Throwabl
 			return new ServiceException(sqlException.getMessage(), userMessage, sqlException);
 		}
 		else {
-			return jdbcException;
+			return parent;
 		}
 	}
 
