@@ -30,8 +30,11 @@ package org.jowidgets.cap.tools.starter.client.remoting;
 
 import org.jowidgets.cap.remoting.common.RemotingBrokerId;
 import org.jowidgets.message.api.MessageToolkit;
+import org.jowidgets.message.impl.http.client.HttpRequestInitializerComposite;
+import org.jowidgets.message.impl.http.client.IHttpRequestInitializer;
 import org.jowidgets.message.impl.http.client.IMessageBroker;
 import org.jowidgets.message.impl.http.client.MessageBrokerBuilder;
+import org.jowidgets.message.impl.http.client.UserLocaleHttpRequestInitializer;
 import org.jowidgets.security.impl.http.client.BasicAuthenticationInitializer;
 
 public class MessagingInitializer {
@@ -54,7 +57,10 @@ public class MessagingInitializer {
 		if (!messagingInitialized) {
 			final MessageBrokerBuilder builder = new MessageBrokerBuilder(brokerId);
 			builder.setUrl(getUrl(serverDefaultHost));
-			builder.setHttpRequestInitializer(BasicAuthenticationInitializer.getInstance());
+			final IHttpRequestInitializer httpRequestInitializer = new HttpRequestInitializerComposite(
+				BasicAuthenticationInitializer.getInstance(),
+				UserLocaleHttpRequestInitializer.getInstance());
+			builder.setHttpRequestInitializer(httpRequestInitializer);
 			final IMessageBroker messageBroker = builder.build();
 			MessageToolkit.addChannelBroker(messageBroker);
 			MessageToolkit.addReceiverBroker(messageBroker);
