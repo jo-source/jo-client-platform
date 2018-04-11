@@ -26,7 +26,7 @@
  * DAMAGE.
  */
 
-package org.jowidgets.cap.tools.starter.server;
+package org.jowidgets.message.impl.http.server;
 
 import java.util.List;
 
@@ -36,9 +36,15 @@ import org.jowidgets.message.impl.http.server.IMessageExecutionWatchdogListener;
 import org.jowidgets.message.impl.http.server.MessageExecution;
 import org.jowidgets.message.impl.http.server.WatchDogEvent;
 
-public final class WatchdogListener implements IMessageExecutionWatchdogListener {
+/**
+ * {@link IMessageExecutionWatchdogListener} implementation that logs states with info level if any execution is pending, running
+ * or has an unfinished cancel.
+ * 
+ * If critical thresholds reached, warning will be logged.
+ */
+public final class LoggingWatchdogListener implements IMessageExecutionWatchdogListener {
 
-	private static final ILogger LOGGER = LoggerProvider.get(WatchdogListener.class);
+	private static final ILogger LOGGER = LoggerProvider.get(LoggingWatchdogListener.class);
 
 	private static final long PENDING_EXECUTIONS_WARN_THRESHOLD = 30 * 1000; // 30 seconds
 	private static final long RUNNING_EXECUTIONS_WARN_THRESHOLD = 30 * 60 * 1000; // 30 minutes
