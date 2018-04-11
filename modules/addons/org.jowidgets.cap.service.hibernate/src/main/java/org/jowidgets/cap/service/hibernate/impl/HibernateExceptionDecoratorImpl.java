@@ -109,12 +109,15 @@ public class HibernateExceptionDecoratorImpl implements IDecorator<Throwable> {
 		final SQLException sqlException = jdbcException.getSQLException();
 		return new ServiceException(
 			sqlException.getMessage(),
-			getUserMessageForJDBCException(sqlException.getSQLState()),
+			getUserMessageForJDBCException(jdbcException, sqlException.getSQLState()),
 			jdbcException);
 	}
 
-	private String getUserMessageForJDBCException(final String sqlState) {
-		if (sqlState == null) {
+	private String getUserMessageForJDBCException(final JDBCException jdbcException, final String sqlState) {
+		if (sqlState == null && hasResourcePoolTimeoutExceptionCause(jdbcException)) {
+			return Messages.getString("HibernateExceptionDecoratorImpl.database_not_available");
+		}
+		else if (sqlState == null) {
 			return Messages.getString("HibernateExceptionDecoratorImpl.database_access_failed");
 		}
 		else if ("08003".equals(sqlState)) {
@@ -123,8 +126,23 @@ public class HibernateExceptionDecoratorImpl implements IDecorator<Throwable> {
 		else if (sqlState.startsWith("08")) {
 			return Messages.getString("HibernateExceptionDecoratorImpl.database_connection_failed");
 		}
+		else if (hasResourcePoolTimeoutExceptionCause(jdbcException)) {
+			return Messages.getString("HibernateExceptionDecoratorImpl.database_not_available");
+		}
 		else {
 			return Messages.getString("HibernateExceptionDecoratorImpl.database_access_failed");
+		}
+	}
+
+	private boolean hasResourcePoolTimeoutExceptionCause(final Throwable exception) {
+		if (exception instanceof com.mchange.v2.resourcepool.TimeoutException) {
+			return true;
+		}
+		else if (exception.getCause() != null) {
+			return hasResourcePoolTimeoutExceptionCause(exception.getCause());
+		}
+		else {
+			return false;
 		}
 	}
 
