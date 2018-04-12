@@ -40,6 +40,7 @@ import org.hibernate.StaleObjectStateException;
 import org.hibernate.exception.ConstraintViolationException;
 import org.jowidgets.cap.common.api.exception.ExecutableCheckException;
 import org.jowidgets.cap.common.api.exception.ServiceException;
+import org.jowidgets.cap.common.api.exception.ServiceUnavailableException;
 import org.jowidgets.cap.common.api.exception.StaleBeanException;
 import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.util.IDecorator;
@@ -106,18 +107,23 @@ public class HibernateExceptionDecoratorImpl implements IDecorator<Throwable> {
 	}
 
 	private Throwable decorateJDBCException(final JDBCException jdbcException) {
-		final SQLException sqlException = jdbcException.getSQLException();
-		return new ServiceException(
-			sqlException.getMessage(),
-			getUserMessageForJDBCException(jdbcException, sqlException.getSQLState()),
-			jdbcException);
+		if (hasResourcePoolTimeoutExceptionCause(jdbcException)) {
+			return new ServiceUnavailableException(
+				"All available database connections are in use",
+				Messages.getString("HibernateExceptionDecoratorImpl.database_not_available"),
+				jdbcException);
+		}
+		else {
+			final SQLException sqlException = jdbcException.getSQLException();
+			return new ServiceException(
+				sqlException.getMessage(),
+				getUserMessageForJDBCException(jdbcException, sqlException.getSQLState()),
+				jdbcException);
+		}
 	}
 
 	private String getUserMessageForJDBCException(final JDBCException jdbcException, final String sqlState) {
-		if (sqlState == null && hasResourcePoolTimeoutExceptionCause(jdbcException)) {
-			return Messages.getString("HibernateExceptionDecoratorImpl.database_not_available");
-		}
-		else if (sqlState == null) {
+		if (sqlState == null) {
 			return Messages.getString("HibernateExceptionDecoratorImpl.database_access_failed");
 		}
 		else if ("08003".equals(sqlState)) {
@@ -125,9 +131,6 @@ public class HibernateExceptionDecoratorImpl implements IDecorator<Throwable> {
 		}
 		else if (sqlState.startsWith("08")) {
 			return Messages.getString("HibernateExceptionDecoratorImpl.database_connection_failed");
-		}
-		else if (hasResourcePoolTimeoutExceptionCause(jdbcException)) {
-			return Messages.getString("HibernateExceptionDecoratorImpl.database_not_available");
 		}
 		else {
 			return Messages.getString("HibernateExceptionDecoratorImpl.database_access_failed");
