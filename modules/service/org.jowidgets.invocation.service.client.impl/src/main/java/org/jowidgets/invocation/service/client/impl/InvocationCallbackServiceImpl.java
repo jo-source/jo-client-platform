@@ -115,7 +115,9 @@ final class InvocationCallbackServiceImpl implements IInvocationCallbackService 
 					final ICancelService cancelService = invocationClient.getCancelService();
 					if (cancelService != null) {
 						cancelService.canceled(invocationId);
+						invocationContexts.remove(invocationId);
 					}
+
 				}
 			});
 		}
