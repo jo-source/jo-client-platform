@@ -89,7 +89,7 @@ public final class UserLocaleFilter implements Filter {
 			final Locale userLocale = getUserLocaleFromAcceptLanguageTag(acceptLanguage);
 			if (userLocale != null) {
 				LocaleHolder.setUserLocale(userLocale);
-				LOGGER.info("Set user locale to: " + userLocale);
+				LOGGER.debug("Set user locale to: " + userLocale);
 			}
 		}
 		else {

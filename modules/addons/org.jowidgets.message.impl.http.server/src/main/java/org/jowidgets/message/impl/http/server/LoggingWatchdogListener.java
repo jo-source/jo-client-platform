@@ -32,9 +32,6 @@ import java.util.List;
 
 import org.jowidgets.logging.api.ILogger;
 import org.jowidgets.logging.api.LoggerProvider;
-import org.jowidgets.message.impl.http.server.IMessageExecutionWatchdogListener;
-import org.jowidgets.message.impl.http.server.MessageExecution;
-import org.jowidgets.message.impl.http.server.WatchDogEvent;
 
 /**
  * {@link IMessageExecutionWatchdogListener} implementation that logs states with info level if any execution is pending, running
@@ -71,7 +68,7 @@ public final class LoggingWatchdogListener implements IMessageExecutionWatchdogL
 		final List<MessageExecution> unfinishedCancelExecutions = event.getUnfinishedCancelExecutions(
 				UNFINISHED_CANCEL_WARN_THRESHOLD);
 		if (unfinishedCancelExecutions.size() > 0) {
-			LOGGER.warn("There are " + unfinishedCancelExecutions + " unfinished cancel executions");
+			LOGGER.warn("There are " + unfinishedCancelExecutions.size() + " unfinished cancel executions");
 		}
 
 		if (event.getPendingExecutions().size() > 0
