@@ -217,10 +217,16 @@ final class QueryTerminator {
 		}
 
 		final long currentTimeMillis = systemTimeProvider.currentTimeMillis();
-		final long queryMethodStarted = queryStartedTimestamp.get();
-		final long queryRuntime = currentTimeMillis - queryMethodStarted;
 
-		if (queryRuntime < minQueryRuntimeMillis.longValue() || queryMethodStarted == 0) {
+		final long queryMethodStarted = queryStartedTimestamp.get();
+		//In case 'queryMethodStarted == 0' and exception has been occurred before 
+		//query started and no more sleep is necessary
+		if (queryMethodStarted == 0) {
+			return;
+		}
+
+		final long queryRuntime = currentTimeMillis - queryMethodStarted;
+		if (queryRuntime < minQueryRuntimeMillis.longValue()) {
 			//Avoid that cancel query will be invoked before a query has been started.
 			//This is only a heuristic method but if it fails, termination should work with
 			//next #terminateQuery() attempt.

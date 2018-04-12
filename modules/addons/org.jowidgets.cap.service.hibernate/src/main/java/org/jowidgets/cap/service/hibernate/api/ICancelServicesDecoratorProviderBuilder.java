@@ -95,20 +95,6 @@ public interface ICancelServicesDecoratorProviderBuilder {
 	ICancelServicesDecoratorProviderBuilder setMinQueryRuntimeMillis(Long minQueryRuntimeMillis);
 
 	/**
-	 * Sets the waitForCancelSleepMillis parameter.
-	 * 
-	 * The cancel thread waits until the query thread has been finished. This parameter determines how long the thread sleeps
-	 * until a new cancel attempt will be made.
-	 * 
-	 * If not set, the default value of 1000 millis is used.
-	 * 
-	 * @param waitForCancelSleepMillis The value to set
-	 *
-	 * @return This builder
-	 */
-	ICancelServicesDecoratorProviderBuilder setWaitForCancelSleepMillis(long waitForCancelSleepMillis);
-
-	/**
 	 * Sets the order for the service decoration. Decorators with higher order will be invoked later.
 	 * 
 	 * By default, the {@link #DEFAULT_ORDER} will be used

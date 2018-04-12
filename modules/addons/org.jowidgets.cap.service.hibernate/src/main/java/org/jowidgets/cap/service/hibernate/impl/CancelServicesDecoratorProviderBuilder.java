@@ -50,9 +50,8 @@ final class CancelServicesDecoratorProviderBuilder implements ICancelServicesDec
 	private final IThreadInterruptObservable threadInterruptObservable;
 	private final Set<Class<?>> services;
 
-	private Long killAfterMillis = Long.valueOf(120000);
+	private Long killAfterMillis = Long.valueOf(60000);
 	private Long minQueryRuntimeMillis = Long.valueOf(25);
-	private long waitForCancelSleepMillis = 1000;
 
 	private int order;
 
@@ -105,12 +104,6 @@ final class CancelServicesDecoratorProviderBuilder implements ICancelServicesDec
 	}
 
 	@Override
-	public ICancelServicesDecoratorProviderBuilder setWaitForCancelSleepMillis(final long waitForCancelSleepMillis) {
-		this.waitForCancelSleepMillis = waitForCancelSleepMillis;
-		return this;
-	}
-
-	@Override
 	public ICancelServicesDecoratorProviderBuilder setOrder(final int order) {
 		this.order = order;
 		return this;
@@ -124,7 +117,6 @@ final class CancelServicesDecoratorProviderBuilder implements ICancelServicesDec
 			services,
 			minQueryRuntimeMillis,
 			killAfterMillis,
-			waitForCancelSleepMillis,
 			order);
 	}
 

@@ -32,7 +32,7 @@ import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.persistence.EntityManager;
@@ -68,9 +68,9 @@ final class CancelableInvoker {
 	private final CountDownLatch queryFinishedLatch;
 	private final CountDownLatch queryStartedLatch;
 	private final AtomicLong queryStartedTimestamp;
+	private final AtomicBoolean terminateInvokedByCancel;
 
 	private final String clientIdentifier;
-	private final long waitForCancelSleepMillis;
 	private final IKillSessionSupport killSessionSupport;
 	private final QueryTerminator queryTerminator;
 
@@ -84,8 +84,7 @@ final class CancelableInvoker {
 		final IResultCallback<Object> resultCallback,
 		final IExecutionCallback executionCallback,
 		final Long minQueryRuntimeMillis,
-		final Long killAfterMillis,
-		final long waitForCancelSleepMillis) {
+		final Long killAfterMillis) {
 		this(
 			DefaultSystemTimeProvider.getInstance(),
 			threadInterruptObservable,
@@ -98,8 +97,7 @@ final class CancelableInvoker {
 			executionCallback,
 			minQueryRuntimeMillis,
 			KillSessionSupport.getInstance(),
-			killAfterMillis,
-			waitForCancelSleepMillis);
+			killAfterMillis);
 	}
 
 	CancelableInvoker(
@@ -114,8 +112,7 @@ final class CancelableInvoker {
 		final IExecutionCallback executionCallback,
 		final Long minQueryRuntimeMillis,
 		final IKillSessionSupport killSessionSupport,
-		final Long killAfterMillis,
-		final long waitForCancelSleepMillis) {
+		final Long killAfterMillis) {
 
 		Assert.paramNotNull(systemTimeProvider, "systemTimeProvider");
 		Assert.paramNotNull(threadInterruptObservable, "threadInterruptObservable");
@@ -134,10 +131,10 @@ final class CancelableInvoker {
 		this.queryFinishedLatch = new CountDownLatch(1);
 		this.queryStartedLatch = new CountDownLatch(1);
 		this.queryStartedTimestamp = new AtomicLong(0);
+		this.terminateInvokedByCancel = new AtomicBoolean(false);
 
 		this.clientIdentifier = UUID.randomUUID().toString();
 		this.killSessionSupport = killSessionSupport;
-		this.waitForCancelSleepMillis = waitForCancelSleepMillis;
 
 		final EntityManager entityManager = EntityManagerHolder.get();
 		if (entityManager != null) {
@@ -173,12 +170,13 @@ final class CancelableInvoker {
 				addCancelListener(executionCallback);
 				interruptListener = new ThreadInterruptListener();
 				threadInterruptObservable.addInterruptListener(interruptListener);
+				final Connection connectionForThread = queryTerminator.getConnection();
+				setClientIdentifierOnConnection(connectionForThread, clientIdentifier);
 			}
 			else {
 				interruptListener = null;
 			}
 			try {
-				setClientIdentifierOnConnectionForThread(clientIdentifier);
 				queryStartedTimestamp.set(systemTimeProvider.currentTimeMillis());
 				queryStartedLatch.countDown();
 				return method.invoke(original, args);
@@ -196,15 +194,10 @@ final class CancelableInvoker {
 
 	}
 
-	private void setClientIdentifierOnConnectionForThread(final String clientIndetifier) {
-		if (queryTerminator == null || killSessionSupport == null) {
+	private void setClientIdentifierOnConnection(final Connection connection, final String clientIndetifier) {
+		if (queryTerminator == null || killSessionSupport == null || connection == null) {
 			return;
 		}
-		final Connection connection = queryTerminator.getConnection();
-		if (connection == null) {
-			return;
-		}
-
 		killSessionSupport.setClientIdentifier(clientIndetifier, connection);
 	}
 
@@ -232,32 +225,37 @@ final class CancelableInvoker {
 	private class ThreadInterruptListener implements IThreadInterruptListener {
 		@Override
 		public void interrupted(final Thread thread) {
-			queryTerminator.terminateQuery();
+			//avoid that terminate will be invoked twice on one interrupt listener interval
+			if (!terminateInvokedByCancel.get()) {
+				queryTerminator.terminateQuery();
+			}
+			else {
+				//do invoke terminate next time in case termination fails
+				terminateInvokedByCancel.set(false);
+			}
 		}
 	}
 
 	private class CancelListener implements IExecutionCallbackListener {
 
-		@Override
-		public void canceled() {
-			try {
-				queryTerminator.terminateQuery();
-			}
-			finally {
-				try {
-					awaitSessionCanceled();
-				}
-				catch (final InterruptedException e) {
-					Thread.currentThread().interrupt();
-				}
-			}
+		private final Thread executingThread;
+
+		CancelListener() {
+			executingThread = Thread.currentThread();
 		}
 
-		private void awaitSessionCanceled() throws InterruptedException {
-			while (!queryFinishedLatch.await(waitForCancelSleepMillis, TimeUnit.MILLISECONDS)) {
-				queryTerminator.terminateQuery();
-			}
+		@Override
+		public void canceled() {
+			//avoid that terminate will be invoked twice on one interrupt listener interval
+			terminateInvokedByCancel.set(true);
+
+			//interrupt the executing thread, necessary e.g. if connection pool waits for connection
+			executingThread.interrupt();
+
+			//invoke terminate directly to avoid waiting on interrupt listener
+			queryTerminator.terminateQuery();
 		}
+
 	}
 
 	private class DecoratedResultCallback implements IResultCallback<Object> {

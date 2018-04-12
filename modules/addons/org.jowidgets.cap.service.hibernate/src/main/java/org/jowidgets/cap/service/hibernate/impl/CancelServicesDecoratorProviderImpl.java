@@ -53,7 +53,6 @@ final class CancelServicesDecoratorProviderImpl implements IServicesDecoratorPro
 	private final Set<Class<?>> services;
 	private final Long killAfterMillis;
 	private final Long minQueryRuntimeMillis;
-	private final long waitForCancelSleepMillis;
 	private final int order;
 
 	CancelServicesDecoratorProviderImpl(
@@ -62,7 +61,6 @@ final class CancelServicesDecoratorProviderImpl implements IServicesDecoratorPro
 		final Set<Class<?>> services,
 		final Long minQueryRuntimeMillis,
 		final Long killAfterMillis,
-		final long waitForCancelSleepMillis,
 		final int order) {
 
 		Assert.paramNotNull(threadInterruptObservable, "threadInterruptObservable");
@@ -79,7 +77,6 @@ final class CancelServicesDecoratorProviderImpl implements IServicesDecoratorPro
 		this.services = new HashSet<Class<?>>(services);
 		this.minQueryRuntimeMillis = minQueryRuntimeMillis;
 		this.killAfterMillis = killAfterMillis;
-		this.waitForCancelSleepMillis = waitForCancelSleepMillis;
 		this.order = order;
 	}
 
@@ -147,8 +144,7 @@ final class CancelServicesDecoratorProviderImpl implements IServicesDecoratorPro
 				resultCallback,
 				executionCallback,
 				minQueryRuntimeMillis,
-				killAfterMillis,
-				waitForCancelSleepMillis).invoke();
+				killAfterMillis).invoke();
 		}
 	}
 
