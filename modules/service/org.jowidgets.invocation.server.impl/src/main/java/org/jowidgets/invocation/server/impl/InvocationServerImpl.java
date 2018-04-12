@@ -106,20 +106,8 @@ public final class InvocationServerImpl implements IInvocationServer {
 				@Override
 				public void send(final Object message, final IExceptionCallback exceptionCallback) {
 					if (message instanceof ExceptionMessage) {
-						final Throwable throwable = ((ExceptionMessage) message).getException();
-						if (exceptionCallback != null) {
-							exceptionCallback.exception(
-									new IllegalStateException(
-										"No message channel is registered for invocationId '" + invocationId + "'",
-										throwable));
-						}
-						else {
-							MessageToolkit.handleExceptions(
-									brokerId,
-									new IllegalStateException(
-										"No message channel is registered for invocationId '" + invocationId + "'",
-										throwable));
-						}
+						//ignore exceptions
+						return;
 					}
 					else if (exceptionCallback != null) {
 						exceptionCallback.exception(

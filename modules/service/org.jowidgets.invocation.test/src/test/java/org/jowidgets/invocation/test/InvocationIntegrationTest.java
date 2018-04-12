@@ -299,7 +299,7 @@ public class InvocationIntegrationTest {
 		Mockito.verify(clientInvocationCallback, Mockito.never()).exeption(invocationId, expectedException);
 		Mockito.verify(clientInvocationCallback, Mockito.times(1)).finished(invocationId, methodResult);
 
-		assertLogError();
+		assertNoLogErrorOrWarning();
 	}
 
 	@Test
