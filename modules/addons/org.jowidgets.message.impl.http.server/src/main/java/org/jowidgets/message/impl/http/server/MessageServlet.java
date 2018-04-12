@@ -323,9 +323,9 @@ public final class MessageServlet extends HttpServlet implements IMessageReceive
 			return;
 		}
 
-		final HttpSession session = request.getSession(false);
+		final HttpSession session = getHttpSession(request);
 		if (session == null) {
-			throw new ServletException("invalid session");
+			throw new ServletException("Invalid session");
 		}
 		final MessageChannel conn = getOrCreateMessageChannel(session);
 		try {
@@ -343,6 +343,18 @@ public final class MessageServlet extends HttpServlet implements IMessageReceive
 		}
 	}
 
+	private HttpSession getHttpSession(final HttpServletRequest request) {
+		if (request.isRequestedSessionIdValid()) {
+			try {
+				return request.getSession(false);
+			}
+			catch (final Exception e) {
+				LOGGER.error("Exception on get session", e);
+			}
+		}
+		return null;
+	}
+
 	private MessageChannel getOrCreateMessageChannel(final HttpSession session) {
 		synchronized (session) {
 			MessageChannel channel = (MessageChannel) session.getAttribute(MESSAGE_CHANNEL_ATTRIBUTE_NAME);
@@ -358,7 +370,12 @@ public final class MessageServlet extends HttpServlet implements IMessageReceive
 	private final class WatchDogRunner implements Runnable {
 		@Override
 		public void run() {
-			watchdog.watchExecutions();
+			try {
+				watchdog.watchExecutions();
+			}
+			catch (final Exception e) {
+				LOGGER.error("Exception on watch executions", e);
+			}
 		}
 	}
 

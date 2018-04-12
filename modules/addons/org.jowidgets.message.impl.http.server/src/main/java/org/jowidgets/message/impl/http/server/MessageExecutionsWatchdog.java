@@ -192,7 +192,7 @@ final class MessageExecutionsWatchdog {
 		else {
 			if (isSessionInactive(session)) {
 				//avoid memory leak caused by out-dated result messages of inactive client
-				session.removeAttribute(MessageServlet.MESSAGE_CHANNEL_ATTRIBUTE_NAME);
+				removeMessageChannelAttribute(session);
 				if (!cancelMessageExecutions(executions)) {
 					//watch if no execution was canceled
 					watchMessageExecutions(executions, eventBuilder);
@@ -230,7 +230,33 @@ final class MessageExecutionsWatchdog {
 	}
 
 	private boolean isSessionInactive(final HttpSession session) {
-		return systemTimeProvider.currentTimeMillis() - session.getLastAccessedTime() > sessionInactivityTimeout;
+		try {
+			return systemTimeProvider.currentTimeMillis() - session.getLastAccessedTime() > sessionInactivityTimeout;
+		}
+		catch (final IllegalStateException e) {
+			//Session.getLastAccessedTime() throws an illegalStateException if session is invalid.
+			//In this case session is no longer active.
+			//Logging is omitted with purpose here because client stops the application is a normal use case that should not
+			//produce warning or errors in log-file.
+			//Unfortunately the interface does not allow to check the validity state of session
+			return true;
+		}
+		catch (final Exception e) {
+			LOGGER.error("Exception when checking sessions last accessed time", e);
+			return true;
+		}
+	}
+
+	private void removeMessageChannelAttribute(final HttpSession session) {
+		try {
+			session.removeAttribute(MessageServlet.MESSAGE_CHANNEL_ATTRIBUTE_NAME);
+		}
+		catch (final IllegalStateException e) {
+			//ignore, probably session is invalid and will no longer be referenced is this case
+		}
+		catch (final Exception e) {
+			LOGGER.error("Exception when remove attribute from session", e);
+		}
 	}
 
 	private boolean cancelMessageExecutions(final Collection<MessageExecution> executions) {
@@ -269,6 +295,15 @@ final class MessageExecutionsWatchdog {
 	private void watchMessageExecution(final MessageExecution execution, final WatchDogEventBuilder eventBuilder) {
 		if (!execution.isCanceled()) {
 			if (execution.isStarted()) {
+				final Thread executingThread = execution.getExecutingThread();
+				if (executingThread != null) {
+					//set interrupted executions on canceled to allow to watch unfinished canceled executions
+					if (executingThread.isInterrupted()) {
+						execution.cancel();
+						//do not add the execution to the running executions
+						return;
+					}
+				}
 				eventBuilder.addRunningExecution(execution);
 			}
 			else {
