@@ -35,9 +35,14 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.jowidgets.invocation.common.api.ICancelService;
 import org.jowidgets.invocation.service.common.api.ICancelListener;
+import org.jowidgets.logging.api.ILogger;
+import org.jowidgets.logging.api.LoggerProvider;
 import org.jowidgets.util.Assert;
 
 final class CancelServiceImpl implements ICancelService {
+
+	private static final ILogger LOGGER = LoggerProvider.get(CancelServiceImpl.class);
+	private static final int MAP_SIZE_WARN_THRESHOLD = 500;
 
 	private final Map<Object, Set<ICancelListener>> cancelListeners;
 
@@ -60,6 +65,7 @@ final class CancelServiceImpl implements ICancelService {
 	synchronized void registerInvocation(final Object invocationId) {
 		Assert.paramNotNull(invocationId, "invocationId");
 		cancelListeners.put(invocationId, new HashSet<ICancelListener>());
+		checkMapSize();
 	}
 
 	synchronized void registerCancelListener(final Object invocationId, final ICancelListener cancelListener) {
@@ -77,5 +83,19 @@ final class CancelServiceImpl implements ICancelService {
 	synchronized void unregisterInvocation(final Object invocationId) {
 		Assert.paramNotNull(invocationId, "invocationId");
 		cancelListeners.remove(invocationId);
+	}
+
+	/**
+	 * Added to observe issue #84:
+	 * 
+	 * https://github.com/jo-source/jo-client-platform/issues/84 Potential memory leaks for service invocations
+	 * 
+	 * Log a warning if map seems to be higher than usual which may indicate a memory leak.
+	 */
+	private void checkMapSize() {
+		if (cancelListeners.size() >= MAP_SIZE_WARN_THRESHOLD) {
+			LOGGER.warn(
+					"The size of the invocation map is '" + cancelListeners.size() + "' and higher as expected, see issue #84.");
+		}
 	}
 }

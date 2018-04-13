@@ -34,9 +34,14 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.jowidgets.invocation.common.api.IResponseService;
 import org.jowidgets.invocation.service.common.api.IInterimResponseCallback;
+import org.jowidgets.logging.api.ILogger;
+import org.jowidgets.logging.api.LoggerProvider;
 import org.jowidgets.util.Assert;
 
 final class ResponseServiceImpl implements IResponseService {
+
+	private static final ILogger LOGGER = LoggerProvider.get(ResponseServiceImpl.class);
+	private static final int MAP_SIZE_WARN_THRESHOLD = 500;
 
 	private final Map<Object, IInterimResponseCallback<Object>> interimResponseCallback;
 
@@ -56,7 +61,24 @@ final class ResponseServiceImpl implements IResponseService {
 	Object register(final IInterimResponseCallback<Object> callback) {
 		final Object requestId = UUID.randomUUID();
 		interimResponseCallback.put(requestId, callback);
+		checkMapSize();
 		return requestId;
+	}
+
+	/**
+	 * Added to observe issue #84:
+	 * 
+	 * https://github.com/jo-source/jo-client-platform/issues/84 Potential memory leaks for service invocations
+	 * 
+	 * Log a warning if map seems to be higher than usual which may indicate a memory leak.
+	 */
+	private void checkMapSize() {
+		if (interimResponseCallback.size() >= MAP_SIZE_WARN_THRESHOLD) {
+			LOGGER.warn(
+					"The size of the invocation map is '"
+						+ interimResponseCallback.size()
+						+ "' and higher as expected, see issue #84.");
+		}
 	}
 
 }

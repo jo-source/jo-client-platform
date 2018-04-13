@@ -17,6 +17,12 @@
             <artifactId>org.jowidgets.util</artifactId>
             <version>${jowidgets.version}</version>
         </dependency>
+        
+        <dependency>
+            <groupId>org.jowidgets</groupId>
+            <artifactId>org.jowidgets.logging.api</artifactId>
+            <version>${jowidgets.version}</version>
+        </dependency>
 		
         <dependency>
             <groupId>org.jowidgets</groupId>

@@ -37,6 +37,8 @@ import org.jowidgets.invocation.common.impl.FinishedMessage;
 import org.jowidgets.invocation.common.impl.InterimRequestMessage;
 import org.jowidgets.invocation.common.impl.InterimResponseMessage;
 import org.jowidgets.invocation.server.api.IInvocationServer;
+import org.jowidgets.logging.api.ILogger;
+import org.jowidgets.logging.api.LoggerProvider;
 import org.jowidgets.message.api.IExceptionCallback;
 import org.jowidgets.message.api.IMessageChannel;
 import org.jowidgets.message.api.MessageToolkit;
@@ -44,9 +46,11 @@ import org.jowidgets.util.Assert;
 
 public final class InvocationServerImpl implements IInvocationServer {
 
+	private static final ILogger LOGGER = LoggerProvider.get(InvocationServerImpl.class);
+	private static final int MAP_SIZE_WARN_THRESHOLD = 500;
+
 	private final Object brokerId;
 
-	//TODO MG remove invocations with timeout from the map
 	private final Map<Object, MethodInvocation> methodInvocations;
 	private final IInvocationCallbackService invocationCallbackService;
 
@@ -89,11 +93,28 @@ public final class InvocationServerImpl implements IInvocationServer {
 		Assert.paramNotNull(invocationId, "invocationId");
 		Assert.paramNotNull(replyChannel, "replyChannel");
 		methodInvocations.put(invocationId, new MethodInvocation(invocationId, replyChannel));
+		checkMapSize();
 	}
 
 	void unregisterInvocation(final Object invocationId) {
 		Assert.paramNotNull(invocationId, "invocationId");
 		methodInvocations.remove(invocationId);
+	}
+
+	/**
+	 * Added to observe issue #84:
+	 * 
+	 * https://github.com/jo-source/jo-client-platform/issues/84 Potential memory leaks for service invocations
+	 * 
+	 * Log a warning if map seems to be higher than usual which may indicate a memory leak.
+	 */
+	private void checkMapSize() {
+		if (methodInvocations.size() >= MAP_SIZE_WARN_THRESHOLD) {
+			LOGGER.warn(
+					"The size of the invocation map is '"
+						+ methodInvocations.size()
+						+ "' and higher as expected, see issue #84.");
+		}
 	}
 
 	IMessageChannel getMessageChannel(final Object invocationId) {
