@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, grossmann
+ * Copyright (c) 2018, grossmann
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -26,27 +26,22 @@
  * DAMAGE.
  */
 
-package org.jowidgets.invocation.common.impl;
+package org.jowidgets.cap.service.hibernate.impl;
 
-import java.io.Serializable;
+import org.jowidgets.logging.api.ILogger;
+import org.jowidgets.util.IExceptionHandler;
 
-public final class CancelMessage implements Serializable {
+final class LoggingExceptionHandler implements IExceptionHandler {
 
-	private static final long serialVersionUID = -4205299138579625114L;
+	private final ILogger logger;
 
-	private final Object invocationId;
-
-	public CancelMessage(final Object invocationId) {
-		this.invocationId = invocationId;
-	}
-
-	public Object getInvocationId() {
-		return invocationId;
+	LoggingExceptionHandler(final ILogger logger) {
+		this.logger = logger;
 	}
 
 	@Override
-	public String toString() {
-		return "CancelMessage [invocationId=" + invocationId + "]";
+	public void handleException(final Throwable exception) {
+		logger.error(exception);
 	}
 
 }

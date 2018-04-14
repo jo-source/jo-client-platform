@@ -30,6 +30,9 @@ package org.jowidgets.cap.tools.starter.server;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import javax.servlet.Filter;
 
@@ -39,6 +42,7 @@ import org.eclipse.jetty.servlet.FilterMapping;
 import org.eclipse.jetty.servlet.Holder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.util.thread.ExecutorThreadPool;
 import org.jowidgets.cap.remoting.common.RemotingBrokerId;
 import org.jowidgets.logging.api.ILogger;
 import org.jowidgets.logging.api.LoggerProvider;
@@ -48,6 +52,7 @@ import org.jowidgets.security.impl.http.server.SecurityRemotingServlet;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.util.StringUtils;
+import org.jowidgets.util.concurrent.DaemonThreadFactory;
 
 public final class CapServerStarter {
 
@@ -88,6 +93,16 @@ public final class CapServerStarter {
 	public static void startServer(final String brokerId, final int port, final MessageServletConfig config) throws Exception {
 		Assert.paramNotNull(brokerId, "brokerId");
 		final Server server = new Server(port);
+
+		final ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(
+			32,
+			256,
+			60,
+			TimeUnit.SECONDS,
+			new LinkedBlockingQueue<Runnable>(),
+			DaemonThreadFactory.multi(CapServerStarter.class.getName() + ".ServletExecutor"));
+		server.setThreadPool(new ExecutorThreadPool(threadPoolExecutor));
+
 		final ServletContextHandler root = new ServletContextHandler(ServletContextHandler.SESSIONS);
 
 		final ServletHolder servletHolder = new ServletHolder(new SecurityRemotingServlet(brokerId));

@@ -110,11 +110,13 @@ final class MessageHandler implements Runnable {
 		final List<Object> uncalledExecutionContexts) {
 		if (uncalledInterceptors.isEmpty()) {
 			if (Thread.currentThread().isInterrupted()) {
-				LOGGER.info(
+				LOGGER.debug(
 						"Message will not handled because the executor thread was already interrupted, message is: " + message);
 			}
 			else {
+				LOGGER.debug("Before handle message: " + message);
 				receiver.onMessage(message, replyChannel);
+				LOGGER.debug("After handle message: " + message);
 			}
 			return;
 		}

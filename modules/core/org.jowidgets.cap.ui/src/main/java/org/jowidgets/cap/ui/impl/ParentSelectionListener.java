@@ -145,7 +145,8 @@ final class ParentSelectionListener<BEAN_TYPE> implements IBeanSelectionListener
 
 	private ScheduledExecutorService getExecutorService() {
 		if (executorService == null) {
-			executorService = Executors.newSingleThreadScheduledExecutor(new DaemonThreadFactory());
+			executorService = Executors.newSingleThreadScheduledExecutor(
+					DaemonThreadFactory.create(ParentSelectionListener.class.getName() + "@" + hashCode()));
 		}
 		return executorService;
 	}

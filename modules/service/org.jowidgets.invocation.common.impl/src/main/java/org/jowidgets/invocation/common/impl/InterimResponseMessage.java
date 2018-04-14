@@ -51,4 +51,9 @@ public final class InterimResponseMessage implements Serializable {
 		return response;
 	}
 
+	@Override
+	public String toString() {
+		return "InterimResponseMessage [invocationId=" + invocationId + ", response=" + response + "]";
+	}
+
 }

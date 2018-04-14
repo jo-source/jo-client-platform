@@ -83,9 +83,11 @@ public final class DefaultCapServiceToolkit implements ICapServiceToolkit {
 	public DefaultCapServiceToolkit() {
 		this.adapterFactoryProvider = new AdapterFactoryProviderImpl();
 		this.decoratorProviderFactory = new DecoratorProviderFactoryImpl();
-		this.scheduledExecutorService = Executors.newScheduledThreadPool(20, new DaemonThreadFactory());
 		this.beanDtoSorter = new BeanDtoCollectionSorterImpl();
 		this.beanDtoFilter = new BeanDtoCollectionFilterImpl();
+		this.scheduledExecutorService = Executors.newScheduledThreadPool(
+				20,
+				DaemonThreadFactory.multi(DelayedExecutionCallback.class.getName() + ".DelayedRunner"));
 	}
 
 	@Override

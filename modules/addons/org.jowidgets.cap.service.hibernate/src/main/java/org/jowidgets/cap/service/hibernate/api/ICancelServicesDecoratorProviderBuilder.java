@@ -31,6 +31,8 @@ package org.jowidgets.cap.service.hibernate.api;
 import java.util.Collection;
 
 import org.jowidgets.service.api.IServicesDecoratorProvider;
+import org.jowidgets.util.concurrent.IThreadInterruptObservable;
+import org.jowidgets.util.concurrent.ThreadInterruptObserver;
 
 public interface ICancelServicesDecoratorProviderBuilder {
 
@@ -104,6 +106,21 @@ public interface ICancelServicesDecoratorProviderBuilder {
 	 * @return This builder
 	 */
 	ICancelServicesDecoratorProviderBuilder setOrder(int order);
+
+	/**
+	 * Sets a thread interrupt observable that will be used to observe the executing thread for interrupts.
+	 * 
+	 * If not set, the {@link ThreadInterruptObserver} will be used with a default delay of 1000 milliseconds and the
+	 * observer will be started when executing {@link #build()} method.
+	 * 
+	 * If set manually with this method, the invoker is responsible to start the observer.
+	 * 
+	 * @param threadInterruptObservable The observable to set, must not be null
+	 *
+	 * @return This builder
+	 */
+	ICancelServicesDecoratorProviderBuilder setThreadInterruptObservable(
+		final IThreadInterruptObservable threadInterruptObservable);
 
 	/**
 	 * @return A new {@link IServicesDecoratorProvider}

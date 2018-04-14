@@ -32,8 +32,8 @@ import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -68,7 +68,7 @@ final class CancelableInvoker {
 	private final CountDownLatch queryFinishedLatch;
 	private final CountDownLatch queryStartedLatch;
 	private final AtomicLong queryStartedTimestamp;
-	private final AtomicBoolean terminateInvokedByCancel;
+	private final AtomicReference<Long> terminateInvokedByCancelTimestamp;
 
 	private final String clientIdentifier;
 	private final IKillSessionSupport killSessionSupport;
@@ -131,7 +131,7 @@ final class CancelableInvoker {
 		this.queryFinishedLatch = new CountDownLatch(1);
 		this.queryStartedLatch = new CountDownLatch(1);
 		this.queryStartedTimestamp = new AtomicLong(0);
-		this.terminateInvokedByCancel = new AtomicBoolean(false);
+		this.terminateInvokedByCancelTimestamp = new AtomicReference<Long>();
 
 		this.clientIdentifier = UUID.randomUUID().toString();
 		this.killSessionSupport = killSessionSupport;
@@ -226,14 +226,18 @@ final class CancelableInvoker {
 		@Override
 		public void interrupted(final Thread thread) {
 			//avoid that terminate will be invoked twice on one interrupt listener interval
-			if (!terminateInvokedByCancel.get()) {
+			final Long terminateInvokedByCancel = terminateInvokedByCancelTimestamp.get();
+			if (terminateInvokedByCancel == null
+				|| getDelay(terminateInvokedByCancel.longValue()) > threadInterruptObservable.getDelayMillis()) {
 				queryTerminator.terminateQuery();
+				terminateInvokedByCancelTimestamp.set(null);
 			}
-			else {
-				//do invoke terminate next time in case termination fails
-				terminateInvokedByCancel.set(false);
-			}
+
 		}
+	}
+
+	private long getDelay(final long timestampMillis) {
+		return systemTimeProvider.currentTimeMillis() - timestampMillis;
 	}
 
 	private class CancelListener implements IExecutionCallbackListener {
@@ -247,7 +251,7 @@ final class CancelableInvoker {
 		@Override
 		public void canceled() {
 			//avoid that terminate will be invoked twice on one interrupt listener interval
-			terminateInvokedByCancel.set(true);
+			terminateInvokedByCancelTimestamp.set(Long.valueOf(systemTimeProvider.currentTimeMillis()));
 
 			//interrupt the executing thread, necessary e.g. if connection pool waits for connection
 			executingThread.interrupt();

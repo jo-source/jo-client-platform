@@ -50,4 +50,9 @@ public final class ExceptionMessage implements Serializable {
 		return exception;
 	}
 
+	@Override
+	public String toString() {
+		return "ExceptionMessage [invocationId=" + invocationId + ", exception=" + exception + "]";
+	}
+
 }

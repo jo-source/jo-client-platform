@@ -89,6 +89,10 @@ public final class MessageServletConfigBuilder {
 		return this;
 	}
 
+	public MessageServletConfigBuilder setExecutorThreadCount(final int executorThreadCount) {
+		return setExecutorThreadCount(Long.valueOf(executorThreadCount));
+	}
+
 	public MessageServletConfigBuilder setExecutorThreadCount(final Long executorThreadCount) {
 		this.executorThreadCount = executorThreadCount;
 		return this;

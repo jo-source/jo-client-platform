@@ -505,7 +505,8 @@ final class BeanTableImpl<BEAN_TYPE> extends CompositeWrapper implements IBeanTa
 		this.isAutoUpdateConfigurable = bluePrint.getAutoUpdateConfigurable();
 		this.currentAutoUpdateInterval = bluePrint.getAutoUpdateInterval();
 		this.autoScrollPolicy = bluePrint.getAutoScrollPolicy();
-		this.autoUpdateExecutorService = Executors.newScheduledThreadPool(1, new DaemonThreadFactory());
+		this.autoUpdateExecutorService = Executors.newSingleThreadScheduledExecutor(
+				DaemonThreadFactory.create(BeanTableImpl.class.getName() + ".AutoUpdateExecutor@" + hashCode()));
 		this.autoUpdateRunnable = new AutoUpdateRunnable();
 
 		if (AutoPackPolicy.OFF != autoPackPolicy) {

@@ -2199,7 +2199,8 @@ final class BeanTableModelImpl<BEAN_TYPE> implements IBeanTableModel<BEAN_TYPE> 
 
 	private ScheduledExecutorService getScheduledExecutorService() {
 		if (scheduledExecutorService == null) {
-			scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(new DaemonThreadFactory());
+			scheduledExecutorService = Executors.newSingleThreadScheduledExecutor(
+					DaemonThreadFactory.create(BeanTabFolderModelImpl.class.getName() + "@" + hashCode()));
 		}
 		return scheduledExecutorService;
 	}

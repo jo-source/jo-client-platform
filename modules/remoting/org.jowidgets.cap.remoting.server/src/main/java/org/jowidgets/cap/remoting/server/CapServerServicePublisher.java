@@ -54,7 +54,11 @@ public final class CapServerServicePublisher {
 	}
 
 	public void publishServices() {
-		publishServices(Executors.newScheduledThreadPool(50, new DaemonThreadFactory()), DEFAULT_PROGRESS_DELAY);
+		publishServices(
+				Executors.newScheduledThreadPool(
+						20,
+						DaemonThreadFactory.multi(GenericRemoteMethod.class.getName() + ".DelayedProgressExecutor")),
+				DEFAULT_PROGRESS_DELAY);
 	}
 
 	public void publishServices(final ScheduledExecutorService progressExecutor, final long progressDelay) {
@@ -62,8 +66,8 @@ public final class CapServerServicePublisher {
 		final IInvocationServiceServerRegistry registry = InvocationServiceServerToolkit.getRegistry(brokerId);
 
 		registry.register(CapInvocationMethodNames.SERVICE_LOCATOR_METHOD_NAME, new ServiceLocatorMethod());
-		registry.register(CapInvocationMethodNames.GENERIC_REMOTE_METHOD_NAME, new GenericRemoteMethod(
-			progressExecutor,
-			progressDelay));
+		registry.register(
+				CapInvocationMethodNames.GENERIC_REMOTE_METHOD_NAME,
+				new GenericRemoteMethod(progressExecutor, progressDelay));
 	}
 }

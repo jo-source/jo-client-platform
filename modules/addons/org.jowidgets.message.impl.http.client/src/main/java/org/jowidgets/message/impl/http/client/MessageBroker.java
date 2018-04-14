@@ -51,6 +51,8 @@ import org.apache.http.client.utils.URIUtils;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.util.EntityUtils;
 import org.jowidgets.classloading.tools.SharedClassLoadingObjectInputStream;
+import org.jowidgets.logging.api.ILogger;
+import org.jowidgets.logging.api.LoggerProvider;
 import org.jowidgets.message.api.IExceptionCallback;
 import org.jowidgets.message.api.IMessageChannel;
 import org.jowidgets.message.api.IMessageReceiver;
@@ -59,6 +61,8 @@ import org.jowidgets.util.Assert;
 import org.jowidgets.util.io.IoUtils;
 
 final class MessageBroker implements IMessageBroker, IMessageChannel {
+
+	private static final ILogger LOGGER = LoggerProvider.get(MessageBroker.class);
 
 	private final Object brokerId;
 	private final String url;
@@ -104,13 +108,13 @@ final class MessageBroker implements IMessageBroker, IMessageChannel {
 	}
 
 	private Thread createSenderThread() {
-		final Thread result = new Thread(new MessageSenderLoop(), MessageBroker.class.getName() + "-messageSender");
+		final Thread result = new Thread(new MessageSenderLoop(), MessageBroker.class.getName() + ".MessageSender");
 		result.setDaemon(true);
 		return result;
 	}
 
 	private Thread createReceiverThread() {
-		final Thread result = new Thread(new MessageReceiverLoop(), MessageBroker.class.getName() + "-messageReceiver");
+		final Thread result = new Thread(new MessageReceiverLoop(), MessageBroker.class.getName() + ".MessageReceiver");
 		result.setDaemon(true);
 		return result;
 	}
@@ -201,6 +205,11 @@ final class MessageBroker implements IMessageBroker, IMessageChannel {
 			return exceptionCallback;
 		}
 
+		@Override
+		public String toString() {
+			return "DeferredMessage [message=" + message + "]";
+		}
+
 	}
 
 	private class MessageSenderLoop implements Runnable {
@@ -208,7 +217,9 @@ final class MessageBroker implements IMessageBroker, IMessageChannel {
 		@Override
 		public void run() {
 			try {
+				LOGGER.debug("Wait sending messages until session is initialized...");
 				sessionInitialized.await();
+				LOGGER.debug("...session is initialized");
 				while (!Thread.interrupted()) {
 					trySendMessage();
 				}
@@ -237,7 +248,9 @@ final class MessageBroker implements IMessageBroker, IMessageChannel {
 			HttpResponse response = null;
 			try {
 				request = createHttpRequest(message);
+				LOGGER.debug("Before send message to server: " + message);
 				response = httpClient.execute(request);
+				LOGGER.debug("After send message to server: " + message);
 				checkStatusLine(response);
 			}
 			catch (final ConnectException e) {
@@ -361,6 +374,7 @@ final class MessageBroker implements IMessageBroker, IMessageChannel {
 			final ObjectInputStream objectInputStream = new SharedClassLoadingObjectInputStream(inputStream);
 			try {
 				final int objectCount = objectInputStream.readInt();
+				LOGGER.debug("Received " + objectCount + " messages from server");
 				for (int i = 0; i < objectCount; i++) {
 					try {
 						executeMessage(objectInputStream.readObject());
@@ -376,12 +390,15 @@ final class MessageBroker implements IMessageBroker, IMessageChannel {
 		}
 
 		private void executeMessage(final Object message) {
+			LOGGER.debug("Message received from server: " + message);
 			incommingMessageExecutor.execute(new Runnable() {
 				@Override
 				public void run() {
 					final IMessageReceiver currentReceiver = receiver;
 					if (currentReceiver != null) {
+						LOGGER.debug("Before handle incoming message: " + message);
 						currentReceiver.onMessage(message, MessageBroker.this);
+						LOGGER.debug("After handle incoming message: " + message);
 					}
 				}
 			});

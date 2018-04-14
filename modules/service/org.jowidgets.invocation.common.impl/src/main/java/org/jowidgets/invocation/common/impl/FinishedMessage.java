@@ -51,4 +51,9 @@ public final class FinishedMessage implements Serializable {
 		return result;
 	}
 
+	@Override
+	public String toString() {
+		return "FinishedMessage [invocationId=" + invocationId + ", result=" + result + "]";
+	}
+
 }

@@ -286,7 +286,7 @@ final class QueryTerminator {
 	}
 
 	private boolean killSession() {
-		LOGGER.info("Try to kill session with client identifier: '" + clientIdentifier + "'.");
+		LOGGER.warn("Try to kill session with client identifier: '" + clientIdentifier + "'.");
 
 		EntityManager entityManager = null;
 		Connection connection = null;

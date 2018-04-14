@@ -80,7 +80,7 @@ public final class MessageServlet extends HttpServlet implements IMessageReceive
 	private static final long DEFAULT_DENY_REQUEST_PENDING_TIMEOUT_MILLIS = 20 * 1000; // deny new requests if system is 20 seconds inactive
 	private static final long DEFAULT_HARA_KIRI_TIMEOUT = 1000 * 60 * 30; //do not allow more than 30 minutes system inactivity
 	private static final long DEFAULT_HARA_KIRI_PENDING_THRESHHOLD = 10000; // do not allow more than 10000 pending messages
-	private static final long DEFAULT_THREAD_COUNT = Runtime.getRuntime().availableProcessors() * 20; // use up to 20 thread's for each core
+	private static final long DEFAULT_THREAD_COUNT = Runtime.getRuntime().availableProcessors() * 10; // use up to 10 thread's for each core
 
 	private static final long serialVersionUID = 1L;
 	private static final String CLASS_NAME = MessageServlet.class.getName();
@@ -113,7 +113,7 @@ public final class MessageServlet extends HttpServlet implements IMessageReceive
 		this.systemTimeProvider = DefaultSystemTimeProvider.getInstance();
 		this.executionInterceptors = new CopyOnWriteArraySet<IExecutionInterceptor<Object>>();
 		this.watchdog = new MessageExecutionsWatchdog(DEFAULT_SESSION_INACTIVITY_TIMEOUT);
-		this.watchdogExecutor = Executors.newSingleThreadScheduledExecutor(new DaemonThreadFactory(CLASS_NAME + ".Watchdog-"));
+		this.watchdogExecutor = Executors.newSingleThreadScheduledExecutor(DaemonThreadFactory.create(CLASS_NAME + ".Watchdog"));
 
 		this.initialize = new AtomicBoolean(false);
 		this.initialized = new AtomicBoolean(false);
@@ -154,7 +154,7 @@ public final class MessageServlet extends HttpServlet implements IMessageReceive
 
 	private void initializeExecutor(final ServletConfig config) {
 		final int threadCount = (int) getLongFromConfig(config, EXECUTOR_THREAD_COUNT_PARAMETER_NAME, DEFAULT_THREAD_COUNT);
-		this.executor = Executors.newFixedThreadPool(threadCount, new DaemonThreadFactory(CLASS_NAME + ".executor-"));
+		this.executor = Executors.newFixedThreadPool(threadCount, DaemonThreadFactory.multi(CLASS_NAME + ".Executor"));
 		LOGGER.info("Set executor thread count to: " + threadCount);
 
 		for (final IExecutionInterceptor<?> executionInterceptor : getExecutionInterceptors(config)) {
@@ -288,6 +288,7 @@ public final class MessageServlet extends HttpServlet implements IMessageReceive
 
 		final HttpSession session = request.getSession();
 		if (session.isNew()) {
+			LOGGER.debug("Intialial session created for: " + request.getRemoteAddr());
 			session.setMaxInactiveInterval((int) (sessionInactivityTimeoutMillis / 1000));
 			// return immediately to send new session id to client
 			oos.writeInt(0);
@@ -298,6 +299,7 @@ public final class MessageServlet extends HttpServlet implements IMessageReceive
 			oos.writeInt(messages.size());
 			for (final Object message : messages) {
 				try {
+					LOGGER.debug("Write message to response stream: " + message);
 					oos.flush();
 					oos.writeObject(message);
 				}
@@ -331,6 +333,7 @@ public final class MessageServlet extends HttpServlet implements IMessageReceive
 		try {
 			final WatchDogEvent watchEvent = watchdog.getLastWatchEvent();
 			if (watchEvent.getPendingExecutions(denyRequestPendingTimeoutMillis).size() > 0) {
+				LOGGER.debug("Reject message, to many pending messages");
 				watchdog.cancelExecutionsOfSession(session);
 				response.sendError(503, "Message rejected, to many pending messages.");
 				return;

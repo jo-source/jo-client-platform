@@ -105,8 +105,8 @@ public final class MessageBrokerBuilder {
 		}
 		else {
 			return Executors.newFixedThreadPool(
-					Runtime.getRuntime().availableProcessors() * 2,
-					new DaemonThreadFactory(MessageBroker.class.getName() + "-incommingMessageExecutor-"));
+					8,
+					DaemonThreadFactory.multi(MessageBroker.class.getName() + ".IncommingMessageExecutor"));
 		}
 	}
 

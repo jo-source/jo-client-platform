@@ -38,6 +38,8 @@ import java.util.concurrent.TimeUnit;
 
 import javax.servlet.http.HttpSession;
 
+import org.jowidgets.logging.api.ILogger;
+import org.jowidgets.logging.api.LoggerProvider;
 import org.jowidgets.message.api.IExceptionCallback;
 import org.jowidgets.message.api.IMessageChannel;
 import org.jowidgets.message.api.IMessageReceiver;
@@ -45,6 +47,8 @@ import org.jowidgets.util.Assert;
 import org.jowidgets.util.ISystemTimeProvider;
 
 final class MessageChannel implements IMessageChannel {
+
+	private static final ILogger LOGGER = LoggerProvider.get(MessageChannel.class);
 
 	private final HttpSession session;
 	private final MessageExecutionsWatchdog watchdog;
@@ -77,6 +81,7 @@ final class MessageChannel implements IMessageChannel {
 	}
 
 	void onMessage(final Object message, final Collection<IExecutionInterceptor<Object>> interceptors) {
+		LOGGER.debug("Message was received and will be scheduled: " + message);
 		watchdog.addExecution(session, new MessageExecution(message, interceptors, executor, receiver, this, systemTimeProvider));
 	}
 
@@ -98,6 +103,7 @@ final class MessageChannel implements IMessageChannel {
 
 	@Override
 	public void send(final Object message, final IExceptionCallback exceptionCallback) {
+		LOGGER.debug("Response message will be enqued: " + message);
 		queue.add(message);
 	}
 

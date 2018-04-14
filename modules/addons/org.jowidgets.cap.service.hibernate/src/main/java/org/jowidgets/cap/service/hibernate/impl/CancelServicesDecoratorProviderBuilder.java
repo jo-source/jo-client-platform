@@ -42,14 +42,17 @@ import org.jowidgets.cap.common.api.service.IUpdaterService;
 import org.jowidgets.cap.service.hibernate.api.ICancelServicesDecoratorProviderBuilder;
 import org.jowidgets.service.api.IServicesDecoratorProvider;
 import org.jowidgets.util.Assert;
+import org.jowidgets.util.IProvider;
 import org.jowidgets.util.concurrent.IThreadInterruptObservable;
 
 final class CancelServicesDecoratorProviderBuilder implements ICancelServicesDecoratorProviderBuilder {
 
 	private final String persistenceUnitName;
-	private final IThreadInterruptObservable threadInterruptObservable;
+	private final IProvider<IThreadInterruptObservable> threadInterruptObservableProvider;
+
 	private final Set<Class<?>> services;
 
+	private IThreadInterruptObservable threadInterruptObservable;
 	private Long killAfterMillis = Long.valueOf(60000);
 	private Long minQueryRuntimeMillis = Long.valueOf(25);
 
@@ -57,13 +60,12 @@ final class CancelServicesDecoratorProviderBuilder implements ICancelServicesDec
 
 	CancelServicesDecoratorProviderBuilder(
 		final String persistenceUnitName,
-		final IThreadInterruptObservable threadInterruptObservable) {
-
+		final IProvider<IThreadInterruptObservable> threadInterruptObservableProvider) {
 		Assert.paramNotEmpty(persistenceUnitName, "persistenceUnitName");
-		Assert.paramNotNull(threadInterruptObservable, "threadInterruptObservable");
+		Assert.paramNotNull(threadInterruptObservableProvider, "");
 
 		this.persistenceUnitName = persistenceUnitName;
-		this.threadInterruptObservable = threadInterruptObservable;
+		this.threadInterruptObservableProvider = threadInterruptObservableProvider;
 		this.order = ICancelServicesDecoratorProviderBuilder.DEFAULT_ORDER;
 		this.services = new HashSet<Class<?>>();
 
@@ -110,10 +112,25 @@ final class CancelServicesDecoratorProviderBuilder implements ICancelServicesDec
 	}
 
 	@Override
+	public ICancelServicesDecoratorProviderBuilder setThreadInterruptObservable(
+		final IThreadInterruptObservable threadInterruptObservable) {
+		Assert.paramNotNull(threadInterruptObservableProvider, "threadInterruptObservable");
+		this.threadInterruptObservable = threadInterruptObservable;
+		return this;
+	}
+
+	private IThreadInterruptObservable getOrCreateThreadInterruptObservable() {
+		if (threadInterruptObservable == null) {
+			threadInterruptObservable = threadInterruptObservableProvider.get();
+		}
+		return threadInterruptObservable;
+	}
+
+	@Override
 	public IServicesDecoratorProvider build() {
 		return new CancelServicesDecoratorProviderImpl(
 			persistenceUnitName,
-			threadInterruptObservable,
+			getOrCreateThreadInterruptObservable(),
 			services,
 			minQueryRuntimeMillis,
 			killAfterMillis,

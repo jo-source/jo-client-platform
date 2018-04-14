@@ -343,7 +343,8 @@ final class BeanTableSearchFilterToolbar<BEAN_TYPE> {
 
 		private ScheduledExecutorService getExecutorService() {
 			if (executorService == null) {
-				executorService = Executors.newSingleThreadScheduledExecutor(new DaemonThreadFactory());
+				executorService = Executors.newSingleThreadScheduledExecutor(
+						DaemonThreadFactory.create(BeanTableSearchFilterToolbar.class.getName() + "@" + hashCode()));
 			}
 			return executorService;
 		}

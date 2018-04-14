@@ -44,8 +44,13 @@ final class DecoratorProviderFactoryImpl implements IDecoratorProviderFactory {
 	private final ScheduledExecutorService scheduledExecutorService;
 
 	DecoratorProviderFactoryImpl() {
-		this.executor = Executors.newFixedThreadPool(50, new DaemonThreadFactory());
-		this.scheduledExecutorService = Executors.newScheduledThreadPool(20, new DaemonThreadFactory());
+		this.executor = Executors.newFixedThreadPool(
+				10,
+				DaemonThreadFactory.multi(AsyncDecoratorProvider.class.getName() + ".Executor"));
+
+		this.scheduledExecutorService = Executors.newScheduledThreadPool(
+				10,
+				DaemonThreadFactory.multi(AsyncDecoratorProvider.class.getName() + ".DelayedExecutionCalbackRunner"));
 	}
 
 	@Override

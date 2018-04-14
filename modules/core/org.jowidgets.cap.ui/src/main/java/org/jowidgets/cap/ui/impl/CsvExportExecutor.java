@@ -66,7 +66,9 @@ class CsvExportExecutor<BEAN_TYPE> implements IExecutor<BEAN_TYPE, ICsvExportPar
 
 	CsvExportExecutor(final IBeanTableModel<BEAN_TYPE> model) {
 		this.model = model;
-		this.executor = Executors.newFixedThreadPool(10, new DaemonThreadFactory());
+		this.executor = Executors.newFixedThreadPool(
+				10,
+				DaemonThreadFactory.multi(CsvExportExecutor.class.getName() + "@" + hashCode()));
 	}
 
 	@Override

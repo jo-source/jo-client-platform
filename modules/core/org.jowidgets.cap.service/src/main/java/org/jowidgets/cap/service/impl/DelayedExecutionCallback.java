@@ -62,7 +62,9 @@ final class DelayedExecutionCallback implements IExecutionCallback {
 	private String lastDescription;
 	private String description;
 
-	DelayedExecutionCallback(final IExecutionCallback executionCallback, final ScheduledExecutorService scheduledExecutorService) {
+	DelayedExecutionCallback(
+		final IExecutionCallback executionCallback,
+		final ScheduledExecutorService scheduledExecutorService) {
 		this(executionCallback, scheduledExecutorService, null);
 	}
 

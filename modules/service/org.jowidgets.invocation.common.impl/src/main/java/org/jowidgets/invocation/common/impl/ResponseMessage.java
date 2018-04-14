@@ -51,4 +51,9 @@ public final class ResponseMessage implements Serializable {
 		return response;
 	}
 
+	@Override
+	public String toString() {
+		return "ResponseMessage [requestId=" + requestId + ", response=" + response + "]";
+	}
+
 }

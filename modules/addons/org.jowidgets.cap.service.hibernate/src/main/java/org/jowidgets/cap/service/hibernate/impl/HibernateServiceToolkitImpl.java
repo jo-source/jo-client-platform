@@ -28,26 +28,37 @@
 
 package org.jowidgets.cap.service.hibernate.impl;
 
+import java.util.concurrent.ThreadFactory;
+
 import org.jowidgets.cap.service.hibernate.api.ICancelServicesDecoratorProviderBuilder;
 import org.jowidgets.cap.service.hibernate.api.IHibernateServiceToolkit;
-import org.jowidgets.logging.api.ILogger;
 import org.jowidgets.logging.api.LoggerProvider;
+import org.jowidgets.util.DefaultProvider;
 import org.jowidgets.util.IDecorator;
 import org.jowidgets.util.IExceptionHandler;
+import org.jowidgets.util.IFactory;
+import org.jowidgets.util.IProvider;
+import org.jowidgets.util.concurrent.DaemonThreadFactory;
+import org.jowidgets.util.concurrent.IThreadInterruptObservable;
 import org.jowidgets.util.concurrent.ThreadInterruptObserver;
 
 public final class HibernateServiceToolkitImpl implements IHibernateServiceToolkit {
 
-	private static final ILogger LOGGER = LoggerProvider.get(HibernateServiceToolkitImpl.class);
+	private static final IExceptionHandler THREAD_INTERRUPT_OBSERVER_EXCEPTION_HANDLER = new LoggingExceptionHandler(
+		LoggerProvider.get(CancelServicesDecoratorProviderImpl.class, LoggingExceptionHandler.class));
+
+	private static final ThreadFactory THREAD_INTERRUPT_OBSERVER_THREAD_FACTORY = DaemonThreadFactory.create(
+			HibernateServiceToolkitImpl.class.getName() + ".QueryThreadInterruptObserver");
+
+	private static final long THREAD_INTERRUPT_OBSERVER_DEFAULT_PERIOD = 1000;
 
 	private final IDecorator<Throwable> exceptionDecorator;
-	private final ThreadInterruptObserver threadInterruptObserver;
+	private final IProvider<IThreadInterruptObservable> threadInterruptObservableProvider;
 
 	public HibernateServiceToolkitImpl() {
 		this.exceptionDecorator = new HibernateExceptionDecoratorImpl();
-		this.threadInterruptObserver = new ThreadInterruptObserver(
-			HibernateServiceToolkitImpl.class.getName() + "-CancelQueryThreadInterruptWatchdog-",
-			new LoggingExceptionHandler());
+		this.threadInterruptObservableProvider = new DefaultProvider<IThreadInterruptObservable>(
+			new DefaultThreadInterruptObserverFactory());
 	}
 
 	@Override
@@ -57,16 +68,18 @@ public final class HibernateServiceToolkitImpl implements IHibernateServiceToolk
 
 	@Override
 	public ICancelServicesDecoratorProviderBuilder cancelServiceDecoratorProviderBuilder(final String persistenceUnitName) {
-		if (!threadInterruptObserver.isRunning()) {
-			threadInterruptObserver.start();
-		}
-		return new CancelServicesDecoratorProviderBuilder(persistenceUnitName, threadInterruptObserver);
+		return new CancelServicesDecoratorProviderBuilder(persistenceUnitName, threadInterruptObservableProvider);
 	}
 
-	private class LoggingExceptionHandler implements IExceptionHandler {
+	private class DefaultThreadInterruptObserverFactory implements IFactory<IThreadInterruptObservable> {
 		@Override
-		public void handleException(final Throwable exception) {
-			LOGGER.error(exception);
+		public IThreadInterruptObservable create() {
+			final ThreadInterruptObserver result = new ThreadInterruptObserver(
+				THREAD_INTERRUPT_OBSERVER_THREAD_FACTORY,
+				THREAD_INTERRUPT_OBSERVER_EXCEPTION_HANDLER,
+				THREAD_INTERRUPT_OBSERVER_DEFAULT_PERIOD);
+			result.start();
+			return result;
 		}
 	}
 
