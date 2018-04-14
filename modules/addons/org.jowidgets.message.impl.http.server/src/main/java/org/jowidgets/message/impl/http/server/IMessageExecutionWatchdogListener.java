@@ -44,9 +44,16 @@ public interface IMessageExecutionWatchdogListener {
 	void onExecutionCancel(Object message, long cancelTimeMillis);
 
 	/**
-	 * This method will every time the watchdog was executed
+	 * This method will be invoked if the watchdog cancels all executions due to kara-kiri conditions occured.
 	 * 
-	 * @param watchDogEvent The result of the watchdog execution
+	 * @param watchDogEvent The watch event that was crucial to do hara-kiri
+	 */
+	void onExecutionsHaraKiri(WatchDogEvent watchDogEvent);
+
+	/**
+	 * This method will be invoked every time the watchdog was executed
+	 * 
+	 * @param watchDogEvent The event of the watchdog execution
 	 */
 	void onExecutionsWatch(WatchDogEvent watchDogEvent);
 

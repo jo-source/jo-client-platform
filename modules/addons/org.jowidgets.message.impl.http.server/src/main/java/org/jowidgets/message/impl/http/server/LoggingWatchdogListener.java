@@ -29,6 +29,7 @@
 package org.jowidgets.message.impl.http.server;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.jowidgets.logging.api.ILogger;
 import org.jowidgets.logging.api.LoggerProvider;
@@ -43,25 +44,27 @@ public final class LoggingWatchdogListener implements IMessageExecutionWatchdogL
 
 	private static final ILogger LOGGER = LoggerProvider.get(LoggingWatchdogListener.class);
 
+	private static final String NOT_AVAILABLE = "n.a.";
+
 	private static final long PENDING_EXECUTIONS_WARN_THRESHOLD = 30 * 1000; // 30 seconds
 	private static final long RUNNING_EXECUTIONS_WARN_THRESHOLD = 30 * 60 * 1000; // 30 minutes
 	private static final long UNFINISHED_CANCEL_WARN_THRESHOLD = 10 * 1000; // 10 seconds
 
 	@Override
 	public void onExecutionsWatch(final WatchDogEvent event) {
-		final MessageExecution maxPendingExecution = event.getMaxPendingExecution();
+		final MessageExecution maxPendingExecution = event.getMaxPendingExecution(true);
 		if (maxPendingExecution != null) {
 			final long delay = event.getWatchTimeMillis() - maxPendingExecution.getCreationTimeMillis();
 			if (delay >= PENDING_EXECUTIONS_WARN_THRESHOLD) {
-				LOGGER.warn("There are pending executions since " + delay + " millis");
+				LOGGER.warn("There are pending executions since " + getDurationInProperUnit(delay) + ", " + event);
 			}
 		}
 
-		final MessageExecution maxRuntimeExecution = event.getMaxRuntimeExecution();
+		final MessageExecution maxRuntimeExecution = event.getMaxRuntimeExecution(true);
 		if (maxRuntimeExecution != null) {
 			final long delay = event.getWatchTimeMillis() - maxRuntimeExecution.getStartTimeMillis().longValue();
 			if (delay >= RUNNING_EXECUTIONS_WARN_THRESHOLD) {
-				LOGGER.warn("There are running executions since " + delay + " millis");
+				LOGGER.warn("There are running executions since " + getDurationInProperUnit(delay) + ", " + event);
 			}
 		}
 
@@ -82,6 +85,61 @@ public final class LoggingWatchdogListener implements IMessageExecutionWatchdogL
 	@Override
 	public void onExecutionCancel(final Object message, final long cancelTimeMillis) {
 		LOGGER.info("Message canceled by watchdog: " + message);
+	}
+
+	@Override
+	public void onExecutionsHaraKiri(final WatchDogEvent event) {
+		final String maxPending = getMaxPending(event);
+		final String maxRunning = getMaxRunning(event);
+		LOGGER.warn(
+				"All executions canceled because server has no more threads for "
+					+ maxPending
+					+ ", max runtime: "
+					+ maxRunning
+					+ ", "
+					+ event);
+
+	}
+
+	private String getMaxPending(final WatchDogEvent event) {
+		final MessageExecution execution = event.getMaxPendingExecution();
+		if (execution == null) {
+			return NOT_AVAILABLE;
+		}
+		return getDuration(Long.valueOf(execution.getCreationTimeMillis()), event.getWatchTimeMillis());
+	}
+
+	private String getMaxRunning(final WatchDogEvent event) {
+		final MessageExecution execution = event.getMaxRuntimeExecution();
+		if (execution == null) {
+			return NOT_AVAILABLE;
+		}
+		return getDuration(Long.valueOf(execution.getCreationTimeMillis()), event.getWatchTimeMillis());
+	}
+
+	private String getDuration(final Long sinceMillis, final long watchTimeMillis) {
+		if (sinceMillis == null) {
+			return NOT_AVAILABLE;
+		}
+		return getDurationInProperUnit(watchTimeMillis - sinceMillis.longValue());
+	}
+
+	private String getDurationInProperUnit(final long duration) {
+		final long hours = TimeUnit.MILLISECONDS.toHours(duration);
+		final long minutes = TimeUnit.MILLISECONDS.toMinutes(duration);
+		final long seconds = TimeUnit.MILLISECONDS.toSeconds(duration);
+		if (hours > 0) {
+			return hours + " hours, " + (minutes - (hours * 60)) + " minutes";
+		}
+		else if (minutes > 0) {
+			return minutes + " minutes, " + (seconds - (minutes * 60)) + " seconds";
+		}
+		else if (seconds > 0) {
+			return seconds + " seconds";
+		}
+		else {
+			return duration + " millis";
+		}
 	}
 
 }

@@ -134,10 +134,23 @@ public final class WatchDogEvent {
 	 * @return The oldest pending execution or null if no pending execution exists
 	 */
 	public MessageExecution getMaxPendingExecution() {
+		return getMaxPendingExecution(false);
+	}
+
+	/**
+	 * Get's the pending execution that has the maximal pending duration or null, if no execution is pending.
+	 * 
+	 * The max pending execution duration represents the duration the messaging can not handle events since.
+	 * 
+	 * @param omitCanceledOrTerminated If true, executions already canceled or terminated will be filtered from result
+	 * 
+	 * @return The oldest pending execution or null if no pending execution exists
+	 */
+	public MessageExecution getMaxPendingExecution(final boolean filterCanceledOrTerminated) {
 		long min = 0;
 		MessageExecution result = null;
 		for (final MessageExecution execution : getPendingExecutions()) {
-			if (!execution.isCanceled() && !execution.isTerminated()) {
+			if (!filterCanceledOrTerminated || (!execution.isCanceled() && !execution.isTerminated())) {
 				if (result == null) {
 					result = execution;
 					min = execution.getCreationTimeMillis();
@@ -160,10 +173,21 @@ public final class WatchDogEvent {
 	 * @return The oldest running execution or null if no running execution exists
 	 */
 	public MessageExecution getMaxRuntimeExecution() {
+		return getMaxRuntimeExecution(false);
+	}
+
+	/**
+	 * Get's the running execution that has the maximal runtime or null, if no execution is running.
+	 * 
+	 * @param filterNotRunning If true, executions no longer running will be filtered from result
+	 * 
+	 * @return The oldest running execution or null if no running execution exists
+	 */
+	public MessageExecution getMaxRuntimeExecution(final boolean filterNotRunning) {
 		long min = 0;
 		MessageExecution result = null;
 		for (final MessageExecution execution : getRunningExecutions()) {
-			if (execution.isRunning()) {
+			if (!filterNotRunning || execution.isRunning()) {
 				if (result == null) {
 					result = execution;
 					min = execution.getStartTimeMillis().longValue();

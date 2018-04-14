@@ -79,6 +79,10 @@ public final class MessageServletConfigBuilder {
 		return this;
 	}
 
+	public MessageServletConfigBuilder setHaraKiriTimeoutMillis(final long haraKiriTimeoutMillis) {
+		return setHaraKiriTimeoutMillis(Long.valueOf(haraKiriTimeoutMillis));
+	}
+
 	public MessageServletConfigBuilder setHaraKiriTimeoutMillis(final Long haraKiriTimeoutMillis) {
 		this.haraKiriTimeoutMillis = haraKiriTimeoutMillis;
 		return this;

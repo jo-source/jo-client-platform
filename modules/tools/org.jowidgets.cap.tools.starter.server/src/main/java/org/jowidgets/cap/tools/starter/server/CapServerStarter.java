@@ -165,7 +165,7 @@ public final class CapServerStarter {
 			holder.setInitParameter(MessageServlet.HARA_KIRI_TIMEOUT_MILLIS_PARAMETER_NAME, haraKiriTimeoutMillis.toString());
 		}
 
-		final Long haraKiriPendingThreshold = config.getHaraKiriPendingThreashold();
+		final Long haraKiriPendingThreshold = config.getHaraKiriPendingThreshold();
 		if (haraKiriPendingThreshold != null) {
 			holder.setInitParameter(
 					MessageServlet.HARA_KIRI_PENDING_THRESHOLD_PARAMETER_NAME,

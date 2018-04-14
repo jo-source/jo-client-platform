@@ -206,4 +206,19 @@ public final class MessageExecution {
 		return canceled.get();
 	}
 
+	@Override
+	public String toString() {
+		return "MessageExecution [canceledTimeMillis="
+			+ canceledTimeMillis
+			+ ", canceled="
+			+ canceled
+			+ ", creationTimeMillis="
+			+ creationTimeMillis
+			+ ", getStartTimeMillis()="
+			+ getStartTimeMillis()
+			+ ", getRuntimeMillis()="
+			+ getRuntimeMillis()
+			+ "]";
+	}
+
 }

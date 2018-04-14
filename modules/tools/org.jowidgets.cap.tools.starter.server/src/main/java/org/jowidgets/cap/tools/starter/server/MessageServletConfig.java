@@ -121,7 +121,7 @@ public final class MessageServletConfig {
 		return haraKiriTimeoutMillis;
 	}
 
-	public Long getHaraKiriPendingThreashold() {
+	public Long getHaraKiriPendingThreshold() {
 		return haraKiriPendingThreshold;
 	}
 

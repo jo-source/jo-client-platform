@@ -147,6 +147,7 @@ final class MessageExecutionsWatchdog {
 	private void doHaraKiri(final WatchDogEvent event) {
 		cancelMessageExecutions(event.getPendingExecutions());
 		cancelMessageExecutions(event.getRunningExecutions());
+		onHaraKiri(event);
 	}
 
 	private boolean checkIfHaraKiriIsNecessary(final WatchDogEvent event) {
@@ -170,7 +171,7 @@ final class MessageExecutionsWatchdog {
 		if (haraKiriTimeoutCopy == null) {
 			return false;
 		}
-		final MessageExecution maxPendingExecution = event.getMaxPendingExecution();
+		final MessageExecution maxPendingExecution = event.getMaxPendingExecution(true);
 		if (maxPendingExecution != null) {
 			final long creationTime = maxPendingExecution.getCreationTimeMillis();
 			final long duration = systemTimeProvider.currentTimeMillis() - creationTime;
@@ -283,6 +284,13 @@ final class MessageExecutionsWatchdog {
 		final long cancelTimeMillis = execution.getCanceledTimeMillis().longValue();
 		for (final IMessageExecutionWatchdogListener listener : watchdogListeners) {
 			listener.onExecutionCancel(message, cancelTimeMillis);
+		}
+	}
+
+	private void onHaraKiri(final WatchDogEvent event) {
+		Assert.paramNotNull(event, "event");
+		for (final IMessageExecutionWatchdogListener listener : watchdogListeners) {
+			listener.onExecutionsHaraKiri(event);
 		}
 	}
 
