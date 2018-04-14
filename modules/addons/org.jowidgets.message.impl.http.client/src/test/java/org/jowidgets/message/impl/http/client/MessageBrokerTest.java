@@ -42,6 +42,7 @@ import org.jowidgets.message.api.IExceptionCallback;
 import org.jowidgets.message.api.IMessageReceiver;
 import org.jowidgets.message.api.MessageToolkit;
 import org.jowidgets.util.mock.ScheduledExecutorServiceMock;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -53,6 +54,11 @@ public class MessageBrokerTest {
 
 	private static final String BROKER_ID = "BROKER_ID";
 	private static final String DEFAULT_URL = "http://127.0.0.1/remoting";
+
+	@Before
+	public void setUp() {
+		JUnitLoggerProvider.getConsoleLoggerEnablement().setEnabled(false);
+	}
 
 	@Test
 	public void testSendMessages() throws ClientProtocolException, IOException, InterruptedException {
@@ -121,7 +127,7 @@ public class MessageBrokerTest {
 		builder.setHttpRequestInitializer(new IHttpRequestInitializer() {
 			@Override
 			public void initialize(final HttpRequest httpRequest) {
-				if (Thread.currentThread().getName().contains("messageReceiver")) {
+				if (Thread.currentThread().getName().contains("MessageReceiver")) {
 					prepareLoggerForThreadAndDisableConsole(loggerRef);
 				}
 			}
@@ -171,7 +177,7 @@ public class MessageBrokerTest {
 		builder.setHttpRequestInitializer(new IHttpRequestInitializer() {
 			@Override
 			public void initialize(final HttpRequest httpRequest) {
-				if (Thread.currentThread().getName().contains("messageSender")) {
+				if (Thread.currentThread().getName().contains("MessageSender")) {
 					prepareLoggerForThreadAndDisableConsole(senderThreadLoggerRef);
 				}
 				else {
@@ -251,7 +257,7 @@ public class MessageBrokerTest {
 				if (httpRequest instanceof HttpPost) {
 					postCount.incrementAndGet();
 				}
-				if (Thread.currentThread().getName().contains("messageSender")) {
+				if (Thread.currentThread().getName().contains("MessageSender")) {
 					prepareLoggerForThreadAndDisableConsole(senderThreadLoggerRef);
 				}
 				else {
