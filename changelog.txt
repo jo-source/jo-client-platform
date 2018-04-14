@@ -287,16 +287,27 @@ Bugfixes:
 0.71.0 
 
 
-Uses jowidgets 0.xx.0
+Uses jowidgets 0.76.0
 
 
 Features:
 
+* Implements issue #80 https://github.com/jo-source/jo-client-platform/issues/80 AuthorizationFailedException must support user messages 
+* Implements issue #81 https://github.com/jo-source/jo-client-platform/issues/81 Execption handling inMessageBroker must be improved
+* Implements issue #82 https://github.com/jo-source/jo-client-platform/issues/82 Allow to add IExecutionInterceptors to SecurityRemotingServlet
+* Implements issue #83 https://github.com/jo-source/jo-client-platform/issues/83 Http messaging impl should support multi user locales on server
+* Implements issue #86 https://github.com/jo-source/jo-client-platform/issues/86 Improve logging for http messaging and remoting
+
 
 Bugfixes:
 
+* Fixes issue #64  https://github.com/jo-source/jo-client-platform/issues/64 Inexpressive thread names
 * Fixes issue #74  https://github.com/jo-source/jo-client-platform/issues/74 Can not open example applications inside eclispe with snapshot dependcies to test toolkit
+* Fixes issue #75  https://github.com/jo-source/jo-client-platform/issues/75 No cancel possible if all messaging threads are busy
+* Fixes issue #76  https://github.com/jo-source/jo-client-platform/issues/76 Error log entries when service invocation was canceled
+* Fixes issue #77  https://github.com/jo-source/jo-client-platform/issues/77 InvocationClientImpl may ignore cancel events and has a memory leak
 * Fixes issue #78  https://github.com/jo-source/jo-client-platform/issues/78 Can't find Großmutter or other values with umlauts
+* Fixes issue #79  https://github.com/jo-source/jo-client-platform/issues/79 StreamCorruptedException in MessageBroker on status code 500
 
 
 ----------------------------------------------------------------------------------------------------------------------------
