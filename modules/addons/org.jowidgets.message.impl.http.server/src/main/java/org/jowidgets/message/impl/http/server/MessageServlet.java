@@ -30,6 +30,7 @@ package org.jowidgets.message.impl.http.server;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.management.ManagementFactory;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -39,9 +40,11 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import javax.management.ObjectName;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -60,7 +63,71 @@ import org.jowidgets.util.EmptyCheck;
 import org.jowidgets.util.ISystemTimeProvider;
 import org.jowidgets.util.concurrent.DaemonThreadFactory;
 
-public final class MessageServlet extends HttpServlet implements IMessageReceiverBroker {
+/**
+ * Messaging servlet that provides a MessageBroker with help of a servlet.
+ * 
+ * Example configuration:
+ * 
+ * <servlet>
+ * <servlet-name>remoting</servlet-name>
+ * <servlet-class>org.jowidgets.security.impl.http.server.SecurityRemotingServlet</servlet-class>
+ * 
+ * <init-param>
+ * <param-name>messageServletMBeanObjectName</param-name>
+ * <param-value>
+ * myorg.mypackage.myapplication.MessageServlet</param-value>
+ * </init-param>
+ * 
+ * <init-param>
+ * <param-name>messageExecutionsWatchdogListeners</param-name>
+ * <param-value>
+ * org.jowidgets.message.impl.http.server.LoggingWatchdogListener;de.maycompany.MyWatchdogListener</param-value>
+ * </init-param>
+ * 
+ * <init-param>
+ * <param-name>executionInterceptors</param-name>
+ * <param-value>org.jowidgets.message.impl.http.server.UserLocaleExecutionInterceptor</param-value>
+ * </init-param>
+ * 
+ * <init-param>
+ * <param-name>executorThreadCount</param-name>
+ * <param-value>80</param-value>
+ * </init-param>
+ * 
+ * <init-param>
+ * <param-name>pollIntervalMillis</param-name>
+ * <param-value>10000</param-value>
+ * </init-param>
+ * 
+ * <init-param>
+ * <param-name>watchdogIntervalMillis</param-name>
+ * <param-value>1000</param-value>
+ * </init-param>
+ * 
+ * <init-param>
+ * <param-name>sessionInactivityMillis</param-name>
+ * <param-value>60000</param-value>
+ * </init-param>
+ * 
+ * <init-param>
+ * <param-name>denyRequestPendingTimeoutMillis</param-name>
+ * <param-value>20000</param-value>
+ * </init-param>
+ * 
+ * <init-param>
+ * <param-name>haraKiriTimeoutMillis</param-name>
+ * <param-value>1800000</param-value>
+ * </init-param>
+ * 
+ * <init-param>
+ * <param-name>haraKiriPendingThreshold</param-name>
+ * <param-value>10000</param-value>
+ * </init-param>
+ * 
+ * </servlet>
+ *
+ */
+public final class MessageServlet extends HttpServlet implements IMessageReceiverBroker, IMessageServletMXBean {
 
 	public static final String EXECUTION_INTERCEPTORS_PARAMETER_NAME = "executionInterceptors";
 	public static final String MESSAGE_EXECUTIONS_WATCHDOG_LISTENERS_PARAMETER_NAME = "messageExecutionsWatchdogListeners";
@@ -71,6 +138,7 @@ public final class MessageServlet extends HttpServlet implements IMessageReceive
 	public static final String HARA_KIRI_TIMEOUT_MILLIS_PARAMETER_NAME = "haraKiriTimeoutMillis";
 	public static final String HARA_KIRI_PENDING_THRESHOLD_PARAMETER_NAME = "haraKiriPendingThreshold";
 	public static final String EXECUTOR_THREAD_COUNT_PARAMETER_NAME = "executorThreadCount";
+	public static final String MESSAGE_SERVLET_MBEAN_OBJECT_NAME_PARAMETER_NAME = "messageServletMBeanObjectName";
 
 	static final String MESSAGE_CHANNEL_ATTRIBUTE_NAME = MessageServlet.class.getName() + "#channel";
 
@@ -96,9 +164,12 @@ public final class MessageServlet extends HttpServlet implements IMessageReceive
 	private final AtomicBoolean initialize;
 	private final AtomicBoolean initialized;
 
-	private long pollInterval;
+	private long pollIntervalMillis;
+	private long watchDogIntervalMillis;
+	private ScheduledFuture<?> watchDogExecution;
 	private long denyRequestPendingTimeoutMillis;
 	private long sessionInactivityTimeoutMillis;
+	private int threadCount;
 	private ExecutorService executor;
 	private volatile IMessageReceiver receiver;
 
@@ -123,7 +194,7 @@ public final class MessageServlet extends HttpServlet implements IMessageReceive
 				new Class[] {ExecutorService.class},
 				new DummyExecutorServiceInvocationHandler());
 
-		this.pollInterval = DEFAULT_POLL_INTERVAL_MILLIS;
+		this.pollIntervalMillis = DEFAULT_POLL_INTERVAL_MILLIS;
 	}
 
 	@Override
@@ -139,8 +210,8 @@ public final class MessageServlet extends HttpServlet implements IMessageReceive
 	}
 
 	private void initialize(final ServletConfig config) throws ServletException {
-		this.pollInterval = getLongFromConfig(config, POLL_INTERVAL_MILLIS_PARAMETER_NAME, DEFAULT_POLL_INTERVAL_MILLIS);
-		LOGGER.info("Set poll interval to: " + pollInterval);
+		this.pollIntervalMillis = getLongFromConfig(config, POLL_INTERVAL_MILLIS_PARAMETER_NAME, DEFAULT_POLL_INTERVAL_MILLIS);
+		LOGGER.info("Set poll interval to: " + pollIntervalMillis);
 
 		this.denyRequestPendingTimeoutMillis = getLongFromConfig(
 				config,
@@ -150,10 +221,13 @@ public final class MessageServlet extends HttpServlet implements IMessageReceive
 
 		initializeExecutor(config);
 		initializeWatchdog(config);
+		initializeMBean(config);
 	}
 
 	private void initializeExecutor(final ServletConfig config) {
-		final int threadCount = (int) getLongFromConfig(config, EXECUTOR_THREAD_COUNT_PARAMETER_NAME, DEFAULT_THREAD_COUNT);
+		this.threadCount = (int) getLongFromConfig(config, EXECUTOR_THREAD_COUNT_PARAMETER_NAME, DEFAULT_THREAD_COUNT);
+		watchdog.setThreadCount(threadCount);
+
 		this.executor = Executors.newFixedThreadPool(threadCount, DaemonThreadFactory.multi(CLASS_NAME + ".Executor"));
 		LOGGER.info("Set executor thread count to: " + threadCount);
 
@@ -168,37 +242,55 @@ public final class MessageServlet extends HttpServlet implements IMessageReceive
 				config,
 				SESSION_INACTIVITY_MILLIS_PARAMETER_NAME,
 				DEFAULT_SESSION_INACTIVITY_TIMEOUT);
-		final Long sessionInactivityTimeout = getLongFromConfig(
+		final long sessionInactivityTimeout = getLongFromConfig(
 				config,
 				SESSION_INACTIVITY_MILLIS_PARAMETER_NAME,
 				DEFAULT_SESSION_INACTIVITY_TIMEOUT);
 		watchdog.setSessionInactivityTimeout(sessionInactivityTimeout);
 		LOGGER.info("Set session inactivity timeout to: " + sessionInactivityTimeout);
 
-		final Long haraKiriTimeout = getLongFromConfig(
+		final long haraKiriTimeout = getLongFromConfig(
 				config,
 				HARA_KIRI_TIMEOUT_MILLIS_PARAMETER_NAME,
 				DEFAULT_HARA_KIRI_TIMEOUT);
 		watchdog.setHaraKiriTimeout(haraKiriTimeout);
 		LOGGER.info("Set hara-kiri timeout to: " + haraKiriTimeout);
 
-		final Long haraKiriPendingThreshold = getLongFromConfig(
+		final long haraKiriPendingThreshold = getLongFromConfig(
 				config,
 				HARA_KIRI_PENDING_THRESHOLD_PARAMETER_NAME,
 				DEFAULT_HARA_KIRI_PENDING_THRESHHOLD);
 		watchdog.setHaraKiriPendingThreshold(haraKiriPendingThreshold);
 		LOGGER.info("Set hara-kiri pending threshold to: " + haraKiriPendingThreshold);
 
-		final Long watchDogInterval = getLongFromConfig(
+		watchDogIntervalMillis = getLongFromConfig(
 				config,
 				WATCHDOG_INTERVAL_MILLIS_PARAMETER_NAME,
 				DEFAULT_WATCHDOG_INTERVAL_MILLIS);
-		watchdogExecutor.scheduleAtFixedRate(new WatchDogRunner(), 0, watchDogInterval, TimeUnit.MILLISECONDS);
-		LOGGER.info("Set watchdog interval to: " + watchDogInterval);
+		setWatchDogIntervalMillis(
+				getLongFromConfig(config, WATCHDOG_INTERVAL_MILLIS_PARAMETER_NAME, DEFAULT_WATCHDOG_INTERVAL_MILLIS));
+		LOGGER.info("Set watchdog interval to: " + watchDogIntervalMillis);
 
 		for (final IMessageExecutionWatchdogListener listener : createExecutionWatchdogListeners(config)) {
 			watchdog.addWatchdogListener(listener);
 			LOGGER.info("Add watchdog listener: " + listener.getClass().getName());
+		}
+	}
+
+	private void initializeMBean(final ServletConfig config) {
+		final String mBeanName = config.getInitParameter(MESSAGE_SERVLET_MBEAN_OBJECT_NAME_PARAMETER_NAME);
+		if (EmptyCheck.isEmpty(mBeanName)) {
+			LOGGER.info("No mbean name defined, jmx disabled for MessageServlet");
+			return;
+		}
+		try {
+			ManagementFactory.getPlatformMBeanServer().registerMBean(
+					this,
+					new ObjectName(mBeanName + ":type=" + MessageServlet.class.getSimpleName()));
+			LOGGER.info("Registered MessageServlet to MBeanServer with name: " + mBeanName);
+		}
+		catch (final Exception e) {
+			LOGGER.error("Error register '" + MessageServlet.class + "' to mbean server.", e);
 		}
 	}
 
@@ -242,17 +334,111 @@ public final class MessageServlet extends HttpServlet implements IMessageReceive
 	}
 
 	@Override
+	public int getThreadCount() {
+		return threadCount;
+	}
+
+	@Override
+	public long getPollIntervalMillis() {
+		return pollIntervalMillis;
+	}
+
+	@Override
+	public long getWatchDogIntervalMillis() {
+		return watchDogIntervalMillis;
+	}
+
+	@Override
+	public synchronized void setWatchDogIntervalMillis(final long interval) {
+		if (interval <= 0) {
+			throw new IllegalArgumentException("Must be positive");
+		}
+		this.watchDogIntervalMillis = interval;
+		if (watchDogExecution != null) {
+			watchDogExecution.cancel(false);
+		}
+		watchDogExecution = watchdogExecutor.scheduleAtFixedRate(
+				new WatchDogRunner(),
+				0,
+				watchDogIntervalMillis,
+				TimeUnit.MILLISECONDS);
+	}
+
+	@Override
+	public long getSessionInactivityTimeoutMillis() {
+		return sessionInactivityTimeoutMillis;
+	}
+
+	@Override
+	public void setSessionInactivityTimeoutMillis(final long timeout) {
+		if (timeout < 0) {
+			throw new IllegalArgumentException("Must not be negative");
+		}
+		this.sessionInactivityTimeoutMillis = timeout;
+		watchdog.setSessionInactivityTimeout(timeout);
+	}
+
+	@Override
+	public long getDenyRequestPendingTimeoutMillis() {
+		return denyRequestPendingTimeoutMillis;
+	}
+
+	@Override
+	public void setDenyRequestPendingTimeoutMillis(final long timeout) {
+		if (timeout < 0) {
+			throw new IllegalArgumentException("Must not be negative");
+		}
+		this.denyRequestPendingTimeoutMillis = timeout;
+	}
+
+	@Override
+	public Long getHaraKiriTimeoutMillis() {
+		return watchdog.getHaraKiriTimeout();
+	}
+
+	@Override
+	public void setHaraKiriTimeoutMillis(final Long timeout) {
+		if (timeout != null && timeout.longValue() < 0) {
+			throw new IllegalArgumentException("Must not be negative");
+		}
+		watchdog.setHaraKiriTimeout(timeout);
+	}
+
+	@Override
+	public Long getHaraKiriPendingThreshold() {
+		return watchdog.getHaraKiriPendingThreshold();
+	}
+
+	@Override
+	public void setHaraKiriPendingThreshold(final Long threshold) {
+		if (threshold != null && threshold.longValue() <= 0) {
+			throw new IllegalArgumentException("Must be positive");
+		}
+		watchdog.setHaraKiriPendingThreshold(threshold);
+	}
+
+	@Override
+	public void disableHaraKiri() {
+		setHaraKiriPendingThreshold(null);
+		setHaraKiriTimeoutMillis(null);
+	}
+
+	@Override
+	public void cancelAllExecutions() {
+		watchdog.cancelAllExecutions();
+	}
+
+	@Override
+	public void cancelMaxRuntimeExecution() {
+		final MessageExecution execution = watchdog.getLastWatchEvent().getMaxRuntimeExecution(true);
+		if (execution != null) {
+			execution.cancel();
+		}
+	}
+
+	@Override
 	public Object getBrokerId() {
 		return brokerId;
-	}
-
-	public void setPollInterval(final long pollInterval) {
-		this.pollInterval = pollInterval;
-	}
-
-	public void setExecutor(final ExecutorService executor) {
-		Assert.paramNotNull(executor, "executor");
-		this.executor = executor;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -295,7 +481,7 @@ public final class MessageServlet extends HttpServlet implements IMessageReceive
 		}
 		else {
 			final MessageChannel channel = getOrCreateMessageChannel(session);
-			final List<Object> messages = channel.pollMessages(pollInterval);
+			final List<Object> messages = channel.pollMessages(pollIntervalMillis);
 			oos.writeInt(messages.size());
 			for (final Object message : messages) {
 				try {

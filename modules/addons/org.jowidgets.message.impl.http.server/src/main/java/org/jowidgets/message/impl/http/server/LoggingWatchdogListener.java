@@ -83,6 +83,11 @@ public final class LoggingWatchdogListener implements IMessageExecutionWatchdogL
 	}
 
 	@Override
+	public void onExecutionRemove(final MessageExecution execution) {
+		LOGGER.debug("Execution removed from watchdog: " + execution);
+	}
+
+	@Override
 	public void onExecutionCancel(final Object message, final long cancelTimeMillis) {
 		LOGGER.info("Message canceled by watchdog: " + message);
 	}

@@ -49,6 +49,7 @@ public final class MessageServletConfigBuilder {
 	private Long haraKiriTimeoutMillis;
 	private Long haraKiriPendingThreshold;
 	private Long executorThreadCount;
+	private String messageServletMBeanObjectName;
 	private final List<Class<IExecutionInterceptor<?>>> executionInterceptors;
 	private final List<Class<IMessageExecutionWatchdogListener>> messageExecutionWatchdogListeners;
 	private final List<Class<Filter>> servletFilters;
@@ -57,6 +58,11 @@ public final class MessageServletConfigBuilder {
 		this.executionInterceptors = new LinkedList<Class<IExecutionInterceptor<?>>>();
 		this.messageExecutionWatchdogListeners = new LinkedList<Class<IMessageExecutionWatchdogListener>>();
 		this.servletFilters = new LinkedList<Class<Filter>>();
+	}
+
+	public MessageServletConfigBuilder setMessageServletMBeanObjectName(final String messageServletMBeanObjectName) {
+		this.messageServletMBeanObjectName = messageServletMBeanObjectName;
+		return this;
 	}
 
 	public MessageServletConfigBuilder setPollIntervalMillis(final Long pollIntervalMillis) {
@@ -74,7 +80,11 @@ public final class MessageServletConfigBuilder {
 		return this;
 	}
 
-	public MessageServletConfigBuilder setDenyRequestPendingtimeoutMillis(final Long denyRequestPendingtimeoutMillis) {
+	public MessageServletConfigBuilder setDenyRequestPendingTimeoutMillis(final long denyRequestPendingtimeoutMillis) {
+		return setDenyRequestPendingTimeoutMillis(Long.valueOf(denyRequestPendingtimeoutMillis));
+	}
+
+	public MessageServletConfigBuilder setDenyRequestPendingTimeoutMillis(final Long denyRequestPendingtimeoutMillis) {
 		this.denyRequestPendingtimeoutMillis = denyRequestPendingtimeoutMillis;
 		return this;
 	}
@@ -122,8 +132,8 @@ public final class MessageServletConfigBuilder {
 		return this;
 	}
 
-	public MessageServletConfig build() {
-		return new MessageServletConfig(this);
+	String getMessageServletMBeanObjectName() {
+		return messageServletMBeanObjectName;
 	}
 
 	Long getPollIntervalMillis() {
@@ -164,6 +174,10 @@ public final class MessageServletConfigBuilder {
 
 	List<Class<Filter>> getServletFilters() {
 		return Collections.unmodifiableList(servletFilters);
+	}
+
+	public MessageServletConfig build() {
+		return new MessageServletConfig(this);
 	}
 
 }

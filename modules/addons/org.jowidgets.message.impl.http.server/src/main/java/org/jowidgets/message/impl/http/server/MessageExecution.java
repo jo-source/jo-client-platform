@@ -156,9 +156,7 @@ public final class MessageExecution {
 	/**
 	 * Checks if the execution has been terminated normally.
 	 * 
-	 * The execution has terminated if it has been started, finished and not canceled.
-	 * 
-	 * Remark that a canceled execution has not been terminated by definition.
+	 * The execution has terminated if it has been started and finished or canceled.
 	 * 
 	 * @return True if execution has been terminated.
 	 */

@@ -177,6 +177,12 @@ public final class CapServerStarter {
 			holder.setInitParameter(MessageServlet.EXECUTOR_THREAD_COUNT_PARAMETER_NAME, executorThreadCount.toString());
 		}
 
+		final String messageServletMBeanObjectName = config.getMessageServletMBeanObjectName();
+		if (!EmptyCheck.isEmpty(messageServletMBeanObjectName)) {
+			holder.setInitParameter(
+					MessageServlet.MESSAGE_SERVLET_MBEAN_OBJECT_NAME_PARAMETER_NAME,
+					messageServletMBeanObjectName);
+		}
 	}
 
 	private static List<String> getClassNames(final List<? extends Class<?>> classes) {

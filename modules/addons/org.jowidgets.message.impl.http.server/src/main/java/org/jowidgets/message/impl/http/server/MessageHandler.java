@@ -31,7 +31,6 @@ package org.jowidgets.message.impl.http.server;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.jowidgets.logging.api.ILogger;
@@ -54,7 +53,7 @@ final class MessageHandler implements Runnable {
 	private final AtomicReference<Long> canceled;
 	private final AtomicReference<Long> started;
 	private final AtomicReference<Thread> executingThread;
-	private final AtomicBoolean terminated;
+	private final AtomicReference<Long> terminated;
 
 	MessageHandler(
 		final Object message,
@@ -80,7 +79,7 @@ final class MessageHandler implements Runnable {
 
 		this.started = new AtomicReference<Long>();
 		this.executingThread = new AtomicReference<Thread>(null);
-		this.terminated = new AtomicBoolean(false);
+		this.terminated = new AtomicReference<Long>();
 	}
 
 	private static List<Object> readExecutionContexts(final Collection<IExecutionInterceptor<Object>> interceptors) {
@@ -101,7 +100,7 @@ final class MessageHandler implements Runnable {
 		}
 		finally {
 			executingThread.set(null);
-			terminated.set(true);
+			terminated.set(systemTimeProvider.currentTimeMillis());
 		}
 	}
 
@@ -149,12 +148,15 @@ final class MessageHandler implements Runnable {
 	}
 
 	boolean isTerminated() {
-		return terminated.get();
+		return terminated.get() != null;
 	}
 
 	Long getRuntimeMillis() {
 		if (isRunning()) {
 			return Long.valueOf(systemTimeProvider.currentTimeMillis() - started.get().longValue());
+		}
+		else if (isTerminated()) {
+			return Long.valueOf(terminated.get().longValue() - started.get().longValue());
 		}
 		else {
 			return null;

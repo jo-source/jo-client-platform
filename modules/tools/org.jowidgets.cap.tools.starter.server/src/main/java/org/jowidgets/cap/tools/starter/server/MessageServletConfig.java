@@ -50,14 +50,58 @@ import org.jowidgets.util.Assert;
  * <servlet-class>org.jowidgets.security.impl.http.server.SecurityRemotingServlet</servlet-class>
  * 
  * <init-param>
+ * <param-name>messageServletMBeanObjectName</param-name>
+ * <param-value>
+ * myorg.mypackage.myapplication.MessageServlet</param-value>
+ * </init-param>
+ * 
+ * <init-param>
+ * <param-name>messageExecutionsWatchdogListeners</param-name>
+ * <param-value>
+ * org.jowidgets.message.impl.http.server.LoggingWatchdogListener;de.maycompany.MyWatchdogListener</param-value>
+ * </init-param>
+ * 
+ * <init-param>
  * <param-name>executionInterceptors</param-name>
  * <param-value>org.jowidgets.message.impl.http.server.UserLocaleExecutionInterceptor</param-value>
  * </init-param>
  * 
  * <init-param>
- * <param-name>messageExecutionsWatchdogListeners</param-name>
- * <param-value>org.jowidgets.cap.tools.starter.server.LoggingWatchdogListener</param-value>
+ * <param-name>executorThreadCount</param-name>
+ * <param-value>80</param-value>
  * </init-param>
+ * 
+ * <init-param>
+ * <param-name>pollIntervalMillis</param-name>
+ * <param-value>10000</param-value>
+ * </init-param>
+ * 
+ * <init-param>
+ * <param-name>watchdogIntervalMillis</param-name>
+ * <param-value>1000</param-value>
+ * </init-param>
+ * 
+ * <init-param>
+ * <param-name>sessionInactivityMillis</param-name>
+ * <param-value>60000</param-value>
+ * </init-param>
+ * 
+ * <init-param>
+ * <param-name>denyRequestPendingTimeoutMillis</param-name>
+ * <param-value>20000</param-value>
+ * </init-param>
+ * 
+ * <init-param>
+ * <param-name>haraKiriTimeoutMillis</param-name>
+ * <param-value>1800000</param-value>
+ * </init-param>
+ * 
+ * <init-param>
+ * <param-name>haraKiriPendingThreshold</param-name>
+ * <param-value>10000</param-value>
+ * </init-param>
+ * 
+ * </servlet>
  * 
  * </servlet>
  */
@@ -70,6 +114,7 @@ public final class MessageServletConfig {
 	private final Long haraKiriTimeoutMillis;
 	private final Long haraKiriPendingThreshold;
 	private final Long executorThreadCount;
+	private String messageServletMBeanObjectName;
 	private final List<Class<IExecutionInterceptor<?>>> executionInterceptors;
 	private final List<Class<IMessageExecutionWatchdogListener>> messageExecutionWatchdogListeners;
 
@@ -91,6 +136,7 @@ public final class MessageServletConfig {
 		this.haraKiriTimeoutMillis = builder.getHaraKiriTimeoutMillis();
 		this.haraKiriPendingThreshold = builder.getHaraKiriPendingThreshold();
 		this.executorThreadCount = builder.getExecutorThreadCount();
+		this.messageServletMBeanObjectName = builder.getMessageServletMBeanObjectName();
 
 		this.executionInterceptors = Collections.unmodifiableList(
 				new ArrayList<Class<IExecutionInterceptor<?>>>(builder.getExecutionInterceptors()));
@@ -127,6 +173,14 @@ public final class MessageServletConfig {
 
 	public Long getExecutorThreadCount() {
 		return executorThreadCount;
+	}
+
+	public String getMessageServletMBeanObjectName() {
+		return messageServletMBeanObjectName;
+	}
+
+	public void setMessageServletMBeanObjectName(final String messageServletMBeanObjectName) {
+		this.messageServletMBeanObjectName = messageServletMBeanObjectName;
 	}
 
 	public List<Class<IExecutionInterceptor<?>>> getExecutionInterceptors() {

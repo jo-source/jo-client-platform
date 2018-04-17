@@ -34,6 +34,13 @@ package org.jowidgets.message.impl.http.server;
 public interface IMessageExecutionWatchdogListener {
 
 	/**
+	 * Will be invoked if a execution was removed from watchdog because it was terminated or canceled.
+	 * 
+	 * @param execution The execution that was removed
+	 */
+	void onExecutionRemove(final MessageExecution execution);
+
+	/**
 	 * This method will be invoked if a execution has been canceled by watchdog.
 	 * 
 	 * A execution may be canceled by several reasons, e.g. if the client is no longer active or because of server overload.

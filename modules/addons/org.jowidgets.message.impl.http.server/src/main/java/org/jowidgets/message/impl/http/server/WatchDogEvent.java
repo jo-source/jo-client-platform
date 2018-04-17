@@ -40,18 +40,24 @@ import java.util.List;
  */
 public final class WatchDogEvent {
 
+	private final int threadCount;
 	private final long watchTimeMillis;
+	private final int activeSessionCount;;
 	private final List<MessageExecution> running;
 	private final List<MessageExecution> pending;
 	private final List<MessageExecution> unfinishedCancel;
 
 	WatchDogEvent(
+		final int threadCount,
 		final long watchTimeMillis,
+		final int activeSessionCount,
 		final List<MessageExecution> running,
 		final List<MessageExecution> pending,
 		final List<MessageExecution> unfinishedCancel) {
 
+		this.threadCount = threadCount;
 		this.watchTimeMillis = watchTimeMillis;
+		this.activeSessionCount = activeSessionCount;
 		this.running = Collections.unmodifiableList(new ArrayList<MessageExecution>(running));
 		this.pending = Collections.unmodifiableList(new ArrayList<MessageExecution>(pending));
 		this.unfinishedCancel = Collections.unmodifiableList(new ArrayList<MessageExecution>(unfinishedCancel));
@@ -64,6 +70,24 @@ public final class WatchDogEvent {
 	 */
 	public long getWatchTimeMillis() {
 		return watchTimeMillis;
+	}
+
+	/**
+	 * Gets the number of threads used for message execution by {@link MessageServlet}
+	 * 
+	 * @return The number of threads
+	 */
+	public int getThreadCount() {
+		return threadCount;
+	}
+
+	/**
+	 * Get's the number of currently active http sessions.
+	 * 
+	 * @return The number of active sessions
+	 */
+	public int getActiveSessionCount() {
+		return activeSessionCount;
 	}
 
 	/**
@@ -168,6 +192,21 @@ public final class WatchDogEvent {
 	}
 
 	/**
+	 * Gets the duration in millis of the max pending execution
+	 * 
+	 * @return The duration of the max pending execution in millis
+	 */
+	public long getMaxPendingDurationMillis() {
+		final MessageExecution execution = getMaxPendingExecution();
+		if (execution != null) {
+			return watchTimeMillis - execution.getCreationTimeMillis();
+		}
+		else {
+			return 0;
+		}
+	}
+
+	/**
 	 * Get's the running execution that has the maximal runtime or null, if no execution is running.
 	 * 
 	 * @return The oldest running execution or null if no running execution exists
@@ -205,6 +244,21 @@ public final class WatchDogEvent {
 	}
 
 	/**
+	 * Gets the duration in millis of the max max runtime execution execution
+	 * 
+	 * @return The duration of the max runtime execution in millis
+	 */
+	public long getMaxRuntimeMillis() {
+		final MessageExecution execution = getMaxRuntimeExecution(false);
+		if (execution != null) {
+			return watchTimeMillis - execution.getStartTimeMillis().longValue();
+		}
+		else {
+			return 0;
+		}
+	}
+
+	/**
 	 * Get's all canceled executions where cancel was not yet completed.
 	 * 
 	 * A execution is in state unfinished cancel if it was canceled but the execution thread has not yet been successfully
@@ -234,6 +288,41 @@ public final class WatchDogEvent {
 			}
 		}
 		return Collections.unmodifiableList(result);
+	}
+
+	/**
+	 * @return The unfinished cancel execution that has the maximal cancel duration or null, if no such execution exists
+	 */
+	public MessageExecution getMaxUnfinishedCancelExecution() {
+		long min = 0;
+		MessageExecution result = null;
+		for (final MessageExecution execution : getUnfinishedCancelExecutions()) {
+			if (result == null) {
+				result = execution;
+				min = execution.getCanceledTimeMillis().longValue();
+			}
+			else {
+				final long cancelTime = execution.getCanceledTimeMillis().longValue();
+				if (cancelTime < min) {
+					result = execution;
+					min = cancelTime;
+				}
+			}
+		}
+		return result;
+	}
+
+	/**
+	 * @return The duration in millis of the unfinished cancel execution that has the maximal cancel duration
+	 */
+	public long getMaxUnfinishedCancelDurationMillis() {
+		final MessageExecution execution = getMaxUnfinishedCancelExecution();
+		if (execution != null) {
+			return watchTimeMillis - execution.getCanceledTimeMillis().longValue();
+		}
+		else {
+			return 0;
+		}
 	}
 
 	@Override

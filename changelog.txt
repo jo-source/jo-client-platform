@@ -287,6 +287,16 @@ Bugfixes:
 0.71.0 
 
 
+broken build, do not use this version
+
+
+----------------------------------------------------------------------------------------------------------------------------
+
+0.72.0 
+
+Remark: This version does not provide osgi bundles!!!
+
+
 Uses jowidgets 0.76.0
 
 
@@ -312,6 +322,24 @@ Bugfixes:
 
 ----------------------------------------------------------------------------------------------------------------------------
 
+0.73.0 
+
+Remark: This version does not provide osgi bundles!!!
+
+
+Uses jowidgets 0.76.0
+
+
+Features:
+
+* Implements issue #87 https://github.com/jo-source/jo-client-platform/issues/87 Allow managing MessageServlet via JMX
+
+
+
+Bugfixes:
+
+
+----------------------------------------------------------------------------------------------------------------------------
 
 
 
