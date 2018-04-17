@@ -108,10 +108,9 @@ public interface IMessageServletStatusMXBean {
 	long getMaxUnfinishedCancelDurationSeconds();
 
 	/**
-	 * @return The average runtime of all terminated executions since server start or invocation of
-	 *         {@link #resetAverageTerminatedRuntime()}
+	 * @return The average runtime of all executions since server start or invocation of {@link #resetAverageRuntime()}
 	 */
-	long getAverageTerminationRuntimeInMillis();
+	long getAverageRuntimeInMillis();
 
 	/**
 	 * @return The number of hara-kiri invocations since server start or invocation of {@link #resetHaraKiriCount()}
@@ -140,9 +139,9 @@ public interface IMessageServletStatusMXBean {
 	void resetMaxUnfinishedCancelDuration();
 
 	/**
-	 * Resets the average termination runtime value to 0
+	 * Resets the average runtime value to 0
 	 */
-	void resetAverageTerminatedRuntime();
+	void resetAverageRuntime();
 
 	/**
 	 * Resets the hara-kiri count to 0
@@ -153,5 +152,10 @@ public interface IMessageServletStatusMXBean {
 	 * Resets the last hara-kri date
 	 */
 	void resetLastHaraKiri();
+
+	/**
+	 * Resets all values to its initial value
+	 */
+	void resetAll();
 
 }

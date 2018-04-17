@@ -99,7 +99,7 @@ public class JmxWatchdogListener implements IMessageExecutionWatchdogListener {
 
 	@Override
 	public void onExecutionRemove(final MessageExecution execution) {
-		status.calculateAverageTerminationRuntimeInMillis(execution);
+		status.calculateAverageRuntimeInMillis(execution);
 	}
 
 	@Override

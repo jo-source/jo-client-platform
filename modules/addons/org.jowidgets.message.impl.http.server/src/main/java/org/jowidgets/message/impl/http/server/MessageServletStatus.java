@@ -122,7 +122,7 @@ public final class MessageServletStatus implements IMessageServletStatusMXBean {
 	}
 
 	@Override
-	public long getAverageTerminationRuntimeInMillis() {
+	public long getAverageRuntimeInMillis() {
 		if (terminatedExecutionCount == 0) {
 			return 0;
 		}
@@ -157,7 +157,7 @@ public final class MessageServletStatus implements IMessageServletStatusMXBean {
 	}
 
 	@Override
-	public void resetAverageTerminatedRuntime() {
+	public void resetAverageRuntime() {
 		terminationRuntime = 0;
 		terminatedExecutionCount = 0;
 	}
@@ -170,6 +170,26 @@ public final class MessageServletStatus implements IMessageServletStatusMXBean {
 	@Override
 	public void resetLastHaraKiri() {
 		setLastHaraKiri(null);
+	}
+
+	@Override
+	public void resetAll() {
+		lastExecutionWatch = null;
+		threadCount = 0;
+		activeSessionCount = 0;
+		runningExecutionsCount = 0;
+		pendingExecutionsCount = 0;
+		unfinishedCancelExecutionsCount = 0;
+		lastMaxRuntimeInSeconds = 0;
+		lastMaxPendingDurationInSeconds = 0;
+		lastMaxUnfinishedCancelDurationInSeconds = 0;
+		maxRuntimeInSeconds = 0;
+		maxPendingDurationInSeconds = 0;
+		maxUnfinishedCancelDurationSeconds = 0;
+		terminationRuntime = 0;
+		terminatedExecutionCount = 0;
+		haraKiriCount = 0;
+		lastHaraKiri = null;
 	}
 
 	void setLastExecutionWatch(final Date lastExecutionWatch) {
@@ -217,7 +237,7 @@ public final class MessageServletStatus implements IMessageServletStatusMXBean {
 		}
 	}
 
-	void calculateAverageTerminationRuntimeInMillis(final MessageExecution execution) {
+	void calculateAverageRuntimeInMillis(final MessageExecution execution) {
 		Assert.paramNotNull(execution, "execution");
 		if (execution.isTerminated()) {
 			terminationRuntime += execution.getRuntimeMillis().longValue();
