@@ -59,7 +59,8 @@ import org.jowidgets.util.ISystemTimeProvider;
  * 
  * Each termination attempt must be done explicitly by invoking the method {@link #terminateQuery()}.
  * 
- * After the thread that executes the query has been finished the query execution, the method {@link #afterQueryTerminated()}
+ * After the thread that executes the query has been finished the query execution, the method
+ * {@link #rollbackConnectionIfNoTransactionIsActive()}
  * must be invoked in the query invoking thread to do necessary work on the session.
  */
 final class QueryTerminator {
@@ -185,12 +186,12 @@ final class QueryTerminator {
 	}
 
 	/**
-	 * Must be invoked after the query termination has successfully finished to rollback the
+	 * Must be invoked after the query was canceled and termination has successfully finished to rollback the
 	 * connection of the session.
 	 */
-	synchronized void afterQueryTerminated() {
-		if (wasCanceled() && !wasKilled() && session.isOpen()) {
-			try {
+	synchronized void rollbackConnectionIfNoTransactionIsActive() {
+		try {
+			if (session.isOpen() && !session.getTransaction().isActive()) {
 				//If the session was canceled without any hibernate exception,
 				//the connection is in a dirty state what may lead
 				//to a timeout exception in future when connection will be recycled from
@@ -199,12 +200,13 @@ final class QueryTerminator {
 				//works if the release mode (hibernate.connection.release_mode) is set to 'on_close'
 				final Connection connection = getConnection(session);
 				if (connection != null && !connection.isClosed()) {
+					LOGGER.debug("Try to rollback connection");
 					connection.rollback();
 				}
 			}
-			catch (final Exception e) {
-				LOGGER.warn("Execption on connection rollback after session cancel", e);
-			}
+		}
+		catch (final Throwable throwable) {
+			LOGGER.debug("Execption on connection rollback after session cancel", throwable);
 		}
 	}
 
@@ -348,14 +350,6 @@ final class QueryTerminator {
 					"Error on entity manager close after kill session attempt for client identifier: '" + clientIdentifier + "'.",
 					e);
 		}
-	}
-
-	private boolean wasCanceled() {
-		return cancelInvocationsWithoutError.get() > 0;
-	}
-
-	private boolean wasKilled() {
-		return killInvocationsWithoutError.get() > 0;
 	}
 
 	private static Connection getConnection(final Session session) {

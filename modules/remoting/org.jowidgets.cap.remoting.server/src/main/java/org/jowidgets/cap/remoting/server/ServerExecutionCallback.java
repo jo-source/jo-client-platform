@@ -32,12 +32,10 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.Condition;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.IExecutionCallbackListener;
@@ -140,26 +138,21 @@ final class ServerExecutionCallback implements IExecutionCallback {
 	}
 
 	@Override
-	public UserQuestionResult userQuestion(final String question) {
+	public UserQuestionResult userQuestion(final String question) throws InterruptedException {
 		final ValueHolder<UserQuestionResult> result = new ValueHolder<UserQuestionResult>();
-		final Lock lock = new ReentrantLock();
-		final Condition condition = lock.newCondition();
+		final CountDownLatch latch = new CountDownLatch(1);
 
 		interimRequestCallback.request(new IInterimResponseCallback<Object>() {
 			@Override
 			public void response(final Object response) {
 				final UserQuestionResult userQuestionResult = (UserQuestionResult) response;
 				result.set(userQuestionResult);
-				lock.lock();
-				condition.signal();
-				lock.unlock();
+				latch.countDown();
 			}
 
 		}, new UserQuestionRequest(question));
 
-		lock.lock();
-		condition.awaitUninterruptibly();
-		lock.unlock();
+		latch.await();
 
 		return result.get();
 	}

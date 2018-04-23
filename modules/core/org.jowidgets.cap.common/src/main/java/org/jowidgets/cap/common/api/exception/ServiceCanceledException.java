@@ -36,4 +36,14 @@ public class ServiceCanceledException extends ServiceException {
 		super("Service was canceled by user");
 	}
 
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param cause The cause of the exception. Remark: The cause will not be returned with getCause(), instead the cause
+	 *            will be used to create a complete stack trace for this exception on creation time.
+	 */
+	public ServiceCanceledException(final Throwable cause) {
+		super("Service was canceled by user", cause);
+	}
+
 }

@@ -105,13 +105,13 @@ final class ServerSubExecutionCallback implements IExecutionCallback {
 	}
 
 	@Override
-	public UserQuestionResult userQuestion(final String question) {
+	public UserQuestionResult userQuestion(final String question) throws InterruptedException {
 		return rootCallback.userQuestion(question);
 	}
 
 	@Override
 	public void userQuestion(final String question, final IUserQuestionCallback callback) {
-		rootCallback.userQuestion(question);
+		rootCallback.userQuestion(question, callback);
 	}
 
 	@Override

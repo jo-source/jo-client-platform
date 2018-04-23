@@ -39,6 +39,7 @@ import java.util.Set;
 import org.jowidgets.cap.common.api.exception.BeansValidationException;
 import org.jowidgets.cap.common.api.exception.BeansValidationException.KeyType;
 import org.jowidgets.cap.common.api.exception.ServiceCanceledException;
+import org.jowidgets.cap.common.api.exception.ServiceInterruptedException;
 import org.jowidgets.cap.common.api.execution.IExecutionCallback;
 import org.jowidgets.cap.common.api.execution.UserQuestionResult;
 import org.jowidgets.cap.common.api.validation.IBeanValidationResult;
@@ -100,7 +101,16 @@ public final class ServiceBeanValidationHelper {
 		}
 		else if (confirmValidationWarnings && validationWarnings.size() > 0) {
 			final String userQuestion = createUserQuestionString(validationWarnings);
-			if (UserQuestionResult.NO.equals(executionCallback.userQuestion(userQuestion))) {
+			final UserQuestionResult userQuestionResult;
+
+			try {
+				userQuestionResult = executionCallback.userQuestion(userQuestion);
+			}
+			catch (final InterruptedException e) {
+				Thread.currentThread().interrupt();
+				throw new ServiceInterruptedException(e);
+			}
+			if (UserQuestionResult.NO.equals(userQuestionResult)) {
 				throw new ServiceCanceledException();
 			}
 		}

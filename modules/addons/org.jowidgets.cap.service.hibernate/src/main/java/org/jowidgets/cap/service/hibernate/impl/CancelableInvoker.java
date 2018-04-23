@@ -47,6 +47,8 @@ import org.jowidgets.cap.service.api.CapServiceToolkit;
 import org.jowidgets.cap.service.hibernate.api.IKillSessionSupport;
 import org.jowidgets.cap.service.hibernate.api.KillSessionSupport;
 import org.jowidgets.cap.service.jpa.api.EntityManagerHolder;
+import org.jowidgets.logging.api.ILogger;
+import org.jowidgets.logging.api.LoggerProvider;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.DefaultSystemTimeProvider;
 import org.jowidgets.util.ISystemTimeProvider;
@@ -54,6 +56,8 @@ import org.jowidgets.util.concurrent.IThreadInterruptListener;
 import org.jowidgets.util.concurrent.IThreadInterruptObservable;
 
 final class CancelableInvoker {
+
+	private static final ILogger LOGGER = LoggerProvider.get(CancelableInvoker.class);
 
 	private final ISystemTimeProvider systemTimeProvider;
 	private final IThreadInterruptObservable threadInterruptObservable;
@@ -73,6 +77,7 @@ final class CancelableInvoker {
 	private final String clientIdentifier;
 	private final IKillSessionSupport killSessionSupport;
 	private final QueryTerminator queryTerminator;
+	private final IThreadInterruptListener threadInterruptListener;
 
 	CancelableInvoker(
 		final IThreadInterruptObservable threadInterruptObservable,
@@ -148,9 +153,11 @@ final class CancelableInvoker {
 				minQueryRuntimeMillis,
 				killSessionSupport,
 				killAfterMillis);
+			this.threadInterruptListener = new ThreadInterruptListener();
 		}
 		else {
 			this.queryTerminator = null;
+			this.threadInterruptListener = null;
 		}
 
 	}
@@ -165,27 +172,17 @@ final class CancelableInvoker {
 			if (Thread.interrupted()) {
 				throw new InterruptedException("Query invocation was interrupted.");
 			}
-			final IThreadInterruptListener interruptListener;
+
 			if (queryTerminator != null) {
 				addCancelListener(executionCallback);
-				interruptListener = new ThreadInterruptListener();
-				threadInterruptObservable.addInterruptListener(interruptListener);
+				threadInterruptObservable.addInterruptListener(threadInterruptListener);
 				final Connection connectionForThread = queryTerminator.getConnection();
 				setClientIdentifierOnConnection(connectionForThread, clientIdentifier);
 			}
-			else {
-				interruptListener = null;
-			}
-			try {
-				queryStartedTimestamp.set(systemTimeProvider.currentTimeMillis());
-				queryStartedLatch.countDown();
-				return method.invoke(original, args);
-			}
-			finally {
-				if (interruptListener != null) {
-					threadInterruptObservable.removeInterruptListener(interruptListener);
-				}
-			}
+
+			queryStartedTimestamp.set(systemTimeProvider.currentTimeMillis());
+			queryStartedLatch.countDown();
+			return method.invoke(original, args);
 		}
 		catch (final Exception e) {
 			decoratedResultCallback.exception(e);
@@ -210,9 +207,9 @@ final class CancelableInvoker {
 		}
 	}
 
-	private void afterInvocationTerminated() {
+	private void rollbackConnectionIfNoTransactionIsActive() {
 		if (queryTerminator != null) {
-			queryTerminator.afterQueryTerminated();
+			queryTerminator.rollbackConnectionIfNoTransactionIsActive();
 		}
 	}
 
@@ -220,6 +217,14 @@ final class CancelableInvoker {
 		if (executionCallback != null && queryTerminator != null) {
 			executionCallback.addExecutionCallbackListener(new CancelListener());
 		}
+	}
+
+	private boolean isCanceled() {
+		return executionCallback != null && executionCallback.isCanceled();
+	}
+
+	private long getDelay(final long timestampMillis) {
+		return systemTimeProvider.currentTimeMillis() - timestampMillis;
 	}
 
 	private class ThreadInterruptListener implements IThreadInterruptListener {
@@ -234,10 +239,6 @@ final class CancelableInvoker {
 			}
 
 		}
-	}
-
-	private long getDelay(final long timestampMillis) {
-		return systemTimeProvider.currentTimeMillis() - timestampMillis;
 	}
 
 	private class CancelListener implements IExecutionCallbackListener {
@@ -266,31 +267,60 @@ final class CancelableInvoker {
 
 		@Override
 		public final void finished(final Object result) {
-			queryStartedLatch.countDown();
-			queryFinishedLatch.countDown();
-			afterInvocationTerminated();
-			resultCallback.finished(result);
+			try {
+				beforeResultCallbackInvocation();
+				resultCallback.finished(result);
+			}
+			catch (final Throwable throwable) {
+				tryInvokeExceptionCallbackAndLogErrorOnFail(throwable);
+			}
 		}
 
 		@Override
 		public final void exception(final Throwable exception) {
-			queryStartedLatch.countDown();
-			queryFinishedLatch.countDown();
-			afterInvocationTerminated();
-			if (Thread.interrupted() && !(executionCallback != null && executionCallback.isCanceled())) {
+			beforeResultCallbackInvocation();
+			tryInvokeExceptionCallbackAndLogErrorOnFail(exception);
+		}
+
+		private void tryInvokeExceptionCallbackAndLogErrorOnFail(final Throwable exception) {
+			try {
+				invokeExceptionCallback(exception);
+			}
+			catch (final Throwable e) {
+				LOGGER.error("Error when try to invoke exception callback", e);
+			}
+		}
+
+		private void invokeExceptionCallback(final Throwable exception) {
+			if (Thread.interrupted() && !isCanceled()) {
 				resultCallback.exception(new InterruptedException("Query invocation was interrupted."));
 			}
-			else if (executionCallback != null
-				&& executionCallback.isCanceled()
-				&& !(exception instanceof ServiceCanceledException)) {
+			else if (isCanceled() && !(exception instanceof ServiceCanceledException)) {
 				resultCallback.exception(new ServiceCanceledException());
 			}
 			else {
 				resultCallback.exception(exception);
 			}
 		}
+
+		private void beforeResultCallbackInvocation() {
+			queryStartedLatch.countDown();
+			queryFinishedLatch.countDown();
+			if (threadInterruptListener != null) {
+				threadInterruptObservable.removeInterruptListener(threadInterruptListener);
+			}
+			if (isCanceled()) {
+				rollbackConnectionIfNoTransactionIsActive();
+			}
+		}
+
+		private boolean isCanceled() {
+			return executionCallback != null && executionCallback.isCanceled();
+		}
+
 	}
 
+	//TODO check if this works correctly on cancel, not sure if this interface is used any longer
 	private class DecoratedUpdateCallback extends DecoratedResultCallback implements IUpdatableResultCallback<Object, Object> {
 
 		@SuppressWarnings("unchecked")
@@ -298,7 +328,7 @@ final class CancelableInvoker {
 		public void update(final Object result) {
 			queryStartedLatch.countDown();
 			queryFinishedLatch.countDown();
-			afterInvocationTerminated();
+			rollbackConnectionIfNoTransactionIsActive();
 			((IUpdatableResultCallback<Object, Object>) resultCallback).update(result);
 		}
 
@@ -307,7 +337,9 @@ final class CancelableInvoker {
 		public void updatesFinished() {
 			queryStartedLatch.countDown();
 			queryFinishedLatch.countDown();
-			afterInvocationTerminated();
+			if (isCanceled()) {
+				rollbackConnectionIfNoTransactionIsActive();
+			}
 			((IUpdatableResultCallback<Object, Object>) resultCallback).updatesFinished();
 		}
 
@@ -316,7 +348,9 @@ final class CancelableInvoker {
 		public void exceptionOnUpdate(final Throwable exception) {
 			queryStartedLatch.countDown();
 			queryFinishedLatch.countDown();
-			afterInvocationTerminated();
+			if (isCanceled()) {
+				rollbackConnectionIfNoTransactionIsActive();
+			}
 			((IUpdatableResultCallback<Object, Object>) resultCallback).exceptionOnUpdate(exception);
 		}
 

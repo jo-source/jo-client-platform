@@ -93,6 +93,8 @@ public class MessageReceiverBroker implements IMessageReceiverBroker {
 						});
 					}
 					catch (final InterruptedException e) {
+						Thread.currentThread().interrupt();
+						break;
 					}
 				}
 			}

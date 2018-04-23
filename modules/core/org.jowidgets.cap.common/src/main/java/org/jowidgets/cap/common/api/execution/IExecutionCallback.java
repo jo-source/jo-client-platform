@@ -83,7 +83,7 @@ public interface IExecutionCallback {
 	 * 
 	 * @return The result of the user question
 	 */
-	UserQuestionResult userQuestion(String question);
+	UserQuestionResult userQuestion(String question) throws InterruptedException;
 
 	/**
 	 * Offers a question to the user.
@@ -97,6 +97,7 @@ public interface IExecutionCallback {
 	 * @param question The question to ask the user.
 	 * @param callback The call back that will be invoked, after the user has answered the question
 	 * 
+	 * @throws InterruptedException if requesting thread was interrupted
 	 */
 	void userQuestion(String question, IUserQuestionCallback callback);
 

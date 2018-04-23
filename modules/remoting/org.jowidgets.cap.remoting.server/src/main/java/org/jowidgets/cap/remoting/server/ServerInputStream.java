@@ -45,6 +45,7 @@ import org.jowidgets.cap.remoting.common.InputStreamResetResponse;
 import org.jowidgets.cap.remoting.common.InputStreamSkipRequest;
 import org.jowidgets.cap.remoting.common.InputStreamSkipResponse;
 import org.jowidgets.invocation.service.common.api.IInterimRequestCallback;
+import org.jowidgets.invocation.service.common.api.IInterimResponseCallback;
 import org.jowidgets.invocation.service.common.tools.SyncInterimResponseCallback;
 import org.jowidgets.util.Assert;
 
@@ -78,7 +79,7 @@ final class ServerInputStream extends InputStream {
 
 	@Override
 	public int read(final byte[] b, final int off, final int len) throws IOException {
-		final SyncInterimResponseCallback<Object> responseCallback = new SyncInterimResponseCallback<Object>();
+		final InputStreamInterimResponseCallback<Object> responseCallback = new InputStreamInterimResponseCallback<Object>();
 		interimRequestCallback.request(responseCallback, new InputStreamReadRequest(index, len));
 		final InputStreamReadResponse response = (InputStreamReadResponse) responseCallback.getResponseSynchronious();
 		final byte[] resultBytes = response.getBytes();
@@ -90,7 +91,7 @@ final class ServerInputStream extends InputStream {
 
 	@Override
 	public long skip(final long n) throws IOException {
-		final SyncInterimResponseCallback<Object> responseCallback = new SyncInterimResponseCallback<Object>();
+		final InputStreamInterimResponseCallback<Object> responseCallback = new InputStreamInterimResponseCallback<Object>();
 		interimRequestCallback.request(responseCallback, new InputStreamSkipRequest(index, n));
 		final InputStreamSkipResponse response = (InputStreamSkipResponse) responseCallback.getResponseSynchronious();
 		return response.getSkipped();
@@ -98,7 +99,7 @@ final class ServerInputStream extends InputStream {
 
 	@Override
 	public int available() throws IOException {
-		final SyncInterimResponseCallback<Object> responseCallback = new SyncInterimResponseCallback<Object>();
+		final InputStreamInterimResponseCallback<Object> responseCallback = new InputStreamInterimResponseCallback<Object>();
 		interimRequestCallback.request(responseCallback, new InputStreamAvailableRequest(index));
 		final InputStreamAvailableResponse response = (InputStreamAvailableResponse) responseCallback.getResponseSynchronious();
 		return response.getAvailable();
@@ -106,7 +107,7 @@ final class ServerInputStream extends InputStream {
 
 	@Override
 	public void close() throws IOException {
-		final SyncInterimResponseCallback<Object> responseCallback = new SyncInterimResponseCallback<Object>();
+		final InputStreamInterimResponseCallback<Object> responseCallback = new InputStreamInterimResponseCallback<Object>();
 		interimRequestCallback.request(responseCallback, new InputStreamCloseRequest(index));
 		final InputStreamCloseResponse response = (InputStreamCloseResponse) responseCallback.getResponseSynchronious();
 		if (response.hasExcpetion()) {
@@ -116,14 +117,24 @@ final class ServerInputStream extends InputStream {
 
 	@Override
 	public synchronized void mark(final int readlimit) {
-		final SyncInterimResponseCallback<Object> responseCallback = new SyncInterimResponseCallback<Object>();
+		final InputStreamInterimResponseCallback<Object> responseCallback = new InputStreamInterimResponseCallback<Object>();
 		interimRequestCallback.request(responseCallback, new InputStreamMarkRequest(index, readlimit));
-		responseCallback.getResponseSynchronious();
+		try {
+			responseCallback.getResponseSynchronious();
+		}
+		catch (final IOException e) {
+			if (!(e.getCause() instanceof InterruptedException)) {
+				throw new RuntimeException(e);
+			}
+			//else {
+			//ignore, because work was interrupted 
+			//}
+		}
 	}
 
 	@Override
 	public synchronized void reset() throws IOException {
-		final SyncInterimResponseCallback<Object> responseCallback = new SyncInterimResponseCallback<Object>();
+		final InputStreamInterimResponseCallback<Object> responseCallback = new InputStreamInterimResponseCallback<Object>();
 		interimRequestCallback.request(responseCallback, new InputStreamResetRequest(index));
 		final InputStreamResetResponse response = (InputStreamResetResponse) responseCallback.getResponseSynchronious();
 		if (response.hasExcpetion()) {
@@ -133,10 +144,46 @@ final class ServerInputStream extends InputStream {
 
 	@Override
 	public boolean markSupported() {
-		final SyncInterimResponseCallback<Object> responseCallback = new SyncInterimResponseCallback<Object>();
+		final InputStreamInterimResponseCallback<Object> responseCallback = new InputStreamInterimResponseCallback<Object>();
 		interimRequestCallback.request(responseCallback, new InputStreamMarkSupportedRequest(index));
-		final InputStreamMarkSupportedResponse response = (InputStreamMarkSupportedResponse) responseCallback.getResponseSynchronious();
+		final InputStreamMarkSupportedResponse response;
+		try {
+			response = (InputStreamMarkSupportedResponse) responseCallback.getResponseSynchronious();
+		}
+		catch (final IOException e) {
+			if (e.getCause() instanceof InterruptedException) {
+				//ignore, because work was interrupted 
+				return false;
+			}
+			else {
+				throw new RuntimeException(e);
+			}
+
+		}
 		return response.isMarkSupported();
 	}
 
+	private class InputStreamInterimResponseCallback<RESPONSE_TYPE> implements IInterimResponseCallback<RESPONSE_TYPE> {
+
+		private final SyncInterimResponseCallback<RESPONSE_TYPE> original;
+
+		InputStreamInterimResponseCallback() {
+			this.original = new SyncInterimResponseCallback<RESPONSE_TYPE>();
+		}
+
+		@Override
+		public void response(final RESPONSE_TYPE response) {
+			original.response(response);
+		}
+
+		public RESPONSE_TYPE getResponseSynchronious() throws IOException {
+			try {
+				return original.getResponseSynchronious();
+			}
+			catch (final InterruptedException e) {
+				Thread.currentThread().interrupt();
+				throw new IOException(e);
+			}
+		}
+	}
 }

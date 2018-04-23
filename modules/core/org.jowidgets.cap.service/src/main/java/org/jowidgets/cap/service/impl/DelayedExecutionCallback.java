@@ -131,7 +131,7 @@ final class DelayedExecutionCallback implements IExecutionCallback {
 	}
 
 	@Override
-	public UserQuestionResult userQuestion(final String question) {
+	public UserQuestionResult userQuestion(final String question) throws InterruptedException {
 		return executionCallback.userQuestion(question);
 	}
 

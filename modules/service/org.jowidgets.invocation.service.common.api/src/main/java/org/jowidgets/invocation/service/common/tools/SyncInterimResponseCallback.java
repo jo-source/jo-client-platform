@@ -44,13 +44,8 @@ public final class SyncInterimResponseCallback<RESPONSE_TYPE> implements IInteri
 		latch.countDown();
 	}
 
-	public RESPONSE_TYPE getResponseSynchronious() {
-		try {
-			latch.await();
-		}
-		catch (final InterruptedException e) {
-			throw new RuntimeException(e);
-		}
+	public RESPONSE_TYPE getResponseSynchronious() throws InterruptedException {
+		latch.await();
 		return response;
 	}
 }
