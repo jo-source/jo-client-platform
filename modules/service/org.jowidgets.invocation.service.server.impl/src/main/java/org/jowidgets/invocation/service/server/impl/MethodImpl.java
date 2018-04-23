@@ -28,6 +28,12 @@
 
 package org.jowidgets.invocation.service.server.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
+
 import org.jowidgets.invocation.common.api.IInvocationCallbackService;
 import org.jowidgets.invocation.common.api.IMethod;
 import org.jowidgets.invocation.server.api.IInvocationServer;
@@ -36,6 +42,7 @@ import org.jowidgets.invocation.service.common.api.IInterimRequestCallback;
 import org.jowidgets.invocation.service.common.api.IInterimResponseCallback;
 import org.jowidgets.invocation.service.common.api.IInvocationCallback;
 import org.jowidgets.invocation.service.common.api.IMethodInvocationService;
+import org.jowidgets.util.Assert;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class MethodImpl implements IMethod {
@@ -60,45 +67,22 @@ public class MethodImpl implements IMethod {
 	@Override
 	public void invoke(final Object invocationId, final Object parameter) {
 
-		final IInvocationCallbackService invocationCallbackService = invocationServer.getInvocationCallbackService();
+		final InterimRequestCallback interimRequestCallback = new InterimRequestCallback(invocationId);
+		final InterimResponseCallback interimResponseCallback = new InterimResponseCallback(invocationId);
+		final MethodInvocationCallback invocationCallback = new MethodInvocationCallback(
+			invocationId,
+			interimRequestCallback,
+			interimResponseCallback);
 
 		cancelService.registerInvocation(invocationId);
-
-		final IInvocationCallback<Object> invocationCallback = new IInvocationCallback<Object>() {
-
+		cancelService.registerCancelListener(invocationId, new ICancelListener() {
 			@Override
-			public void addCancelListener(final ICancelListener cancelListener) {
-				cancelService.registerCancelListener(invocationId, cancelListener);
+			public void canceled() {
+				invocationCallback.dispose();
+				interimResponseCallback.dispose();
+				interimRequestCallback.dispose();
 			}
-
-			@Override
-			public void finished(final Object result) {
-				invocationCallbackService.finished(invocationId, result);
-				cancelService.unregisterInvocation(invocationId);
-			}
-
-			@Override
-			public void exeption(final Throwable exception) {
-				invocationCallbackService.exeption(invocationId, exception);
-				cancelService.unregisterInvocation(invocationId);
-			}
-
-		};
-
-		final IInterimResponseCallback<Object> interimResponseCallback = new IInterimResponseCallback<Object>() {
-			@Override
-			public void response(final Object progress) {
-				invocationCallbackService.interimResponse(invocationId, progress);
-			}
-		};
-
-		final IInterimRequestCallback<Object, Object> interimRequestCallback = new IInterimRequestCallback<Object, Object>() {
-			@Override
-			public void request(final IInterimResponseCallback<Object> callback, final Object question) {
-				final Object requestId = responseService.register(callback);
-				invocationCallbackService.interimRequest(invocationId, requestId, question);
-			}
-		};
+		});
 
 		try {
 			methodInvocationService.invoke(invocationCallback, interimResponseCallback, interimRequestCallback, parameter);
@@ -106,6 +90,137 @@ public class MethodImpl implements IMethod {
 		catch (final Exception e) {
 			invocationCallback.exeption(e);
 		}
+	}
+
+	private abstract class AbstractCancelableCallback {
+
+		private final AtomicBoolean disposed;
+
+		AbstractCancelableCallback() {
+			this.disposed = new AtomicBoolean(false);
+		}
+
+		final boolean isDisposed() {
+			return disposed.get();
+		}
+
+		void dispose() {
+			disposed.set(true);
+		}
+
+		IInvocationCallbackService getInvocationCallbackService() {
+			return invocationServer.getInvocationCallbackService();
+		}
+	}
+
+	private class MethodInvocationCallback extends AbstractCancelableCallback implements IInvocationCallback<Object> {
+
+		private final Object invocationId;
+		private final InterimRequestCallback interimRequestCallback;
+		private final InterimResponseCallback interimResponseCallback;
+
+		MethodInvocationCallback(
+			final Object invocationId,
+			final InterimRequestCallback interimRequestCallback,
+			final InterimResponseCallback interimResponseCallback) {
+			Assert.paramNotNull(invocationId, "invocationId");
+			Assert.paramNotNull(interimRequestCallback, "interimRequestCallback");
+			Assert.paramNotNull(interimResponseCallback, "interimResponseCallback");
+
+			this.invocationId = invocationId;
+			this.interimRequestCallback = interimRequestCallback;
+			this.interimResponseCallback = interimResponseCallback;
+		}
+
+		@Override
+		public void addCancelListener(final ICancelListener cancelListener) {
+			cancelService.registerCancelListener(invocationId, cancelListener);
+		}
+
+		@Override
+		public void finished(final Object result) {
+			if (!isDisposed()) {
+				interimRequestCallback.dispose();
+				interimResponseCallback.dispose();
+				getInvocationCallbackService().finished(invocationId, result);
+				cancelService.unregisterInvocation(invocationId);
+			}
+			//else the cancel service will unregister on first cancel by itself
+		}
+
+		@Override
+		public void exeption(final Throwable exception) {
+			if (!isDisposed()) {
+				interimRequestCallback.dispose();
+				interimResponseCallback.dispose();
+				getInvocationCallbackService().exeption(invocationId, exception);
+				cancelService.unregisterInvocation(invocationId);
+			}
+			//else 
+			// - Canceled method invoker is no longer interested in response
+			// - The cancel service will unregister on first cancel by itself
+		}
+
+	}
+
+	private class InterimResponseCallback extends AbstractCancelableCallback implements IInterimResponseCallback<Object> {
+
+		private final Object invocationId;
+
+		InterimResponseCallback(final Object invocationId) {
+			this.invocationId = invocationId;
+		}
+
+		@Override
+		public void response(final Object response) {
+			if (!isDisposed()) {
+				getInvocationCallbackService().interimResponse(invocationId, response);
+			}
+			//canceled method invoker is no longer interested in response
+		}
+
+	}
+
+	private class InterimRequestCallback extends AbstractCancelableCallback implements IInterimRequestCallback<Object, Object> {
+
+		private final Object invocationId;
+		private final List<Object> requestIds;
+
+		InterimRequestCallback(final Object invocationId) {
+			this.invocationId = invocationId;
+			this.requestIds = new CopyOnWriteArrayList<Object>();
+		}
+
+		@Override
+		public void request(final IInterimResponseCallback<Object> callback, final Object request) {
+			if (!isDisposed()) {
+				final AtomicReference<Object> requestIdRef = new AtomicReference<Object>();
+				final Object requestId = responseService.register(new IInterimResponseCallback<Object>() {
+					@Override
+					public void response(final Object response) {
+						try {
+							final Object requestIdForResponse = requestIdRef.get();
+							if (requestIdForResponse != null) {
+								requestIds.remove(requestIdForResponse);
+							}
+						}
+						finally {
+							callback.response(response);
+						}
+					}
+				});
+				getInvocationCallbackService().interimRequest(invocationId, requestId, request);
+			}
+		}
+
+		@Override
+		void dispose() {
+			super.dispose();
+			for (final Object requestId : new ArrayList<Object>(requestIds)) {
+				responseService.unregister(requestId);
+			}
+		}
+
 	}
 
 }

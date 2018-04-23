@@ -52,7 +52,7 @@ final class ResponseServiceImpl implements IResponseService {
 	@Override
 	public void response(final Object requestId, final Object response) {
 		Assert.paramNotNull(requestId, "requestId");
-		final IInterimResponseCallback<Object> responseCallback = interimResponseCallback.get(requestId);
+		final IInterimResponseCallback<Object> responseCallback = interimResponseCallback.remove(requestId);
 		if (responseCallback != null) {
 			responseCallback.response(response);
 		}
@@ -63,6 +63,10 @@ final class ResponseServiceImpl implements IResponseService {
 		interimResponseCallback.put(requestId, callback);
 		checkMapSize();
 		return requestId;
+	}
+
+	void unregister(final Object requestId) {
+		interimResponseCallback.remove(requestId);
 	}
 
 	/**

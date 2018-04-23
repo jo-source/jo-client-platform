@@ -28,7 +28,7 @@
 
 package org.jowidgets.invocation.service.server.impl;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -51,7 +51,7 @@ final class CancelServiceImpl implements ICancelService {
 	}
 
 	@Override
-	public void canceled(final Object invocationId) {
+	public synchronized void canceled(final Object invocationId) {
 		Assert.paramNotNull(invocationId, "invocationId");
 		final Set<ICancelListener> cancelListenerSet = cancelListeners.get(invocationId);
 		if (cancelListenerSet != null) {
@@ -64,7 +64,7 @@ final class CancelServiceImpl implements ICancelService {
 
 	synchronized void registerInvocation(final Object invocationId) {
 		Assert.paramNotNull(invocationId, "invocationId");
-		cancelListeners.put(invocationId, new HashSet<ICancelListener>());
+		cancelListeners.put(invocationId, new LinkedHashSet<ICancelListener>());
 		checkMapSize();
 	}
 
