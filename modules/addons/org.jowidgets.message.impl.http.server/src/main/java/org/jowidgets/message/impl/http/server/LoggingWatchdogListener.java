@@ -31,8 +31,12 @@ package org.jowidgets.message.impl.http.server;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import org.jowidgets.logging.api.IDecoratingLogger;
+import org.jowidgets.logging.api.ILogMessageDecorator;
 import org.jowidgets.logging.api.ILogger;
 import org.jowidgets.logging.api.LoggerProvider;
+import org.jowidgets.logging.api.SuppressingLogMessageDecorators;
+import org.jowidgets.logging.tools.AbstractLogMessageDecorator;
 
 /**
  * {@link IMessageExecutionWatchdogListener} implementation that logs states with info level if any execution is pending, running
@@ -42,36 +46,108 @@ import org.jowidgets.logging.api.LoggerProvider;
  */
 public final class LoggingWatchdogListener implements IMessageExecutionWatchdogListener {
 
-	private static final ILogger LOGGER = LoggerProvider.get(LoggingWatchdogListener.class);
+	private static final IDecoratingLogger LOGGER = LoggerProvider.getDecoratingLogger(LoggingWatchdogListener.class);
 
 	private static final String NOT_AVAILABLE = "n.a.";
 
-	private static final long PENDING_EXECUTIONS_WARN_THRESHOLD = 30 * 1000; // 30 seconds
-	private static final long RUNNING_EXECUTIONS_WARN_THRESHOLD = 30 * 60 * 1000; // 30 minutes
-	private static final long UNFINISHED_CANCEL_WARN_THRESHOLD = 10 * 1000; // 10 seconds
+	private static final long DEFAULT_PENDING_EXECUTIONS_WARN_THRESHOLD = 30 * 1000; // 30 seconds
+	private static final long DEFAULT_RUNNING_EXECUTIONS_WARN_THRESHOLD = 4 * 60 * 60 * 1000; // 4 hours
+	private static final long DEFAULT_UNFINISHED_CANCEL_WARN_THRESHOLD = 5 * 60 * 1000; // 5 minutes
+	private static final Long DEFAULT_SUPPRESS_PERIOD_MILLIS = Long.valueOf(1); // 1 minute
+	private static final TimeUnit DEFAULT_SUPPRESS_TIME_UNIT = TimeUnit.MINUTES; // 1 minute
+
+	private final ILogMessageDecorator pendingLogDecorator;
+	private final ILogMessageDecorator runningLogDecorator;
+	private final ILogMessageDecorator unfinishedCancelLogDecorator;
+
+	private final long pendingExecutionsWarnThreshold;
+	private final long runningExecutionsWarnThreshold;
+	private final long unfinsihedCancelWarnThreshold;
+
+	/**
+	 * Creates a new instance with default threshold
+	 */
+	public LoggingWatchdogListener() {
+		this(
+			DEFAULT_PENDING_EXECUTIONS_WARN_THRESHOLD,
+			DEFAULT_RUNNING_EXECUTIONS_WARN_THRESHOLD,
+			DEFAULT_UNFINISHED_CANCEL_WARN_THRESHOLD,
+			DEFAULT_SUPPRESS_PERIOD_MILLIS,
+			DEFAULT_SUPPRESS_TIME_UNIT);
+	}
+
+	/**
+	 * Creates a new instance with given thresholds
+	 * 
+	 * @param pendingExecutionsWarnThreshold The threshold in millis log warnings should appear for pending executions
+	 * @param runningExecutionsWarnThreshold The threshold in millis log warnings should appear for running executions
+	 * @param unfinsihedCancelWarnThreshold The threshold in millis log warnings should appear for unfinished cancel executions
+	 * @param logSuppressionMillis The log suppression period to allow log warning occur not more often than period (see
+	 *            {@link SuppressingLogMessageDecorators} or null to disable feature
+	 * @param logSuppressionTimeUnit The log suppression time unit to allow log warning occur not more often than period (see
+	 *            {@link SuppressingLogMessageDecorators} or null to disable feature
+	 */
+	public LoggingWatchdogListener(
+		final long pendingExecutionsWarnThreshold,
+		final long runningExecutionsWarnThreshold,
+		final long unfinsihedCancelWarnThreshold,
+		final Long logSuppressionMillis,
+		final TimeUnit logSuppressionTimeUnit) {
+
+		this.pendingExecutionsWarnThreshold = pendingExecutionsWarnThreshold;
+		this.runningExecutionsWarnThreshold = runningExecutionsWarnThreshold;
+		this.unfinsihedCancelWarnThreshold = unfinsihedCancelWarnThreshold;
+
+		if (logSuppressionMillis != null && logSuppressionTimeUnit != null) {
+			this.pendingLogDecorator = SuppressingLogMessageDecorators.create(
+					logSuppressionMillis.longValue(),
+					logSuppressionTimeUnit);
+
+			this.runningLogDecorator = SuppressingLogMessageDecorators.create(
+					logSuppressionMillis.longValue(),
+					logSuppressionTimeUnit);
+
+			this.unfinishedCancelLogDecorator = SuppressingLogMessageDecorators.create(
+					logSuppressionMillis.longValue(),
+					logSuppressionTimeUnit);
+		}
+		else {
+			final IdentityLogMessageDecorator identityLogMessageDecorator = new IdentityLogMessageDecorator();
+			this.pendingLogDecorator = identityLogMessageDecorator;
+			this.runningLogDecorator = identityLogMessageDecorator;
+			this.unfinishedCancelLogDecorator = identityLogMessageDecorator;
+		}
+
+	}
 
 	@Override
 	public void onExecutionsWatch(final WatchDogEvent event) {
 		final MessageExecution maxPendingExecution = event.getMaxPendingExecution(true);
 		if (maxPendingExecution != null) {
 			final long delay = event.getWatchTimeMillis() - maxPendingExecution.getCreationTimeMillis();
-			if (delay >= PENDING_EXECUTIONS_WARN_THRESHOLD) {
-				LOGGER.warn("There are pending executions since " + getDurationInProperUnit(delay) + ", " + event);
+			if (delay >= pendingExecutionsWarnThreshold) {
+				LOGGER.warn(
+						pendingLogDecorator,
+						"There are pending executions since " + getDurationInProperUnit(delay) + ", " + event + ". ");
 			}
 		}
 
 		final MessageExecution maxRuntimeExecution = event.getMaxRuntimeExecution(true);
 		if (maxRuntimeExecution != null) {
 			final long delay = event.getWatchTimeMillis() - maxRuntimeExecution.getStartTimeMillis().longValue();
-			if (delay >= RUNNING_EXECUTIONS_WARN_THRESHOLD) {
-				LOGGER.warn("There are running executions since " + getDurationInProperUnit(delay) + ", " + event);
+			if (delay >= runningExecutionsWarnThreshold) {
+				LOGGER.warn(
+						runningLogDecorator,
+						"There are running executions since " + getDurationInProperUnit(delay) + ", " + event + ". ");
 			}
 		}
 
 		final List<MessageExecution> unfinishedCancelExecutions = event.getUnfinishedCancelExecutions(
-				UNFINISHED_CANCEL_WARN_THRESHOLD);
+				unfinsihedCancelWarnThreshold);
 		if (unfinishedCancelExecutions.size() > 0) {
-			LOGGER.warn("There are " + unfinishedCancelExecutions.size() + " unfinished cancel executions");
+			LOGGER.warn(
+					unfinishedCancelLogDecorator,
+					"There are " + unfinishedCancelExecutions.size() + " unfinished cancel executions" + ", " + event + ". ");
 		}
 
 		if (event.getPendingExecutions().size() > 0
@@ -145,6 +221,35 @@ public final class LoggingWatchdogListener implements IMessageExecutionWatchdogL
 		else {
 			return duration + " millis";
 		}
+	}
+
+	private static class IdentityLogMessageDecorator extends AbstractLogMessageDecorator {
+
+		@Override
+		public void error(final String message, final Throwable throwable, final ILogger original) {
+			original.error(message, throwable);
+		}
+
+		@Override
+		public void warn(final String message, final Throwable throwable, final ILogger original) {
+			original.warn(message, throwable);
+		}
+
+		@Override
+		public void info(final String message, final Throwable throwable, final ILogger original) {
+			original.info(message, throwable);
+		}
+
+		@Override
+		public void debug(final String message, final Throwable throwable, final ILogger original) {
+			original.debug(message, throwable);
+		}
+
+		@Override
+		public void trace(final String message, final Throwable throwable, final ILogger original) {
+			original.trace(message, throwable);
+		}
+
 	}
 
 }

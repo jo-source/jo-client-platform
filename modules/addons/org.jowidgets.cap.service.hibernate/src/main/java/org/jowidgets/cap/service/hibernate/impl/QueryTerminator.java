@@ -176,7 +176,7 @@ final class QueryTerminator {
 		firstTerminationAttempt.compareAndSet(null, Long.valueOf(systemTimeProvider.currentTimeMillis()));
 		try {
 			if (session.isOpen() && queryFinishedLatch.getCount() > 0) {
-				logWarningIfMoreThanOneAttempt();
+				logInfoIfMoreThanOneAttempt();
 				terminateOpenSession();
 			}
 		}
@@ -256,9 +256,9 @@ final class QueryTerminator {
 		return (getDurationSinceFirstAttempt()) > killAfterMillis.longValue();
 	}
 
-	private void logWarningIfMoreThanOneAttempt() {
+	private void logInfoIfMoreThanOneAttempt() {
 		if (terminationAttempts.getAndIncrement() >= 1) {
-			LOGGER.warn(
+			LOGGER.info(
 					"Query is still running for session with client identifier '"
 						+ clientIdentifier
 						+ "' after '"
