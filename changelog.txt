@@ -342,8 +342,22 @@ Bugfixes:
 ----------------------------------------------------------------------------------------------------------------------------
 
 
+0.74.0 
+
+Remark: This version does not provide osgi bundles!!!
+
+
+Uses jowidgets 0.76.0
+
+
+Features:
+
+* Implements issue #86 https://github.com/jo-source/jo-client-platform/issues/86 Improve logging for http messaging and remoting -> Make LoggingWatchListener configurable and changed defaults
 
 
 
+Bugfixes:
 
-
+* Fixes issue #84  https://github.com/jo-source/jo-client-platform/issues/84 Potential memory leaks for service invocations - Avoid memory leak for ResponseServiceImpl and CancelServiceImpl
+* Fixes issue #75  https://github.com/jo-source/jo-client-platform/issues/75 No cancel possible if all messaging threads are busy -> Improved handling of interrupted exception, Count must not always be canceled after read
+* Fixes issue #88  https://github.com/jo-source/jo-client-platform/issues/88 Exception decoration not always works as expected
