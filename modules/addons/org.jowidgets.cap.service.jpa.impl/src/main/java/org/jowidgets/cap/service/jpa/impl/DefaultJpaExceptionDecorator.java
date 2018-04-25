@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2012, grossmann
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  * * Redistributions of source code must retain the above copyright
@@ -12,7 +12,7 @@
  * * Neither the name of the jo-widgets.org nor the
  *   names of its contributors may be used to endorse or promote products
  *   derived from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -51,7 +51,10 @@ final class DefaultJpaExceptionDecorator implements IDecorator<Throwable> {
 
 	@Override
 	public Throwable decorate(final Throwable exception) {
+		return decorate(exception, exception);
+	}
 
+	private Throwable decorate(final Throwable exception, final Throwable rootException) {
 		if (exception instanceof ServiceException) {
 			return exception;
 		}
@@ -65,23 +68,26 @@ final class DefaultJpaExceptionDecorator implements IDecorator<Throwable> {
 		else if (exception instanceof ConstraintViolationException) {
 			final ConstraintViolationException constraintViolationException = (ConstraintViolationException) exception;
 			final Set<ConstraintViolation<?>> constraintViolations = constraintViolationException.getConstraintViolations();
-			if (EmptyCheck.isEmpty(constraintViolations)) {
+			if (!EmptyCheck.isEmpty(constraintViolations)) {
 				final ConstraintViolation<?> violation = constraintViolations.iterator().next();
-				return new ExecutableCheckException(violation.getRootBean());
+				return new ExecutableCheckException(getBeanId(violation.getRootBean()));
 			}
 		}
 		else if (exception instanceof QueryTimeoutException) {
-			return new ServiceTimeoutException(exception);
+			return new ServiceTimeoutException(rootException);
 		}
 		else if (exception instanceof InterruptedException) {
-			return new ServiceInterruptedException(exception);
+			return new ServiceInterruptedException(rootException);
 		}
-		else if (exception instanceof InvocationTargetException) {
-			return decorate(((InvocationTargetException) exception).getTargetException());
+		else if (exception instanceof InvocationTargetException
+			&& ((InvocationTargetException) exception).getTargetException() != null) {
+			return decorate(((InvocationTargetException) exception).getTargetException(), rootException);
 		}
-		//TODO MG handle more jpa exceptions 
-
-		return new ServiceException("Exception on jpa service execution", exception);
+		else if (exception.getCause() != null) {
+			return decorate(exception.getCause(), rootException);
+		}
+		// TODO MG handle more jpa exceptions
+		return new ServiceException("Exception on jpa service execution", rootException);
 	}
 
 	private Object getBeanId(final Object bean) {

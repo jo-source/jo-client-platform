@@ -28,16 +28,21 @@
 
 package org.jowidgets.cap.service.hibernate.impl;
 
+import java.lang.reflect.InvocationTargetException;
 import java.sql.SQLException;
 
-import javax.persistence.EntityNotFoundException;
 import javax.persistence.OptimisticLockException;
-import javax.persistence.PersistenceException;
-import javax.persistence.QueryTimeoutException;
 
 import org.hibernate.JDBCException;
+import org.hibernate.PessimisticLockException;
+import org.hibernate.QueryTimeoutException;
 import org.hibernate.StaleObjectStateException;
+import org.hibernate.UnresolvableObjectException;
 import org.hibernate.exception.ConstraintViolationException;
+import org.hibernate.exception.DataException;
+import org.hibernate.exception.LockAcquisitionException;
+import org.hibernate.exception.SQLGrammarException;
+import org.jowidgets.cap.common.api.exception.DeletedBeanException;
 import org.jowidgets.cap.common.api.exception.ExecutableCheckException;
 import org.jowidgets.cap.common.api.exception.ServiceException;
 import org.jowidgets.cap.common.api.exception.ServiceUnavailableException;
@@ -49,61 +54,66 @@ public class HibernateExceptionDecoratorImpl implements IDecorator<Throwable> {
 
 	@Override
 	public Throwable decorate(final Throwable original) {
-		if (original instanceof PersistenceException) {
-			final PersistenceException persistenceException = (PersistenceException) original;
-			final Throwable cause = persistenceException.getCause();
+		return decorate(original, original);
+	}
 
-			if (useDefaultDecoration(persistenceException)) {
-				return original;
+	private Throwable decorate(final Throwable exception, final Throwable rootException) {
+		if (exception instanceof ConstraintViolationException) {
+			final ConstraintViolationException constViolationException = (ConstraintViolationException) exception;
+			final String message = constViolationException.getMessage();
+			final String constraintName = constViolationException.getConstraintName();
+			final String userBaseMessage = Messages.getString("HibernateExceptionDecoratorImpl.database_constraint_violated");
+			final String userMessage;
+			if (!EmptyCheck.isEmpty(constraintName)) {
+				userMessage = userBaseMessage.replace("%1", "'" + constraintName + "'");
 			}
-			else if (original instanceof OptimisticLockException) {
-				if (cause instanceof StaleObjectStateException) {
-					return getStaleBeanException((StaleObjectStateException) cause);
-				}
-			}
-			else if (cause instanceof ConstraintViolationException) {
-				final ConstraintViolationException constViolationException = (ConstraintViolationException) cause;
-				final String message = constViolationException.getMessage();
-				final String constraintName = constViolationException.getConstraintName();
-				final String userBaseMessage = Messages.getString("HibernateExceptionDecoratorImpl.database_constraint_violated");
-				final String userMessage;
-				if (!EmptyCheck.isEmpty(constraintName)) {
-					userMessage = userBaseMessage.replace("%1", "'" + constraintName + "'");
-				}
-				else {
-					final SQLException sqlException = constViolationException.getSQLException();
-					if (sqlException != null) {
-						if (!EmptyCheck.isEmpty(sqlException.getLocalizedMessage())) {
-							userMessage = sqlException.getLocalizedMessage();
-						}
-						else if (!EmptyCheck.isEmpty(sqlException.getMessage())) {
-							userMessage = sqlException.getMessage();
-						}
-						else {
-							userMessage = userBaseMessage.replace("%1", "");
-						}
+			else {
+				final SQLException sqlException = constViolationException.getSQLException();
+				if (sqlException != null) {
+					if (!EmptyCheck.isEmpty(sqlException.getLocalizedMessage())) {
+						userMessage = sqlException.getLocalizedMessage();
+					}
+					else if (!EmptyCheck.isEmpty(sqlException.getMessage())) {
+						userMessage = sqlException.getMessage();
 					}
 					else {
 						userMessage = userBaseMessage.replace("%1", "");
 					}
-
 				}
-				return new ExecutableCheckException(null, message, userMessage);
+				else {
+					userMessage = userBaseMessage.replace("%1", "");
+				}
+
 			}
-			else if (cause instanceof JDBCException) {
-				return decorateJDBCException((JDBCException) cause);
-			}
-			//TODO MG handle more hibernate exceptions 
+			return new ExecutableCheckException(null, message, userMessage);
 		}
-		else if (original instanceof JDBCException) {
-			return decorateJDBCException((JDBCException) original);
+		else if (exception instanceof OptimisticLockException && exception.getCause() instanceof StaleObjectStateException) {
+			return getStaleBeanException((StaleObjectStateException) exception);
+		}
+		else if (exception instanceof UnresolvableObjectException) {
+			return getDeletedBeanException((UnresolvableObjectException) exception);
+		}
+		else if (exception instanceof JDBCException && !excludeJDBCExceptionDecoration((JDBCException) exception)) {
+			return decorateJDBCException((JDBCException) exception);
+		}
+		else if (exception instanceof InvocationTargetException
+			&& ((InvocationTargetException) exception).getTargetException() != null) {
+			return decorate(((InvocationTargetException) exception).getTargetException(), rootException);
+		}
+		else if (exception.getCause() != null) {
+			return decorate(exception.getCause(), rootException);
 		}
 
-		return original;
+		return rootException;
 	}
 
-	private boolean useDefaultDecoration(final PersistenceException exception) {
-		return exception instanceof EntityNotFoundException || exception instanceof QueryTimeoutException;
+	private boolean excludeJDBCExceptionDecoration(final JDBCException exception) {
+		return exception instanceof ConstraintViolationException
+			|| exception instanceof DataException
+			|| exception instanceof LockAcquisitionException
+			|| exception instanceof PessimisticLockException
+			|| exception instanceof QueryTimeoutException
+			|| exception instanceof SQLGrammarException;
 	}
 
 	private Throwable decorateJDBCException(final JDBCException jdbcException) {
@@ -151,6 +161,10 @@ public class HibernateExceptionDecoratorImpl implements IDecorator<Throwable> {
 
 	private StaleBeanException getStaleBeanException(final StaleObjectStateException exception) {
 		return new StaleBeanException(exception.getIdentifier(), exception);
+	}
+
+	private DeletedBeanException getDeletedBeanException(final UnresolvableObjectException exception) {
+		return new DeletedBeanException(exception.getIdentifier());
 	}
 
 }

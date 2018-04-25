@@ -29,6 +29,7 @@
 package org.jowidgets.cap.service.hibernate.oracle.impl;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.HashMap;
@@ -38,7 +39,6 @@ import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.EntityManager;
-import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 import javax.persistence.Table;
 import javax.persistence.metamodel.EntityType;
@@ -64,46 +64,47 @@ final class HibernateOracleExceptionDecoratorImpl implements IDecorator<Throwabl
 
 	@Override
 	public Throwable decorate(final Throwable original) {
+		return decorate(original, original);
+	}
 
-		if (original instanceof PersistenceException) {
-			final PersistenceException persistenceException = (PersistenceException) original;
-			final Throwable cause = persistenceException.getCause();
-
-			if (cause instanceof ConstraintViolationException) {
-				final String constraintName = getConstraintName((ConstraintViolationException) cause);
-				if (!EmptyCheck.isEmpty(constraintName)) {
-					final ConstraintType constraintType = getConstraintType(constraintName);
-					if (constraintType == ConstraintType.FK) {
-						return new ForeignKeyConstraintViolationException();
-					}
-					else if (constraintType != ConstraintType.UNSUPPORTED) {
-						final List<String> properties = getViolatedProperties(constraintName, constraintType);
-						if (!EmptyCheck.isEmpty(properties)) {
-							return new UniqueConstraintViolationException(properties);
-						}
+	private Throwable decorate(final Throwable exception, final Throwable rootException) {
+		if (exception instanceof ConstraintViolationException) {
+			final String constraintName = getConstraintName((ConstraintViolationException) exception);
+			if (!EmptyCheck.isEmpty(constraintName)) {
+				final ConstraintType constraintType = getConstraintType(constraintName);
+				if (constraintType == ConstraintType.FK) {
+					return new ForeignKeyConstraintViolationException();
+				}
+				else if (constraintType != ConstraintType.UNSUPPORTED) {
+					final List<String> properties = getViolatedProperties(constraintName, constraintType);
+					if (!EmptyCheck.isEmpty(properties)) {
+						return new UniqueConstraintViolationException(properties);
 					}
 				}
 			}
-			else if (cause instanceof JDBCException) {
-				return decorateJDBCException(original, (JDBCException) cause);
-			}
 		}
-		else if (original instanceof JDBCException) {
-			return decorateJDBCException(original, (JDBCException) original);
+		else if (exception instanceof JDBCException) {
+			return decorateJDBCException((JDBCException) exception, rootException);
+		}
+		else if (exception instanceof InvocationTargetException
+			&& ((InvocationTargetException) exception).getTargetException() != null) {
+			return decorate(((InvocationTargetException) exception).getTargetException(), rootException);
+		}
+		else if (exception.getCause() != null) {
+			return decorate(exception.getCause(), rootException);
 		}
 
-		return original;
+		return rootException;
 	}
 
-	private Throwable decorateJDBCException(final Throwable parent, final JDBCException jdbcException) {
+	private Throwable decorateJDBCException(final JDBCException jdbcException, final Throwable rootException) {
 		final SQLException sqlException = jdbcException.getSQLException();
-
 		final String userMessage = getUserMessage(sqlException.getErrorCode());
 		if (userMessage != null) {
-			return new ServiceException(sqlException.getMessage(), userMessage, sqlException);
+			return new ServiceException(sqlException.getMessage(), userMessage, rootException);
 		}
 		else {
-			return parent;
+			return rootException;
 		}
 	}
 
