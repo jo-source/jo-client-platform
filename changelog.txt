@@ -361,3 +361,23 @@ Bugfixes:
 * Fixes issue #84  https://github.com/jo-source/jo-client-platform/issues/84 Potential memory leaks for service invocations - Avoid memory leak for ResponseServiceImpl and CancelServiceImpl
 * Fixes issue #75  https://github.com/jo-source/jo-client-platform/issues/75 No cancel possible if all messaging threads are busy -> Improved handling of interrupted exception, Count must not always be canceled after read
 * Fixes issue #88  https://github.com/jo-source/jo-client-platform/issues/88 Exception decoration not always works as expected
+
+----------------------------------------------------------------------------------------------------------------------------
+
+
+0.75.0 
+
+Remark: This version does not provide osgi bundles!!!
+
+
+Uses jowidgets 0.77.0
+
+
+Features:
+
+
+
+Bugfixes:
+
+* Fixes issue #83 https://github.com/jo-source/jo-client-platform/issues/83 Http messaging impl should support multi user locales on server - changed loglevel
+* Fixes issue #87 https://github.com/jo-source/jo-client-platform/issues/87 Allow managing MessageServlet via JMX - Available thread count must consider unfinished cancel count
