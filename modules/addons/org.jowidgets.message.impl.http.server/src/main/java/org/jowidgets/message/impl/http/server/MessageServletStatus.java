@@ -68,7 +68,7 @@ public final class MessageServletStatus implements IMessageServletStatusMXBean {
 
 	@Override
 	public int getAvailableThreadCount() {
-		return threadCount - runningExecutionsCount;
+		return threadCount - (runningExecutionsCount + unfinishedCancelExecutionsCount);
 	}
 
 	@Override
