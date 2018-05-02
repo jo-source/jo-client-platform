@@ -93,7 +93,7 @@ public final class UserLocaleFilter implements Filter {
 			}
 		}
 		else {
-			LOGGER.warn(ACCEPT_LANGUAGE_KEY + " is not set in request header, user locale will not be set");
+			LOGGER.debug(ACCEPT_LANGUAGE_KEY + " is not set in request header, user locale will not be set");
 		}
 	}
 
