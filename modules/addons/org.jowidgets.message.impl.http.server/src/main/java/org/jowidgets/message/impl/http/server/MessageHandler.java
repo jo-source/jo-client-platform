@@ -155,7 +155,7 @@ final class MessageHandler implements Runnable {
 		if (isRunning()) {
 			return Long.valueOf(systemTimeProvider.currentTimeMillis() - started.get().longValue());
 		}
-		else if (isTerminated()) {
+		else if (isStarted() && isTerminated()) {
 			return Long.valueOf(terminated.get().longValue() - started.get().longValue());
 		}
 		else {

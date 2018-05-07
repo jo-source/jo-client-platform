@@ -184,11 +184,29 @@ final class CancelableInvoker {
 			queryStartedLatch.countDown();
 			return method.invoke(original, args);
 		}
-		catch (final Exception e) {
+		catch (final Throwable e) {
+			if (hasInterruptedExceptionCause(e) && !Thread.currentThread().isInterrupted()) {
+				//There is a bug in c3po connection pool that not handles thread interruption correctly
+				//and makes this necessary. Interrupted state will be reset later in decorated result callback!
+				Thread.currentThread().interrupt();
+			}
 			decoratedResultCallback.exception(e);
 			return null;
 		}
 
+	}
+
+	private boolean hasInterruptedExceptionCause(final Throwable e) {
+		if (e instanceof InterruptedException) {
+			return true;
+		}
+		final Throwable cause = e.getCause();
+		if (cause != null) {
+			return hasInterruptedExceptionCause(cause);
+		}
+		else {
+			return false;
+		}
 	}
 
 	private void setClientIdentifierOnConnection(final Connection connection, final String clientIndetifier) {

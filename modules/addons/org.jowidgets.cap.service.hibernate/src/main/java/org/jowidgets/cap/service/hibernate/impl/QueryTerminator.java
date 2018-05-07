@@ -47,6 +47,8 @@ import org.jowidgets.logging.api.LoggerProvider;
 import org.jowidgets.util.Assert;
 import org.jowidgets.util.DefaultSystemTimeProvider;
 import org.jowidgets.util.ISystemTimeProvider;
+import org.jowidgets.util.maybe.IMaybe;
+import org.jowidgets.util.maybe.Some;
 
 /**
  * This class was designed to cancel a query of a hibernate session.
@@ -83,6 +85,8 @@ final class QueryTerminator {
 	private final AtomicInteger killInvocationsWithoutError;
 
 	private final IKillSessionSupport killSessionSupport;
+
+	private IMaybe<Connection> connection;
 
 	QueryTerminator(
 		final EntityManagerFactory entityManagerFactory,
@@ -147,10 +151,16 @@ final class QueryTerminator {
 	/**
 	 * Get's the underlying {@link Connection} of the session that runs the query to terminate.
 	 * 
-	 * @return The connection
+	 * @return The connection or null if no connection is available for the session
 	 */
-	Connection getConnection() {
-		return getConnection(session);
+	synchronized Connection getConnection() {
+		if (connection == null) {
+			connection = new Some<Connection>(getConnectionOfSession(session));
+		}
+		//This may be null, e.g. if the thread was interrupted on first attempt.
+		//In this case it's not reasonable to try to get a connection again, e.g. to rollback, because
+		//there is nothing to rollback
+		return connection.getValue();
 	}
 
 	/**
@@ -198,10 +208,10 @@ final class QueryTerminator {
 				//another session.
 				//To avoid this, the connection will be rolled back. This only
 				//works if the release mode (hibernate.connection.release_mode) is set to 'on_close'
-				final Connection connection = getConnection(session);
-				if (connection != null && !connection.isClosed()) {
+				final Connection connectionOfSession = getConnection();
+				if (connectionOfSession != null && !connectionOfSession.isClosed()) {
 					LOGGER.debug("Try to rollback connection");
-					connection.rollback();
+					connectionOfSession.rollback();
 				}
 			}
 		}
@@ -290,13 +300,13 @@ final class QueryTerminator {
 	private boolean killSession() {
 		LOGGER.warn("Try to kill session with client identifier: '" + clientIdentifier + "'.");
 
-		EntityManager entityManager = null;
-		Connection connection = null;
+		EntityManager entityManagerOfThread = null;
+		Connection connectionOfThread = null;
 		Statement statement = null;
 		try {
-			entityManager = entityManagerFactory.createEntityManager();
-			connection = getConnection(entityManager.unwrap(Session.class));
-			statement = connection.createStatement();
+			entityManagerOfThread = entityManagerFactory.createEntityManager();
+			connectionOfThread = getConnectionOfSession(entityManagerOfThread.unwrap(Session.class));
+			statement = connectionOfThread.createStatement();
 			return killSessionSupport.killSession(clientIdentifier, statement);
 		}
 		catch (final Exception e) {
@@ -305,8 +315,8 @@ final class QueryTerminator {
 		}
 		finally {
 			tryCloseStatement(statement);
-			tryCloseConnection(connection);
-			tryCloseEntityManager(entityManager);
+			tryCloseConnection(connectionOfThread);
+			tryCloseEntityManager(entityManagerOfThread);
 		}
 	}
 
@@ -352,7 +362,7 @@ final class QueryTerminator {
 		}
 	}
 
-	private static Connection getConnection(final Session session) {
+	private static Connection getConnectionOfSession(final Session session) {
 		final AtomicReference<Connection> result = new AtomicReference<Connection>();
 		session.doWork(new Work() {
 			@Override
