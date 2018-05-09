@@ -400,3 +400,22 @@ Features:
 Bugfixes:
 
 * Fixes issue #75  https://github.com/jo-source/jo-client-platform/issues/75 No cancel possible if all messaging threads are busy -> Workaround for incorrect handling of interrupted exception in c3p0
+
+----------------------------------------------------------------------------------------------------------------------------
+
+
+0.77.0 
+
+Remark: This version does not provide osgi bundles!!!
+
+
+Uses jowidgets 0.77.0
+
+
+Features:
+
+
+
+Bugfixes:
+
+* Fixes issue #75  https://github.com/jo-source/jo-client-platform/issues/75 No cancel possible if all messaging threads are busy -> Allow to unwrap C3P0WithQueryTimeoutConnectionProvider

@@ -34,6 +34,7 @@ import java.lang.reflect.Proxy;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Wrapper;
 import java.util.Properties;
 
 import org.hibernate.HibernateException;
@@ -46,13 +47,17 @@ import org.jowidgets.util.EmptyCheck;
 
 import com.mchange.v2.c3p0.C3P0ProxyConnection;
 
-public final class C3P0WithQueryTimeoutConnectionProvider implements ConnectionProvider {
+/**
+ * This class wraps a {@link C3P0ConnectionProvider} and set a query timeout for all created statements.
+ * The timeout can be configured with the {@link #configure(Properties)} method.
+ */
+public final class C3P0WithQueryTimeoutConnectionProvider implements ConnectionProvider, Wrapper {
 
 	public static final String QUERY_TIMEOUT_PARAMETER_NAME = "org.jowidgets.cap.service.hibernate.tools.C3P0WithQueryTimeoutConnectionProvider.query_timeout";
 
 	private static final ILogger LOGGER = LoggerProvider.get(C3P0WithQueryTimeoutConnectionProvider.class);
 
-	private final ConnectionProvider original;
+	private final C3P0ConnectionProvider original;
 
 	private Integer queryTimeout;
 
@@ -104,6 +109,29 @@ public final class C3P0WithQueryTimeoutConnectionProvider implements ConnectionP
 	@Override
 	public boolean supportsAggressiveRelease() {
 		return original.supportsAggressiveRelease();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public <T> T unwrap(final Class<T> clazz) throws SQLException {
+		if (isWrapperFor(clazz)) {
+			return (T) original;
+		}
+		else {
+			throw new SQLException("This class is no wrapper for " + clazz);
+		}
+	}
+
+	@Override
+	public boolean isWrapperFor(final Class<?> clazz) throws SQLException {
+		return clazz != null && clazz.isAssignableFrom(original.getClass());
+	}
+
+	/**
+	 * @return The configured timeout in seconds
+	 */
+	public Integer getQueryTimeout() {
+		return queryTimeout;
 	}
 
 	private final class ConnectionProxyInvocationHandler implements InvocationHandler {
