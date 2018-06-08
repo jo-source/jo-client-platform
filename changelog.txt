@@ -419,3 +419,21 @@ Features:
 Bugfixes:
 
 * Fixes issue #75  https://github.com/jo-source/jo-client-platform/issues/75 No cancel possible if all messaging threads are busy -> Allow to unwrap C3P0WithQueryTimeoutConnectionProvider
+
+----------------------------------------------------------------------------------------------------------------------------
+
+
+0.78.0 
+
+
+Uses jowidgets 0.78.0
+
+
+Features:
+
+
+
+Bugfixes:
+
+* Fixes issue #89  https://github.com/jo-source/jo-client-platform/issues/89 Release must be java 6 compatible
+* Fixes issue #90  https://github.com/jo-source/jo-client-platform/issues/90 Release must support osgi bundles

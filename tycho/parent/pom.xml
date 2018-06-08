@@ -3,12 +3,10 @@
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>org.jowidgets.cap.tycho.parent</artifactId>
 	<packaging>pom</packaging>
-	<version>0.71.0-SNAPSHOT</version>
-
 	<parent>
 		<groupId>org.jowidgets</groupId>
 		<artifactId>org.jowidgets.cap.parent</artifactId>
-		<version>0.71.0-SNAPSHOT</version>
+		<version>0.78.0-SNAPSHOT</version>
 		<relativePath>../../pom.xml</relativePath>
 	</parent>
 	
@@ -475,6 +473,11 @@
 			<groupId>javax.validation</groupId>
 			<artifactId>com.springsource.javax.validation</artifactId>
 			<version>1.0.0.GA</version>
+		</dependency>
+		<dependency>
+			<groupId>com.mchange.c3p0</groupId>
+			<artifactId>com.springsource.com.mchange.v2.c3p0</artifactId>
+			<version>0.9.1.2</version>
 		</dependency>
 		<dependency>
 			<groupId>org.prefuse</groupId>
