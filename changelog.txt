@@ -437,3 +437,22 @@ Bugfixes:
 
 * Fixes issue #89  https://github.com/jo-source/jo-client-platform/issues/89 Release must be java 6 compatible
 * Fixes issue #90  https://github.com/jo-source/jo-client-platform/issues/90 Release must support osgi bundles
+
+----------------------------------------------------------------------------------------------------------------------------
+
+
+0.79.0 
+
+
+Uses jowidgets 0.78.0
+
+
+Features:
+
+
+
+Bugfixes:
+
+* Fixes issue #91  https://github.com/jo-source/jo-client-platform/issues/91 BeanListModelObservable does not gurantee listener order
+* Fixes issue #92  https://github.com/jo-source/jo-client-platform/issues/92 BeanRelationTreeModelImpl does not implement IDataSaveObservable correctly
+

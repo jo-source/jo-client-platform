@@ -36,7 +36,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import org.jowidgets.api.toolkit.Toolkit;
 import org.jowidgets.cap.ui.api.bean.IBeanProxy;
 import org.jowidgets.cap.ui.api.bean.IBeanProxyContext;
 import org.jowidgets.cap.ui.api.bean.IBeanSelection;
@@ -60,8 +62,12 @@ import org.jowidgets.cap.ui.api.types.IEntityTypeId;
 import org.jowidgets.cap.ui.tools.bean.BeanSelectionEventImpl;
 import org.jowidgets.cap.ui.tools.bean.BeanSelectionImpl;
 import org.jowidgets.cap.ui.tools.bean.BeanSelectionObservable;
+import org.jowidgets.cap.ui.tools.model.DataSaveListenerAdapter;
+import org.jowidgets.cap.ui.tools.model.DataSaveObservable;
 import org.jowidgets.cap.ui.tools.model.ModificationStateObservable;
 import org.jowidgets.cap.ui.tools.model.ProcessStateObservable;
+import org.jowidgets.logging.api.ILogger;
+import org.jowidgets.logging.api.LoggerProvider;
 import org.jowidgets.tools.validation.ValidationCache;
 import org.jowidgets.tools.validation.ValidationCache.IValidationResultCreator;
 import org.jowidgets.util.Assert;
@@ -73,8 +79,10 @@ import org.jowidgets.validation.IValidationResultBuilder;
 import org.jowidgets.validation.ValidationResult;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
-public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE>
+public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE> extends DataSaveObservable
 		implements IBeanRelationTreeModel<CHILD_BEAN_TYPE>, IValidationResultCreator {
+
+	private static final ILogger LOGGER = LoggerProvider.get(BeanRelationTreeModelImpl.class);
 
 	private static final IBeanSelection<Object> EMPTY_BEAN_SELECTION = new BeanSelectionImpl<Object>();
 	private static final IBeanRelationTreeSelection EMPTY_TREE_SELECTION = new BeanRelationTreeSelectionImpl();
@@ -92,9 +100,11 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE>
 	private final ProcessStateObservable processStateObservable;
 	private final IProcessStateListener processStateListener;
 	private final BeanSelectionListener beanSelectionListener;
+	private final IDataSaveListener dataSaveListener;
 	private final Map relationNodes;
 	private final Set<IDataModel> externalDataModels;
 	private final IDataModelContext dataModelContext;
+	private final AtomicInteger unsavedModelCount;
 
 	private IBeanSelection<Object> selection;
 	private IBeanRelationTreeSelection treeSelection;
@@ -141,6 +151,10 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE>
 
 		this.processStateObservable = new ProcessStateObservable();
 		this.processStateListener = new ProcessStateListener();
+
+		this.dataSaveListener = new DataSaveListener();
+
+		this.unsavedModelCount = new AtomicInteger(0);
 
 		registerListeners(root);
 
@@ -191,6 +205,7 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE>
 	}
 
 	private void registerListeners(final IBeanRelationNodeModel<?, ?> nodeModel) {
+		nodeModel.addDataSaveListener(dataSaveListener);
 		nodeModel.addBeanSelectionListener(beanSelectionListener);
 		nodeModel.addModificationStateListener(modificationStateListener);
 		nodeModel.addProcessStateListener(processStateListener);
@@ -233,30 +248,63 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE>
 
 	@Override
 	public void save() {
+		if (!Toolkit.getUiThreadAccess().isUiThread()) {
+			LOGGER.warn(
+					"Save should be invoked in UI thread but was invoked from another thread. "
+						+ "Execution will be done in UI thread later!. Invoke in UI thread explizitely to avoid this warning.");
+			Toolkit.getUiThreadAccess().invokeLater(new Runnable() {
+				@Override
+				public void run() {
+					saveImpl();
+				}
+			});
+		}
+		else {
+			saveImpl();
+		}
+	}
+
+	private void saveImpl() {
+		final List<IDataModel> modelsToSave = getModelsToSave();
+		if (unsavedModelCount.get() > 0) {
+			LOGGER.warn(
+					"Save was invoked again before the last save ivocation has been completed! This may lead to inconsistent 'afterDataSaved' events");
+		}
+		unsavedModelCount.set(modelsToSave.size());
+		if (modelsToSave.size() <= 0) {
+			return;
+		}
+
+		fireBeforeDataSave();
+		for (final IDataModel modelToSave : modelsToSave) {
+			if (modelToSave.hasModifications()) {
+				modelToSave.save();
+			}
+			else {
+				if (unsavedModelCount.decrementAndGet() == 0) {
+					fireAfterDataSaved();
+				}
+			}
+		}
+	}
+
+	private List<IDataModel> getModelsToSave() {
+		final List<IDataModel> result = new LinkedList<IDataModel>();
 		if (root.hasModifications()) {
-			root.save();
+			result.add(root);
 		}
 		for (final Object relationModelObject : relationNodes.values()) {
 			final IBeanRelationNodeModel<?, ?> relationModel = (IBeanRelationNodeModel<?, ?>) relationModelObject;
 			if (relationModel.hasModifications()) {
-				relationModel.save();
+				result.add(relationModel);
 			}
 		}
 		for (final IDataModel dataModel : externalDataModels) {
 			if (dataModel.hasModifications()) {
-				dataModel.save();
+				result.add(dataModel);
 			}
 		}
-	}
-
-	@Override
-	public void addDataSaveListener(final IDataSaveListener dataSaveListener) {
-		root.addDataSaveListener(dataSaveListener);
-	}
-
-	@Override
-	public void removeDataSaveListener(final IDataSaveListener dataSaveListener) {
-		root.removeDataSaveListener(dataSaveListener);
+		return result;
 	}
 
 	@Override
@@ -525,6 +573,17 @@ public class BeanRelationTreeModelImpl<CHILD_BEAN_TYPE>
 		public void validationConditionsChanged() {
 			validationCache.setDirty();
 		}
+	}
+
+	private final class DataSaveListener extends DataSaveListenerAdapter {
+
+		@Override
+		public void afterDataSaved() {
+			if (unsavedModelCount.decrementAndGet() == 0) {
+				fireAfterDataSaved();
+			}
+		}
+
 	}
 
 }
